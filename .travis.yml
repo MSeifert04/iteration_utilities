@@ -1,0 +1,22 @@
+language: python
+
+os:
+  - linux
+
+python:
+  - "2.7"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+  - "nightly"
+
+install:
+  - pip install coveralls
+  - python setup.py install
+
+# command to run tests
+script:
+  - coverage run --source=iteration_utilities setup.py test
+
+after_success:
+  coveralls
