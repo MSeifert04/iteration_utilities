@@ -2,16 +2,18 @@ from setuptools import setup
 
 
 setup(name='iteration_utilities',
-      version='0.0.1',
+      version='0.0.2',
 
       description='some utilities for iterations.',
-      long_description=('Itertools recipes from the python package and '
+      long_description=('Itertools recipes from the python package docs and '
                         'additional optimized utilities for iterations.'),
-      keywords='itertools performance',
+      keywords='itertools performance iteration',
 
       classifiers=[
         'Development Status :: 3 - Alpha',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
       ],
 
