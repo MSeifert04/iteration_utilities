@@ -1,40 +1,7 @@
 """
 Official recipes
 ^^^^^^^^^^^^^^^^
-Recipes simply taken from the itertools recipes page [0]_.
-
-- :py:func:`all_equal`
-- :py:func:`consume`
-- :py:func:`dotproduct`
-- :py:func:`first_true`
-- :py:func:`flatten`
-- :py:func:`grouper`
-- :py:func:`iter_except`
-- :py:func:`ncycles`
-- :py:func:`nth`
-- :py:func:`padnone`
-- :py:func:`pairwise`
-- :py:func:`partition`
-- :py:func:`powerset`
-- :py:func:`quantify`
-- :py:func:`random_combination`
-- :py:func:`random_combination_with_replacement`
-- :py:func:`random_product`
-- :py:func:`random_permutation`
-- :py:func:`repeatfunc`
-- :py:func:`roundrobin`
-- :py:func:`tabulate`
-- :py:func:`take`
-- :py:func:`tail`
-- :py:func:`tee_lookahead`
-- :py:func:`unique_everseen`
-- :py:func:`unique_justseen`
-
-References
-~~~~~~~~~~
-.. [0] https://docs.python.org/library/itertools.html#itertools-recipes
 """
-
 from __future__ import absolute_import, division, print_function
 from collections import deque
 from copy import copy

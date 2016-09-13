@@ -1,13 +1,20 @@
 from setuptools import setup
 
 
+def readme():
+    with open('README.rst') as f:
+        return f.read()
+
+# Must be a seperate variable because conf.py reads the version from here.
+version = "0.0.3"
+
+
 setup(name='iteration_utilities',
-      version='0.0.3dev',
+      version=version,
 
       description='some utilities for iterations.',
-      long_description=('Itertools recipes from the python package docs and '
-                        'additional optimized utilities for iterations.'),
-      keywords='itertools performance iteration',
+      long_description=readme(),
+      keywords=['itertools', 'performance', 'iteration'],
 
       classifiers=[
         'Development Status :: 3 - Alpha',
@@ -15,6 +22,7 @@ setup(name='iteration_utilities',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
       ],
 
       license='MIT',

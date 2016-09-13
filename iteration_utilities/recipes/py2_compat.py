@@ -1,15 +1,7 @@
 """
 Compatibility layer
 ^^^^^^^^^^^^^^^^^^^
-Compatibility layer for functions not avaiable in Python2. Copied from [0]_.
-
-- :py:func:`accumulate`
-
-References
-~~~~~~~~~~
-.. [0] https://docs.python.org/3/library/itertools.html
 """
-
 from __future__ import absolute_import, division, print_function
 import operator
 import sys
@@ -23,7 +15,7 @@ if PY2:
     def accumulate(iterable, func=operator.add):
         """Make an iterator that returns accumulated sums, or accumulated
         results of other binary functions (specified via the optional `func`
-        argument). Taken from [0]_
+        argument). Taken from [0]_.
 
         Parameters
         ----------

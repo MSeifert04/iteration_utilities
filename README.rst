@@ -18,7 +18,5 @@ Iteration utilities
    :alt: Documentation Status
 
 
-
-
 Includes the itertools recipes from the python homepage as well as other
-utilities for iteration based functions.
+iteration based functions.

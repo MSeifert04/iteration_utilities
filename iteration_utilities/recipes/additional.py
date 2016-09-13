@@ -1,11 +1,7 @@
 """
 Additional recipes
 ^^^^^^^^^^^^^^^^^^
-Additional recipes for iterations.
-
-- :py:func:`last_true`
 """
-
 from __future__ import absolute_import, division, print_function
 from .core import tail
 
@@ -35,6 +31,12 @@ def last_true(iterable, default=False, pred=None):
     last : any type
         The last true value or the last value for which `pred` is true.
         If there is no such value then `default` is returned.
+
+    Notes
+    -----
+    If the `iterable` is a sequence (i.e. ``list`` or ``tuple``) a more
+    efficient way would be to use :py:func:`reversed` and
+    :py:func:`~iteration_utilities.recipes.core.first_true`.
 
     Examples
     --------

@@ -1,25 +1,27 @@
-.. iteration_utilities documentation master file, created by
-   sphinx-quickstart on Sun Sep 11 05:06:29 2016.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Welcome to iteration_utilities's documentation!
 ===============================================
 
-Contents:
+Installation
+^^^^^^^^^^^^
 
-.. toctree::
-   :maxdepth: 2
+The `iteration_utilities` package is a pure python package supporting the
+Python versions:
 
-   recipes/core
-   recipes/additional
-   recipes/py2_compat
+- Python 2.7
+- Python 3.3+
 
+and can be installed with ``pip``:
 
-
+- ``pip install iteration_utilities``
 
 Recipes
 =======
+
+Official recipes
+^^^^^^^^^^^^^^^^
+The functions and documentations were taken from the official Python
+documentation [0]_ and function were slightly changed to make them Python2 and
+Python3 compatible. The documentation was added and modified.
 
 .. py:currentmodule:: iteration_utilities.recipes.core
 
@@ -51,14 +53,43 @@ Recipes
 - :py:func:`unique_justseen`
 
 
+Additional recipes
+^^^^^^^^^^^^^^^^^^
+Additional recipes for iterations.
+
+.. py:currentmodule:: iteration_utilities.recipes.additional
+
+- :py:func:`last_true`
+
+
+Compatibility layer
+^^^^^^^^^^^^^^^^^^^
+Compatibility layer for :py:mod:`itertools` functions not avaiable in
+Python2. The function and documentation was taken from the official Python
+documentation [1]_ and the documentation was slightly changed.
+
 .. py:currentmodule:: iteration_utilities.recipes.py2_compat
 
 - :py:func:`accumulate`
 
 
-.. py:currentmodule:: iteration_utilities.recipes.additional
+References
+~~~~~~~~~~
+.. [0] https://docs.python.org/library/itertools.html#itertools-recipes
+.. [1] https://docs.python.org/3/library/itertools.html#itertools.accumulate
 
-- :py:func:`last_true`
+
+API Documentation
+=================
+
+Contents:
+
+.. toctree::
+   :maxdepth: 2
+
+   recipes/core
+   recipes/additional
+   recipes/py2_compat
 
 Indices and tables
 ==================
