@@ -2,7 +2,7 @@ from setuptools import setup
 
 
 setup(name='iteration_utilities',
-      version='0.0.2',
+      version='0.0.3dev',
 
       description='some utilities for iterations.',
       long_description=('Itertools recipes from the python package docs and '
