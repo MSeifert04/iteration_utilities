@@ -74,6 +74,23 @@ documentation [1]_ and the documentation was slightly changed.
 - :py:func:`accumulate`
 
 
+Performance Helpers
+===================
+
+Performant iteration based functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+These functions are not very special or complicated but considerably more
+performant than the intuitiv approach. Consider them some tools to copy and
+paste in your code.
+
+.. py:currentmodule:: iteration_utilities.helpers.performance
+
+- :py:func:`all_isinstance`
+- :py:func:`any_isinstance`
+
+
+
 References
 ~~~~~~~~~~
 .. [0] https://docs.python.org/library/itertools.html#itertools-recipes
@@ -91,6 +108,7 @@ Contents:
    recipes/core
    recipes/additional
    recipes/py2_compat
+   helpers/performance
 
 Indices and tables
 ==================
