@@ -140,8 +140,9 @@ def _merge(*iterables, **kwargs):
                 current[idx] = x
             else:
                 # To calculate key(x) only once for each element wrap it as
-                # a tuple. This doesn't break the stability criterion because
-                # we calculate the min or max with itemgetter(0)
+                # a tuple. So that this doesn't break the stability criterion
+                # we add the idx as second parameter so the original won't be
+                # take part in the min/max.
                 current[idx] = (key(x), idx, x)
 
     func = max if reverse else min
