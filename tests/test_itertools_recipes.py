@@ -39,6 +39,7 @@ def test_empty_input():
     assert list(iteration_utilities.grouper(empty, 2)) == []
     # no need to test iter_except here
     assert not iteration_utilities.last_true(empty)
+    assert list(iteration_utilities.merge(empty)) == []
     assert list(iteration_utilities.ncycles(empty, 10)) == []
     assert iteration_utilities.nth(empty, 10) is None
     assert list(iteration_utilities.take(
