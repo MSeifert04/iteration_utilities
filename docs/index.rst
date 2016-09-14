@@ -60,6 +60,7 @@ Additional recipes for iterations.
 .. py:currentmodule:: iteration_utilities.recipes.additional
 
 - :py:func:`last_true`
+- :py:func:`merge`
 
 
 Compatibility layer
