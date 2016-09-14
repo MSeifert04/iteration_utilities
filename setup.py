@@ -35,6 +35,7 @@ setup(name='iteration_utilities',
       packages=[
           'iteration_utilities',
           'iteration_utilities.recipes',
+          'iteration_utilities.helpers',
           ],
 
       install_requires=[
