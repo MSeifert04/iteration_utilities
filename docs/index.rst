@@ -14,6 +14,62 @@ and can be installed with ``pip``:
 
 - ``pip install iteration_utilities``
 
+Python built-ins
+================
+
+Most common iteration based problems can be solved by using the already
+existing functionality in Python:
+
+Short-circuit functions
+^^^^^^^^^^^^^^^^^^^^^^^
+
+These functions exit as soon as the condition is not fulfilled.
+
+- :py:func:`all`
+- :py:func:`any`
+
+Wrap the iterable with a generator
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+These can be applied to any iterable and return a generator so the evaluation
+of these is postponed until it is consumed.
+
+- :py:func:`~itertools.accumulate` (see below for Python 2 compatible version)
+- :py:func:`~itertools.chain`
+- :py:meth:`~itertools.chain.from_iterable`
+- :py:func:`~itertools.combinations`
+- :py:func:`~itertools.combinations_with_replacement`
+- :py:func:`~itertools.compress`
+- :py:func:`~itertools.count`
+- :py:func:`~itertools.cycle`
+- :py:func:`~itertools.dropwhile`
+- :py:func:`enumerate`
+- :py:func:`filter` (``itertools.ifilter`` in Python 2)
+- :py:func:`~itertools.filterfalse` (or ``itertools.ifilterfalse`` in Python 2)
+- :py:func:`~itertools.groupby`
+- :py:func:`~itertools.islice`
+- :py:func:`map` (``itertools.imap`` in Python 2)
+- :py:func:`~itertools.permutations`
+- :py:func:`~itertools.product`
+- :py:func:`~itertools.repeat`
+- :py:func:`reversed`
+- :py:func:`~itertools.starmap`
+- :py:func:`~itertools.takewhile`
+- :py:func:`~itertools.tee`
+- :py:func:`zip` (``itertools.izip`` in Python 2)
+- :py:func:`~itertools.zip_longest` (or ``itertools.izip_longest`` in Python 2)
+
+
+Builtin recipes
+^^^^^^^^^^^^^^^
+
+These recipes are avaiable in Python.
+
+- :py:func:`min`
+- :py:func:`max`
+- :py:func:`sum`
+
+
 Recipes
 =======
 
