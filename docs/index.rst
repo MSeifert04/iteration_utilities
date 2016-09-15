@@ -120,6 +120,7 @@ Additional recipes for iterations.
 - :py:func:`itersubclasses`
 - :py:func:`last_true`
 - :py:func:`merge`
+- :py:func:`minmax`
 
 
 Compatibility layer
