@@ -22,22 +22,28 @@ def test_doctests():
 
 
 def test_exceptions():
+
+    # old-style classes don't have the subclasses special member.
+    if PY2:
+        class A:
+            pass
+        with pytest.raises(TypeError):
+            list(iteration_utilities.itersubclasses(A))
+
+    # minmax without default should raise a ValueError if an empty input
+    # is provided.
+    with pytest.raises(ValueError):
+        iteration_utilities.minmax([])
+
+    # Random product doesn't work with empty iterables
+    with pytest.raises(IndexError):
+        iteration_utilities.random_product([])
+
     # There is no element 10 in the tee object so this will raise the
     # Exception.
     t1, t2 = tee([1, 2, 3, 4, 5])
     with pytest.raises(IndexError):
         iteration_utilities.tee_lookahead(t1, 10)
-
-    with pytest.raises(IndexError):
-        iteration_utilities.random_product([])
-
-    if PY2:
-        # old-style classes don't have the subclasses special member.
-        class A:
-            pass
-
-        with pytest.raises(TypeError):
-            list(iteration_utilities.itersubclasses(A))
 
 
 def test_empty_input():
@@ -55,6 +61,7 @@ def test_empty_input():
     # no need to test iter_subclasses here
     assert not iteration_utilities.last_true(empty)
     assert list(iteration_utilities.merge(empty)) == []
+    assert iteration_utilities.minmax(empty, default=(0, 0)) == (0, 0)
     assert list(iteration_utilities.ncycles(empty, 10)) == []
     assert iteration_utilities.nth(empty, 10) is None
     assert list(iteration_utilities.take(

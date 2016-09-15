@@ -12,7 +12,14 @@ from .core import tail
 PY2 = sys.version_info.major == 2
 
 
-__all__ = ['applyfunc', 'deepflatten', 'itersubclasses', 'last_true', 'merge']
+if PY2:
+    from itertools import izip_longest as zip_longest
+else:
+    from itertools import zip_longest
+
+
+__all__ = ['applyfunc', 'deepflatten', 'itersubclasses', 'last_true', 'merge',
+           'minmax']
 
 
 def applyfunc(func, value, *args, **kwargs):
@@ -120,6 +127,12 @@ def itersubclasses(cls, seen=None):
         >>> [i.__name__ for i in itersubclasses(Z)]
         ['Y']
 
+    The reverse operation: To iterate over the superclasses is possible using
+    the ``class_to_test.__mro__`` attribute::
+
+        >>> [i.__name__ for i in F.__mro__]
+        ['F', 'D', 'E', 'C', 'B', 'A', 'object']
+
     References
     ----------
     .. [0] http://code.activestate.com/recipes/576949/
@@ -192,6 +205,117 @@ def last_true(iterable, default=False, pred=None):
     100
     """
     return next(tail(filter(pred, iterable), 1), default)
+
+
+def minmax(iterable, key=None, default=None):
+    """Computes the minimum and maximum values in one-pass using only
+    ``1.5*len(iterable)`` comparisons. Recipe from Raymond Hettinger ([0]_).
+
+    Parameters
+    ----------
+    iterable : iterable
+        The `iterable` for which to calculate the minimum and maximum.
+
+    key : callable or None, optional
+        If ``None`` then compare the values, otherwise compare ``key(item)``.
+        Default is ``None``.
+
+    default : any type, optional
+        If ``None`` raise ``ValueError`` if the `iterable` is empty otherwise
+        return `default`. Should be a tuple of two elements so the function
+        always returns a tuple of length two.
+        Default is ``None``.
+
+    Returns
+    -------
+    minimum : any type
+        The `minimum` of the `iterable`.
+
+    maximum : any type
+        The `maximum` of the `iterable`.
+
+    Raises
+    ------
+    ValueError
+        If `iterable` is empty and no `default` is given.
+
+    See also
+    --------
+    min : Calculate the minimum of an iterable.
+
+    max : Calculate the maximum of an iterable.
+
+    Examples
+    --------
+    This function calculates the minimum (:py:func:`min`) and maximum
+    (:py:func:`max`) of an `iterable`::
+
+        >>> from iteration_utilities import minmax
+        >>> minmax([2,1,3,5,4])
+        (1, 5)
+
+    If the iterable is empty `default` is returned::
+
+        >>> minmax([], default=(0, 0))
+        (0, 0)
+
+    Like the builtin functions it also supports a `key` argument::
+
+        >>> import operator
+        >>> seq = [(3, 2), (5, 1), (10, 3), (8, 5), (3, 4)]
+        >>> minmax(seq, key=operator.itemgetter(1))
+        ((5, 1), (8, 5))
+
+    .. note::
+        This function is only faster if:
+
+        - A `key`-argument is given or
+        - Comparisons are costly or
+        - `iterable` is a generator.
+
+        In other cases using both :py:func:`min` and :py:func:`max` should be
+        preferred.
+
+    References
+    ----------
+    .. [0] http://code.activestate.com/recipes/577916/
+    """
+    it = iter(iterable)
+
+    try:
+        lo = hi = next(it)
+    except StopIteration:
+        if default is None:
+            raise ValueError('minmax() arg is an empty sequence')
+        return default
+
+    # Different branches depending on the presence of key. This saves a lot
+    # of unimportant copies which would slow the "key=None" branch
+    # significantly down.
+    if key is None:
+        for x, y in zip_longest(it, it, fillvalue=lo):
+            if x > y:
+                x, y = y, x
+            if x < lo:
+                lo = x
+            if y > hi:
+                hi = y
+
+    else:
+        lo_key = hi_key = key(lo)
+
+        for x, y in zip_longest(it, it, fillvalue=lo):
+
+            x_key, y_key = key(x), key(y)
+
+            if x_key > y_key:
+                x, y, x_key, y_key = y, x, y_key, x_key
+            if x_key < lo_key:
+                lo, lo_key = x, x_key
+            if y_key > hi_key:
+                hi, hi_key = y, y_key
+
+    return lo, hi
 
 
 def deepflatten(iterable, depth=None, types=Iterable, ignore=None):
