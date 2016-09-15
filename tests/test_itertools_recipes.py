@@ -33,6 +33,7 @@ def test_empty_input():
     assert list(iteration_utilities.accumulate(empty)) == []
     assert iteration_utilities.all_equal(empty)
     assert iteration_utilities.consume(empty, 2) is None
+    assert list(iteration_utilities.deepflatten(empty)) == []
     assert iteration_utilities.dotproduct(empty, empty) == 0
     assert not iteration_utilities.first_true(empty)
     assert list(iteration_utilities.flatten(empty)) == []
@@ -46,8 +47,7 @@ def test_empty_input():
         iteration_utilities.padnone(empty), 2)) == [None, None]
     assert list(iteration_utilities.pairwise(empty)) == []
     x, y = iteration_utilities.partition(empty, lambda x: x)
-    assert list(x) == []
-    assert list(y) == []
+    assert list(x) == [] and list(y) == []
     assert list(iteration_utilities.powerset(empty)) == [()]
     assert iteration_utilities.quantify(empty, lambda x: x) == 0
     assert iteration_utilities.random_combination(empty, 0) == ()

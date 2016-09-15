@@ -367,6 +367,11 @@ def flatten(iterable):
     >>> from iteration_utilities import flatten
     >>> list(flatten([[1,2,3,4], [4,3,2,1]]))
     [1, 2, 3, 4, 4, 3, 2, 1]
+
+    See also
+    --------
+    .additional.deepflatten : To flatten arbitary number of
+        nestings and the possibility to define the types to flatten.
     """
     return chain.from_iterable(iterable)
 
@@ -459,7 +464,7 @@ def grouper(iterable, n, fillvalue=None):
     Returns
     -------
     groups : generator
-        An `iterable` containing the groups/chunks as :py:func:`tuple`.
+        An `iterable` containing the groups/chunks as ``tuple``.
 
     Examples
     --------
@@ -556,7 +561,7 @@ def powerset(iterable):
     Returns
     -------
     powerset : generator
-        An iterable containing all powersets as :py:func:`tuple`.
+        An iterable containing all powersets as ``tuple``.
 
     Examples
     --------
@@ -765,7 +770,7 @@ def random_product(*iterables, **repeat):
 
     Returns
     -------
-    sample : :py:func:`tuple`
+    sample : tuple
         A tuple containing the random samples.
 
     Raises
@@ -810,7 +815,7 @@ def random_permutation(iterable, r=None):
 
     Returns
     -------
-    random_permutation : :py:func:`tuple`
+    random_permutation : tuple
         The randomly chosen permutation.
 
     Examples
@@ -848,7 +853,7 @@ def random_combination(iterable, r):
 
     Returns
     -------
-    random_permutation : :py:func:`tuple`
+    random_permutation : tuple
         The randomly chosen combination.
 
     Examples
@@ -883,7 +888,7 @@ def random_combination_with_replacement(iterable, r):
 
     Returns
     -------
-    random_permutation : :py:func:`tuple`
+    random_permutation : tuple
         The randomly chosen combination with replacement.
 
     Examples
