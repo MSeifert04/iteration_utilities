@@ -12,7 +12,7 @@ from .core import tail
 PY2 = sys.version_info.major == 2
 
 
-__all__ = ['applyfunc', 'deepflatten', 'last_true', 'merge']
+__all__ = ['applyfunc', 'deepflatten', 'itersubclasses', 'last_true', 'merge']
 
 
 def applyfunc(func, value, *args, **kwargs):
@@ -67,6 +67,85 @@ def applyfunc(func, value, *args, **kwargs):
     while True:
         value = func(value, *args, **kwargs)
         yield value
+
+
+def itersubclasses(cls, seen=None):
+    """Iterate over the subclasses of `cls`. Recipe from Gabriel Genellina
+    ([0]_).
+
+    Parameters
+    ----------
+    cls : class
+        The class for which to iterate over the subclasses.
+
+    seen : set or None, optional
+        Classes to exclude from iteration or ``None`` if all subclasses should
+        be returned.
+        Default is ``None``.
+
+    Returns
+    -------
+    subclasses : generator
+        The subclasses of `cls`.
+
+    Examples
+    --------
+    To get all subclasses for a ``set``::
+
+        >>> from iteration_utilities import itersubclasses
+        >>> list(itersubclasses(set))
+        []
+
+    It even works with custom classes and diamond structures::
+
+        >>> class A(object): pass
+        >>> class B(A): pass
+        >>> class C(B): pass
+        >>> class D(C): pass
+        >>> class E(C): pass
+        >>> class F(D, E): pass
+        >>> list(i.__name__ for i in itersubclasses(A))
+        ['B', 'C', 'D', 'F', 'E']
+
+    There is mostly no need to specify `seen` but this can be used to exclude
+    the class and all subclasses for it::
+
+        >>> [i.__name__ for i in itersubclasses(A, seen={C})]
+        ['B']
+
+    And it also works for objects subclassing ``type``::
+
+        >>> class Z(type): pass
+        >>> class Y(Z): pass
+        >>> [i.__name__ for i in itersubclasses(Z)]
+        ['Y']
+
+    References
+    ----------
+    .. [0] http://code.activestate.com/recipes/576949/
+    """
+    if seen is None:
+        seen = set()
+
+    try:
+        subs = cls.__subclasses__()
+    except TypeError:
+        # fails if cls is "type"
+        subs = cls.__subclasses__(cls)
+    except AttributeError:
+        # old-style class has no __subclasses__ attribute
+        raise TypeError('old-style "cls" ({0}) is not supported.'.format(cls))
+
+    # This part is some combination of unique_everseen and flatten, however
+    # I did not found a way to use these here.
+    for sub in subs:
+        if sub not in seen:
+            seen.add(sub)
+            yield sub
+            # Could also use "yield from itersubclasses(sub, seen)" in
+            # Python3.3+
+            for sub in itersubclasses(sub, seen):
+                yield sub
 
 
 def last_true(iterable, default=False, pred=None):

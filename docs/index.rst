@@ -117,6 +117,7 @@ Additional recipes for iterations.
 
 - :py:func:`applyfunc`
 - :py:func:`deepflatten`
+- :py:func:`itersubclasses`
 - :py:func:`last_true`
 - :py:func:`merge`
 

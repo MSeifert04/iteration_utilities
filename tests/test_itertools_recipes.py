@@ -1,10 +1,14 @@
 from __future__ import absolute_import, division, print_function
 import doctest
 from itertools import tee
+import sys
 
 import pytest
 
 import iteration_utilities
+
+
+PY2 = sys.version_info.major == 2
 
 
 def doctest_module_no_failure(module):
@@ -27,6 +31,14 @@ def test_exceptions():
     with pytest.raises(IndexError):
         iteration_utilities.random_product([])
 
+    if PY2:
+        # old-style classes don't have the subclasses special member.
+        class A:
+            pass
+
+        with pytest.raises(TypeError):
+            list(iteration_utilities.itersubclasses(A))
+
 
 def test_empty_input():
     empty = []
@@ -40,6 +52,7 @@ def test_empty_input():
     assert list(iteration_utilities.flatten(empty)) == []
     assert list(iteration_utilities.grouper(empty, 2)) == []
     # no need to test iter_except here
+    # no need to test iter_subclasses here
     assert not iteration_utilities.last_true(empty)
     assert list(iteration_utilities.merge(empty)) == []
     assert list(iteration_utilities.ncycles(empty, 10)) == []
