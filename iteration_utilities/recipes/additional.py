@@ -251,7 +251,7 @@ def minmax(iterable, key=None, default=None):
     (:py:func:`max`) of an `iterable`::
 
         >>> from iteration_utilities import minmax
-        >>> minmax([3,1,5])
+        >>> minmax([2,1,3,5,4])
         (1, 5)
 
     If the iterable is empty `default` is returned::
@@ -262,8 +262,9 @@ def minmax(iterable, key=None, default=None):
     Like the builtin functions it also supports a `key` argument::
 
         >>> import operator
-        >>> minmax([(3, 5), (5, 1), (10, 2)], key=operator.itemgetter(1))
-        ((5, 1), (3, 5))
+        >>> seq = [(3, 2), (5, 1), (10, 3), (8, 5), (3, 4)]
+        >>> minmax(seq, key=operator.itemgetter(1))
+        ((5, 1), (8, 5))
 
     .. note::
         This function is only faster if:
