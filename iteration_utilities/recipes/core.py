@@ -91,6 +91,12 @@ def tabulate(function, start=0):
         An infinite generator containing the results of the `function` applied
         on the values beginning by `start`.
 
+    See also
+    --------
+    .core.repeatfunc : Repeatedly call a function.
+
+    .additional.applyfunc : Repeatedly call a function on one value.
+
     Examples
     --------
     Since the return is an infinite generator you need some other function
@@ -396,6 +402,12 @@ def repeatfunc(func, *args, **times):
     -------
     iterable : generator
         The result of the repeatedly called function.
+
+    See also
+    --------
+    .core.tabulate : Repeatedly call a function on an incrementing value.
+
+    .additional.applyfunc : Repeatedly call a function on one value.
 
     Examples
     --------

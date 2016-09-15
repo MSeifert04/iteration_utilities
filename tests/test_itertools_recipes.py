@@ -31,6 +31,7 @@ def test_exceptions():
 def test_empty_input():
     empty = []
     assert list(iteration_utilities.accumulate(empty)) == []
+    # no need to test apply_func here
     assert iteration_utilities.all_equal(empty)
     assert iteration_utilities.consume(empty, 2) is None
     assert list(iteration_utilities.deepflatten(empty)) == []
