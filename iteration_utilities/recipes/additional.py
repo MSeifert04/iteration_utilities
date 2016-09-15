@@ -110,8 +110,15 @@ def itersubclasses(cls, seen=None):
     There is mostly no need to specify `seen` but this can be used to exclude
     the class and all subclasses for it::
 
-        >>> list(i.__name__ for i in itersubclasses(A, seen={C}))
+        >>> [i.__name__ for i in itersubclasses(A, seen={C})]
         ['B']
+
+    And it also works for objects subclassing ``type``::
+
+        >>> class Z(type): pass
+        >>> class Y(Z): pass
+        >>> [i.__name__ for i in itersubclasses(Z)]
+        ['Y']
 
     References
     ----------
