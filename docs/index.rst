@@ -80,8 +80,8 @@ Recipes
 Official recipes
 ^^^^^^^^^^^^^^^^
 The functions and documentations were taken from the official Python
-documentation [0]_ and function were slightly changed to make them Python2 and
-Python3 compatible. The documentation was added and modified.
+documentation [0]_. But the functions were slightly changed to make them
+Python2 and Python3 compatible. The documentation was added and/or modified.
 
 .. py:currentmodule:: iteration_utilities.recipes.core
 

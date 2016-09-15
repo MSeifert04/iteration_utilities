@@ -77,8 +77,8 @@ def applyfunc(func, value, *args, **kwargs):
 
 
 def itersubclasses(cls, seen=None):
-    """Iterate over the subclasses of `cls`. Recipe from Gabriel Genellina
-    ([0]_).
+    """Iterate over the subclasses of `cls`. Recipe based on the snippet
+    of Gabriel Genellina ([0]_) but modified.
 
     Parameters
     ----------
@@ -209,7 +209,8 @@ def last_true(iterable, default=False, pred=None):
 
 def minmax(iterable, key=None, default=None):
     """Computes the minimum and maximum values in one-pass using only
-    ``1.5*len(iterable)`` comparisons. Recipe from Raymond Hettinger ([0]_).
+    ``1.5*len(iterable)`` comparisons. Recipe based on the snippet
+    of Raymond Hettinger ([0]_) but significantly modified.
 
     Parameters
     ----------
@@ -453,7 +454,9 @@ def _merge(*iterables, **kwargs):
 
     It's stable and allows a `key` function::
 
-        >>> list(merge([(1, 3), (3, 3)], [(-1, 3), (-3, 3)], key=lambda x: abs(x[0])))
+        >>> seq1 = [(1, 3), (3, 3)]
+        >>> seq2 = [(-1, 3), (-3, 3)]
+        >>> list(merge(seq1, seq2, key=lambda x: abs(x[0])))
         [(1, 3), (-1, 3), (3, 3), (-3, 3)]
 
     Also possible to `reverse` (biggest to smallest order) the merge::
