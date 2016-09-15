@@ -52,8 +52,8 @@ def applyfunc(func, value, *args, **kwargs):
 
     It is also possible to supply additional arguments to the `func`::
 
-        >>> take(applyfunc(pow, 2, 2), 6)
-        [2, 4, 16, 256, 65536, 4294967296]
+        >>> take(applyfunc(pow, 2, 2), 5)
+        [2, 4, 16, 256, 65536]
 
     .. warning::
         This will return an infinitly long generator so do **not** try to do
