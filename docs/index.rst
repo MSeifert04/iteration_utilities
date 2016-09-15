@@ -10,9 +10,13 @@ Python versions:
 - Python 2.7
 - Python 3.3+
 
-and can be installed with ``pip``:
+and can be installed with ``pip`` [3]_:
 
 - ``pip install iteration_utilities``
+
+or download the development version from ``git`` [2]_ and install it:
+
+- ``python setup.py install``
 
 Python built-ins
 ================
@@ -155,6 +159,8 @@ References
 ~~~~~~~~~~
 .. [0] https://docs.python.org/library/itertools.html#itertools-recipes
 .. [1] https://docs.python.org/3/library/itertools.html#itertools.accumulate
+.. [2] https://github.com/MSeifert04/iteration_utilities
+.. [3] https://pypi.python.org/pypi/iteration_utilities
 
 
 API Documentation
