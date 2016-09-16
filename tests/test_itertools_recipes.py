@@ -57,6 +57,8 @@ def test_empty_input():
     assert not iteration_utilities.first_true(empty)
     assert list(iteration_utilities.flatten(empty)) == []
     assert list(iteration_utilities.grouper(empty, 2)) == []
+    x, y = iteration_utilities.ipartition(empty, lambda x: x)
+    assert list(x) == [] and list(y) == []
     # no need to test iter_except here
     # no need to test iter_subclasses here
     assert not iteration_utilities.last_true(empty)
@@ -67,8 +69,7 @@ def test_empty_input():
     assert list(iteration_utilities.take(
         iteration_utilities.padnone(empty), 2)) == [None, None]
     assert list(iteration_utilities.pairwise(empty)) == []
-    x, y = iteration_utilities.partition(empty, lambda x: x)
-    assert list(x) == [] and list(y) == []
+    assert iteration_utilities.partition(empty, lambda x: x) == ([], [])
     assert list(iteration_utilities.powerset(empty)) == [()]
     assert iteration_utilities.quantify(empty, lambda x: x) == 0
     assert iteration_utilities.random_combination(empty, 0) == ()

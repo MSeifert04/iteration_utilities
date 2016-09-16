@@ -91,12 +91,12 @@ Python2 and Python3 compatible. The documentation was added and/or modified.
 - :py:func:`first_true`
 - :py:func:`flatten`
 - :py:func:`grouper`
+- :py:func:`ipartition`
 - :py:func:`iter_except`
 - :py:func:`ncycles`
 - :py:func:`nth`
 - :py:func:`padnone`
 - :py:func:`pairwise`
-- :py:func:`partition`
 - :py:func:`powerset`
 - :py:func:`quantify`
 - :py:func:`random_combination`
@@ -125,6 +125,7 @@ Additional recipes for iterations.
 - :py:func:`last_true`
 - :py:func:`merge`
 - :py:func:`minmax`
+- :py:func:`partition`
 
 
 Compatibility layer
