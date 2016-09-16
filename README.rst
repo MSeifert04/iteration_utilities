@@ -1,6 +1,36 @@
 Iteration utilities
 -------------------
 
+Includes the itertools recipes from the python homepage as well as other
+iteration based functions.
+
+.. image:: https://img.shields.io/pypi/pyversions/iteration_utilities.svg
+   :target: https://www.python.org/
+   :alt: Supported Python versions
+
+Documentation
+^^^^^^^^^^^^^
+
+.. image:: https://readthedocs.org/projects/iteration-utilities/badge/?version=latest
+   :target: http://iteration-utilities.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
+
+
+Downloads
+^^^^^^^^^
+
+.. image:: https://img.shields.io/pypi/v/iteration_utilities.svg
+   :target: https://pypi.python.org/pypi/iteration_utilities
+   :alt: PyPI Project
+
+.. image:: https://img.shields.io/github/release/MSeifert04/iteration_utilities.svg
+   :target: https://github.com/MSeifert04/iteration_utilities/releases
+   :alt: GitHub Project
+
+
+Test status
+^^^^^^^^^^^
+
 .. image:: https://travis-ci.org/MSeifert04/iteration_utilities.svg?branch=master
    :target: https://travis-ci.org/MSeifert04/iteration_utilities
    :alt: Travis CI Status
@@ -12,11 +42,3 @@ Iteration utilities
 .. image:: https://coveralls.io/repos/github/MSeifert04/iteration_utilities/badge.svg?branch=master
    :target: https://coveralls.io/github/MSeifert04/iteration_utilities?branch=master
    :alt: Coverage Status
-
-.. image:: https://readthedocs.org/projects/iteration-utilities/badge/?version=latest
-   :target: http://iteration-utilities.readthedocs.io/en/latest/?badge=latest
-   :alt: Documentation Status
-
-
-Includes the itertools recipes from the python homepage as well as other
-iteration based functions.
