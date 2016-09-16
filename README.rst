@@ -11,6 +11,10 @@ iteration based functions.
 Documentation
 ^^^^^^^^^^^^^
 
+.. image:: https://readthedocs.org/projects/iteration-utilities/badge/?version=stable
+   :target: http://iteration-utilities.readthedocs.io/en/stable/?badge=stable
+   :alt: Documentation Status
+
 .. image:: https://readthedocs.org/projects/iteration-utilities/badge/?version=latest
    :target: http://iteration-utilities.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
