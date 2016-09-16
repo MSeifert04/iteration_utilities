@@ -19,7 +19,7 @@ else:
 
 
 __all__ = ['applyfunc', 'deepflatten', 'itersubclasses', 'last_true', 'merge',
-           'minmax']
+           'minmax', 'partition']
 
 
 def applyfunc(func, value, *args, **kwargs):
@@ -317,6 +317,57 @@ def minmax(iterable, key=None, default=None):
                 hi, hi_key = y, y_key
 
     return lo, hi
+
+
+def partition(iterable, pred):
+    """Use a predicate to partition entries into ``False`` entries and ``True``
+    entries.
+
+    Parameters
+    ----------
+    iterable : iterable
+        `Iterable` to partition.
+
+    pred : callable
+        The predicate which determines the group.
+
+    Returns
+    -------
+    false_values : list
+        An list containing the values for which the predicate was False.
+
+    true_values : list
+        An list containing the values for which the predicate was True.
+
+    See also
+    --------
+    .core.ipartition : Generator variant of partition.
+
+    Examples
+    --------
+    >>> from iteration_utilities import partition
+    >>> def is_odd(val): return val % 2
+    >>> partition(range(10), is_odd)
+    ([0, 2, 4, 6, 8], [1, 3, 5, 7, 9])
+
+    .. note::
+        While ``ipartition`` also allows ``pred=None`` this is not allowed
+        for ``partition``.
+
+    .. warning::
+        In case the `pred` is expensive then ``partition`` can be noticable
+        faster than ``ipartition``.
+    """
+    falsy, truthy = [], []
+    falsy_append, truthy_append = falsy.append, truthy.append
+
+    for item in iterable:
+        if pred(item):
+            truthy_append(item)
+        else:
+            falsy_append(item)
+
+    return falsy, truthy
 
 
 def deepflatten(iterable, depth=None, types=Iterable, ignore=None):

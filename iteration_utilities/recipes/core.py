@@ -32,9 +32,9 @@ __all__ = ['all_equal',
            'dotproduct',
            'first_true', 'flatten',
            'grouper',
-           'iter_except',
+           'ipartition', 'iter_except',
            'ncycles', 'nth',
-           'padnone', 'pairwise', 'partition', 'powerset',
+           'padnone', 'pairwise', 'powerset',
            'quantify',
            'random_combination', 'random_combination_with_replacement',
            'random_product', 'random_permutation',
@@ -530,9 +530,9 @@ def roundrobin(*iterables):
             nexts = cycle(islice(nexts, pending))
 
 
-def partition(iterable, pred):
-    """Use a predicate to partition entries into ``False`` entries and \
-            ``True`` entries.
+def ipartition(iterable, pred):
+    """Use a predicate to partition entries into ``False`` entries and ``True``
+    entries.
 
     Parameters
     ----------
@@ -551,11 +551,15 @@ def partition(iterable, pred):
     true_values : generator
         An iterable containing the values for which the predicate was True.
 
+    See also
+    --------
+    .additional.partition : not-Generator variant of ipartition.
+
     Examples
     --------
-    >>> from iteration_utilities import partition
+    >>> from iteration_utilities import ipartition
     >>> def is_odd(val): return val % 2
-    >>> [list(i) for i in partition(range(10), is_odd)]
+    >>> [list(i) for i in ipartition(range(10), is_odd)]
     [[0, 2, 4, 6, 8], [1, 3, 5, 7, 9]]
     """
     t1, t2 = tee(iterable)
