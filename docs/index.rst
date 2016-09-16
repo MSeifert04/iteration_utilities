@@ -126,6 +126,7 @@ Additional recipes for iterations.
 - :py:func:`merge`
 - :py:func:`minmax`
 - :py:func:`partition`
+- :py:func:`successive`
 
 
 Compatibility layer

@@ -78,6 +78,7 @@ def test_empty_input():
     assert iteration_utilities.random_permutation(empty, 0) == ()
     # no need to test repeatfunc here
     assert list(iteration_utilities.roundrobin(empty)) == []
+    assert list(iteration_utilities.successive(empty)) == []
     # no need to test tabulate here
     assert list(iteration_utilities.tail(empty, 2)) == []
     assert iteration_utilities.take(empty, 2) == []
