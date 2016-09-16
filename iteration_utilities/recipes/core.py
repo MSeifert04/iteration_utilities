@@ -446,6 +446,11 @@ def pairwise(iterable):
     pairwise : generator
         An `iterable` containing tuples of sucessive elements of the iterable.
 
+    See also
+    --------
+    .additional.successive : More general solution with the option to specify
+        the number of sucessive elements in each tuple.
+
     Examples
     --------
     >>> from iteration_utilities import pairwise
