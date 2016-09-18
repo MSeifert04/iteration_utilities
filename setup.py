@@ -1,4 +1,10 @@
-from setuptools import setup
+from setuptools import setup, Extension
+
+
+callbacks_module = Extension(
+    'iteration_utilities.callbacks.simplecallbacks',
+    sources=['iteration_utilities/callbacks/src/simplecallbacks.c']
+    )
 
 
 def readme():
@@ -48,6 +54,8 @@ setup(name='iteration_utilities',
       tests_require=[
           'pytest',
           ],
+
+      ext_modules=[callbacks_module],
 
       include_package_data=True,
       zip_safe=False,
