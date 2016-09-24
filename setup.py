@@ -2,8 +2,8 @@ from setuptools import setup, Extension
 
 
 callbacks_module = Extension(
-    'iteration_utilities.callbacks.simplecallbacks',
-    sources=['iteration_utilities/callbacks/src/simplecallbacks.c']
+        'iteration_utilities.callbacks.simplecallbacks',
+        sources=['src_c/simplecallbacks.c']
     )
 
 
@@ -42,6 +42,7 @@ setup(name='iteration_utilities',
           'iteration_utilities',
           'iteration_utilities.recipes',
           'iteration_utilities.helpers',
+          'iteration_utilities.callbacks',
           ],
 
       install_requires=[

@@ -18,3 +18,10 @@ def test_doctests():
 
 def test_callbacks():
     assert iteration_utilities.returnTrue()
+    assert not iteration_utilities.returnFalse()
+    assert iteration_utilities.returnNone() is None
+
+    assert iteration_utilities.square(2) == 4
+
+    assert iteration_utilities.isNone(None)
+    assert not iteration_utilities.isNone(False)

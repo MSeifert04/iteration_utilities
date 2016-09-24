@@ -177,6 +177,7 @@ Contents:
    recipes/additional
    recipes/py2_compat
    helpers/performance
+   callbacks/simplecallbacks
 
 Indices and tables
 ==================
