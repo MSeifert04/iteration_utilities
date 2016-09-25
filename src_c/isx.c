@@ -16,7 +16,7 @@ isx_IsNone(PyObject *self, PyObject *args) {
 }
 
 PyDoc_STRVAR(isx_IsNone_doc,
-"is_None(value) -> bool\n\
+"is_None(value)\n\
 \n\
 Returns ``True`` if `value` is ``None``, otherwise ``False``.\n\
 \n\
@@ -69,6 +69,9 @@ isx_methods[] = {
     {NULL, NULL}
 };
 
+PyDoc_STRVAR(isx_module_name, "_isx");
+PyDoc_STRVAR(isx_module_doc, "Check Functions\n^^^^^^^^^^^^^^^");
+
 #if PY_MAJOR_VERSION >= 3
   //Module definition
   //The arguments of this structure tell Python what to call your extension,
@@ -76,10 +79,10 @@ isx_methods[] = {
   static struct PyModuleDef
   isx_definition = {
     PyModuleDef_HEAD_INIT,
-    "_isx",                         /* module name */
-    "",                             /* module docstring */
-    -1,                             /* no idea */
-    isx_methods,                    /* module methods */
+    isx_module_name,                    /* module name */
+    isx_module_doc,                     /* module docstring */
+    -1,                                 /* API version */
+    isx_methods,                        /* module methods */
 
     NULL, NULL, NULL, NULL
   };
@@ -138,8 +141,7 @@ isx_methods[] = {
         NULL
     };
 
-    m = Py_InitModule("_isx",
-                      isx_methods);
+    m = Py_InitModule3(isx_module_name, isx_methods, isx_module_doc);
     if (m == NULL)
         return;
 

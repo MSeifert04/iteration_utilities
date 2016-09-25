@@ -232,6 +232,9 @@ minmax_methods[] = {
     {NULL, NULL}
 };
 
+PyDoc_STRVAR(minmax_module_name, "_minmax");
+PyDoc_STRVAR(minmax_module_doc, "minmax\n^^^^^^");
+
 #if PY_MAJOR_VERSION >= 3
   //Module definition
   //The arguments of this structure tell Python what to call your extension,
@@ -239,9 +242,9 @@ minmax_methods[] = {
   static struct PyModuleDef
   minmax_definition = {
     PyModuleDef_HEAD_INIT,
-    "_minmax",                          /* module name */
-    "", /* module docstring */
-    -1,                                         /* no idea */
+    minmax_module_name,                          /* module name */
+    minmax_module_doc, /* module docstring */
+    -1,                                         /* API version */
     minmax_methods,                     /* module methods */
 
     NULL, NULL, NULL, NULL
@@ -301,8 +304,7 @@ minmax_methods[] = {
         NULL
     };
 
-    m = Py_InitModule("_minmax",
-                      minmax_methods);
+    m = Py_InitModule3(minmax_module_name, minmax_methods, minmax_module_doc);
     if (m == NULL)
         return;
 

@@ -43,9 +43,9 @@ def applyfunc(func, value, *args, **kwargs):
 
     See also
     --------
-    .core.repeatfunc : Repeatedly call a function.
+    ._core.repeatfunc : Repeatedly call a function.
 
-    .core.tabulate : Repeatedly call a function on an incrementing value.
+    ._core.tabulate : Repeatedly call a function on an incrementing value.
 
     Examples
     --------
@@ -188,7 +188,7 @@ def last_true(iterable, default=False, pred=None):
     -----
     If the `iterable` is a sequence (i.e. ``list`` or ``tuple``) a more
     efficient way would be to use :py:func:`reversed` and
-    :py:func:`~iteration_utilities.recipes.core.first_true`.
+    :py:func:`~iteration_utilities._recipes._core.first_true`.
 
     Examples
     --------
@@ -341,7 +341,7 @@ def partition(iterable, pred):
 
     See also
     --------
-    .core.ipartition : Generator variant of partition.
+    ._core.ipartition : Generator variant of partition.
 
     Examples
     --------
@@ -371,7 +371,7 @@ def partition(iterable, pred):
 
 
 def successive(iterable, times=2):
-    """Like :py:func:`~.core.pairwise` but allows to get an arbitary number
+    """Like :py:func:`~._core.pairwise` but allows to get an arbitary number
     of successive elements.
 
     Parameters
@@ -391,11 +391,11 @@ def successive(iterable, times=2):
 
     See also
     --------
-    .core.pairwise : Identical to the case where ``times=2``.
+    ._core.pairwise : Identical to the case where ``times=2``.
 
     Examples
     --------
-    Like :py:func:`~.core.pairwise` get every item and the following with the
+    Like :py:func:`~._core.pairwise` get every item and the following with the
     default `times`::
 
         >>> from iteration_utilities import successive
@@ -446,7 +446,7 @@ def deepflatten(iterable, depth=None, types=Iterable, ignore=None):
 
     See also
     --------
-    .core.flatten : Flatten one level of nesting.
+    ._core.flatten : Flatten one level of nesting.
 
     Examples
     --------

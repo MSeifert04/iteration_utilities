@@ -15,7 +15,7 @@ returnx_returnTrue(PyObject *self, PyObject *args, PyObject *keywds) {
 }
 
 PyDoc_STRVAR(returnx_returnTrue_doc,
-"return_True(*args, **kwargs) -> True\n\
+"return_True(*args, **kwargs)\n\
 \n\
 Always return ``True``.\n\
 \n\
@@ -45,7 +45,7 @@ returnx_returnFalse(PyObject *self, PyObject *args, PyObject *keywds) {
 }
 
 PyDoc_STRVAR(returnx_returnFalse_doc,
-"return_False(*args, **kwargs) -> False\n\
+"return_False(*args, **kwargs)\n\
 \n\
 Always return ``False``.\n\
 \n\
@@ -75,7 +75,7 @@ returnx_returnNone(PyObject *self, PyObject *args, PyObject *keywds) {
 }
 
 PyDoc_STRVAR(returnx_returnNone_doc,
-"return_None(*args, **kwargs) -> None\n\
+"return_None(*args, **kwargs)\n\
 \n\
 Always return ``None``.\n\
 \n\
@@ -118,7 +118,7 @@ returnx_returnFirstPositionalArgument(PyObject *self, PyObject *args, PyObject *
 }
 
 PyDoc_STRVAR(returnx_returnFirstPositionalArgument_doc,
-"return_first_positional_argument(*args, **kwargs) -> args[0]\n\
+"return_first_positional_argument(*args, **kwargs)\n\
 \n\
 Always return the first positional argument given to the function.\n\
 \n\
@@ -175,6 +175,9 @@ returnx_methods[] = {
     {NULL, NULL}
 };
 
+PyDoc_STRVAR(returnx_module_name, "_returnx");
+PyDoc_STRVAR(returnx_module_doc, "Return Functions\n^^^^^^^^^^^^^^^^");
+
 #if PY_MAJOR_VERSION >= 3
   //Module definition
   //The arguments of this structure tell Python what to call your extension,
@@ -182,10 +185,10 @@ returnx_methods[] = {
   static struct PyModuleDef
   returnx_definition = {
     PyModuleDef_HEAD_INIT,
-    "_returnx",                          /* module name */
-    "", /* module docstring */
-    -1,                                         /* no idea */
-    returnx_methods,                     /* module methods */
+    returnx_module_name,                           /* module name */
+    returnx_module_doc, /* module docstring */
+    -1,                                   /* API version */
+    returnx_methods,                      /* module methods */
 
     NULL, NULL, NULL, NULL
   };
@@ -244,8 +247,7 @@ returnx_methods[] = {
         NULL
     };
 
-    m = Py_InitModule("_returnx",
-                      returnx_methods);
+    m = Py_InitModule3(returnx_module_name, returnx_methods, returnx_module_doc);
     if (m == NULL)
         return;
 

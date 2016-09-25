@@ -83,7 +83,7 @@ The functions and documentations were taken from the official Python
 documentation [0]_. But the functions were slightly changed to make them
 Python2 and Python3 compatible. The documentation was added and/or modified.
 
-.. py:currentmodule:: iteration_utilities.recipes.core
+.. py:currentmodule:: iteration_utilities._recipes._core
 
 - :py:func:`all_equal`
 - :py:func:`consume`
@@ -117,7 +117,7 @@ Additional recipes
 ^^^^^^^^^^^^^^^^^^
 Additional recipes for iterations.
 
-.. py:currentmodule:: iteration_utilities.recipes.additional
+.. py:currentmodule:: iteration_utilities._recipes._additional
 
 - :py:func:`applyfunc`
 - :py:func:`deepflatten`
@@ -135,7 +135,7 @@ Compatibility layer for :py:mod:`itertools` functions not avaiable in
 Python2. The function and documentation was taken from the official Python
 documentation [1]_ and the documentation was slightly changed.
 
-.. py:currentmodule:: iteration_utilities.recipes.py2_compat
+.. py:currentmodule:: iteration_utilities._recipes._py2_compat
 
 - :py:func:`accumulate`
 
@@ -150,7 +150,7 @@ These functions are not very special or complicated but considerably more
 performant than the intuitiv approach. Consider them some tools to copy and
 paste in your code.
 
-.. py:currentmodule:: iteration_utilities.helpers.performance
+.. py:currentmodule:: iteration_utilities._helpers._performance
 
 - :py:func:`all_isinstance`
 - :py:func:`any_isinstance`

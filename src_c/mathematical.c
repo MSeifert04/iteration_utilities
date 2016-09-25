@@ -27,7 +27,7 @@ mathematical_square(PyObject *self, PyObject *args) {
 }
 
 PyDoc_STRVAR(mathematical_square_doc,
-"square(value) -> squared_value\n\
+"square(value)\n\
 \n\
 Returns the squared `value`.\n\
 \n\
@@ -72,6 +72,9 @@ mathematical_methods[] = {
     {NULL, NULL}
 };
 
+PyDoc_STRVAR(mathematical_module_name, "_mathematical");
+PyDoc_STRVAR(mathematical_module_doc, "Mathematical Functions\n^^^^^^^^^^^^^^^^^^^^^^");
+
 #if PY_MAJOR_VERSION >= 3
   //Module definition
   //The arguments of this structure tell Python what to call your extension,
@@ -79,9 +82,9 @@ mathematical_methods[] = {
   static struct PyModuleDef
   mathematical_definition = {
     PyModuleDef_HEAD_INIT,
-    "_mathematical",                          /* module name */
-    "", /* module docstring */
-    -1,                                         /* no idea */
+    mathematical_module_name,                          /* module name */
+    mathematical_module_doc, /* module docstring */
+    -1,                                         /* API version */
     mathematical_methods,                     /* module methods */
 
     NULL, NULL, NULL, NULL
@@ -141,8 +144,7 @@ mathematical_methods[] = {
         NULL
     };
 
-    m = Py_InitModule("_mathematical",
-                      mathematical_methods);
+    m = Py_InitModule3(mathematical_module_name, mathematical_methods, mathematical_module_doc);
     if (m == NULL)
         return;
 
