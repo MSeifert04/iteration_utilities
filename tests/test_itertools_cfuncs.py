@@ -37,7 +37,8 @@ def test_minmax():
     assert minmax(1, 2, 3) == (1, 3)
     assert minmax(4, 3, 2, 1) == (1, 4)
     # Test key-function
-    assert minmax('a', 'b', 'c', key=ord) == ('a', 'c')
+    assert minmax('a', 'b', 'c',
+                  key=operator.methodcaller('upper')) == ('a', 'c')
     assert minmax((1, 2), (2, 3), (3, 1),
                   key=operator.itemgetter(1)) == ((3, 1), (2, 3))
     # Test default value
@@ -154,7 +155,7 @@ def test_minmax_memoryleak():
 
     # Test key-function
     def test():
-        minmax(Test('a'), Test('b'), Test('c'), key=lambda x: ord(x.value))
+        minmax(Test('a'), Test('b'), Test('c'), key=lambda x: x.value.upper())
     assert not memory_leak(test, Test)
 
     def test():
