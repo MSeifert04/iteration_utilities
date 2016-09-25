@@ -1,17 +1,15 @@
+# Built-ins
 from __future__ import absolute_import, division, print_function
-import doctest
 
-import pytest
-
+# This module
 import iteration_utilities
 
-
-def doctest_module_no_failure(module):
-    assert doctest.testmod(module).failed == 0
+# Test helper
+from helper_doctest import doctest_module_no_failure
 
 
 def test_doctests():
-    doctest_module_no_failure(iteration_utilities.helpers.performance)
+    doctest_module_no_failure(iteration_utilities._helpers._performance)
 
 
 def test_empty_input():

@@ -2,6 +2,7 @@
 Official recipes
 ^^^^^^^^^^^^^^^^
 """
+# Built-ins
 from __future__ import absolute_import, division, print_function
 from collections import deque
 from copy import copy
@@ -9,10 +10,9 @@ from itertools import (islice, count, groupby, chain, repeat, starmap, tee,
                        cycle, combinations)
 from operator import mul, itemgetter
 from random import choice, sample, randrange
-import sys
 
-
-PY2 = sys.version_info.major == 2
+# This module
+from .. import PY2
 
 # Replace list-generating functions by generator functions
 if PY2:

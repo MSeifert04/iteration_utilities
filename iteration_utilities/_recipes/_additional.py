@@ -2,15 +2,14 @@
 Additional recipes
 ^^^^^^^^^^^^^^^^^^
 """
+# Built-ins
 from __future__ import absolute_import, division, print_function
 from collections import Iterable
 from itertools import tee
-import sys
 
-from .core import tail, consume
-
-
-PY2 = sys.version_info.major == 2
+# This module
+from ._core import tail, consume
+from .. import PY2
 
 
 if PY2:
