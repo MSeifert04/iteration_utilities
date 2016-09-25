@@ -1,12 +1,3 @@
-#include <Python.h>
-#include <structmember.h>
-
-
-/******************************************************************************
- * Reduce operations
- *
- * minmax   : like min() and max() but in one pass
- *****************************************************************************/
 
 static PyObject *
 minmax(PyObject *self, PyObject *args, PyObject *kwds)
@@ -97,10 +88,27 @@ minmax(PyObject *self, PyObject *args, PyObject *kwds)
                     maxval = val2;
                     maxitem = item2;
                 } else {
-                    minval = val2;
-                    minitem = item2;
-                    maxval = val1;
-                    maxitem = item1;
+                    // To keep stability we need to check if they are equal and
+                    // only use val2 as minimum IF it's really smaller.
+                    cmp = PyObject_RichCompareBool(val1, val2, Py_GT);
+                    if (cmp < 0) {
+                        // Should really be impossible because it already
+                        // worked with LT but maybe we got some weird class
+                        // here...
+                        goto Fail;
+                    } else if (cmp > 0) {
+                        minval = val2;
+                        minitem = item2;
+                        maxval = val1;
+                        maxitem = item1;
+                    } else {
+                        minval = val1;
+                        minitem = item1;
+                        maxval = val1;
+                        maxitem = item1;
+                        Py_DECREF(item2);
+                        Py_DECREF(val2);
+                    }
                 }
             } else {
                 // If only one is set we can set min and max to the only item.
@@ -212,111 +220,3 @@ Fail:
     Py_DECREF(iterator);
     return NULL;
 }
-
-
-//Method definition object for this extension, these argumens mean:
-//ml_name: The name of the method
-//ml_meth: Function pointer to the method implementation
-//ml_flags: Flags indicating special features of this method, such as
-//          accepting arguments, accepting keyword arguments, being a
-//          class method, or being a static method of a class.
-//ml_doc:  Contents of this method's docstring
-static PyMethodDef
-minmax_methods[] = {
-
-    {"c_minmax",
-     (PyCFunction)minmax,
-     METH_VARARGS | METH_KEYWORDS,
-     "minmax"},
-
-    {NULL, NULL}
-};
-
-PyDoc_STRVAR(minmax_module_name, "_minmax");
-PyDoc_STRVAR(minmax_module_doc, "minmax\n^^^^^^");
-
-#if PY_MAJOR_VERSION >= 3
-  //Module definition
-  //The arguments of this structure tell Python what to call your extension,
-  //what it's methods are and where to look for it's method definitions
-  static struct PyModuleDef
-  minmax_definition = {
-    PyModuleDef_HEAD_INIT,
-    minmax_module_name,                          /* module name */
-    minmax_module_doc, /* module docstring */
-    -1,                                         /* API version */
-    minmax_methods,                     /* module methods */
-
-    NULL, NULL, NULL, NULL
-  };
-
-  //Module initialization
-  //Python calls this function when importing your extension. It is important
-  //that this function is named PyInit_[[your_module_name]] exactly, and matches
-  //the name keyword argument in setup.py's setup() call.
-  PyMODINIT_FUNC
-  PyInit__minmax(void)
-  {
-    //Py_Initialize();
-    int i;
-    PyObject *m;
-    char *name;
-
-    // Fill in classes! Must be synced with the Python2 version of module init
-    // a few lines later.
-    PyTypeObject *typelist[] = {
-        //&cls_type,
-        NULL
-    };
-
-    m = PyModule_Create(&minmax_definition);
-    if (m == NULL)
-        return NULL;
-
-    // Add classes to the module but only use the name starting after the first
-    // occurence of ".".
-    for (i=0 ; typelist[i] != NULL ; i++) {
-        if (PyType_Ready(typelist[i]) < 0)
-            return NULL;
-        name = strchr(typelist[i]->tp_name, '.');
-        assert (name != NULL);
-        Py_INCREF(typelist[i]);
-        PyModule_AddObject(m, name+1, (PyObject *)typelist[i]);
-    }
-
-    return m;
-  }
-
-#else
-
-  void
-  init_minmax(void)
-  {
-    /* Create the module and add the functions */
-    int i;
-    PyObject *m;
-    char *name;
-
-    // Fill in classes! Must be synced with the Python3 version of module init
-    // a few lines earlier.
-    PyTypeObject *typelist[] = {
-        //&cls_type,
-        NULL
-    };
-
-    m = Py_InitModule3(minmax_module_name, minmax_methods, minmax_module_doc);
-    if (m == NULL)
-        return;
-
-    // Add classes to the module but only use the name starting after the first
-    // occurence of ".".
-    for (i=0 ; typelist[i] != NULL ; i++) {
-        if (PyType_Ready(typelist[i]) < 0)
-            return;
-        name = strchr(typelist[i]->tp_name, '.');
-        assert (name != NULL);
-        Py_INCREF(typelist[i]);
-        PyModule_AddObject(m, name+1, (PyObject *)typelist[i]);
-    }
-  }
-#endif

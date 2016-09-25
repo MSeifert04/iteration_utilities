@@ -17,8 +17,8 @@ mathematical_module = Extension(
     )
 
 minmax_module = Extension(
-        'iteration_utilities._minmax',
-        sources=['src_c/minmax.c']
+        'iteration_utilities._reduce',
+        sources=['src_c/reduce.c']
     )
 
 

@@ -10,5 +10,5 @@
    :members:
 
 
-.. automodule:: iteration_utilities._minmax
+.. automodule:: iteration_utilities._reduce
    :members:
