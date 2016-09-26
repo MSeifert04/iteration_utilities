@@ -22,7 +22,7 @@ def test_doctests():
 
 
 def test_minmax():
-    minmax = iteration_utilities.c_minmax
+    minmax = iteration_utilities.minmax
     # Test some inputs
     assert minmax([1]) == (1, 1)
     assert minmax([1, 2]) == (1, 2)
@@ -95,7 +95,7 @@ def test_minmax():
 
 
 def test_minmax_memoryleak():
-    minmax = iteration_utilities.c_minmax
+    minmax = iteration_utilities.minmax
 
     class Test(object):
         def __init__(self, value):

@@ -60,7 +60,7 @@ def test_empty_input():
     # no need to test iter_subclasses here
     assert not iteration_utilities.last_true(empty)
     assert list(iteration_utilities.merge(empty)) == []
-    assert iteration_utilities.minmax(empty, default=(0, 0)) == (0, 0)
+    assert iteration_utilities.minmax(empty, default=0) == (0, 0)
     assert list(iteration_utilities.ncycles(empty, 10)) == []
     assert iteration_utilities.nth(empty, 10) is None
     assert list(iteration_utilities.take(

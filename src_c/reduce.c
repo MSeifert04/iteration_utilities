@@ -13,16 +13,16 @@
 static PyMethodDef
 reduce_methods[] = {
 
-    {"c_minmax",
-     (PyCFunction)minmax,
+    {"minmax",
+     (PyCFunction)reduce_minmax,
      METH_VARARGS | METH_KEYWORDS,
-     "minmax"},
+     reduce_minmax_doc},
 
     {NULL, NULL}
 };
 
 PyDoc_STRVAR(reduce_module_name, "_reduce");
-PyDoc_STRVAR(reduce_module_doc, "reduce\n^^^^^^");
+PyDoc_STRVAR(reduce_module_doc, "Reduce Functions\n^^^^^^^^^^^^^^^^");
 
 #if PY_MAJOR_VERSION >= 3
   //Module definition
@@ -31,9 +31,9 @@ PyDoc_STRVAR(reduce_module_doc, "reduce\n^^^^^^");
   static struct PyModuleDef
   reduce_definition = {
     PyModuleDef_HEAD_INIT,
-    reduce_module_name,                          /* module name */
-    reduce_module_doc, /* module docstring */
-    -1,                                         /* API version */
+    reduce_module_name,                 /* module name */
+    reduce_module_doc,                  /* module docstring */
+    -1,                                 /* API version */
     reduce_methods,                     /* module methods */
 
     NULL, NULL, NULL, NULL

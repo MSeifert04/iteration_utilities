@@ -124,9 +124,12 @@ Additional recipes for iterations.
 - :py:func:`itersubclasses`
 - :py:func:`last_true`
 - :py:func:`merge`
-- :py:func:`minmax`
 - :py:func:`partition`
 - :py:func:`successive`
+
+.. py:currentmodule:: iteration_utilities._reduce
+
+- :py:func:`minmax`
 
 
 Compatibility layer
@@ -177,7 +180,7 @@ Contents:
    recipes/additional
    recipes/py2_compat
    helpers/performance
-   callbacks/simplecallbacks
+   cfuncs/cfuncs
 
 Indices and tables
 ==================

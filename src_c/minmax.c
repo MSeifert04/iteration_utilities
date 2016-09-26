@@ -1,6 +1,9 @@
+/******************************************************************************
+ * Part of reduce.c
+ *****************************************************************************/
 
 static PyObject *
-minmax(PyObject *self, PyObject *args, PyObject *kwds)
+reduce_minmax(PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyObject *sequence, *iterator;
     PyObject *defaultitem = NULL, *keyfunc = NULL;
@@ -155,8 +158,8 @@ minmax(PyObject *self, PyObject *args, PyObject *kwds)
             // creates a type that is smallest and highest and uses minmax.
             if (item2 == NULL) {
                 item2 = item1;
-                Py_INCREF(item1);
                 val2 = val1;
+                Py_INCREF(item1);
                 Py_INCREF(val1);
             } else {
                 // If both are set swap them if val2 is smaller than val1
@@ -181,8 +184,8 @@ minmax(PyObject *self, PyObject *args, PyObject *kwds)
                 goto Fail;
             } else if (cmp > 0) {
                 Py_DECREF(minval);
-                minval = val1;
                 Py_DECREF(minitem);
+                minval = val1;
                 minitem = item1;
             } else {
                 Py_DECREF(item1);
@@ -195,8 +198,8 @@ minmax(PyObject *self, PyObject *args, PyObject *kwds)
                 goto Fail;
             } else if (cmp > 0) {
                 Py_DECREF(maxval);
-                maxval = val2;
                 Py_DECREF(maxitem);
+                maxval = val2;
                 maxitem = item2;
             } else {
                 Py_DECREF(item2);
@@ -237,12 +240,13 @@ minmax(PyObject *self, PyObject *args, PyObject *kwds)
     Py_DECREF(iterator);
 
     resulttuple = PyTuple_Pack(2, minitem, maxitem);
-    if (resulttuple == NULL) {
-        return NULL;
-    }
 
     Py_DECREF(minitem);
     Py_DECREF(maxitem);
+
+    if (resulttuple == NULL) {
+        return NULL;
+    }
 
     return resulttuple;
 
@@ -262,3 +266,80 @@ Fail:
     Py_DECREF(iterator);
     return NULL;
 }
+
+
+PyDoc_STRVAR(reduce_minmax_doc, "minmax(iterable, *[, key, default])\n\
+minmax(arg1, arg2, *args[, key])\n\
+\n\
+Computes the minimum and maximum values in one-pass using only\n\
+``1.5*len(iterable)`` comparisons. Recipe based on the snippet\n\
+of Raymond Hettinger ([0]_) but significantly modified.\n\
+\n\
+Parameters\n\
+----------\n\
+iterable : iterable\n\
+    The `iterable` for which to calculate the minimum and maximum.\n\
+    Instead of passing the `iterable` the elements to compare can also be\n\
+    given as (two or more) positional arguments.\n\
+\n\
+key : callable, optional\n\
+    If not given then compare the values, otherwise compare ``key(item)``.\n\
+\n\
+default : any type, optional\n\
+    If not given raise ``ValueError`` if the `iterable` is empty otherwise\n\
+    return ``(default, default)``\n\
+\n\
+Returns\n\
+-------\n\
+minimum : any type\n\
+    The `minimum` of the `iterable`.\n\
+\n\
+maximum : any type\n\
+    The `maximum` of the `iterable`.\n\
+\n\
+Raises\n\
+------\n\
+ValueError\n\
+    If `iterable` is empty and no `default` is given.\n\
+\n\
+See also\n\
+--------\n\
+min : Calculate the minimum of an iterable.\n\
+\n\
+max : Calculate the maximum of an iterable.\n\
+\n\
+Examples\n\
+--------\n\
+This function calculates the minimum (:py:func:`min`) and maximum\n\
+(:py:func:`max`) of an `iterable`::\n\
+\n\
+    >>> from iteration_utilities import minmax\n\
+    >>> minmax([2,1,3,5,4])\n\
+    (1, 5)\n\
+\n\
+If the iterable is empty `default` is returned::\n\
+\n\
+    >>> minmax([], default=0)\n\
+    (0, 0)\n\
+\n\
+Like the builtin functions it also supports a `key` argument::\n\
+\n\
+    >>> import operator\n\
+    >>> seq = [(3, 2), (5, 1), (10, 3), (8, 5), (3, 4)]\n\
+    >>> minmax(seq, key=operator.itemgetter(1))\n\
+    ((5, 1), (8, 5))\n\
+\n\
+.. note::\n\
+    This function is only faster if:\n\
+\n\
+    - A `key`-argument is given or\n\
+    - Comparisons are costly or\n\
+    - `iterable` is a generator.\n\
+\n\
+    In other cases using both :py:func:`min` and :py:func:`max` should be\n\
+    preferred.\n\
+\n\
+References\n\
+----------\n\
+.. [0] http://code.activestate.com/recipes/577916/");
+

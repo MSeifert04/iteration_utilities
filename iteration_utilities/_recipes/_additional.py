@@ -19,7 +19,7 @@ else:
 
 
 __all__ = ['applyfunc', 'deepflatten', 'itersubclasses', 'last_true', 'merge',
-           'minmax', 'partition', 'successive']
+           'partition', 'successive']
 
 
 def applyfunc(func, value, *args, **kwargs):
@@ -207,79 +207,8 @@ def last_true(iterable, default=False, pred=None):
     return next(tail(filter(pred, iterable), 1), default)
 
 
-def minmax(iterable, key=None, default=None):
-    """Computes the minimum and maximum values in one-pass using only
-    ``1.5*len(iterable)`` comparisons. Recipe based on the snippet
-    of Raymond Hettinger ([0]_) but significantly modified.
-
-    Parameters
-    ----------
-    iterable : iterable
-        The `iterable` for which to calculate the minimum and maximum.
-
-    key : callable or None, optional
-        If ``None`` then compare the values, otherwise compare ``key(item)``.
-        Default is ``None``.
-
-    default : any type, optional
-        If ``None`` raise ``ValueError`` if the `iterable` is empty otherwise
-        return `default`. Should be a tuple of two elements so the function
-        always returns a tuple of length two.
-        Default is ``None``.
-
-    Returns
-    -------
-    minimum : any type
-        The `minimum` of the `iterable`.
-
-    maximum : any type
-        The `maximum` of the `iterable`.
-
-    Raises
-    ------
-    ValueError
-        If `iterable` is empty and no `default` is given.
-
-    See also
-    --------
-    min : Calculate the minimum of an iterable.
-
-    max : Calculate the maximum of an iterable.
-
-    Examples
-    --------
-    This function calculates the minimum (:py:func:`min`) and maximum
-    (:py:func:`max`) of an `iterable`::
-
-        >>> from iteration_utilities import minmax
-        >>> minmax([2,1,3,5,4])
-        (1, 5)
-
-    If the iterable is empty `default` is returned::
-
-        >>> minmax([], default=(0, 0))
-        (0, 0)
-
-    Like the builtin functions it also supports a `key` argument::
-
-        >>> import operator
-        >>> seq = [(3, 2), (5, 1), (10, 3), (8, 5), (3, 4)]
-        >>> minmax(seq, key=operator.itemgetter(1))
-        ((5, 1), (8, 5))
-
-    .. note::
-        This function is only faster if:
-
-        - A `key`-argument is given or
-        - Comparisons are costly or
-        - `iterable` is a generator.
-
-        In other cases using both :py:func:`min` and :py:func:`max` should be
-        preferred.
-
-    References
-    ----------
-    .. [0] http://code.activestate.com/recipes/577916/
+def _minmax(iterable, key=None, default=None):
+    """Historical function, by now it is replaced by a C-function.
     """
     it = iter(iterable)
 
