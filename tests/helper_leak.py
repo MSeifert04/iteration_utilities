@@ -49,4 +49,7 @@ def memory_leak(func, specific_object=None):
         return after - before
     else:
         leftover = after[specific_object] - before[specific_object]
-        return {specific_object: leftover}
+        if leftover:
+            return Counter({specific_object: leftover})
+        else:
+            Counter()
