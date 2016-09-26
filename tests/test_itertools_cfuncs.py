@@ -11,6 +11,7 @@ import iteration_utilities
 # Test helper
 from helper_doctest import doctest_module_no_failure
 from helper_leak import memory_leak
+from pytest_monkeypatch import pytest_raises
 
 
 def test_doctests():
@@ -234,33 +235,33 @@ def test_minmax_memoryleak():
     assert not memory_leak(test, Test)
 
     def test():
-        with pytest.raises(TypeError):  # func fails on odd numbered arg
+        with pytest_raises(TypeError):  # func fails on odd numbered arg
             minmax(Test(100), Test('a'), key=lambda x: x.value + '')
     assert not memory_leak(test, Test)
 
     def test():
-        with pytest.raises(TypeError):  # func fails on even numbered arg
+        with pytest_raises(TypeError):  # func fails on even numbered arg
             minmax(Test('a'), Test(100), key=lambda x: x.value + '')
     assert not memory_leak(test, Test)
 
     if not iteration_utilities.PY2:
         def test():
-            with pytest.raises(TypeError):  # unable to compare 1 and 2
+            with pytest_raises(TypeError):  # unable to compare 1 and 2
                 minmax(Test(100), Test('a'))
         assert not memory_leak(test, Test)
 
         def test():
-            with pytest.raises(TypeError):  # unable to compare 3 and 4
+            with pytest_raises(TypeError):  # unable to compare 3 and 4
                 minmax(Test(100), Test(20), Test(100), Test('a'))
         assert not memory_leak(test, Test)
 
         def test():
-            with pytest.raises(TypeError):  # unable to compare 1 and 3
+            with pytest_raises(TypeError):  # unable to compare 1 and 3
                 minmax(Test(1), Test(20), Test('a'), Test('c'))
         assert not memory_leak(test, Test)
 
         def test():
-            with pytest.raises(TypeError):  # unable to compare 2 and 4
+            with pytest_raises(TypeError):  # unable to compare 2 and 4
                 # This is tricky. The elements are explicitly chosen so that
                 # 1 compares with 2 without error: 1 current min, 2 current max
                 # 3 compares with 4: 3 < 4

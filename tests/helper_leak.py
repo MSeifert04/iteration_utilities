@@ -52,4 +52,4 @@ def memory_leak(func, specific_object=None):
         if leftover:
             return Counter({specific_object: leftover})
         else:
-            Counter()
+            return Counter()
