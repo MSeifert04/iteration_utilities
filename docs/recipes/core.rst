@@ -1,2 +1,2 @@
-.. automodule:: iteration_utilities.recipes.core
+.. automodule:: iteration_utilities._recipes._core
    :members:

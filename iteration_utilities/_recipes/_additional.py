@@ -2,15 +2,14 @@
 Additional recipes
 ^^^^^^^^^^^^^^^^^^
 """
+# Built-ins
 from __future__ import absolute_import, division, print_function
 from collections import Iterable
 from itertools import tee
-import sys
 
-from .core import tail, consume
-
-
-PY2 = sys.version_info.major == 2
+# This module
+from ._core import tail, consume
+from .. import PY2
 
 
 if PY2:
@@ -20,7 +19,7 @@ else:
 
 
 __all__ = ['applyfunc', 'deepflatten', 'itersubclasses', 'last_true', 'merge',
-           'minmax', 'partition', 'successive']
+           'partition', 'successive']
 
 
 def applyfunc(func, value, *args, **kwargs):
@@ -44,9 +43,9 @@ def applyfunc(func, value, *args, **kwargs):
 
     See also
     --------
-    .core.repeatfunc : Repeatedly call a function.
+    ._core.repeatfunc : Repeatedly call a function.
 
-    .core.tabulate : Repeatedly call a function on an incrementing value.
+    ._core.tabulate : Repeatedly call a function on an incrementing value.
 
     Examples
     --------
@@ -189,7 +188,7 @@ def last_true(iterable, default=False, pred=None):
     -----
     If the `iterable` is a sequence (i.e. ``list`` or ``tuple``) a more
     efficient way would be to use :py:func:`reversed` and
-    :py:func:`~iteration_utilities.recipes.core.first_true`.
+    :py:func:`~iteration_utilities._recipes._core.first_true`.
 
     Examples
     --------
@@ -208,79 +207,8 @@ def last_true(iterable, default=False, pred=None):
     return next(tail(filter(pred, iterable), 1), default)
 
 
-def minmax(iterable, key=None, default=None):
-    """Computes the minimum and maximum values in one-pass using only
-    ``1.5*len(iterable)`` comparisons. Recipe based on the snippet
-    of Raymond Hettinger ([0]_) but significantly modified.
-
-    Parameters
-    ----------
-    iterable : iterable
-        The `iterable` for which to calculate the minimum and maximum.
-
-    key : callable or None, optional
-        If ``None`` then compare the values, otherwise compare ``key(item)``.
-        Default is ``None``.
-
-    default : any type, optional
-        If ``None`` raise ``ValueError`` if the `iterable` is empty otherwise
-        return `default`. Should be a tuple of two elements so the function
-        always returns a tuple of length two.
-        Default is ``None``.
-
-    Returns
-    -------
-    minimum : any type
-        The `minimum` of the `iterable`.
-
-    maximum : any type
-        The `maximum` of the `iterable`.
-
-    Raises
-    ------
-    ValueError
-        If `iterable` is empty and no `default` is given.
-
-    See also
-    --------
-    min : Calculate the minimum of an iterable.
-
-    max : Calculate the maximum of an iterable.
-
-    Examples
-    --------
-    This function calculates the minimum (:py:func:`min`) and maximum
-    (:py:func:`max`) of an `iterable`::
-
-        >>> from iteration_utilities import minmax
-        >>> minmax([2,1,3,5,4])
-        (1, 5)
-
-    If the iterable is empty `default` is returned::
-
-        >>> minmax([], default=(0, 0))
-        (0, 0)
-
-    Like the builtin functions it also supports a `key` argument::
-
-        >>> import operator
-        >>> seq = [(3, 2), (5, 1), (10, 3), (8, 5), (3, 4)]
-        >>> minmax(seq, key=operator.itemgetter(1))
-        ((5, 1), (8, 5))
-
-    .. note::
-        This function is only faster if:
-
-        - A `key`-argument is given or
-        - Comparisons are costly or
-        - `iterable` is a generator.
-
-        In other cases using both :py:func:`min` and :py:func:`max` should be
-        preferred.
-
-    References
-    ----------
-    .. [0] http://code.activestate.com/recipes/577916/
+def _minmax(iterable, key=None, default=None):
+    """Historical function, by now it is replaced by a C-function.
     """
     it = iter(iterable)
 
@@ -342,7 +270,7 @@ def partition(iterable, pred):
 
     See also
     --------
-    .core.ipartition : Generator variant of partition.
+    ._core.ipartition : Generator variant of partition.
 
     Examples
     --------
@@ -372,7 +300,7 @@ def partition(iterable, pred):
 
 
 def successive(iterable, times=2):
-    """Like :py:func:`~.core.pairwise` but allows to get an arbitary number
+    """Like :py:func:`~._core.pairwise` but allows to get an arbitary number
     of successive elements.
 
     Parameters
@@ -392,11 +320,11 @@ def successive(iterable, times=2):
 
     See also
     --------
-    .core.pairwise : Identical to the case where ``times=2``.
+    ._core.pairwise : Identical to the case where ``times=2``.
 
     Examples
     --------
-    Like :py:func:`~.core.pairwise` get every item and the following with the
+    Like :py:func:`~._core.pairwise` get every item and the following with the
     default `times`::
 
         >>> from iteration_utilities import successive
@@ -447,7 +375,7 @@ def deepflatten(iterable, depth=None, types=Iterable, ignore=None):
 
     See also
     --------
-    .core.flatten : Flatten one level of nesting.
+    ._core.flatten : Flatten one level of nesting.
 
     Examples
     --------

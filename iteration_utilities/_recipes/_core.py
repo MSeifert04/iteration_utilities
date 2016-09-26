@@ -2,6 +2,7 @@
 Official recipes
 ^^^^^^^^^^^^^^^^
 """
+# Built-ins
 from __future__ import absolute_import, division, print_function
 from collections import deque
 from copy import copy
@@ -9,10 +10,9 @@ from itertools import (islice, count, groupby, chain, repeat, starmap, tee,
                        cycle, combinations)
 from operator import mul, itemgetter
 from random import choice, sample, randrange
-import sys
 
-
-PY2 = sys.version_info.major == 2
+# This module
+from .. import PY2
 
 # Replace list-generating functions by generator functions
 if PY2:
@@ -93,9 +93,9 @@ def tabulate(function, start=0):
 
     See also
     --------
-    .core.repeatfunc : Repeatedly call a function.
+    ._core.repeatfunc : Repeatedly call a function.
 
-    .additional.applyfunc : Repeatedly call a function on one value.
+    ._additional.applyfunc : Repeatedly call a function on one value.
 
     Examples
     --------
@@ -376,7 +376,7 @@ def flatten(iterable):
 
     See also
     --------
-    .additional.deepflatten : To flatten arbitary number of
+    ._additional.deepflatten : To flatten arbitary number of
         nestings and the possibility to define the types to flatten.
     """
     return chain.from_iterable(iterable)
@@ -405,9 +405,9 @@ def repeatfunc(func, *args, **times):
 
     See also
     --------
-    .core.tabulate : Repeatedly call a function on an incrementing value.
+    ._core.tabulate : Repeatedly call a function on an incrementing value.
 
-    .additional.applyfunc : Repeatedly call a function on one value.
+    ._additional.applyfunc : Repeatedly call a function on one value.
 
     Examples
     --------
@@ -448,7 +448,7 @@ def pairwise(iterable):
 
     See also
     --------
-    .additional.successive : More general solution with the option to specify
+    ._additional.successive : More general solution with the option to specify
         the number of sucessive elements in each tuple.
 
     Examples
@@ -558,7 +558,7 @@ def ipartition(iterable, pred):
 
     See also
     --------
-    .additional.partition : not-Generator variant of ipartition.
+    ._additional.partition : not-Generator variant of ipartition.
 
     Examples
     --------

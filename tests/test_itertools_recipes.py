@@ -1,30 +1,27 @@
+# Built-ins
 from __future__ import absolute_import, division, print_function
-import doctest
 from itertools import tee
-import sys
 
+# 3rd party
 import pytest
 
+# This module
 import iteration_utilities
 
-
-PY2 = sys.version_info.major == 2
-
-
-def doctest_module_no_failure(module):
-    assert doctest.testmod(module).failed == 0
+# Test helper
+from helper_doctest import doctest_module_no_failure
 
 
 def test_doctests():
-    doctest_module_no_failure(iteration_utilities.recipes.core)
-    doctest_module_no_failure(iteration_utilities.recipes.additional)
-    doctest_module_no_failure(iteration_utilities.recipes.py2_compat)
+    doctest_module_no_failure(iteration_utilities._recipes._core)
+    doctest_module_no_failure(iteration_utilities._recipes._additional)
+    doctest_module_no_failure(iteration_utilities._recipes._py2_compat)
 
 
 def test_exceptions():
 
     # old-style classes don't have the subclasses special member.
-    if PY2:
+    if iteration_utilities.PY2:
         class A:
             pass
         with pytest.raises(TypeError):
@@ -63,7 +60,7 @@ def test_empty_input():
     # no need to test iter_subclasses here
     assert not iteration_utilities.last_true(empty)
     assert list(iteration_utilities.merge(empty)) == []
-    assert iteration_utilities.minmax(empty, default=(0, 0)) == (0, 0)
+    assert iteration_utilities.minmax(empty, default=0) == (0, 0)
     assert list(iteration_utilities.ncycles(empty, 10)) == []
     assert iteration_utilities.nth(empty, 10) is None
     assert list(iteration_utilities.take(
