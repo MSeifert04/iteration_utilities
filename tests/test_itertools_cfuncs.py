@@ -274,6 +274,14 @@ def test_minmax_memoryleak():
         assert not memory_leak(test, Test)
 
 
+def test_accumulate():
+    accumulate = iteration_utilities.c_accumulate
+
+    assert list(accumulate([1, 2, 3, 4])) == [1, 3, 6, 10]
+    assert list(accumulate([1, 2, 3, 4], operator.mul)) == [1, 2, 6, 24]
+    assert list(accumulate([])) == []
+
+
 def test_callbacks():
     assert iteration_utilities.return_True()
     assert not iteration_utilities.return_False()

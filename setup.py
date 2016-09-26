@@ -16,9 +16,14 @@ mathematical_module = Extension(
         sources=['src_c/mathematical.c']
     )
 
-minmax_module = Extension(
+reduce_module = Extension(
         'iteration_utilities._reduce',
         sources=['src_c/reduce.c']
+    )
+
+crecipes_module = Extension(
+        'iteration_utilities._crecipes',
+        sources=['src_c/recipes.c']
     )
 
 
@@ -72,8 +77,9 @@ setup(name='iteration_utilities',
 
       ext_modules=[returnx_module,
                    isx_module,
-                   minmax_module,
-                   mathematical_module],
+                   mathematical_module,
+                   reduce_module,
+                   crecipes_module],
 
       include_package_data=True,
       zip_safe=False,
