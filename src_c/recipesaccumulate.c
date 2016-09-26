@@ -9,7 +9,9 @@ typedef struct {
     PyObject *binop;
 } recipes_accumulateobject;
 
+
 static PyTypeObject recipes_accumulate_type;
+
 
 static PyObject *
 recipes_accumulate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
@@ -45,6 +47,7 @@ recipes_accumulate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)lz;
 }
 
+
 static void
 recipes_accumulate_dealloc(recipes_accumulateobject *lz)
 {
@@ -55,6 +58,7 @@ recipes_accumulate_dealloc(recipes_accumulateobject *lz)
     Py_TYPE(lz)->tp_free(lz);
 }
 
+
 static int
 recipes_accumulate_traverse(recipes_accumulateobject *lz, visitproc visit, void *arg)
 {
@@ -63,6 +67,7 @@ recipes_accumulate_traverse(recipes_accumulateobject *lz, visitproc visit, void 
     Py_VISIT(lz->total);
     return 0;
 }
+
 
 static PyObject *
 recipes_accumulate_next(recipes_accumulateobject *lz)
@@ -92,58 +97,10 @@ recipes_accumulate_next(recipes_accumulateobject *lz)
     return newtotal;
 }
 
-/*
-static PyObject *
-recipes_accumulate_reduce(recipes_accumulateobject *lz)
-{
-    if (lz->total == Py_None) {
-        PyObject *it;
-
-        if (PyType_Ready(&chain_type) < 0)
-            return NULL;
-        if (PyType_Ready(&islice_type) < 0)
-            return NULL;
-        it = PyObject_CallFunction((PyObject *)&chain_type, "(O)O",
-                                   lz->total, lz->it);
-        if (it == NULL)
-            return NULL;
-        it = PyObject_CallFunction((PyObject *)Py_TYPE(lz), "NO",
-                                   it, lz->binop ? lz->binop : Py_None);
-        if (it == NULL)
-            return NULL;
-        return Py_BuildValue("O(NiO)", &islice_type, it, 1, Py_None);
-    }
-    return Py_BuildValue("O(OO)O", Py_TYPE(lz),
-                            lz->it, lz->binop?lz->binop:Py_None,
-                            lz->total?lz->total:Py_None);
-}
-
-static PyObject *
-recipes_accumulate_setstate(recipes_accumulateobject *lz, PyObject *state)
-{
-    Py_INCREF(state);
-    Py_XSETREF(lz->total, state);
-    Py_RETURN_NONE;
-}
-
-static PyMethodDef recipes_accumulate_methods[] = {
-    {"__reduce__",
-     (PyCFunction)recipes_accumulate_reduce,
-     METH_NOARGS,
-     reduce_doc},
-
-    {"__setstate__",
-     (PyCFunction)recipes_accumulate_setstate,
-     METH_O,
-     setstate_doc},
-
-    {NULL,              NULL}   /* sentinel */
-};
-*/
-
 static PyMethodDef recipes_accumulate_methods[] = {
     {NULL,              NULL}   /* sentinel */
 };
+
 
 PyDoc_STRVAR(recipes_accumulate_doc,
 "accumulate(iterable[, func])\n\
