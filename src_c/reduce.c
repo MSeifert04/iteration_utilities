@@ -1,6 +1,6 @@
 #include <Python.h>
 #include <structmember.h>
-#include "minmax.c"
+#include "reduceminmax.c"
 
 
 //Method definition object for this extension, these argumens mean:
