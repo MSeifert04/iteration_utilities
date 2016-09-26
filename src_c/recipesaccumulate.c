@@ -1,5 +1,7 @@
 /******************************************************************************
  * Part of recipes.c
+ *
+ * - "accumulate" is only included for python 2 compatibility.
  *****************************************************************************/
 
 typedef struct {
@@ -72,7 +74,7 @@ recipes_accumulate_traverse(recipes_accumulateobject *lz, visitproc visit, void 
 static PyObject *
 recipes_accumulate_next(recipes_accumulateobject *lz)
 {
-    PyObject *val, *newtotal;
+    PyObject *val, *oldtotal, *newtotal;
 
     val = (*Py_TYPE(lz->it)->tp_iternext)(lz->it);
     if (val == NULL)
@@ -92,12 +94,47 @@ recipes_accumulate_next(recipes_accumulateobject *lz)
     if (newtotal == NULL)
         return NULL;
 
+    oldtotal = lz->total;
+    lz->total = newtotal;
+    Py_DECREF(oldtotal);
+
     Py_INCREF(newtotal);
-    Py_SETREF(lz->total, newtotal);
     return newtotal;
 }
 
+// Code for Python 3.5+ does not work here because itertoolsmodule.c is not
+// included.
+static PyObject *
+recipes_accumulate_reduce(recipes_accumulateobject *lz)
+{
+    return Py_BuildValue("O(OO)O", Py_TYPE(lz),
+                            lz->it, lz->binop?lz->binop:Py_None,
+                            lz->total?lz->total:Py_None);
+ }
+
+
+static PyObject *
+recipes_accumulate_setstate(recipes_accumulateobject *lz, PyObject *state)
+{
+    Py_CLEAR(lz->total);
+    lz->total = state;
+    Py_INCREF(lz->total);
+    Py_RETURN_NONE;
+}
+
+
 static PyMethodDef recipes_accumulate_methods[] = {
+
+    {"__reduce__",
+     (PyCFunction)recipes_accumulate_reduce,
+     METH_NOARGS,
+     ""},
+
+    {"__setstate__",
+     (PyCFunction)recipes_accumulate_setstate,
+     METH_O,
+     ""},
+
     {NULL,              NULL}   /* sentinel */
 };
 
