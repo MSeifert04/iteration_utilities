@@ -11,7 +11,7 @@ import iteration_utilities
 # Test helper
 from helper_doctest import doctest_module_no_failure
 from helper_leak import memory_leak
-from pytest_monkeypatch import pytest_raises
+from helper_pytest_monkeypatch import pytest_raises
 
 
 def test_doctests():
