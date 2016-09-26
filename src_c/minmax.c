@@ -9,6 +9,8 @@ minmax(PyObject *self, PyObject *args, PyObject *kwds)
     PyObject *temp = NULL, *emptytuple = NULL, *resulttuple = NULL;
 
     const int positional = PyTuple_Size(args) > 1;
+    static char *kwlist[] = {"key", "default", NULL};
+    int nkwds = 0;
     int ret;
     int cmp;
 
@@ -24,7 +26,6 @@ minmax(PyObject *self, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
-    static char *kwlist[] = {"key", "default", NULL};
     ret = PyArg_ParseTupleAndKeywords(emptytuple, kwds, "|$OO", kwlist,
                                       &keyfunc, &defaultitem);
 
@@ -34,19 +35,18 @@ minmax(PyObject *self, PyObject *args, PyObject *kwds)
         return NULL;
     }
 #else
-    int num_used_kwds = 0;
     if (kwds != NULL && PyDict_Check(kwds) && PyDict_Size(kwds)) {
         keyfunc = PyDict_GetItemString(kwds, "key");
         if (keyfunc != NULL) {
-            num_used_kwds++;
+            nkwds++;
             Py_INCREF(keyfunc);
         }
         defaultitem = PyDict_GetItemString(kwds, "default");
         if (defaultitem != NULL) {
-            num_used_kwds++;
+            nkwds++;
             Py_INCREF(defaultitem);
         }
-        if (PyDict_Size(kwds) - num_used_kwds != 0) {
+        if (PyDict_Size(kwds) - nkwds != 0) {
             PyErr_Format(PyExc_TypeError,
                          "minmax got an unexpected keyword argument");
             Py_XDECREF(keyfunc);
