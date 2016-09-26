@@ -235,12 +235,12 @@ def test_minmax_memoryleak():
 
     def test():
         with pytest.raises(TypeError):  # func fails on odd numbered arg
-            minmax(Test(100), Test('a'), key=lambda x: x + '')
+            minmax(Test(100), Test('a'), key=lambda x: x.value + '')
     assert not memory_leak(test, Test)
 
     def test():
         with pytest.raises(TypeError):  # func fails on even numbered arg
-            minmax(Test('a'), Test(100), key=lambda x: x + '')
+            minmax(Test('a'), Test(100), key=lambda x: x.value + '')
     assert not memory_leak(test, Test)
 
     if not iteration_utilities.PY2:

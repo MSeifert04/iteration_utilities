@@ -8,7 +8,6 @@ minmax(PyObject *self, PyObject *args, PyObject *kwds)
     PyObject *maxitem = NULL, *maxval = NULL, *minitem = NULL, *minval = NULL;
     PyObject *temp = NULL, *emptytuple = NULL, *resulttuple = NULL;
 
-    static char *kwlist[] = {"key", "default", NULL};
     const int positional = PyTuple_Size(args) > 1;
     int ret;
     int cmp;
@@ -19,11 +18,13 @@ minmax(PyObject *self, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
+#if PY_MAJOR_VERSION >= 3
     emptytuple = PyTuple_New(0);
     if (emptytuple == NULL) {
         return NULL;
     }
 
+    static char *kwlist[] = {"key", "default", NULL};
     ret = PyArg_ParseTupleAndKeywords(emptytuple, kwds, "|$OO", kwlist,
                                       &keyfunc, &defaultitem);
 
@@ -32,16 +33,46 @@ minmax(PyObject *self, PyObject *args, PyObject *kwds)
     if (!ret) {
         return NULL;
     }
+#else
+    int num_used_kwds = 0;
+    if (kwds != NULL && PyDict_Check(kwds) && PyDict_Size(kwds)) {
+        keyfunc = PyDict_GetItemString(kwds, "key");
+        if (keyfunc != NULL) {
+            num_used_kwds++;
+            Py_INCREF(keyfunc);
+        }
+        defaultitem = PyDict_GetItemString(kwds, "default");
+        if (defaultitem != NULL) {
+            num_used_kwds++;
+            Py_INCREF(defaultitem);
+        }
+        if (PyDict_Size(kwds) - num_used_kwds != 0) {
+            PyErr_Format(PyExc_TypeError,
+                         "minmax got an unexpected keyword argument");
+            Py_XDECREF(keyfunc);
+            Py_XDECREF(defaultitem);
+            return NULL;
+        }
+    }
+#endif
 
     if (positional && defaultitem != NULL) {
         PyErr_Format(PyExc_TypeError,
                      "Cannot specify a default for minmax with multiple "
                      "positional arguments");
+#if PY_MAJOR_VERSION == 2
+        Py_XDECREF(keyfunc);
+        Py_XDECREF(defaultitem);
+#endif
         return NULL;
     }
 
     iterator = PyObject_GetIter(sequence);
     if (iterator == NULL) {
+#if PY_MAJOR_VERSION == 2
+        Py_XDECREF(keyfunc);
+        Py_XDECREF(defaultitem);
+#endif
         return NULL;
     }
 
@@ -178,6 +209,10 @@ minmax(PyObject *self, PyObject *args, PyObject *kwds)
         goto Fail;
     }
 
+#if PY_MAJOR_VERSION == 2
+    Py_XDECREF(keyfunc);
+#endif
+
     if (minval == NULL) {
         assert(maxval == NULL);
         assert(minitem == NULL);
@@ -195,6 +230,9 @@ minmax(PyObject *self, PyObject *args, PyObject *kwds)
         Py_DECREF(minval);
         Py_DECREF(maxval);
     }
+#if PY_MAJOR_VERSION == 2
+    Py_XDECREF(defaultitem);
+#endif
 
     Py_DECREF(iterator);
 
@@ -209,6 +247,10 @@ minmax(PyObject *self, PyObject *args, PyObject *kwds)
     return resulttuple;
 
 Fail:
+#if PY_MAJOR_VERSION == 2
+    Py_XDECREF(keyfunc);
+    Py_XDECREF(defaultitem);
+#endif
     Py_XDECREF(item1);
     Py_XDECREF(item2);
     Py_XDECREF(val1);
