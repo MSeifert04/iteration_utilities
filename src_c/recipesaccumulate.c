@@ -1,7 +1,8 @@
 /******************************************************************************
  * Part of recipes.c
  *
- * - "accumulate" is only included for python 2 compatibility.
+ * - "accumulate" is only included for python 2 compatibility. But has a
+ *   different signature as well.
  *****************************************************************************/
 
 typedef struct {
@@ -148,12 +149,12 @@ static PyMethodDef recipes_accumulate_methods[] = {
 
 
 PyDoc_STRVAR(recipes_accumulate_doc,
-"accumulate(iterable)\n\
+"accumulate(iterable, *)\n\
 accumulate(func, iterable[, start])\n\
 \n\
 Make an iterator that returns accumulated sums, or accumulated\n\
 results of other binary functions (specified via the optional `func`\n\
-argument). Taken from [0]_.\n\
+argument). Copied and modified from [0]_.\n\
 \n\
 Parameters\n\
 ----------\n\
@@ -196,15 +197,19 @@ initial value in the `iterable` and using only the accumulated total in\n\
     >>> import operator\n\
 \n\
     >>> data = [3, 4, 6, 2, 1, 9, 0, 7, 5, 8]\n\
+    >>> list(accumulate(data))                   # running sum\n\
+    [3, 7, 13, 15, 16, 25, 25, 32, 37, 45]\n\
+    >>> list(accumulate(operator.add, data))     # running sum (explicit)\n\
+    [3, 7, 13, 15, 16, 25, 25, 32, 37, 45]\n\
     >>> list(accumulate(operator.mul, data))     # running product\n\
     [3, 12, 72, 144, 144, 1296, 0, 0, 0, 0]\n\
     >>> list(accumulate(max, data))              # running maximum\n\
     [3, 4, 6, 6, 6, 9, 9, 9, 9, 9]\n\
 \n\
-Amortize a 5% loan of 1000 with 4 annual payments of 90::\n\
+Amortize a 5% loan of 1000 (start value) with 4 annual payments of 90::\n\
 \n\
-    >>> cashflows = [1000, -90, -90, -90, -90]\n\
-    >>> list(accumulate(lambda bal, pmt: bal*1.05 + pmt, cashflows))\n\
+    >>> cashflows = [-90, -90, -90, -90]\n\
+    >>> list(accumulate(lambda bal, pmt: bal*1.05 + pmt, cashflows, 1000))\n\
     [1000, 960.0, 918.0, 873.9000000000001, 827.5950000000001]\n\
 \n\
 Chaotic recurrence relation [1]_::\n\

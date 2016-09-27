@@ -15,6 +15,8 @@ from helper_pytest_monkeypatch import pytest_raises
 
 
 def test_doctests():
+    # classes are added to the main module code. :-)
+    doctest_module_no_failure(iteration_utilities)
     doctest_module_no_failure(iteration_utilities._cfuncs)
 
 
@@ -286,6 +288,59 @@ def test_accumulate():
 
     # Start value
     assert list(accumulate(None, [1, 2, 3], 10)) == [11, 13, 16]
+
+
+def test_accumulate_memoryleak():
+    accumulate = iteration_utilities.accumulate
+
+    class Test(object):
+        def __init__(self, value):
+            self.value = value
+
+        def __add__(self, other):
+            return self.__class__(self.value + other.value)
+
+        def __mul__(self, other):
+            return self.__class__(self.value * other.value)
+
+    def test():
+        list(accumulate([Test(1), Test(2), Test(3)]))
+    assert not memory_leak(test, Test)
+
+    def test():
+        list(accumulate(None, [Test(1), Test(2), Test(3)]))
+    assert not memory_leak(test, Test)
+
+    def test():
+        list(accumulate(operator.add, [Test(1), Test(2), Test(3)]))
+    assert not memory_leak(test, Test)
+
+    def test():
+        list(accumulate(operator.mul, [Test(1), Test(2), Test(3)]))
+    assert not memory_leak(test, Test)
+
+    def test():
+        list(accumulate(operator.add, [Test(1), Test(2), Test(3)], Test(10)))
+    assert not memory_leak(test, Test)
+
+    def test():
+        with pytest.raises(TypeError):
+            list(accumulate(operator.add,
+                            [Test(1), Test(2), Test(3)],
+                            Test('a')))
+    assert not memory_leak(test, Test)
+
+    def test():
+        with pytest.raises(TypeError):
+            list(accumulate(None,
+                            [Test(1), Test(2), Test(3)],
+                            Test('a')))
+    assert not memory_leak(test, Test)
+
+    def test():
+        with pytest.raises(TypeError):
+            list(accumulate([Test('a'), Test(2), Test(3)]))
+    assert not memory_leak(test, Test)
 
 
 def test_callbacks():
