@@ -347,10 +347,9 @@ def test_callbacks():
     assert iteration_utilities.return_True()
     assert not iteration_utilities.return_False()
     assert iteration_utilities.return_None() is None
+    assert iteration_utilities.return_first_positional_argument(1, 2, 3) == 1
 
     assert iteration_utilities.square(2) == 4
 
     assert iteration_utilities.is_None(None)
     assert not iteration_utilities.is_None(False)
-
-    assert iteration_utilities.return_first_positional_argument(1, 2, 3) == 1
