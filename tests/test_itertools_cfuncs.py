@@ -324,21 +324,21 @@ def test_accumulate_memoryleak():
     assert not memory_leak(test, Test)
 
     def test():
-        with pytest.raises(TypeError):
+        with pytest_raises(TypeError):
             list(accumulate(operator.add,
                             [Test(1), Test(2), Test(3)],
                             Test('a')))
     assert not memory_leak(test, Test)
 
     def test():
-        with pytest.raises(TypeError):
+        with pytest_raises(TypeError):
             list(accumulate(None,
                             [Test(1), Test(2), Test(3)],
                             Test('a')))
     assert not memory_leak(test, Test)
 
     def test():
-        with pytest.raises(TypeError):
+        with pytest_raises(TypeError):
             list(accumulate([Test('a'), Test(2), Test(3)]))
     assert not memory_leak(test, Test)
 
