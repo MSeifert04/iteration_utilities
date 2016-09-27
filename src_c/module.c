@@ -1,5 +1,9 @@
 #include <Python.h>
 #include <structmember.h>
+#include "isx.c"
+#include "returnx.c"
+#include "mathematical.c"
+#include "reduceminmax.c"
 #include "recipesaccumulate.c"
 
 
@@ -11,25 +15,60 @@
 //          class method, or being a static method of a class.
 //ml_doc:  Contents of this method's docstring
 static PyMethodDef
-recipes_methods[] = {
+iterationutils_methods[] = {
+
+    {"is_None",
+     (PyCFunction)isx_IsNone,
+     METH_O,
+     isx_IsNone_doc},
+
+    {"square",
+     (PyCFunction)mathematical_square,
+     METH_O,
+     mathematical_square_doc},
+
+    {"return_True",
+     (PyCFunction)returnx_returnTrue,
+     METH_VARARGS | METH_KEYWORDS,
+     returnx_returnTrue_doc},
+
+    {"return_False",
+     (PyCFunction)returnx_returnFalse,
+     METH_VARARGS | METH_KEYWORDS,
+     returnx_returnFalse_doc},
+
+    {"return_None",
+     (PyCFunction)returnx_returnNone,
+     METH_VARARGS | METH_KEYWORDS,
+     returnx_returnNone_doc},
+
+    {"return_first_positional_argument",
+     (PyCFunction)returnx_returnFirstPositionalArgument,
+     METH_VARARGS | METH_KEYWORDS,
+     returnx_returnFirstPositionalArgument_doc},
+
+    {"minmax",
+     (PyCFunction)reduce_minmax,
+     METH_VARARGS | METH_KEYWORDS,
+     reduce_minmax_doc},
 
     {NULL, NULL}
 };
 
-PyDoc_STRVAR(recipes_module_name, "_crecipes");
-PyDoc_STRVAR(recipes_module_doc, "Iteration Recipes\n^^^^^^^^^^^^^^^^^");
+PyDoc_STRVAR(iterationutils_module_name, "_cfuncs");
+PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
 
 #if PY_MAJOR_VERSION >= 3
   //Module definition
   //The arguments of this structure tell Python what to call your extension,
   //what it's methods are and where to look for it's method definitions
   static struct PyModuleDef
-  recipes_definition = {
+  iterationutils_definition = {
     PyModuleDef_HEAD_INIT,
-    recipes_module_name,                 /* module name */
-    recipes_module_doc,                  /* module docstring */
-    -1,                                  /* API version */
-    recipes_methods,                     /* module methods */
+    iterationutils_module_name,         /* module name */
+    iterationutils_module_doc,          /* module docstring */
+    -1,                                 /* API version */
+    iterationutils_methods,             /* module methods */
 
     NULL, NULL, NULL, NULL
   };
@@ -39,7 +78,7 @@ PyDoc_STRVAR(recipes_module_doc, "Iteration Recipes\n^^^^^^^^^^^^^^^^^");
   //that this function is named PyInit_[[your_module_name]] exactly, and matches
   //the name keyword argument in setup.py's setup() call.
   PyMODINIT_FUNC
-  PyInit__crecipes(void)
+  PyInit__cfuncs(void)
   {
     //Py_Initialize();
     int i;
@@ -53,7 +92,7 @@ PyDoc_STRVAR(recipes_module_doc, "Iteration Recipes\n^^^^^^^^^^^^^^^^^");
         NULL
     };
 
-    m = PyModule_Create(&recipes_definition);
+    m = PyModule_Create(&iterationutils_definition);
     if (m == NULL)
         return NULL;
 
@@ -74,7 +113,7 @@ PyDoc_STRVAR(recipes_module_doc, "Iteration Recipes\n^^^^^^^^^^^^^^^^^");
 #else
 
   void
-  init_crecipes(void)
+  init_cfuncs(void)
   {
     /* Create the module and add the functions */
     int i;
@@ -88,7 +127,7 @@ PyDoc_STRVAR(recipes_module_doc, "Iteration Recipes\n^^^^^^^^^^^^^^^^^");
         NULL
     };
 
-    m = Py_InitModule3(recipes_module_name, recipes_methods, recipes_module_doc);
+    m = Py_InitModule3(iterationutils_module_name, iterationutils_methods, iterationutils_module_doc);
     if (m == NULL)
         return;
 

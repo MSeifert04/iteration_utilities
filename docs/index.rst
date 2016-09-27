@@ -127,7 +127,7 @@ Additional recipes for iterations.
 - :py:func:`partition`
 - :py:func:`successive`
 
-.. py:currentmodule:: iteration_utilities._reduce
+.. py:currentmodule:: iteration_utilities._cfuncs
 
 - :py:func:`minmax`
 

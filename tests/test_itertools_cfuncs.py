@@ -15,10 +15,7 @@ from helper_pytest_monkeypatch import pytest_raises
 
 
 def test_doctests():
-    doctest_module_no_failure(iteration_utilities._reduce)
-    doctest_module_no_failure(iteration_utilities._returnx)
-    doctest_module_no_failure(iteration_utilities._isx)
-    doctest_module_no_failure(iteration_utilities._mathematical)
+    doctest_module_no_failure(iteration_utilities._cfuncs)
 
 
 def test_minmax():
@@ -277,8 +274,8 @@ def test_minmax_memoryleak():
 def test_accumulate():
     accumulate = iteration_utilities.c_accumulate
 
-    assert list(accumulate([1, 2, 3, 4])) == [1, 3, 6, 10]
-    assert list(accumulate([1, 2, 3, 4], operator.mul)) == [1, 2, 6, 24]
+    assert list(accumulate(None, [1, 2, 3, 4])) == [1, 3, 6, 10]
+    assert list(accumulate(operator.mul, [1, 2, 3, 4])) == [1, 2, 6, 24]
     assert list(accumulate([])) == []
 
 

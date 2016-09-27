@@ -7,7 +7,7 @@
 typedef struct {
     PyObject_HEAD
     PyObject *total;
-    PyObject *it;
+    PyObject *iterator;
     PyObject *binop;
 } recipes_accumulateobject;
 
@@ -18,25 +18,32 @@ static PyTypeObject recipes_accumulate_type;
 static PyObject *
 recipes_accumulate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    static char *kwargs[] = {"iterable", "func", NULL};
-    PyObject *iterable;
-    PyObject *it;
-    PyObject *binop = Py_None;
+    static char *kwargs[] = {"func", "iterable", "start", NULL};
+    PyObject *iterable=NULL, *binop=NULL, *start=NULL;
+    PyObject *iterator;
     recipes_accumulateobject *lz;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|O:accumulate",
-                                     kwargs, &iterable, &binop))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OO:accumulate",
+                                     kwargs, &binop, &iterable, &start)) {
         return NULL;
+    }
+
+    /* If only one positional argument was given interpret this as iterable. */
+    if (kwds == NULL && iterable == NULL && start == NULL) {
+        iterable = binop;
+        binop = NULL;
+    }
 
     /* Get iterator. */
-    it = PyObject_GetIter(iterable);
-    if (it == NULL)
+    iterator = PyObject_GetIter(iterable);
+    if (iterator == NULL) {
         return NULL;
+    }
 
     /* create accumulateobject structure */
     lz = (recipes_accumulateobject *)type->tp_alloc(type, 0);
     if (lz == NULL) {
-        Py_DECREF(it);
+        Py_DECREF(iterator);
         return NULL;
     }
 
@@ -44,8 +51,15 @@ recipes_accumulate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_XINCREF(binop);
         lz->binop = binop;
     }
-    lz->total = NULL;
-    lz->it = it;
+
+    if (start != NULL) {
+        Py_INCREF(start);
+        lz->total = start;
+    } else {
+        lz->total = NULL;
+    }
+
+    lz->iterator = iterator;
     return (PyObject *)lz;
 }
 
@@ -56,7 +70,7 @@ recipes_accumulate_dealloc(recipes_accumulateobject *lz)
     PyObject_GC_UnTrack(lz);
     Py_XDECREF(lz->binop);
     Py_XDECREF(lz->total);
-    Py_XDECREF(lz->it);
+    Py_XDECREF(lz->iterator);
     Py_TYPE(lz)->tp_free(lz);
 }
 
@@ -65,7 +79,7 @@ static int
 recipes_accumulate_traverse(recipes_accumulateobject *lz, visitproc visit, void *arg)
 {
     Py_VISIT(lz->binop);
-    Py_VISIT(lz->it);
+    Py_VISIT(lz->iterator);
     Py_VISIT(lz->total);
     return 0;
 }
@@ -76,9 +90,10 @@ recipes_accumulate_next(recipes_accumulateobject *lz)
 {
     PyObject *val, *oldtotal, *newtotal;
 
-    val = (*Py_TYPE(lz->it)->tp_iternext)(lz->it);
-    if (val == NULL)
+    val = (*Py_TYPE(lz->iterator)->tp_iternext)(lz->iterator);
+    if (val == NULL) {
         return NULL;
+    }
 
     if (lz->total == NULL) {
         Py_INCREF(val);
@@ -86,32 +101,33 @@ recipes_accumulate_next(recipes_accumulateobject *lz)
         return lz->total;
     }
 
-    if (lz->binop == NULL)
+    if (lz->binop == NULL) {
         newtotal = PyNumber_Add(lz->total, val);
-    else
+    } else {
         newtotal = PyObject_CallFunctionObjArgs(lz->binop, lz->total, val, NULL);
+    }
     Py_DECREF(val);
-    if (newtotal == NULL)
+    if (newtotal == NULL) {
         return NULL;
+    }
 
     oldtotal = lz->total;
     lz->total = newtotal;
     Py_DECREF(oldtotal);
-
     Py_INCREF(newtotal);
+
     return newtotal;
 }
 
-// Code for Python 3.5+ does not work here because itertoolsmodule.c is not
-// included.
 static PyObject *
 recipes_accumulate_reduce(recipes_accumulateobject *lz)
 {
-    return Py_BuildValue("O(OO)O", Py_TYPE(lz),
-                            lz->it, lz->binop?lz->binop:Py_None,
-                            lz->total?lz->total:Py_None);
+    return Py_BuildValue("O(OO)O",
+                         Py_TYPE(lz),
+                         lz->binop?lz->binop:Py_None,
+                         lz->iterator,
+                         lz->total?lz->total:Py_None);
  }
-
 
 static PyObject *
 recipes_accumulate_setstate(recipes_accumulateobject *lz, PyObject *state)
@@ -122,27 +138,91 @@ recipes_accumulate_setstate(recipes_accumulateobject *lz, PyObject *state)
     Py_RETURN_NONE;
 }
 
-
 static PyMethodDef recipes_accumulate_methods[] = {
-
-    {"__reduce__",
-     (PyCFunction)recipes_accumulate_reduce,
-     METH_NOARGS,
+    {"__reduce__",      (PyCFunction)recipes_accumulate_reduce,      METH_NOARGS,
      ""},
-
-    {"__setstate__",
-     (PyCFunction)recipes_accumulate_setstate,
-     METH_O,
+    {"__setstate__",    (PyCFunction)recipes_accumulate_setstate,    METH_O,
      ""},
-
     {NULL,              NULL}   /* sentinel */
 };
 
 
 PyDoc_STRVAR(recipes_accumulate_doc,
-"accumulate(iterable[, func])\n\
+"c_accumulate(iterable)\n\
+c_accumulate(func, iterable[, start])\n\
 \n\
-Return series of accumulated sums (or other binary function results).");
+Make an iterator that returns accumulated sums, or accumulated\n\
+results of other binary functions (specified via the optional `func`\n\
+argument). Taken from [0]_.\n\
+\n\
+Parameters\n\
+----------\n\
+func : callable or None, optional\n\
+    The function with which to accumulate. Should be a function of two\n\
+    arguments.\n\
+    If ``None`` defaults to :py:func:`operator.add`.\n\
+\n\
+iterable : iterable\n\
+    The `iterable` to accumulate.\n\
+\n\
+start : any type, optional\n\
+    If given this value is inserted before the `iterable`.\n\
+\n\
+Returns\n\
+-------\n\
+accumulated : generator\n\
+    The accumulated results as generator.\n\
+\n\
+Notes\n\
+-----\n\
+Elements of the input `iterable` may be any type that can be\n\
+accepted as arguments to `func`. (For example, with the default\n\
+operation of addition, elements may be any addable type including\n\
+Decimal or Fraction.) If the input `iterable` is empty, the output\n\
+iterable will also be empty.\n\
+\n\
+Examples\n\
+--------\n\
+There are a number of uses for the `func` argument. It can be set to\n\
+:py:func:`min` for a running minimum, :py:func:`max` for a running\n\
+maximum, or :py:func:`operator.mul` for a running product. Amortization\n\
+tables can be built by accumulating interest and applying payments.\n\
+First-order recurrence relations can be modeled by supplying the\n\
+initial value in the `iterable` and using only the accumulated total in\n\
+`func` argument::\n\
+\n\
+    >>> from iteration_utilities import accumulate\n\
+    >>> from itertools import repeat\n\
+    >>> import operator\n\
+\n\
+    >>> data = [3, 4, 6, 2, 1, 9, 0, 7, 5, 8]\n\
+    >>> list(accumulate(operator.mul, data))     # running product\n\
+    [3, 12, 72, 144, 144, 1296, 0, 0, 0, 0]\n\
+    >>> list(accumulate(max, data))              # running maximum\n\
+    [3, 4, 6, 6, 6, 9, 9, 9, 9, 9]\n\
+\n\
+Amortize a 5% loan of 1000 with 4 annual payments of 90::\n\
+\n\
+    >>> cashflows = [1000, -90, -90, -90, -90]\n\
+    >>> list(accumulate(lambda bal, pmt: bal*1.05 + pmt, cashflows))\n\
+    [1000, 960.0, 918.0, 873.9000000000001, 827.5950000000001]\n\
+\n\
+Chaotic recurrence relation [1]_::\n\
+\n\
+    >>> logistic_map = lambda x, _:  r * x * (1 - x)\n\
+    >>> r = 3.8\n\
+    >>> x0 = 0.4\n\
+    >>> inputs = repeat(x0, 36)     # only the initial value is used\n\
+    >>> [format(x, '.2f') for x in accumulate(logistic_map, inputs)]\n\
+    ['0.40', '0.91', '0.30', '0.81', '0.60', '0.92', '0.29', '0.79', \
+'0.63', '0.88', '0.39', '0.90', '0.33', '0.84', '0.52', '0.95', '0.18', \
+'0.57', '0.93', '0.25', '0.71', '0.79', '0.63', '0.88', '0.39', '0.91', \
+'0.32', '0.83', '0.54', '0.95', '0.20', '0.60', '0.91', '0.30', '0.80', '0.60']\n\
+\n\
+References\n\
+----------\n\
+.. [0] https://docs.python.org/3/library/itertools.html#itertools.accumulate\n\
+.. [1] https://en.wikipedia.org/wiki/Logistic_map");
 
 static PyTypeObject recipes_accumulate_type = {
     PyVarObject_HEAD_INIT(NULL, 0)
