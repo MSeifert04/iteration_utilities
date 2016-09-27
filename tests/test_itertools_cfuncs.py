@@ -272,11 +272,20 @@ def test_minmax_memoryleak():
 
 
 def test_accumulate():
-    accumulate = iteration_utilities.c_accumulate
+    accumulate = iteration_utilities.accumulate
 
-    assert list(accumulate(None, [1, 2, 3, 4])) == [1, 3, 6, 10]
-    assert list(accumulate(operator.mul, [1, 2, 3, 4])) == [1, 2, 6, 24]
+    # Test one-argument form
     assert list(accumulate([])) == []
+    assert list(accumulate([1, 2, 3])) == [1, 3, 6]
+
+    # Test multiple accumulators
+    assert list(accumulate(None, [])) == []
+    assert list(accumulate(None, [1, 2, 3, 4])) == [1, 3, 6, 10]
+    assert list(accumulate(operator.add, [1, 2, 3, 4])) == [1, 3, 6, 10]
+    assert list(accumulate(operator.mul, [1, 2, 3, 4])) == [1, 2, 6, 24]
+
+    # Start value
+    assert list(accumulate(None, [1, 2, 3], 10)) == [11, 13, 16]
 
 
 def test_callbacks():

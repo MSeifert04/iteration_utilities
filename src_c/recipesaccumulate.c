@@ -148,8 +148,8 @@ static PyMethodDef recipes_accumulate_methods[] = {
 
 
 PyDoc_STRVAR(recipes_accumulate_doc,
-"c_accumulate(iterable)\n\
-c_accumulate(func, iterable[, start])\n\
+"accumulate(iterable)\n\
+accumulate(func, iterable[, start])\n\
 \n\
 Make an iterator that returns accumulated sums, or accumulated\n\
 results of other binary functions (specified via the optional `func`\n\
@@ -226,7 +226,7 @@ References\n\
 
 static PyTypeObject recipes_accumulate_type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.c_accumulate", /* tp_name */
+    "iteration_utilities.accumulate",   /* tp_name */
     sizeof(recipes_accumulateobject),   /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */

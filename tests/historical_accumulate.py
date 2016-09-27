@@ -1,16 +1,8 @@
-"""
-Compatibility layer
-^^^^^^^^^^^^^^^^^^^
-"""
 # Built-ins
-from __future__ import absolute_import, division, print_function
 import operator
 
 # This module
-from .. import PY2
-
-__all__ = ['accumulate']
-
+from iteration_utilities import PY2
 
 if PY2:
     def accumulate(iterable, func=operator.add):

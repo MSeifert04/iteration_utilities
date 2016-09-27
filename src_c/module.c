@@ -127,7 +127,9 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
         NULL
     };
 
-    m = Py_InitModule3(iterationutils_module_name, iterationutils_methods, iterationutils_module_doc);
+    m = Py_InitModule3(iterationutils_module_name,
+                       iterationutils_methods,
+                       iterationutils_module_doc);
     if (m == NULL)
         return;
 

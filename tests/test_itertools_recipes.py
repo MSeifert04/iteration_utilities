@@ -15,7 +15,6 @@ from helper_doctest import doctest_module_no_failure
 def test_doctests():
     doctest_module_no_failure(iteration_utilities._recipes._core)
     doctest_module_no_failure(iteration_utilities._recipes._additional)
-    doctest_module_no_failure(iteration_utilities._recipes._py2_compat)
 
 
 def test_exceptions():
@@ -45,7 +44,6 @@ def test_exceptions():
 
 def test_empty_input():
     empty = []
-    assert list(iteration_utilities.accumulate(empty)) == []
     # no need to test apply_func here
     assert iteration_utilities.all_equal(empty)
     assert iteration_utilities.consume(empty, 2) is None
