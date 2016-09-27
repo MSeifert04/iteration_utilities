@@ -15,10 +15,9 @@ from helper_pytest_monkeypatch import pytest_raises
 
 
 def test_doctests():
-    doctest_module_no_failure(iteration_utilities._reduce)
-    doctest_module_no_failure(iteration_utilities._returnx)
-    doctest_module_no_failure(iteration_utilities._isx)
-    doctest_module_no_failure(iteration_utilities._mathematical)
+    # classes are added to the main module code. :-)
+    doctest_module_no_failure(iteration_utilities)
+    doctest_module_no_failure(iteration_utilities._cfuncs)
 
 
 def test_minmax():
@@ -274,14 +273,83 @@ def test_minmax_memoryleak():
         assert not memory_leak(test, Test)
 
 
+def test_accumulate():
+    accumulate = iteration_utilities.accumulate
+
+    # Test one-argument form
+    assert list(accumulate([])) == []
+    assert list(accumulate([1, 2, 3])) == [1, 3, 6]
+
+    # Test multiple accumulators
+    assert list(accumulate(None, [])) == []
+    assert list(accumulate(None, [1, 2, 3, 4])) == [1, 3, 6, 10]
+    assert list(accumulate(operator.add, [1, 2, 3, 4])) == [1, 3, 6, 10]
+    assert list(accumulate(operator.mul, [1, 2, 3, 4])) == [1, 2, 6, 24]
+
+    # Start value
+    assert list(accumulate(None, [1, 2, 3], 10)) == [11, 13, 16]
+
+
+def test_accumulate_memoryleak():
+    accumulate = iteration_utilities.accumulate
+
+    class Test(object):
+        def __init__(self, value):
+            self.value = value
+
+        def __add__(self, other):
+            return self.__class__(self.value + other.value)
+
+        def __mul__(self, other):
+            return self.__class__(self.value * other.value)
+
+    def test():
+        list(accumulate([Test(1), Test(2), Test(3)]))
+    assert not memory_leak(test, Test)
+
+    def test():
+        list(accumulate(None, [Test(1), Test(2), Test(3)]))
+    assert not memory_leak(test, Test)
+
+    def test():
+        list(accumulate(operator.add, [Test(1), Test(2), Test(3)]))
+    assert not memory_leak(test, Test)
+
+    def test():
+        list(accumulate(operator.mul, [Test(1), Test(2), Test(3)]))
+    assert not memory_leak(test, Test)
+
+    def test():
+        list(accumulate(operator.add, [Test(1), Test(2), Test(3)], Test(10)))
+    assert not memory_leak(test, Test)
+
+    def test():
+        with pytest_raises(TypeError):
+            list(accumulate(operator.add,
+                            [Test(1), Test(2), Test(3)],
+                            Test('a')))
+    assert not memory_leak(test, Test)
+
+    def test():
+        with pytest_raises(TypeError):
+            list(accumulate(None,
+                            [Test(1), Test(2), Test(3)],
+                            Test('a')))
+    assert not memory_leak(test, Test)
+
+    def test():
+        with pytest_raises(TypeError):
+            list(accumulate([Test('a'), Test(2), Test(3)]))
+    assert not memory_leak(test, Test)
+
+
 def test_callbacks():
     assert iteration_utilities.return_True()
     assert not iteration_utilities.return_False()
     assert iteration_utilities.return_None() is None
+    assert iteration_utilities.return_first_positional_argument(1, 2, 3) == 1
 
     assert iteration_utilities.square(2) == 4
 
     assert iteration_utilities.is_None(None)
     assert not iteration_utilities.is_None(False)
-
-    assert iteration_utilities.return_first_positional_argument(1, 2, 3) == 1

@@ -1,6 +1,10 @@
 #include <Python.h>
 #include <structmember.h>
+#include "isx.c"
+#include "returnx.c"
+#include "mathematical.c"
 #include "reduceminmax.c"
+#include "recipesaccumulate.c"
 
 
 //Method definition object for this extension, these argumens mean:
@@ -11,7 +15,37 @@
 //          class method, or being a static method of a class.
 //ml_doc:  Contents of this method's docstring
 static PyMethodDef
-reduce_methods[] = {
+iterationutils_methods[] = {
+
+    {"is_None",
+     (PyCFunction)isx_IsNone,
+     METH_O,
+     isx_IsNone_doc},
+
+    {"square",
+     (PyCFunction)mathematical_square,
+     METH_O,
+     mathematical_square_doc},
+
+    {"return_True",
+     (PyCFunction)returnx_returnTrue,
+     METH_VARARGS | METH_KEYWORDS,
+     returnx_returnTrue_doc},
+
+    {"return_False",
+     (PyCFunction)returnx_returnFalse,
+     METH_VARARGS | METH_KEYWORDS,
+     returnx_returnFalse_doc},
+
+    {"return_None",
+     (PyCFunction)returnx_returnNone,
+     METH_VARARGS | METH_KEYWORDS,
+     returnx_returnNone_doc},
+
+    {"return_first_positional_argument",
+     (PyCFunction)returnx_returnFirstPositionalArgument,
+     METH_VARARGS | METH_KEYWORDS,
+     returnx_returnFirstPositionalArgument_doc},
 
     {"minmax",
      (PyCFunction)reduce_minmax,
@@ -21,20 +55,20 @@ reduce_methods[] = {
     {NULL, NULL}
 };
 
-PyDoc_STRVAR(reduce_module_name, "_reduce");
-PyDoc_STRVAR(reduce_module_doc, "Reduce Functions\n^^^^^^^^^^^^^^^^");
+PyDoc_STRVAR(iterationutils_module_name, "_cfuncs");
+PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
 
 #if PY_MAJOR_VERSION >= 3
   //Module definition
   //The arguments of this structure tell Python what to call your extension,
   //what it's methods are and where to look for it's method definitions
   static struct PyModuleDef
-  reduce_definition = {
+  iterationutils_definition = {
     PyModuleDef_HEAD_INIT,
-    reduce_module_name,                 /* module name */
-    reduce_module_doc,                  /* module docstring */
+    iterationutils_module_name,         /* module name */
+    iterationutils_module_doc,          /* module docstring */
     -1,                                 /* API version */
-    reduce_methods,                     /* module methods */
+    iterationutils_methods,             /* module methods */
 
     NULL, NULL, NULL, NULL
   };
@@ -44,7 +78,7 @@ PyDoc_STRVAR(reduce_module_doc, "Reduce Functions\n^^^^^^^^^^^^^^^^");
   //that this function is named PyInit_[[your_module_name]] exactly, and matches
   //the name keyword argument in setup.py's setup() call.
   PyMODINIT_FUNC
-  PyInit__reduce(void)
+  PyInit__cfuncs(void)
   {
     //Py_Initialize();
     int i;
@@ -54,11 +88,11 @@ PyDoc_STRVAR(reduce_module_doc, "Reduce Functions\n^^^^^^^^^^^^^^^^");
     // Fill in classes! Must be synced with the Python2 version of module init
     // a few lines later.
     PyTypeObject *typelist[] = {
-        //&cls_type,
+        &recipes_accumulate_type,
         NULL
     };
 
-    m = PyModule_Create(&reduce_definition);
+    m = PyModule_Create(&iterationutils_definition);
     if (m == NULL)
         return NULL;
 
@@ -79,7 +113,7 @@ PyDoc_STRVAR(reduce_module_doc, "Reduce Functions\n^^^^^^^^^^^^^^^^");
 #else
 
   void
-  init_reduce(void)
+  init_cfuncs(void)
   {
     /* Create the module and add the functions */
     int i;
@@ -89,11 +123,13 @@ PyDoc_STRVAR(reduce_module_doc, "Reduce Functions\n^^^^^^^^^^^^^^^^");
     // Fill in classes! Must be synced with the Python3 version of module init
     // a few lines earlier.
     PyTypeObject *typelist[] = {
-        //&cls_type,
+        &recipes_accumulate_type,
         NULL
     };
 
-    m = Py_InitModule3(reduce_module_name, reduce_methods, reduce_module_doc);
+    m = Py_InitModule3(iterationutils_module_name,
+                       iterationutils_methods,
+                       iterationutils_module_doc);
     if (m == NULL)
         return;
 

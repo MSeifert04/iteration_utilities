@@ -127,7 +127,7 @@ Additional recipes for iterations.
 - :py:func:`partition`
 - :py:func:`successive`
 
-.. py:currentmodule:: iteration_utilities._reduce
+.. py:currentmodule:: iteration_utilities._cfuncs
 
 - :py:func:`minmax`
 
@@ -136,9 +136,9 @@ Compatibility layer
 ^^^^^^^^^^^^^^^^^^^
 Compatibility layer for :py:mod:`itertools` functions not avaiable in
 Python2. The function and documentation was taken from the official Python
-documentation [1]_ and the documentation was slightly changed.
+documentation [1]_ but slightly changed.
 
-.. py:currentmodule:: iteration_utilities._recipes._py2_compat
+.. py:currentmodule:: iteration_utilities
 
 - :py:func:`accumulate`
 
@@ -178,7 +178,6 @@ Contents:
 
    recipes/core
    recipes/additional
-   recipes/py2_compat
    helpers/performance
    cfuncs/cfuncs
 

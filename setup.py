@@ -1,24 +1,9 @@
 from setuptools import setup, Extension
 
 
-returnx_module = Extension(
-        'iteration_utilities._returnx',
-        sources=['src_c/returnx.c']
-    )
-
-isx_module = Extension(
-        'iteration_utilities._isx',
-        sources=['src_c/isx.c']
-    )
-
-mathematical_module = Extension(
-        'iteration_utilities._mathematical',
-        sources=['src_c/mathematical.c']
-    )
-
-minmax_module = Extension(
-        'iteration_utilities._reduce',
-        sources=['src_c/reduce.c']
+cfuncs_module = Extension(
+        'iteration_utilities._cfuncs',
+        sources=['src_c/module.c']
     )
 
 
@@ -70,10 +55,7 @@ setup(name='iteration_utilities',
           'pytest',
           ],
 
-      ext_modules=[returnx_module,
-                   isx_module,
-                   minmax_module,
-                   mathematical_module],
+      ext_modules=[cfuncs_module],
 
       include_package_data=True,
       zip_safe=False,

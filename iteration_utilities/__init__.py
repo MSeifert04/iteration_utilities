@@ -2,4 +2,4 @@
 from ._utils import *
 from ._helpers import *
 from ._recipes import *
-from ._c_funcs import *
+from ._cfuncs import *

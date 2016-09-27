@@ -41,6 +41,18 @@ extensions = [
     'numpydoc',
 ]
 
+# Functions imported from C modules cannot be introspected, and therefore the
+# signature for such functions cannot be automatically determined. However, it
+# is an often-used convention to put the signature into the first line of the
+# function's docstring.
+# If this boolean value is set to True (which is the default), autodoc will
+# look at the first line of the docstring for functions and methods, and if it
+# looks like a signature, use the line as the signature and remove it from the
+# docstring content.
+autodoc_docstring_signature = True
+
+#autosummary_generate = True
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -91,7 +103,7 @@ language = None
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = []
+exclude_patterns = ['_build', '_templates']
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
