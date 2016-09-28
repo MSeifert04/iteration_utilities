@@ -413,17 +413,17 @@ def test_partition_memoryleak():
     assert not memory_leak(test, Test)
 
     def test():
-        with pytest.raises(TypeError):
+        with pytest_raises(TypeError):
             partition([Test(1), Test('a')], lambda x: x.value + 3)
     assert not memory_leak(test, Test)
 
     def test():
-        with pytest.raises(TypeError):
+        with pytest_raises(TypeError):
             partition([Test(1), Test('a')], lambda x: x.value - 1)
     assert not memory_leak(test, Test)
 
     def test():
-        with pytest.raises(TypeError):
+        with pytest_raises(TypeError):
             partition([Test(1), Test('a')], lambda x: x.value + 'a')
     assert not memory_leak(test, Test)
 
