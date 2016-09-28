@@ -124,12 +124,12 @@ Additional recipes for iterations.
 - :py:func:`itersubclasses`
 - :py:func:`last_true`
 - :py:func:`merge`
-- :py:func:`partition`
 - :py:func:`successive`
 
 .. py:currentmodule:: iteration_utilities._cfuncs
 
 - :py:func:`minmax`
+- :py:func:`partition`
 
 
 Compatibility layer

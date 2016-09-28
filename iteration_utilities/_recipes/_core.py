@@ -556,10 +556,6 @@ def ipartition(iterable, pred):
     true_values : generator
         An iterable containing the values for which the predicate was True.
 
-    See also
-    --------
-    ._additional.partition : not-Generator variant of ipartition.
-
     Examples
     --------
     >>> from iteration_utilities import ipartition

@@ -343,6 +343,11 @@ def test_accumulate_memoryleak():
     assert not memory_leak(test, Test)
 
 
+def test_partition():
+    assert iteration_utilities.partition([]) == ([], [])
+    assert iteration_utilities.partition([], None) == ([], [])
+
+
 def test_callbacks():
     assert iteration_utilities.return_True()
     assert not iteration_utilities.return_False()
