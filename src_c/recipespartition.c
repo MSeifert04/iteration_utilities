@@ -22,6 +22,7 @@ recipes_partition(PyObject *self, PyObject *args, PyObject *kwds)
 
     if (result1 == NULL || result2 == NULL) {
         Py_XDECREF(result1);
+        Py_XDECREF(result2);
         Py_DECREF(iterator);
         return NULL;
     }

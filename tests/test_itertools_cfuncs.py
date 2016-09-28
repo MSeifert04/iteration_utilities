@@ -344,8 +344,88 @@ def test_accumulate_memoryleak():
 
 
 def test_partition():
-    assert iteration_utilities.partition([]) == ([], [])
-    assert iteration_utilities.partition([], None) == ([], [])
+    partition = iteration_utilities.partition
+    # One argument form
+    assert partition([]) == ([], [])
+    assert partition([0, 1, 2]) == ([0], [1, 2])
+    assert partition([3, 1, 0]) == ([0], [3, 1])
+    assert partition([0, 0, 0]) == ([0, 0, 0], [])
+    assert partition([1, 1, 1]) == ([], [1, 1, 1])
+
+    # With predicate function
+    assert partition([0, 1, 2], lambda x: x > 1) == ([0, 1], [2])
+    assert partition([0, 1, 2], lambda x: x < 1) == ([1, 2], [0])
+
+    # not-iterable
+    with pytest.raises(TypeError):
+        partition(10)
+    with pytest.raises(TypeError):
+        partition([1, 2, 3, 4, 'a'], lambda x: x + 3)
+    with pytest.raises(TypeError):
+        partition([1, 2, 3, 4, 'a'], lambda x: x - 3)
+    with pytest.raises(TypeError):
+        partition([1, 2, 3, 4, 'a'], lambda x: x + 'a')
+
+
+def test_partition_memoryleak():
+    partition = iteration_utilities.partition
+
+    class Test(object):
+        def __init__(self, value):
+            self.value = value
+
+        def __bool__(self):
+            return bool(self.value)
+
+        def __nonzero__(self):
+            return bool(self.value)
+
+    # One argument form
+    def test():
+        partition([Test(0), Test(1), Test(2)])
+    assert not memory_leak(test, Test)
+
+    def test():
+        partition([Test(3), Test(1), Test(0)])
+    assert not memory_leak(test, Test)
+
+    def test():
+        partition([Test(0), Test(0), Test(0)])
+    assert not memory_leak(test, Test)
+
+    def test():
+        partition([Test(1), Test(1), Test(1)])
+    assert not memory_leak(test, Test)
+
+    # With predicate function
+    def test():
+        partition([Test(0), Test(1), Test(2)], lambda x: x.value > 1)
+    assert not memory_leak(test, Test)
+
+    def test():
+        partition([Test(0), Test(1), Test(2)], lambda x: x.value < 1)
+    assert not memory_leak(test, Test)
+
+    # not-iterable
+    def test():
+        with pytest.raises(TypeError):
+            partition(Test(10))
+    assert not memory_leak(test, Test)
+
+    def test():
+        with pytest.raises(TypeError):
+            partition([Test(1), Test('a')], lambda x: x.value + 3)
+    assert not memory_leak(test, Test)
+
+    def test():
+        with pytest.raises(TypeError):
+            partition([Test(1), Test('a')], lambda x: x.value - 1)
+    assert not memory_leak(test, Test)
+
+    def test():
+        with pytest.raises(TypeError):
+            partition([Test(1), Test('a')], lambda x: x.value + 'a')
+    assert not memory_leak(test, Test)
 
 
 def test_callbacks():
