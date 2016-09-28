@@ -428,6 +428,10 @@ def test_partition_memoryleak():
     assert not memory_leak(test, Test)
 
 
+def test_unique_everseen():
+    assert list(iteration_utilities.unique_everseen([])) == []
+
+
 def test_callbacks():
     assert iteration_utilities.return_True()
     assert not iteration_utilities.return_False()
