@@ -4,6 +4,7 @@
 #include "returnx.c"
 #include "mathematical.c"
 #include "reduceminmax.c"
+#include "recipespartition.c"
 #include "recipesaccumulate.c"
 
 
@@ -51,6 +52,11 @@ iterationutils_methods[] = {
      (PyCFunction)reduce_minmax,
      METH_VARARGS | METH_KEYWORDS,
      reduce_minmax_doc},
+
+    {"partition",
+     (PyCFunction)recipes_partition,
+     METH_VARARGS | METH_KEYWORDS,
+     recipes_partition_doc},
 
     {NULL, NULL}
 };
