@@ -45,6 +45,7 @@ recipes_partition(PyObject *self, PyObject *args, PyObject *kwds)
         }
 
         ok = PyObject_IsTrue(temp);
+        Py_DECREF(temp);
 
         if (ok == 1) {
             if (PyList_Append(result2, item) < 0) {
@@ -58,7 +59,6 @@ recipes_partition(PyObject *self, PyObject *args, PyObject *kwds)
             goto Fail; // Maybe need to set an exception here...
         }
         Py_DECREF(item);
-        Py_DECREF(temp);
     }
     Py_DECREF(iterator);
 
