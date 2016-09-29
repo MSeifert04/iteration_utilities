@@ -598,6 +598,42 @@ def test_first_memoryleak():
     assert not memory_leak(test, Test)
 
 
+def test_applyfunc():
+    applyfunc = iteration_utilities.applyfunc
+    take = iteration_utilities.take
+
+    assert take(applyfunc(lambda x: x**2, 2), 3) == [4, 16, 256]
+    assert take(applyfunc(lambda x: x, 2), 3) == [2, 2, 2]
+
+    with pytest.raises(TypeError):
+        take(applyfunc(lambda x: x**2, 'a'), 3)
+
+
+def test_applyfunc_memoryleak():
+    applyfunc = iteration_utilities.applyfunc
+    take = iteration_utilities.take
+
+    class Test(object):
+        def __init__(self, value):
+            self.value = value
+
+        def __pow__(self, other):
+            return self.__class__(self.value**other.value)
+
+    def test():
+        take(applyfunc(lambda x: x**Test(2), Test(2)), 3)
+    assert not memory_leak(test, Test)
+
+    def test():
+        take(applyfunc(lambda x: x, Test(2)), 3)
+    assert not memory_leak(test, Test)
+
+    def test():
+        with pytest_raises(TypeError):
+            take(applyfunc(lambda x: x**Test(2), Test('a')), 3)
+    assert not memory_leak(test, Test)
+
+
 def test_callbacks():
     assert iteration_utilities.return_True()
     assert not iteration_utilities.return_False()
