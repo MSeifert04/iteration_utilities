@@ -5,11 +5,13 @@ reduce_first(PyObject *self, PyObject *args, PyObject *kwds)
     PyObject *defaultitem = NULL, *func = NULL;
     PyObject *item = NULL, *val = NULL;
     long ok;
+    int truthy = 1;
+    int retpred = 0;
 
-    static char *kwlist[] = {"iterable", "default", "pred", NULL};
+    static char *kwlist[] = {"iterable", "default", "pred", "truthy", "retpred", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OO:first", kwlist,
-                                     &sequence, &defaultitem, &func)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOpp:first", kwlist,
+                                     &sequence, &defaultitem, &func, &truthy, &retpred)) {
         return NULL;
     }
 
@@ -37,19 +39,29 @@ reduce_first(PyObject *self, PyObject *args, PyObject *kwds)
                 return NULL;
             }
             ok = PyObject_IsTrue(val);
-            Py_DECREF(val);
         }
 
-        if (ok == 1) {
+        if (ok == truthy) {
             Py_DECREF(iterator);
-            return item;
+            if (retpred) {
+                Py_DECREF(item);
+                if (val == NULL) {
+                    val = PyBool_FromLong(ok);
+                }
+                return val;
+            } else {
+                Py_XDECREF(val);
+                return item;
+            }
 
         } else if (ok < 0) {
             Py_DECREF(iterator);
             Py_DECREF(item);
+            Py_DECREF(val);
             return NULL;
         }
         Py_DECREF(item);
+        Py_XDECREF(val);
     }
 
     Py_DECREF(iterator);
