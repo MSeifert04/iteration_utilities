@@ -46,6 +46,11 @@ iterationutils_methods[] = {
      METH_VARARGS | METH_KEYWORDS,
      returnx_returnNone_doc},
 
+    {"return_called",
+     (PyCFunction)returnx_returnCallResult,
+     METH_O,
+     returnx_returnCallResult_doc},
+
     {"return_first_positional_argument",
      (PyCFunction)returnx_returnFirstPositionalArgument,
      METH_VARARGS | METH_KEYWORDS,
