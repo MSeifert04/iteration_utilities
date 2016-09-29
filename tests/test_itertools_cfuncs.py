@@ -429,7 +429,81 @@ def test_partition_memoryleak():
 
 
 def test_unique_everseen():
-    assert list(iteration_utilities.unique_everseen([])) == []
+    unique_everseen = iteration_utilities.unique_everseen
+    assert list(unique_everseen([])) == []
+    assert list(unique_everseen([1, 2, 1])) == [1, 2]
+    assert list(unique_everseen([1, 2, 1], abs)) == [1, 2]
+    assert list(unique_everseen([1, 1, -1], abs)) == [1]
+
+    # unhashable types
+    assert list(unique_everseen([{1: 1}, {2: 2}, {1: 1}])) == [{1: 1}, {2: 2}]
+    assert list(unique_everseen([[1], [2], [1]])) == [[1], [2]]
+    assert list(unique_everseen([[1, 1], [1, 2], [1, 3]],
+                                operator.itemgetter(0))) == [[1, 1]]
+
+    with pytest.raises(TypeError):
+        list(unique_everseen(10))
+
+    with pytest.raises(TypeError):
+        list(unique_everseen([1, 2, 3, 'a'], abs))
+
+
+def test_unique_everseen_memoryleak():
+    unique_everseen = iteration_utilities.unique_everseen
+
+    class Test(object):
+        def __init__(self, value):
+            self.value = value
+
+        def __hash__(self):
+            return hash(self.value)
+
+        def __eq__(self, other):
+            return self.value == other.value
+
+    def test():
+        list(unique_everseen([]))
+    assert not memory_leak(test, Test)
+
+    def test():
+        list(unique_everseen([Test(1), Test(2), Test(3)]))
+    assert not memory_leak(test, Test)
+
+    def test():
+        list(unique_everseen([Test(1), Test(2), Test(1)],
+                             lambda x: abs(x.value)))
+    assert not memory_leak(test, Test)
+
+    def test():
+        list(unique_everseen([Test(1), Test(1), Test(-1)],
+                             lambda x: abs(x.value)))
+    assert not memory_leak(test, Test)
+
+    # unhashable types
+    def test():
+        list(unique_everseen([{Test(1): Test(1)}, {Test(2): Test(2)},
+                               {Test(1): Test(1)}]))
+    assert not memory_leak(test, Test)
+
+    def test():
+        list(unique_everseen([[Test(1)], [Test(2)], [Test(1)]]))
+    assert not memory_leak(test, Test)
+
+    def test():
+        list(unique_everseen([[Test(1), Test(1)], [Test(1), Test(2)],
+                              [Test(1), Test(3)]], operator.itemgetter(0)))
+    assert not memory_leak(test, Test)
+
+    def test():
+        with pytest.raises(TypeError):
+            list(unique_everseen(Test(10)))
+    assert not memory_leak(test, Test)
+
+    def test():
+        with pytest_raises(TypeError):
+            list(unique_everseen([Test(1), Test(2), Test(3), Test('a')],
+                                 lambda x: abs(x.value)))
+    assert not memory_leak(test, Test)
 
 
 def test_callbacks():

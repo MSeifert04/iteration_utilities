@@ -54,7 +54,6 @@ recipes_uniqueever_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     lz = (recipes_uniqueever_object *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         Py_DECREF(seen);
-        Py_DECREF(seenlist);
         Py_DECREF(it);
         return NULL;
     }
@@ -182,7 +181,7 @@ Fail:
 PyDoc_STRVAR(recipes_uniqueever_doc,
 "unique_everseen(sequence)\n\
 \n\
-List unique elements, preserving order. Remember all elements ever seen.\n\
+List unique elements, preserving their order. Remembers all elements ever seen.\n\
 \n\
 Parameters\n\
 ----------\n\
@@ -198,6 +197,12 @@ Returns\n\
 iterable : generator\n\
     An iterable containing all unique values ever seen in the `iterable`.\n\
 \n\
+Notes\n\
+-----\n\
+The items in the `iterable` must implement equality. If the items are hashable\n\
+the function is much faster because the internally a ``set``is used which\n\
+speeds up the lookup if a value was seen.\n\
+\n\
 Examples\n\
 --------\n\
 >>> from iteration_utilities import unique_everseen\n\
@@ -205,7 +210,10 @@ Examples\n\
 ['A', 'B', 'C', 'D']\n\
 \n\
 >>> list(unique_everseen('ABBCcAD', str.lower))\n\
-['A', 'B', 'C', 'D']");
+['A', 'B', 'C', 'D']\n\
+\n\
+>>> list(unique_everseen([[1, 2], [1, 1], [1, 2]]))\n\
+[[1, 2], [1, 1]]");
 
 static PyTypeObject recipes_uniqueever_type = {
     PyVarObject_HEAD_INIT(NULL, 0)
