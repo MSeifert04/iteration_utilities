@@ -200,7 +200,7 @@ iterable : generator\n\
 Notes\n\
 -----\n\
 The items in the `iterable` must implement equality. If the items are hashable\n\
-the function is much faster because the internally a ``set``is used which\n\
+the function is much faster because the internally a ``set`` is used which\n\
 speeds up the lookup if a value was seen.\n\
 \n\
 Examples\n\
