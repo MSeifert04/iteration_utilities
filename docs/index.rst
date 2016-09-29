@@ -99,7 +99,6 @@ Python2 and Python3 compatible. The documentation was added and/or modified.
 - :py:func:`powerset`
 - :py:func:`quantify`
 - :py:func:`random_combination`
-- :py:func:`random_combination_with_replacement`
 - :py:func:`random_product`
 - :py:func:`random_permutation`
 - :py:func:`repeatfunc`

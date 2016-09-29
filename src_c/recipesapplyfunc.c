@@ -13,8 +13,8 @@ recipes_applyfunc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *func=NULL, *initial=NULL;
     recipes_applyfunc_object *lz;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO:applyfunc",
-                                     kwargs, &func, &initial)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO:applyfunc", kwargs,
+                                     &func, &initial)) {
         return NULL;
     }
 

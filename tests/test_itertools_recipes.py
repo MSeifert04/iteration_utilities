@@ -60,8 +60,7 @@ def test_empty_input():
     assert list(iteration_utilities.powerset(empty)) == [()]
     assert iteration_utilities.quantify(empty, lambda x: x) == 0
     assert iteration_utilities.random_combination(empty, 0) == ()
-    assert iteration_utilities.random_combination_with_replacement(
-        empty, 0) == ()
+    assert iteration_utilities.random_combination(empty, 0, True) == ()
     assert iteration_utilities.random_permutation(empty, 0) == ()
     # no need to test repeatfunc here
     assert list(iteration_utilities.roundrobin(empty)) == []

@@ -506,6 +506,98 @@ def test_unique_everseen_memoryleak():
     assert not memory_leak(test, Test)
 
 
+def test_first():
+    first = iteration_utilities.first
+
+    assert first([1, 2, 3]) == 1
+    assert first(range(10)) == 0
+
+    # With pred
+    assert first([0, 1, 2], pred=bool) == 1
+    assert first([0, 1, 2], pred=None) == 1
+    assert first([0]*100 + [1], pred=bool) == 1
+    assert first([[1], [1, 2]], pred=lambda x: len(x) > 1) == [1, 2]
+
+    # With default
+    assert first([], default=None) is None
+    assert first([0, 0, 0], default=None, pred=bool) is None
+
+    # Exceptions
+    with pytest.raises(TypeError):
+        first(100)
+
+    with pytest.raises(TypeError):
+        first([])
+
+    with pytest.raises(TypeError):
+        first([0], pred=bool)
+
+    with pytest.raises(TypeError):
+        first(['a', 'b'], pred=abs)
+
+
+def test_first_memoryleak():
+    first = iteration_utilities.first
+
+    class Test(object):
+        def __init__(self, value):
+            self.value = value
+
+        def __bool__(self):
+            return bool(self.value)
+
+        def __nonzero__(self):
+            return bool(self.value)
+
+    def test():
+        first([Test(1), Test(2), Test(3)])
+    assert not memory_leak(test, Test)
+
+    def test():
+        first([Test(0), Test(1), Test(2)], pred=bool)
+    assert not memory_leak(test, Test)
+
+    def test():
+        first([Test(0), Test(1), Test(2)], pred=None)
+    assert not memory_leak(test, Test)
+
+    def test():
+        first([Test(0)]*100 + [Test(1)], pred=bool)
+    assert not memory_leak(test, Test)
+
+    def test():
+        first([[Test(0)], [Test(1), Test(2)]], pred=lambda x: len(x) > 1)
+    assert not memory_leak(test, Test)
+
+    def test():
+        first([], default=None) is None
+    assert not memory_leak(test, Test)
+
+    def test():
+        first([Test(0), Test(0), Test(0)], default=None, pred=bool) is None
+    assert not memory_leak(test, Test)
+
+    def test():
+        with pytest.raises(TypeError):
+            first([])
+    assert not memory_leak(test, Test)
+
+    def test():
+        with pytest.raises(TypeError):
+            first(Test(100))
+    assert not memory_leak(test, Test)
+
+    def test():
+        with pytest.raises(TypeError):
+            first([Test(0)], pred=bool)
+    assert not memory_leak(test, Test)
+
+    def test():
+        with pytest_raises(TypeError):
+            first([Test('a'), Test('b')], pred=lambda x: abs(x.value))
+    assert not memory_leak(test, Test)
+
+
 def test_callbacks():
     assert iteration_utilities.return_True()
     assert not iteration_utilities.return_False()

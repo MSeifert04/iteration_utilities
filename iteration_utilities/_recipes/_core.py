@@ -36,8 +36,7 @@ __all__ = ['all_equal',
            'ncycles', 'nth',
            'padnone', 'pairwise', 'powerset',
            'quantify',
-           'random_combination', 'random_combination_with_replacement',
-           'random_product', 'random_permutation',
+           'random_combination', 'random_product', 'random_permutation',
            'repeatfunc', 'roundrobin',
            'tabulate', 'take', 'tail', 'tee_lookahead',
            'unique_justseen']
@@ -743,7 +742,7 @@ def random_permutation(iterable, r=None):
     return tuple(sample(pool, r))
 
 
-def random_combination(iterable, r):
+def random_combination(iterable, r, replacement=False):
     """Random selection from ``itertools.combinations(iterable, r)``.
 
     Parameters
@@ -753,6 +752,11 @@ def random_combination(iterable, r):
 
     r : :py:class:`int`
         The number of elements to combine.
+
+    replacement : bool
+        If ``True`` then replace already included values, like
+        ``itertools.combinations_with_replacement(iterable, r)``.
+        Default is ``False``.
 
     Returns
     -------
@@ -768,46 +772,21 @@ def random_combination(iterable, r):
     >>> random_combination([1,2,3,4,5,6], r=4)
     (3, 4, 5, 6)
 
-    >>> random.seed(None)
-    """
-    pool = tuple(iterable)
-    n = len(pool)
-    indices = sorted(sample(range(n), r))
-    return tuple(pool[i] for i in indices)
-
-
-def random_combination_with_replacement(iterable, r):
-    """Random selection from \
-        ``itertools.combinations_with_replacement(iterable, r)``.
-
-    Parameters
-    ----------
-    iterable : iterable
-        The `iterable` to combine with
-        :py:func:`itertools.combinations_with_replacement`
-
-    r : :py:class:`int`
-        The number of elements to combine.
-
-    Returns
-    -------
-    random_permutation : tuple
-        The randomly chosen combination with replacement.
-
-    Examples
-    --------
-    >>> from iteration_utilities import random_combination_with_replacement
-    >>> import random
     >>> random.seed(100)
 
-    >>> random_combination_with_replacement([1,2,3,4,5,6], r=4)
+    >>> random_combination([1,2,3,4,5,6], r=4, replacement=True)
     {0}
 
     >>> random.seed(None)
+
+    >>> random.seed(None)
     """
     pool = tuple(iterable)
     n = len(pool)
-    indices = sorted(randrange(n) for i in range(r))
+    if replacement:
+        indices = sorted(randrange(n) for i in range(r))
+    else:
+        indices = sorted(sample(range(n), r))
     return tuple(pool[i] for i in indices)
 
 
@@ -862,7 +841,7 @@ if PY2:
                           '0.7951935655656966, 0.9424502837770503, '
                           '0.7398985747399307]')
     _replace_docs(repeatfunc, replace_repeatfunc)
-    _replace_docs(random_combination_with_replacement, '(1, 3, 5, 5)')
+    _replace_docs(random_combination, '(1, 3, 5, 5)')
     _replace_docs(random_permutation, '(6, 4, 5, 3, 1, 2)', '(4, 6, 5)')
     _replace_docs(random_product, "('b', 1, 0.5)",
                   "('b', 1, 0.25, 'a', 2, 0.25, 'b', 1, 0.25, "
@@ -873,7 +852,7 @@ else:
                           '0.7951935655656966, 0.9424502837770503, '
                           '0.7398985747399307]')
     _replace_docs(repeatfunc, replace_repeatfunc)
-    _replace_docs(random_combination_with_replacement, '(2, 2, 4, 4)')
+    _replace_docs(random_combination, '(2, 2, 4, 4)')
     _replace_docs(random_permutation, '(6, 2, 3, 4, 1, 5)', '(5, 3, 6)')
     _replace_docs(random_product, "('a', 2, 0.25)",
                   "('a', 2, 0.25, 'a', 1, 0.25, 'b', 2, 0.5, "
