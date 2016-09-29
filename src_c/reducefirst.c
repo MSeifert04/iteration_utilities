@@ -152,6 +152,7 @@ return the result of ``pred(item)``::\n\
     1\n\
     >>> first([1,2,0], pred=bool, truthy=False)\n\
     0\n\
+    >>> import operator\n\
     >>> first([[1,0], [0,1]], pred=operator.itemgetter(1))\n\
     [0, 1]\n\
     >>> first([[1,0], [0,1]], pred=operator.itemgetter(1), retpred=True)\n\
