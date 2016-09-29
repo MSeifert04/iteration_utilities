@@ -518,6 +518,17 @@ def test_first():
     assert first([0]*100 + [1], pred=bool) == 1
     assert first([[1], [1, 2]], pred=lambda x: len(x) > 1) == [1, 2]
 
+    # pred with truthy/retpred
+    assert first([0, 1, 2, 3], pred=bool, truthy=False) == 0
+    assert first([0, 1, 2, 3], pred=bool, truthy=False, retpred=True) == False
+    assert first([0, 1, 2, 3], pred=lambda x: x**2, truthy=False) == 0
+    assert first([0, 1, 2, 3],
+                 pred=lambda x: x**2, truthy=False, retpred=True) == 0
+    assert first([0, 1, 2, 3], pred=bool) == 1
+    assert first([0, 1, 2, 3], pred=bool, retpred=True) == True
+    assert first([0, 2, 3], pred=lambda x: x**2) == 2
+    assert first([0, 2, 3], pred=lambda x: x**2, retpred=True) == 4
+
     # With default
     assert first([], default=None) is None
     assert first([0, 0, 0], default=None, pred=bool) is None
@@ -549,6 +560,9 @@ def test_first_memoryleak():
         def __nonzero__(self):
             return bool(self.value)
 
+        def __pow__(self, other):
+            return self.__class__(self.value ** other.value)
+
     def test():
         first([Test(1), Test(2), Test(3)])
     assert not memory_leak(test, Test)
@@ -567,6 +581,46 @@ def test_first_memoryleak():
 
     def test():
         first([[Test(0)], [Test(1), Test(2)]], pred=lambda x: len(x) > 1)
+    assert not memory_leak(test, Test)
+
+    def test():
+        first([Test(0), Test(2), Test(3)],
+              pred=bool, truthy=False)
+    assert not memory_leak(test, Test)
+
+    def test():
+        first([Test(0), Test(2), Test(3)],
+              pred=bool, truthy=False, retpred=True)
+    assert not memory_leak(test, Test)
+
+    def test():
+        first([Test(0), Test(2), Test(3)],
+              pred=lambda x: x**Test(2), truthy=False)
+    assert not memory_leak(test, Test)
+
+    def test():
+        first([Test(0), Test(2), Test(3)],
+              pred=lambda x: x**Test(2), truthy=False, retpred=True)
+    assert not memory_leak(test, Test)
+
+    def test():
+        first([Test(0), Test(2), Test(3)],
+              pred=bool)
+    assert not memory_leak(test, Test)
+
+    def test():
+        first([Test(0), Test(2), Test(3)],
+              pred=bool, retpred=True)
+    assert not memory_leak(test, Test)
+
+    def test():
+        first([Test(0), Test(2), Test(3)],
+              pred=lambda x: x**Test(2))
+    assert not memory_leak(test, Test)
+
+    def test():
+        first([Test(0), Test(2), Test(3)],
+              pred=lambda x: x**Test(2), retpred=True)
     assert not memory_leak(test, Test)
 
     def test():
