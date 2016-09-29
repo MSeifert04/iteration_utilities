@@ -88,7 +88,6 @@ Python2 and Python3 compatible. The documentation was added and/or modified.
 - :py:func:`all_equal`
 - :py:func:`consume`
 - :py:func:`dotproduct`
-- :py:func:`first_true`
 - :py:func:`flatten`
 - :py:func:`grouper`
 - :py:func:`ipartition`
@@ -100,7 +99,6 @@ Python2 and Python3 compatible. The documentation was added and/or modified.
 - :py:func:`powerset`
 - :py:func:`quantify`
 - :py:func:`random_combination`
-- :py:func:`random_combination_with_replacement`
 - :py:func:`random_product`
 - :py:func:`random_permutation`
 - :py:func:`repeatfunc`
@@ -118,17 +116,23 @@ Additional recipes for iterations.
 
 .. py:currentmodule:: iteration_utilities._recipes._additional
 
-- :py:func:`applyfunc`
 - :py:func:`deepflatten`
 - :py:func:`itersubclasses`
 - :py:func:`last_true`
 - :py:func:`merge`
 - :py:func:`successive`
 
+
 .. py:currentmodule:: iteration_utilities._cfuncs
 
+- :py:func:`first`
 - :py:func:`minmax`
 - :py:func:`partition`
+
+
+.. py:currentmodule:: iteration_utilities
+
+- :py:func:`applyfunc`
 - :py:func:`unique_everseen`
 
 

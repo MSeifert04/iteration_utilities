@@ -89,7 +89,7 @@ Fail:
 }
 
 
-PyDoc_STRVAR(recipes_partition_doc, "partition(iterable, func])\n\
+PyDoc_STRVAR(recipes_partition_doc, "partition(iterable[, func])\n\
 \n\
 Use a predicate to partition entries into ``False`` entries and ``True``\n\
 entries.\n\

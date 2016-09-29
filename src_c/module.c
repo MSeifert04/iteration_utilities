@@ -4,9 +4,11 @@
 #include "returnx.c"
 #include "mathematical.c"
 #include "reduceminmax.c"
+#include "reducefirst.c"
 #include "recipespartition.c"
 #include "recipesuniqueever.c"
 #include "recipesaccumulate.c"
+#include "recipesapplyfunc.c"
 
 
 //Method definition object for this extension, these argumens mean:
@@ -54,6 +56,11 @@ iterationutils_methods[] = {
      METH_VARARGS | METH_KEYWORDS,
      reduce_minmax_doc},
 
+    {"first",
+     (PyCFunction)reduce_first,
+     METH_VARARGS | METH_KEYWORDS,
+     reduce_first_doc},
+
     {"partition",
      (PyCFunction)recipes_partition,
      METH_VARARGS | METH_KEYWORDS,
@@ -96,6 +103,7 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
     // a few lines later.
     PyTypeObject *typelist[] = {
         &recipes_accumulate_type,
+        &recipes_applyfunc_type,
         &recipes_uniqueever_type,
         NULL
     };
@@ -132,6 +140,7 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
     // a few lines earlier.
     PyTypeObject *typelist[] = {
         &recipes_accumulate_type,
+        &recipes_applyfunc_type,
         &recipes_uniqueever_type,
         NULL
     };

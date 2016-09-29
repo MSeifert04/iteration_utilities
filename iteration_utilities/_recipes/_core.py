@@ -30,14 +30,13 @@ else:
 __all__ = ['all_equal',
            'consume',
            'dotproduct',
-           'first_true', 'flatten',
+           'flatten',
            'grouper',
            'ipartition', 'iter_except',
            'ncycles', 'nth',
            'padnone', 'pairwise', 'powerset',
            'quantify',
-           'random_combination', 'random_combination_with_replacement',
-           'random_product', 'random_permutation',
+           'random_combination', 'random_product', 'random_permutation',
            'repeatfunc', 'roundrobin',
            'tabulate', 'take', 'tail', 'tee_lookahead',
            'unique_justseen']
@@ -58,10 +57,6 @@ def take(iterable, n):
     -------
     items : :py:class:`list`
         The first `n` items of the `iterable`.
-
-    See also
-    --------
-    tail : Last `n` items of the sequence.
 
     Examples
     --------
@@ -90,12 +85,6 @@ def tabulate(function, start=0):
     tabulated : generator
         An infinite generator containing the results of the `function` applied
         on the values beginning by `start`.
-
-    See also
-    --------
-    ._core.repeatfunc : Repeatedly call a function.
-
-    ._additional.applyfunc : Repeatedly call a function on one value.
 
     Examples
     --------
@@ -130,10 +119,6 @@ def tail(iterable, n):
     -------
     iterator : iterator
         The last `n` items of `iterable` as iterator.
-
-    See also
-    --------
-    take : First `n` items of the sequence.
 
     Examples
     --------
@@ -373,11 +358,6 @@ def flatten(iterable):
     >>> from iteration_utilities import flatten
     >>> list(flatten([[1,2,3,4], [4,3,2,1]]))
     [1, 2, 3, 4, 4, 3, 2, 1]
-
-    See also
-    --------
-    ._additional.deepflatten : To flatten arbitary number of
-        nestings and the possibility to define the types to flatten.
     """
     return chain.from_iterable(iterable)
 
@@ -402,12 +382,6 @@ def repeatfunc(func, *args, **times):
     -------
     iterable : generator
         The result of the repeatedly called function.
-
-    See also
-    --------
-    ._core.tabulate : Repeatedly call a function on an incrementing value.
-
-    ._additional.applyfunc : Repeatedly call a function on one value.
 
     Examples
     --------
@@ -445,11 +419,6 @@ def pairwise(iterable):
     -------
     pairwise : generator
         An `iterable` containing tuples of sucessive elements of the iterable.
-
-    See also
-    --------
-    ._additional.successive : More general solution with the option to specify
-        the number of sucessive elements in each tuple.
 
     Examples
     --------
@@ -688,49 +657,6 @@ def iter_except(func, exception, first=None):
         pass
 
 
-def first_true(iterable, default=False, pred=None):
-    """Returns the first true value in the `iterable` or `default`.
-
-    Parameters
-    ----------
-    iterable : iterable
-        The `iterable` for which to determine the first true value.
-
-    default : any type, optional
-        The `default` value if no true value was found.
-        Default is ``False``.
-
-    pred : callable or None, optional
-        If ``None`` find the first true value. Otherwise find the first value
-        for which ``pred(value)`` is ``True``.
-        Default is ``None``.
-
-    Returns
-    -------
-    first : any type
-        The first true value or the first value for which `pred` is true.
-        If there is no such value then `default` is returned.
-
-    Examples
-    --------
-    >>> from iteration_utilities import first_true
-    >>> first_true([0, '', tuple(), 10])
-    10
-
-    >>> # First odd number
-    >>> first_true([0, 2, 3, 5, 8, 10], pred=lambda x: x%2)
-    3
-
-    >>> first_true([0, 0, 0, 0])
-    False
-
-    >>> # default value if no true value
-    >>> first_true([0, 0, 0, 0], default=100)
-    100
-    """
-    return next(filter(pred, iterable), default)
-
-
 def random_product(*iterables, **repeat):
     """Random selection from ``itertools.product(*args, **kwds)``.
 
@@ -816,7 +742,7 @@ def random_permutation(iterable, r=None):
     return tuple(sample(pool, r))
 
 
-def random_combination(iterable, r):
+def random_combination(iterable, r, replacement=False):
     """Random selection from ``itertools.combinations(iterable, r)``.
 
     Parameters
@@ -826,6 +752,11 @@ def random_combination(iterable, r):
 
     r : :py:class:`int`
         The number of elements to combine.
+
+    replacement : bool
+        If ``True`` then replace already included values, like
+        ``itertools.combinations_with_replacement(iterable, r)``.
+        Default is ``False``.
 
     Returns
     -------
@@ -841,46 +772,21 @@ def random_combination(iterable, r):
     >>> random_combination([1,2,3,4,5,6], r=4)
     (3, 4, 5, 6)
 
-    >>> random.seed(None)
-    """
-    pool = tuple(iterable)
-    n = len(pool)
-    indices = sorted(sample(range(n), r))
-    return tuple(pool[i] for i in indices)
-
-
-def random_combination_with_replacement(iterable, r):
-    """Random selection from \
-        ``itertools.combinations_with_replacement(iterable, r)``.
-
-    Parameters
-    ----------
-    iterable : iterable
-        The `iterable` to combine with
-        :py:func:`itertools.combinations_with_replacement`
-
-    r : :py:class:`int`
-        The number of elements to combine.
-
-    Returns
-    -------
-    random_permutation : tuple
-        The randomly chosen combination with replacement.
-
-    Examples
-    --------
-    >>> from iteration_utilities import random_combination_with_replacement
-    >>> import random
     >>> random.seed(100)
 
-    >>> random_combination_with_replacement([1,2,3,4,5,6], r=4)
+    >>> random_combination([1,2,3,4,5,6], r=4, replacement=True)
     {0}
 
     >>> random.seed(None)
+
+    >>> random.seed(None)
     """
     pool = tuple(iterable)
     n = len(pool)
-    indices = sorted(randrange(n) for i in range(r))
+    if replacement:
+        indices = sorted(randrange(n) for i in range(r))
+    else:
+        indices = sorted(sample(range(n), r))
     return tuple(pool[i] for i in indices)
 
 
@@ -935,7 +841,7 @@ if PY2:
                           '0.7951935655656966, 0.9424502837770503, '
                           '0.7398985747399307]')
     _replace_docs(repeatfunc, replace_repeatfunc)
-    _replace_docs(random_combination_with_replacement, '(1, 3, 5, 5)')
+    _replace_docs(random_combination, '(1, 3, 5, 5)')
     _replace_docs(random_permutation, '(6, 4, 5, 3, 1, 2)', '(4, 6, 5)')
     _replace_docs(random_product, "('b', 1, 0.5)",
                   "('b', 1, 0.25, 'a', 2, 0.25, 'b', 1, 0.25, "
@@ -946,7 +852,7 @@ else:
                           '0.7951935655656966, 0.9424502837770503, '
                           '0.7398985747399307]')
     _replace_docs(repeatfunc, replace_repeatfunc)
-    _replace_docs(random_combination_with_replacement, '(2, 2, 4, 4)')
+    _replace_docs(random_combination, '(2, 2, 4, 4)')
     _replace_docs(random_permutation, '(6, 2, 3, 4, 1, 5)', '(5, 3, 6)')
     _replace_docs(random_product, "('a', 2, 0.25)",
                   "('a', 2, 0.25, 'a', 1, 0.25, 'b', 2, 0.5, "
