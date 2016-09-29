@@ -107,7 +107,7 @@ recipes_uniqueever_next(recipes_uniqueever_object *lz)
         if (item == NULL)
             return NULL;
 
-        if (func == NULL) {
+        if (func == NULL || func == Py_None) {
             temp = item;
             Py_INCREF(item);
         } else {
@@ -143,7 +143,7 @@ recipes_uniqueever_next(recipes_uniqueever_object *lz)
 
 
             // Create a list as fallback
-            if (seenlist == NULL) {
+            if (seenlist == NULL || seenlist == Py_None) {
                 seenlist = PyList_New(0);
                 if (seenlist == NULL) {
                     goto Fail;
@@ -177,6 +177,49 @@ Fail:
     Py_XDECREF(item);
     return NULL;
 }
+
+static PyObject *
+recipes_uniqueever_reduce(recipes_uniqueever_object *lz) {
+    PyObject *value;
+    value = Py_BuildValue("O(OO)(OO)", Py_TYPE(lz),
+                          lz->it,
+                          lz->func ? lz->func : Py_None,
+                          lz->seen,
+                          lz->seenlist ? lz->seenlist : Py_None);
+    return value;
+}
+
+static PyObject *
+recipes_uniqueever_setstate(recipes_uniqueever_object *lz, PyObject *state)
+{
+    PyObject *seen, *seenlist;
+    if (!PyArg_ParseTuple(state, "OO", &seen, &seenlist)) {
+        return NULL;
+    }
+    Py_CLEAR(lz->seen);
+    lz->seen = seen;
+    Py_INCREF(lz->seen);
+
+    Py_CLEAR(lz->seenlist);
+    lz->seenlist = seenlist;
+    Py_INCREF(lz->seenlist);
+
+    Py_RETURN_NONE;
+}
+
+static PyMethodDef recipes_uniqueever_methods[] = {
+    {"__reduce__",
+     (PyCFunction)recipes_uniqueever_reduce,
+     METH_NOARGS,
+     ""},
+
+    {"__setstate__",
+     (PyCFunction)recipes_uniqueever_setstate,
+     METH_O,
+     ""},
+
+    {NULL,              NULL}   /* sentinel */
+};
 
 PyDoc_STRVAR(recipes_uniqueever_doc,
 "unique_everseen(sequence)\n\
@@ -245,7 +288,7 @@ static PyTypeObject recipes_uniqueever_type = {
     0,                                  /* tp_weaklistoffset */
     PyObject_SelfIter,                  /* tp_iter */
     (iternextfunc)recipes_uniqueever_next, /* tp_iternext */
-    0,                                  /* tp_methods */
+    recipes_uniqueever_methods,         /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */

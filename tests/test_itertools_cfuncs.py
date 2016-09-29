@@ -688,6 +688,31 @@ def test_applyfunc_memoryleak():
     assert not memory_leak(test, Test)
 
 
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='Python 2 does not support this way of pickling.')
+def test_cfuncs_pickle():
+    import pickle
+
+    accumulate = iteration_utilities.accumulate
+    applyfunc = iteration_utilities.applyfunc
+    unique_everseen = iteration_utilities.unique_everseen
+
+    acc = accumulate([1, 2, 3, 4])
+    assert next(acc) == 1
+    x = pickle.dumps(acc)
+    assert list(pickle.loads(x)) == [3, 6, 10]
+
+    apf = applyfunc(iteration_utilities.square, 2)
+    assert next(apf) == 4
+    x = pickle.dumps(apf)
+    assert next(pickle.loads(x)) == 16
+
+    uqe = unique_everseen([1, 2, 1, 2])
+    assert next(uqe) == 1
+    x = pickle.dumps(uqe)
+    assert list(pickle.loads(x)) == [2]
+
+
 def test_callbacks():
     assert iteration_utilities.return_True()
     assert not iteration_utilities.return_False()

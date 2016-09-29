@@ -69,6 +69,24 @@ recipes_applyfunc_next(recipes_applyfunc_object *lz)
     }
 }
 
+static PyObject *
+recipes_applyfunc_reduce(recipes_applyfunc_object *lz)
+{
+    return Py_BuildValue("O(OO)",
+                         Py_TYPE(lz),
+                         lz->func,
+                         lz->value);
+}
+
+static PyMethodDef recipes_applyfunc_methods[] = {
+    {"__reduce__",
+     (PyCFunction)recipes_applyfunc_reduce,
+     METH_NOARGS,
+     ""},
+
+    {NULL,              NULL}   /* sentinel */
+};
+
 PyDoc_STRVAR(recipes_applyfunc_doc,
 "applyfunc(func, initial)\n\
 \n\
@@ -132,7 +150,7 @@ static PyTypeObject recipes_applyfunc_type = {
     0,                                  /* tp_weaklistoffset */
     PyObject_SelfIter,                  /* tp_iter */
     (iternextfunc)recipes_applyfunc_next, /* tp_iternext */
-    0,                                  /* tp_methods */
+    recipes_applyfunc_methods,          /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
