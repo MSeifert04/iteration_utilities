@@ -126,7 +126,7 @@ TypeError :\n\
 \n\
 Examples\n\
 --------\n\
-Some basic examples including the use of ``pred``::
+Some basic examples including the use of ``pred``::\n\
 \n\
     >>> from iteration_utilities import first\n\
     >>> first([0, 1, 2])\n\
