@@ -33,7 +33,6 @@ reduce_first(PyObject *self, PyObject *args, PyObject *kwds)
             val = PyObject_CallFunctionObjArgs(func, item, NULL);
             if (val == NULL) {
                 Py_DECREF(iterator);
-                Py_DECREF(item);
                 return NULL;
             }
             ok = PyObject_IsTrue(val);
