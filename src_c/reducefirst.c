@@ -82,7 +82,8 @@ reduce_first(PyObject *self, PyObject *args, PyObject *kwds)
 }
 
 
-PyDoc_STRVAR(reduce_first_doc, "first(iterable[, default, pred])\n\
+PyDoc_STRVAR(reduce_first_doc, "first(iterable[, default])\n\
+first(iterable[, default, pred, truthy, retpred])\n\
 \n\
 Returns the first value in the `iterable` or `default`.\n\
 \n\
@@ -96,7 +97,21 @@ default : any type, optional\n\
     returned.\n\
 \n\
 pred : callable, optional\n\
-    If given return the first item for which `pred` is ``True``.\n\
+    If given return the first item for which ``pred(item)`` is ``True``.\n\
+\n\
+truthy : bool, optional\n\
+    If ``False`` search for the first item for which ``pred(item)`` is ``False``.\n\
+    Default is ``True``.\n\
+\n\
+    .. note::\n\
+       Parameter is ignored if `pred` is not given.\n\
+\n\
+retpred : bool, optional\n\
+    If given return ``pred(item)`` instead of ``item``.\n\
+    Default is ``False``.\n\
+\n\
+    .. note::\n\
+       Parameter is ignored if `pred` is not given.\n\
 \n\
 Returns\n\
 -------\n\
@@ -111,20 +126,34 @@ TypeError :\n\
 \n\
 Examples\n\
 --------\n\
->>> from iteration_utilities import first\n\
->>> first([0, '', tuple(), 10])\n\
-0\n\
+Some basic examples including the use of ``pred``::
 \n\
->>> first([0, '', tuple(), 10], pred=bool)\n\
-10\n\
+    >>> from iteration_utilities import first\n\
+    >>> first([0, 1, 2])\n\
+    0\n\
+    \n\
+    >>> first([0, '', tuple(), 10], pred=bool)\n\
+    10\n\
+    \n\
+    >>> # First odd number\n\
+    >>> first([0, 2, 3, 5, 8, 10], pred=lambda x: x%2)\n\
+    3\n\
+    \n\
+    >>> # default value if empty or no true value\n\
+    >>> first([], default=100)\n\
+    100\n\
+    >>> first([0, 0, 0, 0], pred=bool, default=100)\n\
+    100\n\
 \n\
->>> # First odd number\n\
->>> first([0, 2, 3, 5, 8, 10], pred=lambda x: x%2)\n\
-3\n\
+Given a `pred` it is also possible to look for the first ``False`` value and \n\
+return the result of ``pred(item)``::\n\
 \n\
->>> # default value if empty or no true value\n\
->>> first([], default=100)\n\
-100\n\
->>> first([0, 0, 0, 0], pred=bool, default=100)\n\
-100\n\
+    >>> first([1,2,0], pred=bool)\n\
+    1\n\
+    >>> first([1,2,0], pred=bool, truthy=False)\n\
+    0\n\
+    >>> first([[1,0], [0,1]], pred=operator.itemgetter(1))\n\
+    [0, 1]\n\
+    >>> first([[1,0], [0,1]], pred=operator.itemgetter(1), retpred=True)\n\
+    1\n\
 ");
