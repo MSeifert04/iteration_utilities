@@ -10,8 +10,8 @@ reduce_first(PyObject *self, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"iterable", "default", "pred", "truthy", "retpred", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOpp:first", kwlist,
-                                     &sequence, &defaultitem, &func, &truthy, &retpred)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOii:first", kwlist,
+            &sequence, &defaultitem, &func, &truthy, &retpred)) {
         return NULL;
     }
 
