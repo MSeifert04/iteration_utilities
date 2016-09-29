@@ -482,7 +482,7 @@ def test_unique_everseen_memoryleak():
     # unhashable types
     def test():
         list(unique_everseen([{Test(1): Test(1)}, {Test(2): Test(2)},
-                               {Test(1): Test(1)}]))
+                              {Test(1): Test(1)}]))
     assert not memory_leak(test, Test)
 
     def test():
