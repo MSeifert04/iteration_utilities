@@ -79,22 +79,13 @@ Parameters\n\
 func : callable\n\
     The function to apply. The `value` is given as first argument.\n\
 \n\
-value : any type\n\
+initial : any type\n\
     The value on which to apply the function.\n\
-\n\
-args, kwargs :\n\
-    Additional parameter for `func`.\n\
 \n\
 Returns\n\
 -------\n\
 results : generator\n\
     The result of the successivly applied `func`.\n\
-\n\
-See also\n\
---------\n\
-._core.repeatfunc : Repeatedly call a function.\n\
-\n\
-._core.tabulate : Repeatedly call a function on an incrementing value.\n\
 \n\
 Examples\n\
 --------\n\
