@@ -141,3 +141,33 @@ faster::\n\
     >>> return_first_positional_argument(1, 2, 3, 4, a=100)\n\
     1\n\
 ");
+
+static PyObject*
+returnx_returnCallResult(PyObject *self, PyObject *args) {
+    return PyObject_CallFunctionObjArgs(args, NULL);
+}
+
+PyDoc_STRVAR(returnx_returnCallResult_doc,
+"return_called(func)\n\
+\n\
+Return the result of ``func()``.\n\
+\n\
+Parameters\n\
+----------\n\
+func : callable \n\
+    The function to be called.\n\
+\n\
+Returns\n\
+-------\n\
+result : any type\n\
+    The result of ``func()``.\n\
+\n\
+Examples\n\
+--------\n\
+This function is equivalent to ``lambda x: x()`` but significantly\n\
+faster::\n\
+\n\
+    >>> from iteration_utilities import return_called\n\
+    >>> return_called(int)\n\
+    0\n\
+");
