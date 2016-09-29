@@ -53,7 +53,7 @@ recipes_accumulate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         lz->binop = binop;
     }
 
-    if (start != NULL) {
+    if (start != NULL && start != Py_None) {
         Py_INCREF(start);
         lz->total = start;
     } else {
@@ -102,7 +102,7 @@ recipes_accumulate_next(recipes_accumulateobject *lz)
         return lz->total;
     }
 
-    if (lz->binop == NULL) {
+    if (lz->binop == NULL || lz->binop == Py_None) {
         newtotal = PyNumber_Add(lz->total, val);
     } else {
         newtotal = PyObject_CallFunctionObjArgs(lz->binop, lz->total, val, NULL);
@@ -123,27 +123,19 @@ recipes_accumulate_next(recipes_accumulateobject *lz)
 static PyObject *
 recipes_accumulate_reduce(recipes_accumulateobject *lz)
 {
-    return Py_BuildValue("O(OO)O",
+    return Py_BuildValue("O(OOO)",
                          Py_TYPE(lz),
-                         lz->binop?lz->binop:Py_None,
+                         lz->binop ? lz->binop : Py_None,
                          lz->iterator,
-                         lz->total?lz->total:Py_None);
- }
-
-static PyObject *
-recipes_accumulate_setstate(recipes_accumulateobject *lz, PyObject *state)
-{
-    Py_CLEAR(lz->total);
-    lz->total = state;
-    Py_INCREF(lz->total);
-    Py_RETURN_NONE;
+                         lz->total ? lz->total : Py_None);
 }
 
 static PyMethodDef recipes_accumulate_methods[] = {
-    {"__reduce__",      (PyCFunction)recipes_accumulate_reduce,      METH_NOARGS,
+    {"__reduce__",
+     (PyCFunction)recipes_accumulate_reduce,
+     METH_NOARGS,
      ""},
-    {"__setstate__",    (PyCFunction)recipes_accumulate_setstate,    METH_O,
-     ""},
+
     {NULL,              NULL}   /* sentinel */
 };
 
