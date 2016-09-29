@@ -688,6 +688,8 @@ def test_applyfunc_memoryleak():
     assert not memory_leak(test, Test)
 
 
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='Python 2 does not support this way of pickling.')
 def test_cfuncs_pickle():
     import pickle
 
