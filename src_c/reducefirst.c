@@ -70,4 +70,49 @@ reduce_first(PyObject *self, PyObject *args, PyObject *kwds)
 }
 
 
-PyDoc_STRVAR(reduce_first_doc, "first(iterable[, default, pred])");
+PyDoc_STRVAR(reduce_first_doc, "first(iterable[, default, pred])\n\
+\n\
+Returns the first value in the `iterable` or `default`.\n\
+\n\
+Parameters\n\
+----------\n\
+iterable : iterable\n\
+    The `iterable` for which to determine the first value.\n\
+\n\
+default : any type, optional\n\
+    If no first value is found and `default` is given the `default` is \n\
+    returned.\n\
+\n\
+pred : callable, optional\n\
+    If given return the first item for which `pred` is ``True``.\n\
+\n\
+Returns\n\
+-------\n\
+first : any type\n\
+    The first value or the first value for which `pred` is ``True``.\n\
+    If there is no such value then `default` is returned.\n\
+\n\
+Raises\n\
+-------\n\
+TypeError :\n\
+    If there is no first element and no `default` is given.\n\
+\n\
+Examples\n\
+--------\n\
+>>> from iteration_utilities import first\n\
+>>> first([0, '', tuple(), 10])\n\
+0\n\
+\n\
+>>> first([0, '', tuple(), 10], pred=bool)\n\
+10\n\
+\n\
+>>> # First odd number\n\
+>>> first([0, 2, 3, 5, 8, 10], pred=lambda x: x%2)\n\
+3\n\
+\n\
+>>> # default value if empty or no true value\n\
+>>> first([], default=100)\n\
+100\n\
+>>> first([0, 0, 0, 0], pred=bool, default=100)\n\
+100\n\
+");

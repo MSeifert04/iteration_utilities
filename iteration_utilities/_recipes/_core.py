@@ -30,7 +30,7 @@ else:
 __all__ = ['all_equal',
            'consume',
            'dotproduct',
-           'first_true', 'flatten',
+           'flatten',
            'grouper',
            'ipartition', 'iter_except',
            'ncycles', 'nth',
@@ -59,10 +59,6 @@ def take(iterable, n):
     items : :py:class:`list`
         The first `n` items of the `iterable`.
 
-    See also
-    --------
-    tail : Last `n` items of the sequence.
-
     Examples
     --------
     >>> from iteration_utilities import take
@@ -90,12 +86,6 @@ def tabulate(function, start=0):
     tabulated : generator
         An infinite generator containing the results of the `function` applied
         on the values beginning by `start`.
-
-    See also
-    --------
-    ._core.repeatfunc : Repeatedly call a function.
-
-    ._additional.applyfunc : Repeatedly call a function on one value.
 
     Examples
     --------
@@ -130,10 +120,6 @@ def tail(iterable, n):
     -------
     iterator : iterator
         The last `n` items of `iterable` as iterator.
-
-    See also
-    --------
-    take : First `n` items of the sequence.
 
     Examples
     --------
@@ -373,11 +359,6 @@ def flatten(iterable):
     >>> from iteration_utilities import flatten
     >>> list(flatten([[1,2,3,4], [4,3,2,1]]))
     [1, 2, 3, 4, 4, 3, 2, 1]
-
-    See also
-    --------
-    ._additional.deepflatten : To flatten arbitary number of
-        nestings and the possibility to define the types to flatten.
     """
     return chain.from_iterable(iterable)
 
@@ -402,12 +383,6 @@ def repeatfunc(func, *args, **times):
     -------
     iterable : generator
         The result of the repeatedly called function.
-
-    See also
-    --------
-    ._core.tabulate : Repeatedly call a function on an incrementing value.
-
-    ._additional.applyfunc : Repeatedly call a function on one value.
 
     Examples
     --------
@@ -445,11 +420,6 @@ def pairwise(iterable):
     -------
     pairwise : generator
         An `iterable` containing tuples of sucessive elements of the iterable.
-
-    See also
-    --------
-    ._additional.successive : More general solution with the option to specify
-        the number of sucessive elements in each tuple.
 
     Examples
     --------
@@ -686,49 +656,6 @@ def iter_except(func, exception, first=None):
             yield func()
     except exception:
         pass
-
-
-def first_true(iterable, default=False, pred=None):
-    """Returns the first true value in the `iterable` or `default`.
-
-    Parameters
-    ----------
-    iterable : iterable
-        The `iterable` for which to determine the first true value.
-
-    default : any type, optional
-        The `default` value if no true value was found.
-        Default is ``False``.
-
-    pred : callable or None, optional
-        If ``None`` find the first true value. Otherwise find the first value
-        for which ``pred(value)`` is ``True``.
-        Default is ``None``.
-
-    Returns
-    -------
-    first : any type
-        The first true value or the first value for which `pred` is true.
-        If there is no such value then `default` is returned.
-
-    Examples
-    --------
-    >>> from iteration_utilities import first_true
-    >>> first_true([0, '', tuple(), 10])
-    10
-
-    >>> # First odd number
-    >>> first_true([0, 2, 3, 5, 8, 10], pred=lambda x: x%2)
-    3
-
-    >>> first_true([0, 0, 0, 0])
-    False
-
-    >>> # default value if no true value
-    >>> first_true([0, 0, 0, 0], default=100)
-    100
-    """
-    return next(filter(pred, iterable), default)
 
 
 def random_product(*iterables, **repeat):

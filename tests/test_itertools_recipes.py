@@ -26,11 +26,6 @@ def test_exceptions():
         with pytest.raises(TypeError):
             list(iteration_utilities.itersubclasses(A))
 
-    # minmax without default should raise a ValueError if an empty input
-    # is provided.
-    with pytest.raises(ValueError):
-        iteration_utilities.minmax([])
-
     # Random product doesn't work with empty iterables
     with pytest.raises(IndexError):
         iteration_utilities.random_product([])
@@ -44,12 +39,11 @@ def test_exceptions():
 
 def test_empty_input():
     empty = []
-    # no need to test apply_func here
+    # no need to test applyfunc here
     assert iteration_utilities.all_equal(empty)
     assert iteration_utilities.consume(empty, 2) is None
     assert list(iteration_utilities.deepflatten(empty)) == []
     assert iteration_utilities.dotproduct(empty, empty) == 0
-    assert not iteration_utilities.first_true(empty)
     assert list(iteration_utilities.flatten(empty)) == []
     assert list(iteration_utilities.grouper(empty, 2)) == []
     x, y = iteration_utilities.ipartition(empty, lambda x: x)
@@ -58,7 +52,6 @@ def test_empty_input():
     # no need to test iter_subclasses here
     assert not iteration_utilities.last_true(empty)
     assert list(iteration_utilities.merge(empty)) == []
-    assert iteration_utilities.minmax(empty, default=0) == (0, 0)
     assert list(iteration_utilities.ncycles(empty, 10)) == []
     assert iteration_utilities.nth(empty, 10) is None
     assert list(iteration_utilities.take(

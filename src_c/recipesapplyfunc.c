@@ -70,11 +70,50 @@ recipes_applyfunc_next(recipes_applyfunc_object *lz)
 }
 
 PyDoc_STRVAR(recipes_applyfunc_doc,
-"applyfunc(func, initial)");
+"applyfunc(func, initial)\n\
+\n\
+Successivly apply `func` on `value`.\n\
+\n\
+Parameters\n\
+----------\n\
+func : callable\n\
+    The function to apply. The `value` is given as first argument.\n\
+\n\
+value : any type\n\
+    The value on which to apply the function.\n\
+\n\
+args, kwargs :\n\
+    Additional parameter for `func`.\n\
+\n\
+Returns\n\
+-------\n\
+results : generator\n\
+    The result of the successivly applied `func`.\n\
+\n\
+See also\n\
+--------\n\
+._core.repeatfunc : Repeatedly call a function.\n\
+\n\
+._core.tabulate : Repeatedly call a function on an incrementing value.\n\
+\n\
+Examples\n\
+--------\n\
+The first element is the initial `value` and the next elements are\n\
+the result of ``func(value)``, then ``func(func(value))``, ...::\n\
+\n\
+    >>> from iteration_utilities import take, applyfunc\n\
+    >>> import math\n\
+    >>> take(applyfunc(math.sqrt, 10), 4)\n\
+    [3.1622776601683795, 1.7782794100389228, 1.333521432163324, 1.1547819846894583]\n\
+\n\
+.. warning::\n\
+    This will return an infinitly long generator so do **not** try to do\n\
+    something like ``list(applyfunc())``!\n\
+");
 
 static PyTypeObject recipes_applyfunc_type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.c_applyfunc", /* tp_name */
+    "iteration_utilities.applyfunc", /* tp_name */
     sizeof(recipes_applyfunc_object),  /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
