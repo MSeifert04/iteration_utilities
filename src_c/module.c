@@ -5,6 +5,7 @@
 #include "mathematical.c"
 #include "reduceminmax.c"
 #include "recipespartition.c"
+#include "recipesuniqueever.c"
 #include "recipesaccumulate.c"
 
 
@@ -95,6 +96,7 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
     // a few lines later.
     PyTypeObject *typelist[] = {
         &recipes_accumulate_type,
+        &recipes_uniqueever_type,
         NULL
     };
 
@@ -130,6 +132,7 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
     // a few lines earlier.
     PyTypeObject *typelist[] = {
         &recipes_accumulate_type,
+        &recipes_uniqueever_type,
         NULL
     };
 

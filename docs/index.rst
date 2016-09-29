@@ -109,7 +109,6 @@ Python2 and Python3 compatible. The documentation was added and/or modified.
 - :py:func:`take`
 - :py:func:`tail`
 - :py:func:`tee_lookahead`
-- :py:func:`unique_everseen`
 - :py:func:`unique_justseen`
 
 
@@ -130,6 +129,7 @@ Additional recipes for iterations.
 
 - :py:func:`minmax`
 - :py:func:`partition`
+- :py:func:`unique_everseen`
 
 
 Compatibility layer
