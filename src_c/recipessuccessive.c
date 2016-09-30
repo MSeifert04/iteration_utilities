@@ -102,7 +102,6 @@ recipes_successive_next(recipes_successive_object *lz)
 
     // Recycle old tuple or create a new one.
     if (Py_REFCNT(result) == 1) {
-        Py_INCREF(result);
 
         // Shift all earlier items one index to the left.
         for (i=1 ; i < times ; i++) {
@@ -119,7 +118,7 @@ recipes_successive_next(recipes_successive_object *lz)
         }
         // Insert the new item
         PyTuple_SET_ITEM(result, times-1, item);
-
+        Py_INCREF(result);
         return result;
 
     } else {
@@ -169,7 +168,6 @@ recipes_successive_setstate(recipes_successive_object *lz, PyObject *state)
         lz->result = NULL;
     } else {
         lz->result = result;
-        Py_INCREF(lz->result);
     }
 
     Py_RETURN_NONE;
