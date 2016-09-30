@@ -184,6 +184,10 @@ Examples\n\
 >>> from iteration_utilities import roundrobin\n\
 >>> list(roundrobin('ABC', 'D', 'EF'))\n\
 ['A', 'D', 'E', 'B', 'F', 'C']\n\
+\n\
+References\n\
+----------\n\
+.. [0] https://en.wikipedia.org/wiki/Round-robin_scheduling\n\
 ");
 
 PyTypeObject recipes_roundrobin_type = {
