@@ -39,7 +39,6 @@ def test_exceptions():
 
 def test_empty_input():
     empty = []
-    # no need to test applyfunc here
     assert iteration_utilities.all_equal(empty)
     assert iteration_utilities.consume(empty, 2) is None
     assert list(iteration_utilities.deepflatten(empty)) == []
@@ -62,7 +61,6 @@ def test_empty_input():
     assert iteration_utilities.random_combination(empty, 0, True) == ()
     assert iteration_utilities.random_permutation(empty, 0) == ()
     # no need to test repeatfunc here
-    assert list(iteration_utilities.roundrobin(empty)) == []
     # no need to test tabulate here
     assert list(iteration_utilities.tail(empty, 2)) == []
     assert iteration_utilities.take(empty, 2) == []

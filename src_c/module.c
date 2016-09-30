@@ -10,6 +10,7 @@
 #include "recipesaccumulate.c"
 #include "recipesapplyfunc.c"
 #include "recipessuccessive.c"
+#include "recipesroundrobin.c"
 
 
 //Method definition object for this extension, these argumens mean:
@@ -110,6 +111,7 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
     PyTypeObject *typelist[] = {
         &recipes_accumulate_type,
         &recipes_applyfunc_type,
+        &recipes_roundrobin_type,
         &recipes_successive_type,
         &recipes_uniqueever_type,
         NULL
@@ -148,6 +150,7 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
     PyTypeObject *typelist[] = {
         &recipes_accumulate_type,
         &recipes_applyfunc_type,
+        &recipes_roundrobin_type,
         &recipes_successive_type,
         &recipes_uniqueever_type,
         NULL
