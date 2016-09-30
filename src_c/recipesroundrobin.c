@@ -118,14 +118,14 @@ recipes_roundrobin_reduce(recipes_roundrobin_object *lz)
         if (ittuple == NULL) {
             return NULL;
         }
-        for (i = 0 ; i < lz->numactive, i++) {
+        for (i=0 ; i<lz->numactive ; i++) {
             temp = PyTuple_GET_ITEM(lz->ittuple, i);
             Py_INCREF(temp);
             PyTuple_SET_ITEM(ittuple, i, temp);
         }
     } else {
         ittuple = lz->ittuple;
-        PY_INCREF(ittuple);
+        Py_INCREF(ittuple);
     }
     res = Py_BuildValue("O(O)(nn)", Py_TYPE(lz),
                         lz->ittuple, lz->numactive,
