@@ -66,6 +66,7 @@ static PyObject *
 recipes_successive_next(recipes_successive_object *lz)
 {
     Py_ssize_t times = lz->times;
+    Py_ssize_t i;
 
     PyObject *result = lz->result;
     PyObject *it = lz->it;
@@ -80,7 +81,7 @@ recipes_successive_next(recipes_successive_object *lz)
             return NULL;
         }
 
-        for (Py_ssize_t i=0; i < times; i++) {
+        for (i=0; i < times; i++) {
             item = (*Py_TYPE(it)->tp_iternext)(it);
             if (item == NULL) {
                 Py_DECREF(result);
@@ -104,7 +105,7 @@ recipes_successive_next(recipes_successive_object *lz)
         Py_INCREF(result);
 
         // Shift all earlier items one index to the left.
-        for (Py_ssize_t i=1 ; i < times ; i++) {
+        for (i=1 ; i < times ; i++) {
             olditem = PyTuple_GET_ITEM(result, i);
             Py_INCREF(olditem);
             if (i == 1) {
@@ -129,7 +130,7 @@ recipes_successive_next(recipes_successive_object *lz)
         }
 
         // Shift all earlier items one index to the left.
-        for (Py_ssize_t i=1 ; i < times ; i++) {
+        for (i=1 ; i < times ; i++) {
             olditem = PyTuple_GET_ITEM(result, i);
             Py_INCREF(olditem);
             PyTuple_SET_ITEM(newresult, i-1, olditem);

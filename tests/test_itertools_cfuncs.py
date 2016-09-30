@@ -712,6 +712,7 @@ def test_cfuncs_pickle():
     accumulate = iteration_utilities.accumulate
     applyfunc = iteration_utilities.applyfunc
     unique_everseen = iteration_utilities.unique_everseen
+    successive = iteration_utilities.successive
 
     acc = accumulate([1, 2, 3, 4])
     assert next(acc) == 1
@@ -727,6 +728,11 @@ def test_cfuncs_pickle():
     assert next(uqe) == 1
     x = pickle.dumps(uqe)
     assert list(pickle.loads(x)) == [2]
+
+    suc = successive([1, 2, 3, 4])
+    assert next(suc) == (1, 2)
+    x = pickle.dumps(suc)
+    assert list(pickle.loads(x)) == [(2, 3), (3, 4)]
 
 
 def test_callbacks():
