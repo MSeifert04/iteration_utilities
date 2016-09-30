@@ -95,7 +95,6 @@ Python2 and Python3 compatible. The documentation was added and/or modified.
 - :py:func:`ncycles`
 - :py:func:`nth`
 - :py:func:`padnone`
-- :py:func:`pairwise`
 - :py:func:`powerset`
 - :py:func:`quantify`
 - :py:func:`random_combination`
@@ -120,7 +119,6 @@ Additional recipes for iterations.
 - :py:func:`itersubclasses`
 - :py:func:`last_true`
 - :py:func:`merge`
-- :py:func:`successive`
 
 
 .. py:currentmodule:: iteration_utilities._cfuncs
@@ -133,6 +131,7 @@ Additional recipes for iterations.
 .. py:currentmodule:: iteration_utilities
 
 - :py:func:`applyfunc`
+- :py:func:`successive`
 - :py:func:`unique_everseen`
 
 

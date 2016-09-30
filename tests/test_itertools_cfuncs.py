@@ -688,6 +688,55 @@ def test_applyfunc_memoryleak():
     assert not memory_leak(test, Test)
 
 
+def test_successive():
+    successive = iteration_utilities.successive
+
+    assert list(successive([])) == []
+    assert list(successive([1])) == []
+    assert list(successive([], times=10)) == []
+    assert list(successive([1, 2, 3, 4, 5], times=10)) == []
+
+    assert list(successive(range(4))) == [(0, 1), (1, 2), (2, 3)]
+    assert list(successive(range(4), times=3)) == [(0, 1, 2), (1, 2, 3)]
+    assert list(successive(range(4), times=4)) == [(0, 1, 2, 3)]
+
+    with pytest.raises(TypeError):
+        successive(10)
+
+
+def test_successive_memoryleak():
+    successive = iteration_utilities.successive
+
+    class Test(object):
+        def __init__(self, value):
+            self.value = value
+
+    def test():
+        list(successive([Test(1)]))
+    assert not memory_leak(test, Test)
+
+    def test():
+        list(successive([Test(1), Test(2), Test(3)], times=10))
+    assert not memory_leak(test, Test)
+
+    def test():
+        list(successive([Test(1), Test(2), Test(3), Test(4)]))
+    assert not memory_leak(test, Test)
+
+    def test():
+        list(successive([Test(1), Test(2), Test(3), Test(4)], times=3))
+    assert not memory_leak(test, Test)
+
+    def test():
+        list(successive([Test(1), Test(2), Test(3), Test(4)], times=4))
+    assert not memory_leak(test, Test)
+
+    def test():
+        with pytest.raises(TypeError):
+            successive(Test(1))
+    assert not memory_leak(test, Test)
+
+
 @pytest.mark.xfail(iteration_utilities.PY2,
                    reason='Python 2 does not support this way of pickling.')
 def test_cfuncs_pickle():
@@ -696,6 +745,7 @@ def test_cfuncs_pickle():
     accumulate = iteration_utilities.accumulate
     applyfunc = iteration_utilities.applyfunc
     unique_everseen = iteration_utilities.unique_everseen
+    successive = iteration_utilities.successive
 
     acc = accumulate([1, 2, 3, 4])
     assert next(acc) == 1
@@ -711,6 +761,11 @@ def test_cfuncs_pickle():
     assert next(uqe) == 1
     x = pickle.dumps(uqe)
     assert list(pickle.loads(x)) == [2]
+
+    suc = successive([1, 2, 3, 4])
+    assert next(suc) == (1, 2)
+    x = pickle.dumps(suc)
+    assert list(pickle.loads(x)) == [(2, 3), (3, 4)]
 
 
 def test_callbacks():
