@@ -1,3 +1,68 @@
+static void
+helper_tuple_remove(PyObject *tuple, Py_ssize_t idx, Py_ssize_t num)
+{
+    Py_ssize_t i;
+    PyObject *temp, *tobedeleted;
+
+    for (i=idx+1 ; i < num ; i++) {
+        temp = PyTuple_GET_ITEM(tuple, i);
+        Py_XINCREF(temp);
+        if (i == idx+1) {
+            tobedeleted = PyTuple_GET_ITEM(tuple, i-1);
+            PyTuple_SET_ITEM(tuple, i-1, temp);
+            Py_XDECREF(tobedeleted);
+        } else {
+            PyTuple_SET_ITEM(tuple, i-1, temp);
+        }
+    }
+    Py_XDECREF(PyTuple_GET_ITEM(tuple, num-1));
+}
+
+static void
+helper_tuple_insert(PyObject *tuple, Py_ssize_t where, PyObject *v, Py_ssize_t num)
+{
+    Py_ssize_t i;
+    PyObject *temp;
+
+    for (i = num; --i >= where; ) {
+        temp = PyTuple_GET_ITEM(tuple, i);
+        Py_XINCREF(temp);
+        PyTuple_SET_ITEM(tuple, i+1, temp);
+    }
+    PyTuple_SET_ITEM(tuple, where, v);
+}
+
+Py_ssize_t
+helper_bisect_right(PyObject *list, PyObject *item, Py_ssize_t hi, int cmpop)
+{
+    PyObject *litem;
+    Py_ssize_t mid;
+    int res;
+    Py_ssize_t lo = 0;
+
+    while (lo < hi) {
+        /* The (size_t)cast ensures that the addition and subsequent division
+           are performed as unsigned operations, avoiding difficulties from
+           signed overflow.  (See issue 13496.) */
+        mid = ((size_t)lo + hi) / 2;
+        litem = PyTuple_GET_ITEM(list, mid);
+        if (litem == NULL) {
+            return -1;
+        }
+        res = PyObject_RichCompareBool(item, litem, cmpop);
+        if (res < 0) {
+            return -1;
+        }
+        if (res) {
+            lo = mid + 1;
+        } else {
+            hi = mid;
+        }
+    }
+    return lo;
+}
+
+
 typedef struct {
     PyObject_HEAD
     PyObject *ittuple;
@@ -12,16 +77,15 @@ typedef struct {
 static PyObject *
 recipes_merge_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    recipes_merge_object *lz;
 
     PyObject *ittuple;
     PyObject *keyfunc = NULL;
     PyObject *reverse = 0;
 
-    PyObject *current = NULL;
     Py_ssize_t numactive;
-    recipes_merge_object *lz;
 
-    PyObject *item, *iterator;
+    PyObject *it;
     Py_ssize_t i, nkwds=0;
 
     assert(PyTuple_Check(args));
@@ -32,14 +96,13 @@ recipes_merge_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
-    for (i = 0 ; i < numactive ; i++) {
-        item = PyTuple_GET_ITEM(args, i);
-        iterator = PyObject_GetIter(item);
-        if (iterator == NULL) {
+    for (i=0 ; i<numactive ; i++) {
+        it = PyObject_GetIter(PyTuple_GET_ITEM(args, i));
+        if (it == NULL) {
             Py_DECREF(ittuple);
             return NULL;
         }
-        PyTuple_SET_ITEM(ittuple, i, iterator);
+        PyTuple_SET_ITEM(ittuple, i, it);
     }
 
     if (kwds != NULL && PyDict_Check(kwds) && PyDict_Size(kwds)) {
@@ -75,7 +138,7 @@ recipes_merge_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     lz->ittuple = ittuple;
     lz->keyfunc = keyfunc;
     lz->reverse = reverse;
-    lz->current = current;
+    lz->current = NULL;
     lz->numactive = numactive;
 
     return (PyObject *)lz;
@@ -104,68 +167,6 @@ recipes_merge_traverse(recipes_merge_object *lz, visitproc visit, void *arg)
     return 0;
 }
 
-static void
-helper_tuple_remove(PyObject *tuple, Py_ssize_t idx, Py_ssize_t num)
-{
-    Py_ssize_t i;
-    PyObject *olditem, *temp;
-
-    olditem = PyTuple_GET_ITEM(tuple, idx);
-    Py_DECREF(olditem);
-
-    for (i=idx+1 ; i < num ; i++) {
-        olditem = PyTuple_GET_ITEM(tuple, i);
-        Py_INCREF(olditem);
-        PyTuple_SET_ITEM(tuple, i-1, olditem);
-    }
-    Py_DECREF(PyTuple_GET_ITEM(tuple, num-1));
-}
-
-static void
-helper_tuple_insert(PyObject *tuple, Py_ssize_t where, PyObject *v, Py_ssize_t num)
-{
-    Py_ssize_t i;
-    PyObject *temp;
-
-    for (i = num; --i >= where; ) {
-        temp = PyTuple_GET_ITEM(tuple, i);
-        Py_INCREF(temp);
-        PyTuple_SET_ITEM(tuple, i+1, temp);
-    }
-
-    PyTuple_SET_ITEM(tuple, where, v);
-}
-
-Py_ssize_t
-helper_bisect_right(PyObject *list, PyObject *item, Py_ssize_t hi, int cmpop)
-{
-    PyObject *litem;
-    Py_ssize_t mid;
-    int res;
-    Py_ssize_t lo = 0;
-
-    while (lo < hi) {
-        /* The (size_t)cast ensures that the addition and subsequent division
-           are performed as unsigned operations, avoiding difficulties from
-           signed overflow.  (See issue 13496.) */
-        mid = ((size_t)lo + hi) / 2;
-        litem = PyTuple_GET_ITEM(list, mid);
-        if (litem == NULL) {
-            return -1;
-        }
-        res = PyObject_RichCompareBool(item, litem, cmpop);
-        if (res < 0) {
-            return -1;
-        }
-        if (res) {
-            lo = mid + 1;
-        } else {
-            hi = mid;
-        }
-    }
-    return lo;
-}
-
 
 static PyObject *
 recipes_merge_next(recipes_merge_object *lz)
@@ -185,7 +186,7 @@ recipes_merge_next(recipes_merge_object *lz)
         if (current == NULL) {
             return NULL;
         }
-        // Go through the iterables in reverse so we can remove them immediatly
+
         for (i=0 ; i<numactive ; i++) {
             iterator = PyTuple_GET_ITEM(ittuple, i);
             item = PyIter_Next(iterator);
@@ -195,18 +196,21 @@ recipes_merge_next(recipes_merge_object *lz)
                 i--;
             } else {
                 idx = PyLong_FromSsize_t(i);
-                temp = PyTuple_Pack(2, item, idx);  // Change if keyfunc is given
+                // Change if keyfunc is given
+                temp = PyTuple_Pack(2, item, idx);
+                Py_DECREF(idx);
+
                 if (i==0) {
                     PyTuple_SET_ITEM(current, 0, temp);
                 } else {
-                    insert = helper_bisect_right(current, temp, i, Py_LT);  // Change if reverse is given
+                    // Change if reverse is given
+                    insert = helper_bisect_right(current, temp, i, Py_LT);
                     if (insert < 0) {
                         return NULL;
                     }
                     helper_tuple_insert(current, insert, temp, i);
                 }
                 Py_DECREF(item);
-                Py_DECREF(idx);
             }
         }
         lz->current = current;
@@ -228,7 +232,8 @@ recipes_merge_next(recipes_merge_object *lz)
         lz->numactive--;
     } else {
         PyTuple_SET_ITEM(item, 0, temp);
-        insert = helper_bisect_right(current, item, numactive, Py_LT);  // Change if reverse is given
+        // Change if reverse is given
+        insert = helper_bisect_right(current, item, numactive, Py_LT);
         if (insert < 0) {
             return NULL;
         }
