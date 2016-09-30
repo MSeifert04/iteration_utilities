@@ -214,8 +214,8 @@ successive_elements : generator\n\
 \n\
 Examples\n\
 --------\n\
-Like :py:func:`~._core.pairwise` get every item and the following with the\n\
-default `times`::\n\
+Each item of the `iterable` is returned as ``tuple`` with `times` successive\n\
+items::\n\
 \n\
     >>> from iteration_utilities import successive\n\
     >>> list(successive(range(5)))\n\
