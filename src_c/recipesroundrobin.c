@@ -24,13 +24,13 @@ recipes_roundrobin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
 
     for (i = 0 ; i < numactive ; i++) {
-        item = PyTuple_GET_ITEM(args, i); //REFCNT(item) = 0
+        item = PyTuple_GetItem(args, i); //REFCNT(item) = 0
         iterator = PyObject_GetIter(item); //REFCNT(iterator) = 1
         if (iterator == NULL) {
             Py_DECREF(ittuple);
             return NULL;
         }
-        PyTuple_SET_ITEM(ittuple, i, iterator); //REFCNT(iterator) = 0
+        PyTuple_SetItem(ittuple, i, iterator); //REFCNT(iterator) = 0
     }
 
     /* create recipes_roundrobin_object structure */
@@ -79,24 +79,24 @@ recipes_roundrobin_next(recipes_roundrobin_object *lz)
         return NULL;
     }
 
-    iterator = PyTuple_GET_ITEM(ittuple, active);
+    iterator = PyTuple_GetItem(ittuple, active);
     while ((item = PyIter_Next(iterator)) == NULL) {
         if (active == lz->numactive -1) {
-            PyTuple_SET_ITEM(ittuple, active, NULL);
+            PyTuple_SetItem(ittuple, active, NULL);
             active = 0;
         } else {
             for (i = active + 1 ; i < lz->numactive ; i++) {
-                temp = PyTuple_GET_ITEM(ittuple, i);
-                PyTuple_SET_ITEM(ittuple, i - 1, temp);
+                temp = PyTuple_GetItem(ittuple, i);
+                PyTuple_SetItem(ittuple, i - 1, temp);
             }
-            PyTuple_SET_ITEM(ittuple, lz->numactive - 1, NULL);
+            PyTuple_SetItem(ittuple, lz->numactive - 1, NULL);
         }
         lz->numactive--;
         Py_DECREF(iterator);
         if (lz->numactive == 0) {
             break;
         }
-        iterator = PyTuple_GET_ITEM(ittuple, active);
+        iterator = PyTuple_GetItem(ittuple, active);
     }
     if (lz->numactive == 0) {
         return NULL;
@@ -118,9 +118,9 @@ recipes_roundrobin_reduce(recipes_roundrobin_object *lz)
             return NULL;
         }
         for (i=0 ; i<lz->numactive ; i++) {
-            temp = PyTuple_GET_ITEM(lz->ittuple, i);
+            temp = PyTuple_GetItem(lz->ittuple, i);
             Py_INCREF(temp);
-            PyTuple_SET_ITEM(ittuple, i, temp);
+            PyTuple_SetItem(ittuple, i, temp);
         }
     } else {
         ittuple = lz->ittuple;
