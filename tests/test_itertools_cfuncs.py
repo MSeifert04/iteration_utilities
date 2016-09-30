@@ -688,6 +688,22 @@ def test_applyfunc_memoryleak():
     assert not memory_leak(test, Test)
 
 
+def test_successive():
+    successive = iteration_utilities.successive
+
+    assert successive([]) == []
+    assert successive([1]) == []
+    assert successive([], times=10) == []
+    assert successive([1, 2, 3, 4, 5], times=10) == []
+
+    assert successive(range(4)) == [(0, 1), (1, 2), (2, 3)]
+    assert successive(range(4), times=3) == [(0, 1, 2), (1, 2, 3)]
+    assert successive(range(4), times=4) == [(0, 1, 2, 3)]
+
+    with pytest.raises(TypeError):
+        successive(10)
+
+
 @pytest.mark.xfail(iteration_utilities.PY2,
                    reason='Python 2 does not support this way of pickling.')
 def test_cfuncs_pickle():

@@ -19,7 +19,6 @@ if PY2:
     from itertools import (ifilter as filter,
                            ifilterfalse as filterfalse,
                            imap as map,
-                           izip as zip,
                            izip_longest as zip_longest)
     range = xrange
 else:
@@ -34,7 +33,7 @@ __all__ = ['all_equal',
            'grouper',
            'ipartition', 'iter_except',
            'ncycles', 'nth',
-           'padnone', 'pairwise', 'powerset',
+           'padnone', 'powerset',
            'quantify',
            'random_combination', 'random_product', 'random_permutation',
            'repeatfunc', 'roundrobin',
@@ -405,30 +404,6 @@ def repeatfunc(func, *args, **times):
     if times is None:
         return starmap(func, repeat(args))
     return starmap(func, repeat(args, times))
-
-
-def pairwise(iterable):
-    """s -> (s0,s1), (s1,s2), (s2, s3), ...
-
-    Parameters
-    ----------
-    iterable : iterable
-        Any `iterable` to pairwise combine.
-
-    Returns
-    -------
-    pairwise : generator
-        An `iterable` containing tuples of sucessive elements of the iterable.
-
-    Examples
-    --------
-    >>> from iteration_utilities import pairwise
-    >>> list(pairwise([1,2,3]))
-    [(1, 2), (2, 3)]
-    """
-    a, b = tee(iterable)
-    next(b, None)
-    return zip(a, b)
 
 
 def grouper(iterable, n, fillvalue=None):
