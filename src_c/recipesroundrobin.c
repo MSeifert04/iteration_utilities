@@ -87,7 +87,6 @@ recipes_roundrobin_next(recipes_roundrobin_object *lz)
         } else {
             for (i = active + 1 ; i < lz->numactive ; i++) {
                 temp = PyTuple_GET_ITEM(ittuple, i);
-                Py_INCREF(temp);
                 PyTuple_SET_ITEM(ittuple, i - 1, temp);
             }
             PyTuple_SET_ITEM(ittuple, lz->numactive - 1, NULL);
@@ -127,10 +126,9 @@ recipes_roundrobin_reduce(recipes_roundrobin_object *lz)
         ittuple = lz->ittuple;
         Py_INCREF(ittuple);
     }
-    res = Py_BuildValue("O(O)(nn)", Py_TYPE(lz),
-                        lz->ittuple, lz->numactive,
-                        lz->active);
-
+    res = Py_BuildValue("OO(nn)", Py_TYPE(lz),
+                        ittuple,
+                        lz->numactive, lz->active);
     Py_DECREF(ittuple);
     return res;
 }
@@ -139,7 +137,7 @@ static PyObject *
 recipes_roundrobin_setstate(recipes_roundrobin_object *lz, PyObject *state)
 {
     Py_ssize_t numactive, active;
-    if (!PyArg_ParseTuple(state, "O", &numactive, &active)) {
+    if (!PyArg_ParseTuple(state, "nn", &numactive, &active)) {
         return NULL;
     }
 
@@ -168,11 +166,29 @@ static PyMethodDef recipes_roundrobin_methods[] = {
 PyDoc_STRVAR(recipes_roundrobin_doc,
 "roundrobin(*iterable)\n\
 \n\
+Round-Robin implementation ([0]_).\n\
+\n\
+Parameters\n\
+----------\n\
+iterables : iterable\n\
+    `Iterables` to combine using the round-robin. Any amount of iterables\n\
+    are supported.\n\
+\n\
+Returns\n\
+-------\n\
+roundrobin : generator\n\
+    Iterable filled with the values of the `iterables`.\n\
+\n\
+Examples\n\
+--------\n\
+>>> from iteration_utilities import roundrobin\n\
+>>> list(roundrobin('ABC', 'D', 'EF'))\n\
+['A', 'D', 'E', 'B', 'F', 'C']\n\
 ");
 
 PyTypeObject recipes_roundrobin_type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.c_roundrobin",   /* tp_name */
+    "iteration_utilities.roundrobin",   /* tp_name */
     sizeof(recipes_roundrobin_object),  /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */

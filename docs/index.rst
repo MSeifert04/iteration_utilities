@@ -101,7 +101,6 @@ Python2 and Python3 compatible. The documentation was added and/or modified.
 - :py:func:`random_product`
 - :py:func:`random_permutation`
 - :py:func:`repeatfunc`
-- :py:func:`roundrobin`
 - :py:func:`tabulate`
 - :py:func:`take`
 - :py:func:`tail`
@@ -131,6 +130,7 @@ Additional recipes for iterations.
 .. py:currentmodule:: iteration_utilities
 
 - :py:func:`applyfunc`
+- :py:func:`roundrobin`
 - :py:func:`successive`
 - :py:func:`unique_everseen`
 
