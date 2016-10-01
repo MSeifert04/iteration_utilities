@@ -322,7 +322,7 @@ Examples\n\
 --------\n\
 To merge multiple sorted `iterables`::\n\
 \n\
-    >>> from iteration_utilities import c_merge\n\
+    >>> from iteration_utilities import merge\n\
     >>> list(merge([1, 3, 5, 7, 9], [2, 4, 6, 8, 10]))\n\
     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]\n\
 \n\
