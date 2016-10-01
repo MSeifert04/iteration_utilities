@@ -286,7 +286,7 @@ recipes_merge_next(recipes_merge_object *lz)
 
 
 PyDoc_STRVAR(recipes_merge_doc,
-"merge(*iterable)\n\
+"merge(*iterable, [key, reverse])\n\
 \n\
 Merge sorted `iterables` into one.\n\
 \n\
@@ -296,27 +296,27 @@ iterables : iterable\n\
     Any amount of already sorted `iterable` objects.\n\
 \n\
 key : callable or None, optional\n\
-    If ``None`` compare the elements themselves otherwise compare the\n\
-    result of ``key(element)``, like the `key` parameter for\n\
+    If not given compare the item themselves otherwise compare the\n\
+    result of ``key(item)``, like the `key` parameter for\n\
     :py:func:`sorted`.\n\
-    Default is ``None``.\n\
 \n\
 reverse : boolean, optional\n\
-    If ``True`` then sort decreasing otherwise sort in increasing order.\n\
+    If ``True`` then merge in decreasing order instead of increasing order.\n\
     Default is ``False``.\n\
 \n\
 Returns\n\
 -------\n\
 merged : generator\n\
-    The sorted merged iterables as generator.\n\
+    The merged iterables as generator.\n\
 \n\
 See also\n\
 --------\n\
-heapq.merge : Equivalent and faster since Python 3.5 but earlier versions\n\
-    do not support the `key` or `reverse` argument.\n\
+heapq.merge : Equivalent since Python 3.5 but only faster for a large number\n\
+    (more than 5000) of iterables. Additionally earlier versions did not \n\
+    support the `key` or `reverse` argument.\n\
 \n\
 sorted : ``sorted(itertools.chain(*iterables))`` supports the same options\n\
-    and is much faster but returns a sequence instead of a generator.\n\
+    and is much faster if you need a sequence instead of a generator.\n\
 \n\
 Examples\n\
 --------\n\
