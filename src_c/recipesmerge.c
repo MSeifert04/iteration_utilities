@@ -164,10 +164,7 @@ recipes_merge_init_current(recipes_merge_object *lz)
     for ( i=0 ; i < lz->numactive ; i++ ) {
         it = PyTuple_GET_ITEM(ittuple, i);
         item = PyIter_Next(it);
-        if (item == NULL) {
-            PyTuple_SET_ITEM(ittuple, i, NULL);
-            Py_DECREF(it);
-        } else {
+        if (item != NULL) {
             if (lz->reverse) {
                 idx = PyLong_FromSsize_t(-i);
             } else {
@@ -295,6 +292,60 @@ recipes_merge_next(recipes_merge_object *lz)
     return val;
 }
 
+static PyObject *
+recipes_merge_reduce(recipes_merge_object *lz)
+{
+    PyObject * res;
+    res = Py_BuildValue("OO(OiOn)", Py_TYPE(lz),
+                        lz->ittuple,
+                        lz->keyfunc ? lz->keyfunc : Py_None,
+                        lz->reverse,
+                        lz->current ? lz->current : Py_None,
+                        lz->numactive);
+    return res;
+}
+
+static PyObject *
+recipes_merge_setstate(recipes_merge_object *lz, PyObject *state)
+{
+    PyObject *current, *keyfunc;
+    Py_ssize_t numactive;
+    int reverse;
+    if (!PyArg_ParseTuple(state, "OiOn", &keyfunc, &reverse, &current, &numactive)) {
+        return NULL;
+    }
+
+    Py_CLEAR(lz->current);
+    lz->current = current;
+    Py_INCREF(lz->current);
+
+    if (keyfunc != Py_None) {
+        Py_CLEAR(lz->keyfunc);
+        lz->keyfunc = keyfunc;
+        Py_INCREF(lz->keyfunc);
+    }
+
+    lz->numactive = numactive;
+    lz->reverse = reverse;
+
+    Py_RETURN_NONE;
+}
+
+
+static PyMethodDef recipes_merge_methods[] = {
+    {"__reduce__",
+     (PyCFunction)recipes_merge_reduce,
+     METH_NOARGS,
+     ""},
+
+    {"__setstate__",
+     (PyCFunction)recipes_merge_setstate,
+     METH_O,
+     ""},
+
+    {NULL,           NULL}           /* sentinel */
+};
+
 
 PyDoc_STRVAR(recipes_merge_doc,
 "merge(*iterable, [key, reverse])\n\
@@ -391,7 +442,7 @@ PyTypeObject recipes_merge_type = {
     0,                                  /* tp_weaklistoffset */
     PyObject_SelfIter,                  /* tp_iter */
     (iternextfunc)recipes_merge_next,   /* tp_iternext */
-    0,                                  /* tp_methods */
+    recipes_merge_methods,              /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
