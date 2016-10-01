@@ -872,11 +872,12 @@ def test_merge():
         list(merge([(2, 0), 2], [(1, 2), (1, 3)], key=operator.itemgetter(0)))
 
     # Comparison fails
-    with pytest.raises(TypeError):
-        list(merge(['a', 'b'], [2, 3]))
+    if not iteration_utilities.PY2:
+        with pytest.raises(TypeError):
+            list(merge(['a', 'b'], [2, 3]))
 
-    with pytest.raises(TypeError):
-        list(merge([1, 'b'], [2, 3]))
+        with pytest.raises(TypeError):
+            list(merge([1, 'b'], [2, 3]))
 
 
 def test_merge_memoryleak():
@@ -1013,15 +1014,16 @@ def test_merge_memoryleak():
     assert not memory_leak(test, Test)
 
     # Comparison fails
-    def test():
-        with pytest.raises(TypeError):
-            list(merge([Test('a'), Test('b')], [Test(2), Test(3)]))
-    assert not memory_leak(test, Test)
+    if not iteration_utilities.PY2:
+        def test():
+            with pytest_raises(TypeError):
+                list(merge([Test('a'), Test('b')], [Test(2), Test(3)]))
+        assert not memory_leak(test, Test)
 
-    def test():
-        with pytest.raises(TypeError):
-            list(merge([Test(1), Test('b')], [Test(2), Test(3)]))
-    assert not memory_leak(test, Test)
+        def test():
+            with pytest_raises(TypeError):
+                list(merge([Test(1), Test('b')], [Test(2), Test(3)]))
+        assert not memory_leak(test, Test)
 
 
 @pytest.mark.xfail(iteration_utilities.PY2,
