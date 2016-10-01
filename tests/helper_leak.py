@@ -45,6 +45,7 @@ def memory_leak(func, specific_object=None):
     after.update(map(type, get_objects()))
 
     # Return the difference of all types the specified type.
+    return after - before
     if specific_object is None:
         return after - before
     else:
