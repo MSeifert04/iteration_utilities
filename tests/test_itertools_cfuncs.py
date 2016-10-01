@@ -1038,6 +1038,7 @@ def test_cfuncs_pickle():
     unique_everseen = iteration_utilities.unique_everseen
     successive = iteration_utilities.successive
     roundrobin = iteration_utilities.roundrobin
+    merge = iteration_utilities.merge
 
     acc = accumulate([1, 2, 3, 4])
     assert next(acc) == 1
@@ -1070,6 +1071,21 @@ def test_cfuncs_pickle():
     assert next(rr2) == 2
     x = pickle.dumps(rr2)
     assert list(pickle.loads(x)) == [3]
+
+    mge = merge([0], [1, 2], [2])
+    assert next(mge) == 0
+    x = pickle.dumps(mge)
+    assert list(pickle.loads(x)) == [1, 2, 2]
+
+    mge = merge([1, 2], [0], [-2], key=abs)
+    assert next(mge) == 0
+    x = pickle.dumps(mge)
+    assert list(pickle.loads(x)) == [1, 2, -2]
+
+    mge = merge([2, 1], [0], [3], reverse=True)
+    assert next(mge) == 3
+    x = pickle.dumps(mge)
+    assert list(pickle.loads(x)) == [2, 1, 0]
 
 
 def test_callbacks():
