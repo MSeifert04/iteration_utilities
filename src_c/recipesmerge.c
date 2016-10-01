@@ -352,11 +352,11 @@ However if the `iterabes` are not sorted the result will be unsorted\n\
 
 PyTypeObject recipes_merge_type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.c_merge",   /* tp_name */
-    sizeof(recipes_merge_object),  /* tp_basicsize */
+    "iteration_utilities.merge",        /* tp_name */
+    sizeof(recipes_merge_object),       /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
-    (destructor)recipes_merge_dealloc, /* tp_dealloc */
+    (destructor)recipes_merge_dealloc,  /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -373,7 +373,7 @@ PyTypeObject recipes_merge_type = {
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    recipes_merge_doc,             /* tp_doc */
+    recipes_merge_doc,                  /* tp_doc */
     (traverseproc)recipes_merge_traverse, /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
@@ -390,6 +390,6 @@ PyTypeObject recipes_merge_type = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     PyType_GenericAlloc,                /* tp_alloc */
-    recipes_merge_new,             /* tp_new */
+    recipes_merge_new,                  /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };

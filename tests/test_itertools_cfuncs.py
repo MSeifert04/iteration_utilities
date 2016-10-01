@@ -791,6 +791,10 @@ def test_roundrobin_memoryleak():
     assert not memory_leak(test, Test)
 
 
+def test_merge():
+    assert list(iteration_utilities.merge([])) == []
+
+
 @pytest.mark.xfail(iteration_utilities.PY2,
                    reason='Python 2 does not support this way of pickling.')
 def test_cfuncs_pickle():
