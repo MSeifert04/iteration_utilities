@@ -72,7 +72,7 @@ recipes_successive_next(recipes_successive_object *lz)
     PyObject *it = lz->it;
 
     PyObject *newresult;
-    PyObject *item, *olditem, *temp;
+    PyObject *item, *olditem, *temp=NULL;
 
     // First call needs to create a tuple for the result.
     if (result == NULL) {
@@ -95,7 +95,7 @@ recipes_successive_next(recipes_successive_object *lz)
     }
 
     // After the first element we can use the normal procedure.
-    item = (*Py_TYPE(it)->tp_iternext)(it);
+    item = PyIter_Next(it);
     if (item == NULL) {
         return NULL;
     }
@@ -111,7 +111,6 @@ recipes_successive_next(recipes_successive_object *lz)
                 // Temporarly get the first item because it's going to be kicked.
                 temp = PyTuple_GET_ITEM(result, 0);
                 PyTuple_SET_ITEM(result, i-1, olditem);
-                Py_DECREF(temp);
             } else {
                 PyTuple_SET_ITEM(result, i-1, olditem);
             }
@@ -119,6 +118,8 @@ recipes_successive_next(recipes_successive_object *lz)
         // Insert the new item
         PyTuple_SET_ITEM(result, times-1, item);
         Py_INCREF(result);
+        Py_XDECREF(temp);
+
         return result;
 
     } else {
