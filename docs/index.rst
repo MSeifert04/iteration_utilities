@@ -117,7 +117,6 @@ Additional recipes for iterations.
 - :py:func:`deepflatten`
 - :py:func:`itersubclasses`
 - :py:func:`last_true`
-- :py:func:`merge`
 
 
 .. py:currentmodule:: iteration_utilities._cfuncs
@@ -130,6 +129,7 @@ Additional recipes for iterations.
 .. py:currentmodule:: iteration_utilities
 
 - :py:func:`applyfunc`
+- :py:func:`merge`
 - :py:func:`roundrobin`
 - :py:func:`successive`
 - :py:func:`unique_everseen`

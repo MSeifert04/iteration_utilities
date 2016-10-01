@@ -1,5 +1,6 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
+import itertools
 import operator
 
 # 3rd party
@@ -789,6 +790,240 @@ def test_roundrobin_memoryleak():
         with pytest.raises(TypeError):
             list(roundrobin([Test(1)], Test(1)))
     assert not memory_leak(test, Test)
+
+
+def test_merge():
+    merge = iteration_utilities.merge
+
+    assert list(merge()) == []
+    assert list(merge([])) == []
+    assert list(merge([], (), {})) == []
+
+    for seq in itertools.permutations([[1], [2], [3]]):
+        assert list(merge(*seq)) == [1, 2, 3]
+
+    for seq in itertools.permutations([[1], [2], [3], []]):
+        assert list(merge(*seq)) == [1, 2, 3]
+
+    for seq in itertools.permutations([[1, 2.5], [2], [3]]):
+        assert list(merge(*seq)) == [1, 2, 2.5, 3]
+
+    for seq in itertools.permutations([[1, 2.5], [0.5, 2], [3]]):
+        assert list(merge(*seq)) == [0.5, 1, 2, 2.5, 3]
+
+    for seq in itertools.permutations([range(5), range(3), range(4, 7)]):
+        assert list(merge(*seq)) == [0, 0, 1, 1, 2, 2, 3, 4, 4, 5, 6]
+
+    # Stability tests
+    it = merge([1], [1.])
+    item1 = next(it)
+    assert isinstance(item1, int)
+    item2 = next(it)
+    assert isinstance(item2, float)
+
+    # Key function tests
+    seq = ([(1, 0), (2, 0)], [(1, -1), (2, -1)])
+    assert (list(merge(*seq, key=operator.itemgetter(0))) ==
+            [(1, 0), (1, -1), (2, 0), (2, -1)])
+
+    # Reverse test
+    for seq in itertools.permutations([[1], [2], [3]]):
+        assert list(merge(*seq, reverse=True)) == [3, 2, 1]
+
+    for seq in itertools.permutations([[1], [2], [3], []]):
+        assert list(merge(*seq, reverse=True)) == [3, 2, 1]
+
+    for seq in itertools.permutations([[2.5, 1], [2], [3]]):
+        assert list(merge(*seq, reverse=True)) == [3, 2.5, 2, 1]
+
+    for seq in itertools.permutations([[2.5, 1], [2, 0.5], [3]]):
+        assert list(merge(*seq, reverse=True)) == [3, 2.5, 2, 1, 0.5]
+
+    # Key+reverse function tests
+    seq = ([(2, 0), (1, 0)], [(2, -1), (1, -1)])
+    assert (list(merge(*seq, reverse=True, key=operator.itemgetter(0))) ==
+            [(2, 0), (2, -1), (1, 0), (1, -1)])
+
+    # One iterable is not iterable
+    with pytest.raises(TypeError):
+        merge(10)
+
+    with pytest.raises(TypeError):
+        merge([10, 20], 10)
+
+    # Unexpected keyword argument
+    with pytest.raises(TypeError):
+        merge([10, 20], [20, 30], reverse=True, key=abs, wrongkwd=True)
+
+    with pytest.raises(TypeError):
+        merge([10, 20], [20, 30], reverse=True, wrongkwd=True)
+
+    with pytest.raises(TypeError):
+        merge([10, 20], [20, 30], key=abs, wrongkwd=True)
+
+    with pytest.raises(TypeError):
+        merge([10, 20], [20, 30], wrongkwd=True)
+
+    # Key function fails
+    with pytest.raises(TypeError):
+        list(merge([2, (2, 0)], [(1, 2), (1, 3)], key=operator.itemgetter(0)))
+
+    with pytest.raises(TypeError):
+        list(merge([(2, 0), 2], [(1, 2), (1, 3)], key=operator.itemgetter(0)))
+
+    # Comparison fails
+    if not iteration_utilities.PY2:
+        with pytest.raises(TypeError):
+            list(merge(['a', 'b'], [2, 3]))
+
+        with pytest.raises(TypeError):
+            list(merge([1, 'b'], [2, 3]))
+
+
+def test_merge_memoryleak():
+    merge = iteration_utilities.merge
+
+    class Test(object):
+        def __init__(self, value):
+            self.value = value
+
+        def __gt__(self, other):
+            return self.value > other.value
+
+        def __lt__(self, other):
+            return self.value < other.value
+
+    for seq in itertools.permutations([[Test(1)], [Test(2)], [Test(3)]]):
+        def test():
+            list(merge(*seq))
+        assert not memory_leak(test, Test)
+
+    for seq in itertools.permutations([[Test(1)], [Test(2)], [Test(3)], []]):
+        def test():
+            list(merge(*seq))
+        assert not memory_leak(test, Test)
+
+    for seq in itertools.permutations([[Test(1), Test(2.5)],
+                                       [Test(2)], [Test(3)]]):
+        def test():
+            list(merge(*seq))
+        assert not memory_leak(test, Test)
+
+    for seq in itertools.permutations([[Test(1), Test(2.5)],
+                                       [Test(0.5), Test(2)],
+                                       [Test(3)]]):
+        def test():
+            list(merge(*seq))
+        assert not memory_leak(test, Test)
+
+    # Stability tests
+    def test():
+        it = merge([Test(1)], [Test(1.)])
+        item1 = next(it)
+        item2 = next(it)
+    assert not memory_leak(test, Test)
+
+    # Key function tests
+    def test():
+        seq = ([(Test(1), Test(0)), (Test(2), Test(0))],
+               [(Test(1), Test(-1)), (Test(2), Test(-1))])
+        list(merge(*seq, key=operator.itemgetter(0)))
+    assert not memory_leak(test, Test)
+
+    # Reverse test
+    for seq in itertools.permutations([[Test(1)], [Test(2)], [Test(3)]]):
+        def test():
+            list(merge(*seq, reverse=True))
+        assert not memory_leak(test, Test)
+
+    for seq in itertools.permutations([[Test(1)], [Test(2)], [Test(3)], []]):
+        def test():
+            list(merge(*seq, reverse=True))
+        assert not memory_leak(test, Test)
+
+    for seq in itertools.permutations([[Test(2.5), Test(1)],
+                                       [Test(2)],
+                                       [Test(3)]]):
+        def test():
+            list(merge(*seq, reverse=True))
+        assert not memory_leak(test, Test)
+
+    for seq in itertools.permutations([[Test(2.5), Test(1)],
+                                       [Test(2), Test(0.5)],
+                                       [Test(3)]]):
+        def test():
+            list(merge(*seq, reverse=True))
+        assert not memory_leak(test, Test)
+
+    # Key+reverse function tests
+    def test():
+        seq = ([(Test(2), Test(0)), (Test(1), Test(0))],
+               [(Test(2), Test(-1)), (Test(1), Test(-1))])
+        list(merge(*seq, reverse=True, key=operator.itemgetter(0)))
+    assert not memory_leak(test, Test)
+
+    # One iterable is not iterable
+    def test():
+        with pytest.raises(TypeError):
+            merge(Test(10))
+    assert not memory_leak(test, Test)
+
+    def test():
+        with pytest.raises(TypeError):
+            merge([Test(10), Test(20)], Test(10))
+    assert not memory_leak(test, Test)
+
+    # Unexpected keyword argument
+    def test():
+        with pytest.raises(TypeError):
+            merge([Test(10), Test(20)], [Test(20), Test(30)],
+                  reverse=True, key=abs, wrongkwd=True)
+    assert not memory_leak(test, Test)
+
+    def test():
+        with pytest.raises(TypeError):
+            merge([Test(10), Test(20)], [Test(20), Test(30)],
+                  reverse=True, wrongkwd=True)
+    assert not memory_leak(test, Test)
+
+    def test():
+        with pytest.raises(TypeError):
+            merge([Test(10), Test(20)], [Test(20), Test(30)],
+                  key=abs, wrongkwd=True)
+    assert not memory_leak(test, Test)
+
+    def test():
+        with pytest.raises(TypeError):
+            merge([Test(10), Test(20)], [Test(20), Test(30)],
+                  wrongkwd=True)
+    assert not memory_leak(test, Test)
+
+    # Key function fails
+    def test():
+        with pytest.raises(TypeError):
+            list(merge([Test(2), (Test(2), Test(0))],
+                       [(Test(1), Test(2)), (Test(1), Test(3))],
+                       key=operator.itemgetter(0)))
+    assert not memory_leak(test, Test)
+
+    def test():
+        with pytest.raises(TypeError):
+            list(merge([(Test(2), Test(0)), Test(2)],
+                       [(Test(1), Test(2)), (Test(1), Test(3))],
+                       key=operator.itemgetter(0)))
+    assert not memory_leak(test, Test)
+
+    # Comparison fails
+    if not iteration_utilities.PY2:
+        def test():
+            with pytest_raises(TypeError):
+                list(merge([Test('a'), Test('b')], [Test(2), Test(3)]))
+        assert not memory_leak(test, Test)
+
+        def test():
+            with pytest_raises(TypeError):
+                list(merge([Test(1), Test('b')], [Test(2), Test(3)]))
+        assert not memory_leak(test, Test)
 
 
 @pytest.mark.xfail(iteration_utilities.PY2,
