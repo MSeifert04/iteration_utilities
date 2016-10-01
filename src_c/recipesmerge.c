@@ -168,7 +168,18 @@ recipes_merge_init_current(recipes_merge_object *lz)
             PyTuple_SET_ITEM(ittuple, i, NULL);
             Py_DECREF(it);
         } else {
-            idx = PyLong_FromSsize_t(i);
+            if (lz->reverse) {
+                idx = PyLong_FromSsize_t(-i);
+            } else {
+                idx = PyLong_FromSsize_t(i);
+            }
+            // The idea here is that we can keep stability by also remembering
+            // the index of the iterable (which is also useful to remember
+            // from which iterable to get the next item if it is yielded).
+            // Using tuples allows to use the Python comparison operators which
+            // also take the second item into account.
+            // If a key function is given we make a tuple consisting of
+            // key(value) - index_iterable - value.
             if (lz->keyfunc == NULL) {
                 newitem = PyTuple_Pack(2, item, idx);
             } else {
@@ -232,7 +243,11 @@ recipes_merge_next(recipes_merge_object *lz)
     // Iterable from which the value was taken
     i = PyLong_AsSsize_t(PyTuple_GET_ITEM(next, 1));
     // Get the next value from the iterable where the value was from
-    iterator = PyTuple_GET_ITEM(lz->ittuple, i);
+    if (lz->reverse) {
+        iterator = PyTuple_GET_ITEM(lz->ittuple, -i);
+    } else {
+        iterator = PyTuple_GET_ITEM(lz->ittuple, i);
+    }
     item = PyIter_Next(iterator);
 
     if (item == NULL) {
