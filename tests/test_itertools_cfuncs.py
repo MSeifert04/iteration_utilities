@@ -214,27 +214,27 @@ def test_minmax_memoryleak():
 
     # Test exceptions
     def test():
-        with pytest.raises(TypeError):  # No args
+        with pytest_raises(TypeError):  # No args
             minmax()
     assert not memory_leak(test, **kwargs_memoryleak)
 
     def test():
-        with pytest.raises(ValueError):  # empty sequence no default
+        with pytest_raises(ValueError):  # empty sequence no default
             minmax([])
     assert not memory_leak(test, **kwargs_memoryleak)
 
     def test():
-        with pytest.raises(TypeError):  # invalid kwarg
+        with pytest_raises(TypeError):  # invalid kwarg
             minmax(Test(1), Test(2), invalid_kw='a')
     assert not memory_leak(test, **kwargs_memoryleak)
 
     def test():
-        with pytest.raises(TypeError):  # default with multiple args
+        with pytest_raises(TypeError):  # default with multiple args
             minmax(Test(1), Test(2), default=Test(10))
     assert not memory_leak(test, **kwargs_memoryleak)
 
     def test():
-        with pytest.raises(TypeError):  # arg is not iterable
+        with pytest_raises(TypeError):  # arg is not iterable
             minmax(Test(100))
     assert not memory_leak(test, **kwargs_memoryleak)
 
@@ -413,7 +413,7 @@ def test_partition_memoryleak():
 
     # not-iterable
     def test():
-        with pytest.raises(TypeError):
+        with pytest_raises(TypeError):
             partition(Test(10))
     assert not memory_leak(test, **kwargs_memoryleak)
 
@@ -500,7 +500,7 @@ def test_unique_everseen_memoryleak():
     assert not memory_leak(test, **kwargs_memoryleak)
 
     def test():
-        with pytest.raises(TypeError):
+        with pytest_raises(TypeError):
             list(unique_everseen(Test(10)))
     assert not memory_leak(test, **kwargs_memoryleak)
 
@@ -637,17 +637,17 @@ def test_first_memoryleak():
     assert not memory_leak(test, **kwargs_memoryleak)
 
     def test():
-        with pytest.raises(TypeError):
+        with pytest_raises(TypeError):
             first([])
     assert not memory_leak(test, **kwargs_memoryleak)
 
     def test():
-        with pytest.raises(TypeError):
+        with pytest_raises(TypeError):
             first(Test(100))
     assert not memory_leak(test, **kwargs_memoryleak)
 
     def test():
-        with pytest.raises(TypeError):
+        with pytest_raises(TypeError):
             first([Test(0)], pred=bool)
     assert not memory_leak(test, **kwargs_memoryleak)
 
@@ -737,7 +737,7 @@ def test_successive_memoryleak():
     assert not memory_leak(test, **kwargs_memoryleak)
 
     def test():
-        with pytest.raises(TypeError):
+        with pytest_raises(TypeError):
             successive(Test(1))
     assert not memory_leak(test, **kwargs_memoryleak)
 
@@ -786,12 +786,12 @@ def test_roundrobin_memoryleak():
     assert not memory_leak(test, **kwargs_memoryleak)
 
     def test():
-        with pytest.raises(TypeError):
+        with pytest_raises(TypeError):
             list(roundrobin(Test(1)))
     assert not memory_leak(test, **kwargs_memoryleak)
 
     def test():
-        with pytest.raises(TypeError):
+        with pytest_raises(TypeError):
             list(roundrobin([Test(1)], Test(1)))
     assert not memory_leak(test, **kwargs_memoryleak)
 
@@ -968,50 +968,50 @@ def test_merge_memoryleak():
 
     # One iterable is not iterable
     def test():
-        with pytest.raises(TypeError):
+        with pytest_raises(TypeError):
             merge(Test(10))
     assert not memory_leak(test, **kwargs_memoryleak)
 
     def test():
-        with pytest.raises(TypeError):
+        with pytest_raises(TypeError):
             merge([Test(10), Test(20)], Test(10))
     assert not memory_leak(test, **kwargs_memoryleak)
 
     # Unexpected keyword argument
     def test():
-        with pytest.raises(TypeError):
+        with pytest_raises(TypeError):
             merge([Test(10), Test(20)], [Test(20), Test(30)],
                   reverse=True, key=abs, wrongkwd=True)
     assert not memory_leak(test, **kwargs_memoryleak)
 
     def test():
-        with pytest.raises(TypeError):
+        with pytest_raises(TypeError):
             merge([Test(10), Test(20)], [Test(20), Test(30)],
                   reverse=True, wrongkwd=True)
     assert not memory_leak(test, **kwargs_memoryleak)
 
     def test():
-        with pytest.raises(TypeError):
+        with pytest_raises(TypeError):
             merge([Test(10), Test(20)], [Test(20), Test(30)],
                   key=abs, wrongkwd=True)
     assert not memory_leak(test, **kwargs_memoryleak)
 
     def test():
-        with pytest.raises(TypeError):
+        with pytest_raises(TypeError):
             merge([Test(10), Test(20)], [Test(20), Test(30)],
                   wrongkwd=True)
     assert not memory_leak(test, **kwargs_memoryleak)
 
     # Key function fails
     def test():
-        with pytest.raises(TypeError):
+        with pytest_raises(TypeError):
             list(merge([Test(2), (Test(2), Test(0))],
                        [(Test(1), Test(2)), (Test(1), Test(3))],
                        key=operator.itemgetter(0)))
     assert not memory_leak(test, **kwargs_memoryleak)
 
     def test():
-        with pytest.raises(TypeError):
+        with pytest_raises(TypeError):
             list(merge([(Test(2), Test(0)), Test(2)],
                        [(Test(1), Test(2)), (Test(1), Test(3))],
                        key=operator.itemgetter(0)))

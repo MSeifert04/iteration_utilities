@@ -223,7 +223,7 @@ reduce_minmax(PyObject *self, PyObject *args, PyObject *kwds)
             Py_INCREF(defaultitem);
         } else {
             PyErr_Format(PyExc_ValueError, "minmax arg is an empty sequence");
-            return NULL;
+            goto Fail;
         }
     } else {
         Py_DECREF(minval);
@@ -241,7 +241,7 @@ reduce_minmax(PyObject *self, PyObject *args, PyObject *kwds)
     Py_DECREF(maxitem);
 
     if (resulttuple == NULL) {
-        return NULL;
+        goto Fail;
     }
 
     return resulttuple;
@@ -259,7 +259,7 @@ Fail:
     Py_XDECREF(minitem);
     Py_XDECREF(maxval);
     Py_XDECREF(maxitem);
-    Py_DECREF(iterator);
+    Py_XDECREF(iterator);
     return NULL;
 }
 
