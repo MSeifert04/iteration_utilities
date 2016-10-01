@@ -4,7 +4,7 @@ from collections import Counter
 from gc import get_objects
 
 
-def memory_leak(func, specific_object=None):
+def memory_leak(func, specific_object=None, exclude_object=None):
     """Compares the number of tracked python objects before and after a
     function call and returns a dict containing differences.
 
@@ -45,9 +45,12 @@ def memory_leak(func, specific_object=None):
     after.update(map(type, get_objects()))
 
     # Return the difference of all types the specified type.
-    return after - before
     if specific_object is None:
-        return after - before
+        result = after - before
+        if exclude_object is not None:
+            if exclude_object in result:
+                del result[exclude_object]
+        return result
     else:
         leftover = after[specific_object] - before[specific_object]
         if leftover:
