@@ -48,7 +48,7 @@ typedef struct {
     PyObject_HEAD
     PyObject *ittuple;
     PyObject *keyfunc;
-    PyObject *reverse;
+    int reverse;
 
     PyObject *current;
     Py_ssize_t numactive;
@@ -62,7 +62,8 @@ recipes_merge_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject *ittuple;
     PyObject *keyfunc = NULL;
-    PyObject *reverse = 0;
+    PyObject *reversekw = NULL;
+    int reverse = Py_LT;
 
     Py_ssize_t numactive;
 
@@ -92,16 +93,17 @@ recipes_merge_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
             nkwds++;
             Py_INCREF(keyfunc);
         }
-        reverse = PyDict_GetItemString(kwds, "reverse");
-        if (reverse != NULL) {
+        reversekw = PyDict_GetItemString(kwds, "reverse");
+        if (reversekw != NULL) {
             nkwds++;
-            Py_INCREF(reverse);
+            if (PyObject_IsTrue(reversekw)) {
+                reverse = Py_GT;
+            }
         }
         if (PyDict_Size(kwds) - nkwds != 0) {
             PyErr_Format(PyExc_TypeError,
                          "merge got an unexpected keyword argument");
             Py_XDECREF(keyfunc);
-            Py_XDECREF(reverse);
             Py_DECREF(ittuple);
             return NULL;
         }
@@ -111,7 +113,6 @@ recipes_merge_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     lz = (recipes_merge_object *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         Py_XDECREF(keyfunc);
-        Py_XDECREF(reverse);
         Py_DECREF(ittuple);
         return NULL;
     }
@@ -132,7 +133,6 @@ recipes_merge_dealloc(recipes_merge_object *lz)
     PyObject_GC_UnTrack(lz);
     Py_XDECREF(lz->ittuple);
     Py_XDECREF(lz->keyfunc);
-    Py_XDECREF(lz->reverse);
     Py_XDECREF(lz->current);
     Py_TYPE(lz)->tp_free(lz);
 }
@@ -143,7 +143,6 @@ recipes_merge_traverse(recipes_merge_object *lz, visitproc visit, void *arg)
 {
     Py_VISIT(lz->ittuple);
     Py_VISIT(lz->keyfunc);
-    Py_VISIT(lz->reverse);
     Py_VISIT(lz->current);
     return 0;
 }
@@ -153,7 +152,7 @@ static int
 recipes_merge_init_current(recipes_merge_object *lz)
 {
     PyObject *ittuple = lz->ittuple;
-    PyObject *current, *it, *item, *idx, *newitem;
+    PyObject *current, *it, *item, *idx, *newitem, *keyval;
     Py_ssize_t i, insert;
     Py_ssize_t j=0;
 
@@ -170,8 +169,16 @@ recipes_merge_init_current(recipes_merge_object *lz)
             Py_DECREF(it);
         } else {
             idx = PyLong_FromSsize_t(i);
-            // Change if keyfunc is given
-            newitem = PyTuple_Pack(2, item, idx);
+            if (lz->keyfunc == NULL) {
+                newitem = PyTuple_Pack(2, item, idx);
+            } else {
+                keyval = PyObject_CallFunctionObjArgs(lz->keyfunc, item, NULL);
+                if (keyval == NULL) {
+                    return -1;
+                }
+                newitem = PyTuple_Pack(3, keyval, idx, item);
+                Py_DECREF(keyval);
+            }
             Py_DECREF(item);
             Py_DECREF(idx);
 
@@ -179,7 +186,7 @@ recipes_merge_init_current(recipes_merge_object *lz)
                 PyTuple_SET_ITEM(current, 0, newitem);
             } else {
                 // Change if reverse is given
-                insert = helper_bisect_right(current, newitem, j, Py_LT);
+                insert = helper_bisect_right(current, newitem, j, lz->reverse);
                 if (insert < 0) {
                     return -1;
                 }
@@ -197,7 +204,7 @@ recipes_merge_init_current(recipes_merge_object *lz)
 static PyObject *
 recipes_merge_next(recipes_merge_object *lz)
 {
-    PyObject *iterator, *item, *val, *next;
+    PyObject *iterator, *item, *val, *next, *keyval, *oldkeyval;
     Py_ssize_t i, active=0, insert=0;
 
     // No current then we create one from the first elements of each iterable
@@ -216,7 +223,11 @@ recipes_merge_next(recipes_merge_object *lz)
     Py_INCREF(next);
     //PyTuple_SET_ITEM(lz->current, lz->numactive-1, NULL);
     // Value to be returned
-    val = PyTuple_GET_ITEM(next, 0);
+    if (lz->keyfunc == NULL) {
+        val = PyTuple_GET_ITEM(next, 0);
+    } else {
+        val = PyTuple_GET_ITEM(next, 2);
+    }
     Py_INCREF(val);
     // Iterable from which the value was taken
     i = PyLong_AsSsize_t(PyTuple_GET_ITEM(next, 1));
@@ -232,9 +243,21 @@ recipes_merge_next(recipes_merge_object *lz)
         lz->numactive--;
     } else {
         // Reuse the tuple (no need to set the idx again)
-        PyTuple_SET_ITEM(next, 0, item);
+        if (lz->keyfunc == NULL) {
+            PyTuple_SET_ITEM(next, 0, item);
+        } else {
+            oldkeyval = PyTuple_GET_ITEM(next, 0);
+            keyval = PyObject_CallFunctionObjArgs(lz->keyfunc, item, NULL);
+            if (keyval == NULL) {
+                return NULL;
+            }
+            PyTuple_SET_ITEM(next, 0, keyval);
+            PyTuple_SET_ITEM(next, 2, item);
+            Py_DECREF(oldkeyval);
+        }
+
         // Change if reverse is given
-        insert = helper_bisect_right(lz->current, next, lz->numactive, Py_LT);
+        insert = helper_bisect_right(lz->current, next, lz->numactive, lz->reverse);
         if (insert < 0) {
             Py_DECREF(next);
             return NULL;
