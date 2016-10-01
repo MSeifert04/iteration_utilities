@@ -923,8 +923,7 @@ def test_merge_memoryleak():
     # Stability tests
     def test():
         it = merge([Test(1)], [Test(1.)])
-        item1 = next(it)
-        item2 = next(it)
+        list(it)
     assert not memory_leak(test, **kwargs_memoryleak)
 
     # Key function tests
