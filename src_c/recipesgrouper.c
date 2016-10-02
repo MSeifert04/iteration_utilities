@@ -185,12 +185,15 @@ recipes_grouper_reduce(recipes_grouper_object *lz)
 {
     if (lz->fillvalue == NULL) {
         return Py_BuildValue("O(On)(Oi)", Py_TYPE(lz),
-                             lz->it, lz->times,
+                             lz->it,
+                             lz->times,
                              lz->result ? lz->result : Py_None,
                              lz->truncate);
     } else {
         return Py_BuildValue("O(OnO)(Oi)", Py_TYPE(lz),
-                             lz->it, lz->times, lz->fillvalue,
+                             lz->it,
+                             lz->times,
+                             lz->fillvalue,
                              lz->result ? lz->result : Py_None,
                              lz->truncate);
     }
@@ -211,6 +214,7 @@ recipes_grouper_setstate(recipes_grouper_object *lz, PyObject *state)
     if (result == Py_None) {
         lz->result = NULL;
     } else {
+        Py_INCREF(result);
         lz->result = result;
     }
 

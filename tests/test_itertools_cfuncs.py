@@ -1205,31 +1205,37 @@ def test_cfuncs_pickle():
 
     accumulate = iteration_utilities.accumulate
     applyfunc = iteration_utilities.applyfunc
+    grouper = iteration_utilities.grouper
+    merge = iteration_utilities.merge
     unique_everseen = iteration_utilities.unique_everseen
     successive = iteration_utilities.successive
     roundrobin = iteration_utilities.roundrobin
-    merge = iteration_utilities.merge
 
+    # ----- Accumulate
     acc = accumulate([1, 2, 3, 4])
     assert next(acc) == 1
     x = pickle.dumps(acc)
     assert list(pickle.loads(x)) == [3, 6, 10]
 
+    # ----- Applyfunc
     apf = applyfunc(iteration_utilities.square, 2)
     assert next(apf) == 4
     x = pickle.dumps(apf)
     assert next(pickle.loads(x)) == 16
 
+    # ----- Unique Everseen
     uqe = unique_everseen([1, 2, 1, 2])
     assert next(uqe) == 1
     x = pickle.dumps(uqe)
     assert list(pickle.loads(x)) == [2]
 
+    # ----- Successive
     suc = successive([1, 2, 3, 4])
     assert next(suc) == (1, 2)
     x = pickle.dumps(suc)
     assert list(pickle.loads(x)) == [(2, 3), (3, 4)]
 
+    # ----- Roundrobin
     rr = roundrobin([1, 2, 3], [1, 2, 3])
     assert next(rr) == 1
     x = pickle.dumps(rr)
@@ -1242,6 +1248,7 @@ def test_cfuncs_pickle():
     x = pickle.dumps(rr2)
     assert list(pickle.loads(x)) == [3]
 
+    # ----- Merge
     mge = merge([0], [1, 2], [2])
     assert next(mge) == 0
     x = pickle.dumps(mge)
@@ -1256,6 +1263,22 @@ def test_cfuncs_pickle():
     assert next(mge) == 3
     x = pickle.dumps(mge)
     assert list(pickle.loads(x)) == [2, 1, 0]
+
+    # ----- Grouper
+    grp = grouper(range(10), 3)
+    assert next(grp) == (0, 1, 2)
+    x = pickle.dumps(grp)
+    assert list(pickle.loads(x)) == [(3, 4, 5), (6, 7, 8), (9,)]
+
+    grp = grouper(range(10), 3, fillvalue=0)
+    assert next(grp) == (0, 1, 2)
+    x = pickle.dumps(grp)
+    assert list(pickle.loads(x)) == [(3, 4, 5), (6, 7, 8), (9, 0, 0)]
+
+    grp = grouper(range(10), 3, truncate=True)
+    assert next(grp) == (0, 1, 2)
+    x = pickle.dumps(grp)
+    assert list(pickle.loads(x)) == [(3, 4, 5), (6, 7, 8)]
 
 
 def test_callbacks():
