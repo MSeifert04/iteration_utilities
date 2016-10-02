@@ -168,6 +168,7 @@ recipes_successive_setstate(recipes_successive_object *lz, PyObject *state)
     if (result == Py_None) {
         lz->result = NULL;
     } else {
+        Py_INCREF(result);
         lz->result = result;
     }
 
