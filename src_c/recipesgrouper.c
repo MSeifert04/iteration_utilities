@@ -14,7 +14,7 @@ recipes_grouper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     static char *kwargs[] = {"iterable", "n", "fillvalue", "truncate", NULL};
     PyObject *iterable;
-    Py_ssize_t times = 2;
+    Py_ssize_t times;
     PyObject *fillvalue = NULL;
     int truncate = 0;
 
@@ -34,12 +34,16 @@ recipes_grouper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
+    if (times <= 0) {
+        PyErr_Format(PyExc_ValueError,
+                     "times must be greater than 0.");
+        return NULL;
+    }
+
     it = PyObject_GetIter(iterable);
     if (it == NULL) {
         return NULL;
     }
-
-    assert(times > 0);
 
     /* create recipes_grouper_object structure */
     lz = (recipes_grouper_object *)type->tp_alloc(type, 0);
@@ -50,6 +54,7 @@ recipes_grouper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     lz->it = it;
     lz->times = times;
+    Py_XINCREF(fillvalue);  // no idea why this is important!!!
     lz->fillvalue = fillvalue;
     lz->truncate = truncate;
     lz->result = result;
@@ -107,8 +112,7 @@ recipes_grouper_next(recipes_grouper_object *lz)
             if (item == NULL) {
                 if (i == 0 || truncate != 0) {
                     return NULL;
-                }
-                if (fillvalue != NULL) {
+                } else if (fillvalue != NULL) {
                     Py_INCREF(fillvalue);
                     item = fillvalue;
                 } else {
@@ -147,8 +151,7 @@ recipes_grouper_next(recipes_grouper_object *lz)
                 if (i == 0 || truncate != 0) {
                     Py_DECREF(newresult);
                     return NULL;
-                }
-                if (fillvalue != NULL) {
+                } else if (fillvalue != NULL) {
                     Py_INCREF(fillvalue);
                     item = fillvalue;
                 } else {
@@ -267,7 +270,7 @@ groups : generator\n\
 \n\
 Examples\n\
 --------\n\
->>> from iteration_utilities import c_grouper as grouper\n\
+>>> from iteration_utilities import grouper\n\
 \n\
 >>> list(grouper('ABCDEFG', 3))\n\
 [('A', 'B', 'C'), ('D', 'E', 'F'), ('G',)]\n\
@@ -281,8 +284,8 @@ Examples\n\
 
 PyTypeObject recipes_grouper_type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.c_grouper",   /* tp_name */
-    sizeof(recipes_grouper_object),  /* tp_basicsize */
+    "iteration_utilities.grouper",      /* tp_name */
+    sizeof(recipes_grouper_object),     /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
     (destructor)recipes_grouper_dealloc, /* tp_dealloc */
@@ -302,14 +305,14 @@ PyTypeObject recipes_grouper_type = {
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    recipes_grouper_doc,             /* tp_doc */
+    recipes_grouper_doc,                /* tp_doc */
     (traverseproc)recipes_grouper_traverse, /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
     PyObject_SelfIter,                  /* tp_iter */
     (iternextfunc)recipes_grouper_next, /* tp_iternext */
-    recipes_grouper_methods,         /* tp_methods */
+    recipes_grouper_methods,            /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
@@ -319,6 +322,6 @@ PyTypeObject recipes_grouper_type = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     PyType_GenericAlloc,                /* tp_alloc */
-    recipes_grouper_new,             /* tp_new */
+    recipes_grouper_new,                /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };

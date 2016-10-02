@@ -1028,6 +1028,176 @@ def test_merge_memoryleak():
         assert not memory_leak(test, **kwargs_memoryleak)
 
 
+def test_grouper():
+    grouper = iteration_utilities.grouper
+    # Empty iterable
+    assert list(grouper([], 2)) == []
+
+    # no fillvalue + truncate
+    assert list(grouper([1], 3)) == [(1, )]
+    assert list(grouper([1, 2], 3)) == [(1, 2)]
+    assert list(grouper([1, 2, 3], 3)) == [(1, 2, 3)]
+    assert list(grouper([1, 2, 3, 4], 3)) == [(1, 2, 3), (4, )]
+    assert list(grouper([1, 2, 3, 4, 5], 3)) == [(1, 2, 3), (4, 5)]
+    assert list(grouper([1, 2, 3, 4, 5, 6], 3)) == [(1, 2, 3), (4, 5, 6)]
+
+    # with fillvalue
+    assert list(grouper([1], 3,
+                        fillvalue=0)) == [(1, 0, 0)]
+    assert list(grouper([1, 2], 3,
+                        fillvalue=0)) == [(1, 2, 0)]
+    assert list(grouper([1, 2, 3], 3,
+                        fillvalue=0)) == [(1, 2, 3)]
+    assert list(grouper([1, 2, 3, 4], 3,
+                        fillvalue=0)) == [(1, 2, 3), (4, 0, 0)]
+    assert list(grouper([1, 2, 3, 4, 5], 3,
+                        fillvalue=0)) == [(1, 2, 3), (4, 5, 0)]
+    assert list(grouper([1, 2, 3, 4, 5, 6], 3,
+                        fillvalue=0)) == [(1, 2, 3), (4, 5, 6)]
+
+    # with truncate
+    assert list(grouper([1], 3,
+                        truncate=True)) == []
+    assert list(grouper([1, 2], 3,
+                        truncate=True)) == []
+    assert list(grouper([1, 2, 3], 3,
+                        truncate=True)) == [(1, 2, 3)]
+    assert list(grouper([1, 2, 3, 4], 3,
+                        truncate=True)) == [(1, 2, 3)]
+    assert list(grouper([1, 2, 3, 4, 5], 3,
+                        truncate=True)) == [(1, 2, 3)]
+    assert list(grouper([1, 2, 3, 4, 5, 6], 3,
+                        truncate=True)) == [(1, 2, 3), (4, 5, 6)]
+
+    # failures
+    with pytest.raises(TypeError):  # fillvalue + truncate is forbidden
+        grouper([1, 2, 3], 2, fillvalue=None, truncate=True)
+
+    with pytest.raises(ValueError):  # n must be > 0
+        grouper([1, 2, 3], 0)
+
+    with pytest.raises(TypeError):  # iterable must be iterable
+        grouper(1, 2)
+
+
+def test_grouper_memoryleak():
+    grouper = iteration_utilities.grouper
+
+    class Test(object):
+        def __init__(self, value):
+            self.value = value
+
+    # Empty iterable
+    def test():
+        list(grouper([], 2))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    # no fillvalue + truncate
+    def test():
+        list(grouper([Test(1)], 3))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(grouper([Test(1), Test(2)], 3))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(grouper([Test(1), Test(2), Test(3)], 3))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(grouper([Test(1), Test(2), Test(3), Test(4)], 3))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(grouper([Test(1), Test(2), Test(3), Test(4), Test(5)], 3))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(grouper([Test(1), Test(2), Test(3), Test(4), Test(5), Test(6)],
+                     3))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    # with fillvalue
+    def test():
+        list(grouper([Test(1)], 3,
+                     fillvalue=Test(0)))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(grouper([Test(1), Test(2)], 3,
+                     fillvalue=Test(0)))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(grouper([Test(1), Test(2), Test(3)], 3,
+                     fillvalue=Test(0)))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(grouper([Test(1), Test(2), Test(3), Test(4)], 3,
+                     fillvalue=Test(0)))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(grouper([Test(1), Test(2), Test(3), Test(4), Test(5)], 3,
+                     fillvalue=Test(0)))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(grouper([Test(1), Test(2), Test(3), Test(4), Test(5), Test(6)], 3,
+                     fillvalue=Test(0)))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    # with truncate
+    def test():
+        list(grouper([Test(1)], 3,
+                     truncate=True))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(grouper([Test(1), Test(2)], 3,
+                     truncate=True))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(grouper([Test(1), Test(2), Test(3)], 3,
+                     truncate=True))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(grouper([Test(1), Test(2), Test(3), Test(4)], 3,
+                     truncate=True))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(grouper([Test(1), Test(2), Test(3), Test(4), Test(5)], 3,
+                     truncate=True))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(grouper([Test(1), Test(2), Test(3), Test(4), Test(5), Test(6)], 3,
+                     truncate=True))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    # failures
+    def test():
+        with pytest_raises(TypeError):  # fillvalue + truncate is forbidden
+            grouper([Test(1), Test(2), Test(3)], 2,
+                    fillvalue=Test(0), truncate=True)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(ValueError):  # n must be > 0
+            grouper([Test(1), Test(2), Test(3)], 0)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):  # iterable must be iterable
+            grouper(Test(1), 2)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+
 @pytest.mark.xfail(iteration_utilities.PY2,
                    reason='Python 2 does not support this way of pickling.')
 def test_cfuncs_pickle():
