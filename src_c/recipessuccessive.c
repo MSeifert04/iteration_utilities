@@ -21,12 +21,16 @@ recipes_successive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
+    if (times <= 0) {
+        PyErr_Format(PyExc_ValueError,
+                     "times must be greater than 0.");
+        return NULL;
+    }
+
     it = PyObject_GetIter(iterable);
     if (it == NULL) {
         return NULL;
     }
-
-    assert(times > 0);
 
     /* create recipes_successive_object structure */
     lz = (recipes_successive_object *)type->tp_alloc(type, 0);

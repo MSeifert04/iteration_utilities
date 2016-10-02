@@ -36,7 +36,7 @@ recipes_grouper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (times <= 0) {
         PyErr_Format(PyExc_ValueError,
-                     "times must be greater than 0.");
+                     "`n` must be greater than 0.");
         return NULL;
     }
 

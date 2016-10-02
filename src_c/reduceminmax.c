@@ -213,9 +213,10 @@ reduce_minmax(PyObject *self, PyObject *args, PyObject *kwds)
 #endif
 
     if (minval == NULL) {
-        assert(maxval == NULL);
-        assert(minitem == NULL);
-        assert(maxitem == NULL);
+        if (maxval != NULL || minitem != NULL || maxitem != NULL) {
+            // This should be impossible to reach but better check.
+            goto Fail;
+        }
         if (defaultitem != NULL) {
             minitem = defaultitem;
             maxitem = defaultitem;

@@ -708,6 +708,9 @@ def test_successive():
     with pytest.raises(TypeError):
         successive(10)
 
+    with pytest.raises(ValueError):  # times must be > 0
+        successive([1, 2, 3], 0)
+
 
 def test_successive_memoryleak():
     successive = iteration_utilities.successive
@@ -739,6 +742,11 @@ def test_successive_memoryleak():
     def test():
         with pytest_raises(TypeError):
             successive(Test(1))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(ValueError):  # times must be > 0
+            successive([Test(1), Test(2), Test(3)], 0)
     assert not memory_leak(test, **kwargs_memoryleak)
 
 
