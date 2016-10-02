@@ -16,7 +16,12 @@ recipes_roundrobin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *item, *iterator;
     Py_ssize_t i;
 
-    assert(PyTuple_Check(args));
+    if (!PyTuple_Check(args)) {
+        PyErr_Format(PyExc_TypeError,
+                     "`iterables` must be a tuple.");
+        return NULL;
+    }
+
     numactive = PyTuple_Size(args);
     ittuple = PyTuple_New(numactive); //REFCNT(ittuple) = 1
     if (ittuple == NULL) {

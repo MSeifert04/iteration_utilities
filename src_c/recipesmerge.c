@@ -70,7 +70,12 @@ recipes_merge_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *it;
     Py_ssize_t i, nkwds=0;
 
-    assert(PyTuple_Check(args));
+    if (!PyTuple_Check(args)) {
+        PyErr_Format(PyExc_TypeError,
+                     "`iterables` must be a tuple.");
+        return NULL;
+    }
+
     numactive = PyTuple_Size(args);
 
     ittuple = PyTuple_New(numactive);
