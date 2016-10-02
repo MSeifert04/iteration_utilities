@@ -30,7 +30,7 @@ recipes_grouper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (fillvalue != NULL && truncate != 0) {
         PyErr_Format(PyExc_TypeError,
-                     "only one of `truncate` and `fillvalue` can be set.");
+                     "wither `truncate` or `fillvalue` can be set.");
         return NULL;
     }
 
