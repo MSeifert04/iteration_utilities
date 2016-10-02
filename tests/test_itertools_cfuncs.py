@@ -745,7 +745,7 @@ def test_successive_memoryleak():
     assert not memory_leak(test, **kwargs_memoryleak)
 
     def test():
-        with pytest.raises(ValueError):  # times must be > 0
+        with pytest_raises(ValueError):  # times must be > 0
             successive([Test(1), Test(2), Test(3)], 0)
     assert not memory_leak(test, **kwargs_memoryleak)
 
