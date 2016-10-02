@@ -9,6 +9,7 @@
 #include "recipesuniqueever.c"
 #include "recipesaccumulate.c"
 #include "recipesapplyfunc.c"
+#include "recipesgrouper.c"
 #include "recipessuccessive.c"
 #include "recipesroundrobin.c"
 #include "recipesmerge.c"
@@ -112,6 +113,7 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
     PyTypeObject *typelist[] = {
         &recipes_accumulate_type,
         &recipes_applyfunc_type,
+        &recipes_grouper_type,
         &recipes_merge_type,
         &recipes_roundrobin_type,
         &recipes_successive_type,
@@ -152,6 +154,7 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
     PyTypeObject *typelist[] = {
         &recipes_accumulate_type,
         &recipes_applyfunc_type,
+        &recipes_grouper_type,
         &recipes_merge_type,
         &recipes_roundrobin_type,
         &recipes_successive_type,

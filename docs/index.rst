@@ -89,7 +89,6 @@ Python2 and Python3 compatible. The documentation was added and/or modified.
 - :py:func:`consume`
 - :py:func:`dotproduct`
 - :py:func:`flatten`
-- :py:func:`grouper`
 - :py:func:`ipartition`
 - :py:func:`iter_except`
 - :py:func:`ncycles`
@@ -129,6 +128,7 @@ Additional recipes for iterations.
 .. py:currentmodule:: iteration_utilities
 
 - :py:func:`applyfunc`
+- :py:func:`grouper`
 - :py:func:`merge`
 - :py:func:`roundrobin`
 - :py:func:`successive`
