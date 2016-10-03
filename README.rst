@@ -43,6 +43,7 @@ Test status
    :target: https://ci.appveyor.com/project/MSeifert04/iteration-utilities
    :alt: AppVeyor Status
 
-.. image:: https://coveralls.io/repos/github/MSeifert04/iteration_utilities/badge.svg
-   :target: https://coveralls.io/github/MSeifert04/iteration_utilities
+.. image:: https://coveralls.io/repos/github/MSeifert04/iteration_utilities/badge.svg?branch=master
+   :target: https://coveralls.io/github/MSeifert04/iteration_utilities?branch=master
    :alt: Coverage Status
+
