@@ -1345,6 +1345,52 @@ def test_intersperse_memoryleak():
     assert not memory_leak(test, **kwargs_memoryleak)
 
 
+def test_complement():
+    complement = iteration_utilities.complement
+
+    assert not complement(lambda x: x is True)(True)
+    assert complement(lambda x: x is True)(False)
+
+    assert complement(lambda x: x is False)(True)
+    assert not complement(lambda x: x is False)(False)
+
+    assert not complement(iteration_utilities.is_None)(None)
+    assert complement(iteration_utilities.is_None)(False)
+    assert complement(iteration_utilities.is_None)(True)
+
+
+def test_complement_memoryleak():
+    complement = iteration_utilities.complement
+
+    def test():
+        complement(lambda x: x is True)(True)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        complement(lambda x: x is True)(False)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        complement(lambda x: x is False)(True)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        complement(lambda x: x is False)(False)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        complement(iteration_utilities.is_None)(None)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        complement(iteration_utilities.is_None)(False)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        complement(iteration_utilities.is_None)(True)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+
 @pytest.mark.xfail(iteration_utilities.PY2,
                    reason='Python 2 does not support this way of pickling.')
 def test_cfuncs_pickle():
@@ -1358,6 +1404,7 @@ def test_cfuncs_pickle():
     unique_everseen = iteration_utilities.unique_everseen
     successive = iteration_utilities.successive
     roundrobin = iteration_utilities.roundrobin
+    complement = iteration_utilities.complement
 
     # ----- Accumulate
     acc = accumulate([1, 2, 3, 4])
@@ -1451,6 +1498,12 @@ def test_cfuncs_pickle():
     x = pickle.dumps(its)
     assert list(pickle.loads(x)) == [0, 3]
 
+    # ----- Complement
+    x = pickle.dumps(complement(iteration_utilities.is_None))
+    assert pickle.loads(x)(False)
+    assert pickle.loads(x)(True)
+    assert not pickle.loads(x)(None)
+
 
 def test_callbacks():
     assert iteration_utilities.return_True()
@@ -1463,3 +1516,6 @@ def test_callbacks():
 
     assert iteration_utilities.is_None(None)
     assert not iteration_utilities.is_None(False)
+
+    assert not iteration_utilities.is_not_None(None)
+    assert iteration_utilities.is_not_None(False)

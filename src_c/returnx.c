@@ -1,12 +1,5 @@
-#include <Python.h>
-#include <structmember.h>
-
 /******************************************************************************
  * Functions always returning the same value.
- *
- * returnTrue   : True
- * returnFalse  : False
- * returnNone   : None
  *****************************************************************************/
 
 static PyObject*
