@@ -1274,6 +1274,9 @@ def test_ilen():
     assert ilen(generator) == 5
     assert ilen(generator) == 0
 
+    with pytest.raises(TypeError):
+        ilen(100)
+
 
 def test_ilen_memoryleak():
     ilen = iteration_utilities.ilen
@@ -1298,6 +1301,11 @@ def test_ilen_memoryleak():
         generator = (i for i in [Test(1), Test(2), Test(3), Test(4), Test(5)])
         ilen(generator) == 5
         ilen(generator) == 0
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):
+            ilen(100)
     assert not memory_leak(test, **kwargs_memoryleak)
 
 

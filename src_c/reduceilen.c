@@ -28,6 +28,8 @@ reduce_ilen(PyObject *self, PyObject *args, PyObject *kwds)
         Py_DECREF(item);
     }
 
+    Py_DECREF(iterator);
+
     if (fallback > 0) {
         PyErr_Format(PyExc_TypeError,
                      "`iterable` is too long to compute the length.");
