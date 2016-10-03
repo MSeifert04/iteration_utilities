@@ -163,6 +163,11 @@ iterable : iterable\n\
 e : any type\n\
     The value with which to intersperse the `iterable`.\n\
 \n\
+Returns\n\
+-------\n\
+interspersed : generator\n\
+    Interspersed `iterable` as generator.\n\
+\n\
 Notes\n\
 -----\n\
 This is similar to\n\
