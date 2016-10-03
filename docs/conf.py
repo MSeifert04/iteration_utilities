@@ -43,6 +43,7 @@ extensions = [
 ]
 
 # Otherwise there are lots of missing toctree errors...
+# see http://stackoverflow.com/questions/12206334
 numpydoc_show_class_members = False
 
 # Functions imported from C modules cannot be introspected, and therefore the
@@ -55,6 +56,7 @@ numpydoc_show_class_members = False
 # docstring content.
 autodoc_docstring_signature = True
 
+# Not sure why this is needed....
 autosummary_generate = False
 
 # Add any paths that contain templates here, relative to this directory.
