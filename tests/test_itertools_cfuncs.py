@@ -1340,7 +1340,7 @@ def test_intersperse_memoryleak():
     assert not memory_leak(test, **kwargs_memoryleak)
 
     def test():
-        with pytest.raises(TypeError):
+        with pytest_raises(TypeError):
             intersperse(Test(100), Test(0))
     assert not memory_leak(test, **kwargs_memoryleak)
 
