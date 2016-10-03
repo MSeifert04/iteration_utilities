@@ -6,7 +6,7 @@
 #include "reduceminmax.c"
 #include "reducefirst.c"
 #include "reduceilen.c"
-#include "recipespartition.c"
+#include "reducepartition.c"
 #include "recipesuniqueever.c"
 #include "recipesaccumulate.c"
 #include "recipesapplyfunc.c"
