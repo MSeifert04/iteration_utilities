@@ -1263,6 +1263,44 @@ def test_grouper_memoryleak():
     assert not memory_leak(test, **kwargs_memoryleak)
 
 
+def test_ilen():
+    ilen = iteration_utilities.ilen
+
+    assert ilen([]) == 0
+    assert ilen(range(10)) == 10
+    assert ilen([1, 2, 3, 4, 5]) == 5
+
+    generator = (i for i in [1, 2, 3, 4, 5])
+    assert ilen(generator) == 5
+    assert ilen(generator) == 0
+
+
+def test_ilen_memoryleak():
+    ilen = iteration_utilities.ilen
+
+    class Test(object):
+        def __init__(self, value):
+            self.value = value
+
+    def test():
+        ilen([])
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        ilen(range(10))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        ilen([Test(1), Test(2), Test(3), Test(4), Test(5)])
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        generator = (i for i in [Test(1), Test(2), Test(3), Test(4), Test(5)])
+        ilen(generator) == 5
+        ilen(generator) == 0
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+
 @pytest.mark.xfail(iteration_utilities.PY2,
                    reason='Python 2 does not support this way of pickling.')
 def test_cfuncs_pickle():
