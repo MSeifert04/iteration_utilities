@@ -7,6 +7,7 @@
 #include "reduceminmax.c"
 #include "reducefirst.c"
 #include "reduceilen.c"
+#include "reduceone.c"
 #include "reducepartition.c"
 #include "recipesuniqueever.c"
 #include "recipesaccumulate.c"
@@ -77,6 +78,11 @@ iterationutils_methods[] = {
      (PyCFunction)reduce_first,
      METH_VARARGS | METH_KEYWORDS,
      reduce_first_doc},
+
+    {"one",
+     (PyCFunction)reduce_one,
+     METH_O,
+     reduce_one_doc},
 
     {"partition",
      (PyCFunction)recipes_partition,
