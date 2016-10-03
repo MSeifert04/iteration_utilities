@@ -3,6 +3,7 @@
 #include "isx.c"
 #include "returnx.c"
 #include "mathematical.c"
+#include "functionscomplement.c"
 #include "reduceminmax.c"
 #include "reducefirst.c"
 #include "reduceilen.c"
@@ -31,6 +32,11 @@ iterationutils_methods[] = {
      (PyCFunction)isx_IsNone,
      METH_O,
      isx_IsNone_doc},
+
+    {"is_not_None",
+     (PyCFunction)isx_IsNotNone,
+     METH_O,
+     isx_IsNotNone_doc},
 
     {"square",
      (PyCFunction)mathematical_square,
@@ -118,6 +124,7 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
     // Fill in classes! Must be synced with the Python2 version of module init
     // a few lines later.
     PyTypeObject *typelist[] = {
+        &functions_complement_type,
         &recipes_accumulate_type,
         &recipes_applyfunc_type,
         &recipes_grouper_type,
@@ -160,6 +167,7 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
     // Fill in classes! Must be synced with the Python3 version of module init
     // a few lines earlier.
     PyTypeObject *typelist[] = {
+        &functions_complement_type,
         &recipes_accumulate_type,
         &recipes_applyfunc_type,
         &recipes_grouper_type,

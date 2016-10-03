@@ -136,6 +136,10 @@ Additional recipes for iterations.
 - :py:func:`successive`
 - :py:func:`unique_everseen`
 
+.. py:currentmodule:: iteration_utilities
+
+- :py:func:`complement`
+
 
 Compatibility layer
 ^^^^^^^^^^^^^^^^^^^
