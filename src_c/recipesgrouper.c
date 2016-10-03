@@ -54,7 +54,7 @@ recipes_grouper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     lz->it = it;
     lz->times = times;
-    Py_XINCREF(fillvalue);  // no idea why this is important!!!
+    Py_XINCREF(fillvalue);
     lz->fillvalue = fillvalue;
     lz->truncate = truncate;
     lz->result = result;
