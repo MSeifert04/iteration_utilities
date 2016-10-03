@@ -1309,6 +1309,42 @@ def test_ilen_memoryleak():
     assert not memory_leak(test, **kwargs_memoryleak)
 
 
+def test_intersperse():
+    intersperse = iteration_utilities.intersperse
+
+    assert list(intersperse([], 0)) == []
+    assert list(intersperse([1], 0)) == [1]
+    assert list(intersperse([1, 2], 0)) == [1, 0, 2]
+
+    with pytest.raises(TypeError):
+        intersperse(100, 0)
+
+
+def test_intersperse_memoryleak():
+    intersperse = iteration_utilities.intersperse
+
+    class Test(object):
+        def __init__(self, value):
+            self.value = value
+
+    def test():
+        list(intersperse([], Test(0)))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(intersperse([Test(1)], Test(0)))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(intersperse([Test(1), Test(2)], Test(0)))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest.raises(TypeError):
+            intersperse(Test(100), Test(0))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+
 @pytest.mark.xfail(iteration_utilities.PY2,
                    reason='Python 2 does not support this way of pickling.')
 def test_cfuncs_pickle():
@@ -1317,6 +1353,7 @@ def test_cfuncs_pickle():
     accumulate = iteration_utilities.accumulate
     applyfunc = iteration_utilities.applyfunc
     grouper = iteration_utilities.grouper
+    intersperse = iteration_utilities.intersperse
     merge = iteration_utilities.merge
     unique_everseen = iteration_utilities.unique_everseen
     successive = iteration_utilities.successive
@@ -1390,6 +1427,29 @@ def test_cfuncs_pickle():
     assert next(grp) == (0, 1, 2)
     x = pickle.dumps(grp)
     assert list(pickle.loads(x)) == [(3, 4, 5), (6, 7, 8)]
+
+    # ----- Intersperse
+    its = intersperse([1, 2, 3], 0)
+    x = pickle.dumps(its)
+    assert list(pickle.loads(x)) == [1, 0, 2, 0, 3]
+
+    its = intersperse([1, 2, 3], 0)  # start value must be set!
+    assert next(its) == 1
+    x = pickle.dumps(its)
+    assert list(pickle.loads(x)) == [0, 2, 0, 3]
+
+    its = intersperse([1, 2, 3], 0)
+    assert next(its) == 1
+    assert next(its) == 0
+    x = pickle.dumps(its)
+    assert list(pickle.loads(x)) == [2, 0, 3]
+
+    its = intersperse([1, 2, 3], 0)
+    assert next(its) == 1
+    assert next(its) == 0
+    assert next(its) == 2
+    x = pickle.dumps(its)
+    assert list(pickle.loads(x)) == [0, 3]
 
 
 def test_callbacks():
