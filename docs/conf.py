@@ -32,6 +32,7 @@ import shlex
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
@@ -40,6 +41,10 @@ extensions = [
     'sphinx.ext.viewcode',
     'numpydoc',
 ]
+
+# Otherwise there are lots of missing toctree errors...
+# see http://stackoverflow.com/questions/12206334
+numpydoc_show_class_members = False
 
 # Functions imported from C modules cannot be introspected, and therefore the
 # signature for such functions cannot be automatically determined. However, it
@@ -51,7 +56,8 @@ extensions = [
 # docstring content.
 autodoc_docstring_signature = True
 
-#autosummary_generate = True
+# Not sure why this is needed....
+autosummary_generate = False
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
