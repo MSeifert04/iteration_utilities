@@ -91,8 +91,38 @@ static PyMethodDef functions_complement_methods[] = {
 
 
 PyDoc_STRVAR(functions_complement_doc,
-"complement(func, *args, **keywords)\n\
-of the given arguments and keywords.\n\
+"complement(func)\n\
+\n\
+Invert a predicate function. homonymous function in the `toolz` package \n\
+([0]_) but significantly modified.\n\
+\n\
+Parameters\n\
+----------\n\
+func : callable\n\
+    The function to complement.\n\
+\n\
+Returns\n\
+-------\n\
+complemented_func : callable\n\
+    The complement to `func`.\n\
+\n\
+Examples\n\
+--------\n\
+A few simple examples::\n\
+\n\
+    >>> from iteration_utilities import complement\n\
+    >>> from iteration_utilities import is_None\n\
+    >>> is_not_None = complement(is_None)\n\
+    >>> filter(is_not_None, [1,2,None,3,4,None])
+    [1, 2, 3, 4]\n\
+\n\
+.. note::\n\
+    The same could be done with `itertools.filterfalse` or \n\
+    `iteration_utilities.is_not_None`.
+\n\
+References\n\
+----------\n\
+.. [0] https://toolz.readthedocs.io/en/latest/index.html\n\
 ");
 
 
