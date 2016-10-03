@@ -29,6 +29,9 @@ helper_bisect_right(PyObject *list, PyObject *item, Py_ssize_t hi, int cmpop)
         return -1;
     }
     res = PyObject_RichCompareBool(item, litem, cmpop);
+    if (res < 0) {
+        return -1;
+    }
     if (res) {
         return hi;
     }
