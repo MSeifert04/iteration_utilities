@@ -294,6 +294,16 @@ def test_accumulate():
     # Start value
     assert list(accumulate(None, [1, 2, 3], 10)) == [11, 13, 16]
 
+    # failures
+    with pytest.raises(TypeError):
+        list(accumulate(None, [1, 2, 3], 'a'))
+
+    with pytest.raises(TypeError):
+        list(accumulate(operator.add, [1, 2, 3], 'a'))
+
+    with pytest.raises(TypeError):
+        list(accumulate(['a', 2, 3]))
+
 
 def test_accumulate_memoryleak():
     accumulate = iteration_utilities.accumulate
@@ -309,7 +319,15 @@ def test_accumulate_memoryleak():
             return self.__class__(self.value * other.value)
 
     def test():
+        list(accumulate([]))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
         list(accumulate([Test(1), Test(2), Test(3)]))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(accumulate(None, []))
     assert not memory_leak(test, **kwargs_memoryleak)
 
     def test():
@@ -387,6 +405,10 @@ def test_partition_memoryleak():
 
     # One argument form
     def test():
+        partition([])
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
         partition([Test(0), Test(1), Test(2)])
     assert not memory_leak(test, **kwargs_memoryleak)
 
@@ -435,6 +457,7 @@ def test_partition_memoryleak():
 
 def test_unique_everseen():
     unique_everseen = iteration_utilities.unique_everseen
+
     assert list(unique_everseen([])) == []
     assert list(unique_everseen([1, 2, 1])) == [1, 2]
     assert list(unique_everseen([1, 2, 1], abs)) == [1, 2]
@@ -446,6 +469,7 @@ def test_unique_everseen():
     assert list(unique_everseen([[1, 1], [1, 2], [1, 3]],
                                 operator.itemgetter(0))) == [[1, 1]]
 
+    # failures
     with pytest.raises(TypeError):
         list(unique_everseen(10))
 
@@ -499,6 +523,7 @@ def test_unique_everseen_memoryleak():
                               [Test(1), Test(3)]], operator.itemgetter(0)))
     assert not memory_leak(test, **kwargs_memoryleak)
 
+    # failures
     def test():
         with pytest_raises(TypeError):
             list(unique_everseen(Test(10)))
@@ -538,7 +563,7 @@ def test_first():
     assert first([], default=None) is None
     assert first([0, 0, 0], default=None, pred=bool) is None
 
-    # Exceptions
+    # failures
     with pytest.raises(TypeError):
         first(100)
 
@@ -572,6 +597,7 @@ def test_first_memoryleak():
         first([Test(1), Test(2), Test(3)])
     assert not memory_leak(test, **kwargs_memoryleak)
 
+    # With pred
     def test():
         first([Test(0), Test(1), Test(2)], pred=bool)
     assert not memory_leak(test, **kwargs_memoryleak)
@@ -588,6 +614,7 @@ def test_first_memoryleak():
         first([[Test(0)], [Test(1), Test(2)]], pred=lambda x: len(x) > 1)
     assert not memory_leak(test, **kwargs_memoryleak)
 
+    # pred with truthy/retpred
     def test():
         first([Test(0), Test(2), Test(3)],
               pred=bool, truthy=False)
@@ -628,6 +655,7 @@ def test_first_memoryleak():
               pred=lambda x: x**Test(2), retpred=True)
     assert not memory_leak(test, **kwargs_memoryleak)
 
+    # With default
     def test():
         first([], default=None) is None
     assert not memory_leak(test, **kwargs_memoryleak)
@@ -636,6 +664,7 @@ def test_first_memoryleak():
         first([Test(0), Test(0), Test(0)], default=None, pred=bool) is None
     assert not memory_leak(test, **kwargs_memoryleak)
 
+    # failures
     def test():
         with pytest_raises(TypeError):
             first([])
@@ -720,6 +749,10 @@ def test_successive_memoryleak():
             self.value = value
 
     def test():
+        list(successive([]))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
         list(successive([Test(1)]))
     assert not memory_leak(test, **kwargs_memoryleak)
 
@@ -774,6 +807,18 @@ def test_roundrobin_memoryleak():
     class Test(object):
         def __init__(self, value):
             self.value = value
+
+    def test():
+        list(roundrobin())
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(roundrobin([]))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(roundrobin([], (), {}))
+    assert not memory_leak(test, **kwargs_memoryleak)
 
     def test():
         list(roundrobin([Test(1)],
@@ -904,6 +949,18 @@ def test_merge_memoryleak():
 
         def __lt__(self, other):
             return self.value < other.value
+
+    def test():
+        list(merge())
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(merge([]))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(merge([], (), {}))
+    assert not memory_leak(test, **kwargs_memoryleak)
 
     for seq in itertools.permutations([[Test(1)], [Test(2)], [Test(3)]]):
         def test():
