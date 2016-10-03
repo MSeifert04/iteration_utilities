@@ -87,4 +87,3 @@ exhaust the generator while doing so::\n\
 So only use this if the _only_ thing you need to know about the generator is\n\
 it's length.\n\
 ");
-
