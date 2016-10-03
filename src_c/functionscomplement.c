@@ -113,12 +113,12 @@ A few simple examples::\n\
     >>> from iteration_utilities import complement\n\
     >>> from iteration_utilities import is_None\n\
     >>> is_not_None = complement(is_None)\n\
-    >>> filter(is_not_None, [1,2,None,3,4,None])
+    >>> list(filter(is_not_None, [1,2,None,3,4,None]))\n\
     [1, 2, 3, 4]\n\
 \n\
 .. note::\n\
     The same could be done with `itertools.filterfalse` or \n\
-    `iteration_utilities.is_not_None`.
+    `iteration_utilities.is_not_None`.\n\
 \n\
 References\n\
 ----------\n\
