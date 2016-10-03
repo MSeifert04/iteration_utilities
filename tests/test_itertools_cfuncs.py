@@ -1404,6 +1404,7 @@ def test_cfuncs_pickle():
     unique_everseen = iteration_utilities.unique_everseen
     successive = iteration_utilities.successive
     roundrobin = iteration_utilities.roundrobin
+    complement = iteration_utilities.complement
 
     # ----- Accumulate
     acc = accumulate([1, 2, 3, 4])
@@ -1496,6 +1497,12 @@ def test_cfuncs_pickle():
     assert next(its) == 2
     x = pickle.dumps(its)
     assert list(pickle.loads(x)) == [0, 3]
+
+    # ----- Complement
+    x = pickle.dumps(complement(iteration_utilities.is_None))
+    assert pickle.loads(x)(False)
+    assert pickle.loads(x)(True)
+    assert not pickle.loads(x)(None)
 
 
 def test_callbacks():
