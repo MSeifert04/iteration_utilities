@@ -153,7 +153,9 @@ static PyMethodDef recipes_intersperse_methods[] = {
 PyDoc_STRVAR(recipes_intersperse_doc,
 "intersperse(iterable, e)\n\
 \n\
-Alternately yield an item from the `iterable` and `e`.\n\
+Alternately yield an item from the `iterable` and `e`. Recipe based on the\n\
+homonymous function in the `more-itertools` package ([0]_) but significantly\n\
+modified.\n\
 \n\
 Parameters\n\
 ----------\n\
@@ -176,11 +178,18 @@ that `intersperse` does not yield `e` as last item.\n\
 \n\
 Examples\n\
 --------\n\
+A few simple examples::\n\
+\n\
     >>> from iteration_utilities import intersperse\n\
     >>> list(intersperse([1,2,3], 0))\n\
     [1, 0, 2, 0, 3]\n\
+\n\
     >>> list(intersperse('abc', 'x'))\n\
     ['a', 'x', 'b', 'x', 'c']\n\
+\n\
+References\n\
+----------\n\
+.. [0] https://github.com/erikrose/more-itertools\n\
 ");
 
 static PyTypeObject recipes_intersperse_type = {
