@@ -130,6 +130,7 @@ Additional recipes for iterations.
 
 - :py:func:`applyfunc`
 - :py:func:`grouper`
+- :py:func:`intersperse`
 - :py:func:`merge`
 - :py:func:`roundrobin`
 - :py:func:`successive`
