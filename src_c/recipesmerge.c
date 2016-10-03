@@ -21,6 +21,19 @@ helper_bisect_right(PyObject *list, PyObject *item, Py_ssize_t hi, int cmpop)
     int res;
     Py_ssize_t lo = 0;
 
+    // It is likely that the next item of the yielded iterable is also the
+    // next item to be yielded (?!) so check if it's fit to be included at the
+    // end.
+    litem = PyTuple_GET_ITEM(list, hi);
+    if (litem == NULL) {
+        return -1;
+    }
+    res = PyObject_RichCompareBool(item, litem, cmpop);
+    if (res) {
+        return hi + 1;
+    }
+
+
     while (lo < hi) {
         /* The (size_t)cast ensures that the addition and subsequent division
            are performed as unsigned operations, avoiding difficulties from
