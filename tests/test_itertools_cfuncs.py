@@ -1511,4 +1511,4 @@ def test_callbacks():
     assert not iteration_utilities.is_None(False)
 
     assert not iteration_utilities.is_not_None(None)
-    assert iteration_utilities.is_None(False)
+    assert iteration_utilities.is_not_None(False)
