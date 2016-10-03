@@ -5,6 +5,7 @@
 #include "mathematical.c"
 #include "reduceminmax.c"
 #include "reducefirst.c"
+#include "reduceilen.c"
 #include "recipespartition.c"
 #include "recipesuniqueever.c"
 #include "recipesaccumulate.c"
@@ -74,6 +75,11 @@ iterationutils_methods[] = {
      (PyCFunction)recipes_partition,
      METH_VARARGS | METH_KEYWORDS,
      recipes_partition_doc},
+
+    {"ilen",
+     (PyCFunction)reduce_ilen,
+     METH_VARARGS | METH_KEYWORDS,
+     reduce_ilen_doc},
 
     {NULL, NULL}
 };

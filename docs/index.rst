@@ -121,6 +121,7 @@ Additional recipes for iterations.
 .. py:currentmodule:: iteration_utilities._cfuncs
 
 - :py:func:`first`
+- :py:func:`ilen`
 - :py:func:`minmax`
 - :py:func:`partition`
 
