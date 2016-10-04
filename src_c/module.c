@@ -93,7 +93,7 @@ iterationutils_methods[] = {
      METH_O,
      reduce_one_doc},
 
-    {"other_groupby",
+    {"groupby2",
      (PyCFunction)reduce_groupby,
      METH_VARARGS | METH_KEYWORDS,
      reduce_groupby_doc},
