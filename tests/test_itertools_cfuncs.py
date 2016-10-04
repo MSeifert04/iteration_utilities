@@ -1570,6 +1570,119 @@ def test_quantify_memoryleak():
     assert not memory_leak(test, **kwargs_memoryleak)
 
 
+def test_unique_justseen():
+    unique_justseen = iteration_utilities.unique_justseen
+
+    assert list(unique_justseen([])) == []
+    assert list(unique_justseen([1, 1, 2, 3, 3])) == [1, 2, 3]
+    assert list(unique_justseen('aAabBb')) == ['a', 'A', 'a', 'b', 'B', 'b']
+    assert list(unique_justseen('aAabBb', key=str.lower)) == ['a', 'b']
+
+    with pytest.raises(TypeError):  # not iterable
+        unique_justseen(10)
+
+    with pytest.raises(TypeError):  # function call fails
+        list(unique_justseen([1, 2, 3], key=lambda x: x + 'a'))
+
+    class Test2(object):
+        def __init__(self, value):
+            self.value = value
+
+        def __eq__(self, other):
+            raise TypeError()
+
+        def __ne__(self, other):
+            raise TypeError()
+
+    with pytest.raises(TypeError):  # objects do not support eq or ne
+        list(unique_justseen([Test2(1), Test2(2)]))
+
+    class Test3(object):
+        def __init__(self, value):
+            self.value = value
+
+        def __eq__(self, other):
+            raise TypeError()
+
+        def __ne__(self, other):
+            return self.value != other.value
+
+    res = list(unique_justseen([Test3(1), Test3(1)]))
+    assert len(res) == 1
+    assert isinstance(res[0], Test3)
+    assert res[0].value == 1
+
+
+def test_unique_justseen_memoryleak():
+    unique_justseen = iteration_utilities.unique_justseen
+
+    class Test(object):
+        def __init__(self, value):
+            self.value = value
+
+        def __eq__(self, other):
+            return self.value == other.value
+
+    class Test2(object):
+        def __init__(self, value):
+            self.value = value
+
+        def __eq__(self, other):
+            raise TypeError()
+
+        def __ne__(self, other):
+            raise TypeError()
+
+    class Test3(object):
+        def __init__(self, value):
+            self.value = value
+
+        def __eq__(self, other):
+            raise TypeError()
+
+        def __ne__(self, other):
+            return self.value != other.value
+
+    def test():
+        list(unique_justseen([])) == []
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(unique_justseen([Test(1), Test(1), Test(2), Test(3), Test(3)]))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(unique_justseen([Test(1), Test(-1), Test(1),
+                              Test(2), Test(-2), Test(2)]))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(unique_justseen([Test(1), Test(-1), Test(1),
+                              Test(2), Test(-2), Test(2)],
+                             key=lambda x: abs(x.value)))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):  # not iterable
+            unique_justseen(Test(1))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):  # function call fails
+            list(unique_justseen([Test(1), Test(2), Test(3)],
+                                 key=lambda x: x + 'a'))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):  # objects do not support eq or ne
+            list(unique_justseen([Test2(1), Test2(2)]))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(unique_justseen([Test3(1), Test3(1)]))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+
 @pytest.mark.xfail(iteration_utilities.PY2,
                    reason='Python 2 does not support this way of pickling.')
 def test_cfuncs_pickle():
@@ -1581,6 +1694,7 @@ def test_cfuncs_pickle():
     intersperse = iteration_utilities.intersperse
     merge = iteration_utilities.merge
     unique_everseen = iteration_utilities.unique_everseen
+    unique_justseen = iteration_utilities.unique_justseen
     successive = iteration_utilities.successive
     roundrobin = iteration_utilities.roundrobin
     complement = iteration_utilities.complement
@@ -1682,6 +1796,25 @@ def test_cfuncs_pickle():
     assert pickle.loads(x)(False)
     assert pickle.loads(x)(True)
     assert not pickle.loads(x)(None)
+
+    # ----- Unique_justseen
+    ujs = unique_justseen([1, 2, 3])
+    x = pickle.dumps(ujs)
+    assert list(pickle.loads(x)) == [1, 2, 3]
+
+    ujs = unique_justseen([1, 2, 3])
+    assert next(ujs) == 1
+    x = pickle.dumps(ujs)
+    assert list(pickle.loads(x)) == [2, 3]
+
+    ujs = unique_justseen(['a', 'A', 'a'], key=str.lower)
+    x = pickle.dumps(ujs)
+    assert list(pickle.loads(x)) == ['a']
+
+    ujs = unique_justseen(['a', 'A', 'a'], key=str.lower)
+    assert next(ujs) == 'a'
+    x = pickle.dumps(ujs)
+    assert list(pickle.loads(x)) == []
 
 
 def test_callbacks():

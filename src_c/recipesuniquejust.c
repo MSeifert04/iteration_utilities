@@ -101,6 +101,7 @@ recipes_uniquejust_next(recipes_uniquejust_object *lz)
         ok = PyObject_RichCompareBool(val, lz->lastitem, Py_EQ);
 
         if (ok < 0) {
+            PyErr_Clear();
             ok = PyObject_RichCompareBool(val, lz->lastitem, Py_NE);
             if (ok < 0) {
                 Py_DECREF(val);
@@ -130,12 +131,12 @@ recipes_uniquejust_reduce(recipes_uniquejust_object *lz) {
     if (lz->lastitem != NULL) {
         value = Py_BuildValue("O(OO)(O)", Py_TYPE(lz),
                              lz->it,
-                             lz->keyfunc,
+                             lz->keyfunc ? lz->keyfunc : Py_None,
                              lz->lastitem ? lz->lastitem : Py_None);
     } else {
         value = Py_BuildValue("O(OO)", Py_TYPE(lz),
                              lz->it,
-                             lz->keyfunc);
+                             lz->keyfunc ? lz->keyfunc : Py_None);
     }
 
     return value;
