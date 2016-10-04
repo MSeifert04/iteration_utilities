@@ -93,6 +93,38 @@ faster::\n\
 ");
 
 static PyObject*
+returnx_returnIt(PyObject *self, PyObject *it) {
+    Py_INCREF(it);
+    return it;
+}
+
+PyDoc_STRVAR(returnx_returnIt_doc,
+"return_identity(obj)\n\
+\n\
+Always return the argument.\n\
+\n\
+Parameters\n\
+----------\n\
+obj : any type \n\
+    The `obj` to return.\n\
+\n\
+Returns\n\
+-------\n\
+identity : any type\n\
+    The argument itself.\n\
+\n\
+Examples\n\
+--------\n\
+This function is equivalent to ``lambda *x: x`` but significantly faster::\n\
+\n\
+    >>> from iteration_utilities import return_identity\n\
+    >>> return_identity(1)\n\
+    1\n\
+    >>> return_identity('abc')\n\
+    'abc'\n\
+");
+
+static PyObject*
 returnx_returnFirstPositionalArgument(PyObject *self, PyObject *args, PyObject *keywds) {
     PyObject *first;
     Py_ssize_t tuple_size = PyTuple_Size(args);
