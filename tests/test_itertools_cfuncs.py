@@ -1810,11 +1810,14 @@ def test_cfuncs_pickle():
     x = pickle.dumps(ujs)
     assert list(pickle.loads(x)) == [2, 3]
 
-    ujs = unique_justseen(['a', 'A', 'a'], key=operator.methodcaller('lower'))
+    def calllower(item):
+        return item.lower()
+
+    ujs = unique_justseen(['a', 'A', 'a'], key=calllower)
     x = pickle.dumps(ujs)
     assert list(pickle.loads(x)) == ['a']
 
-    ujs = unique_justseen(['a', 'A', 'a'], key=operator.methodcaller('lower'))
+    ujs = unique_justseen(['a', 'A', 'a'], key=calllower)
     assert next(ujs) == 'a'
     x = pickle.dumps(ujs)
     assert list(pickle.loads(x)) == []
