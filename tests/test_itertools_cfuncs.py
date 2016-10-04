@@ -2321,3 +2321,9 @@ def test_callbacks():
 
     assert not iteration_utilities.is_not_None(None)
     assert iteration_utilities.is_not_None(False)
+
+    assert iteration_utilities.is_even(2)
+    assert not iteration_utilities.is_even(1)
+
+    assert iteration_utilities.is_odd(1)
+    assert not iteration_utilities.is_odd(2)
