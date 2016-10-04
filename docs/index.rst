@@ -125,6 +125,7 @@ Additional recipes for iterations.
 - :py:func:`one`
 - :py:func:`partition`
 - :py:func:`quantify`
+- :py:func:`second`
 
 
 .. py:currentmodule:: iteration_utilities
