@@ -53,7 +53,6 @@ def test_empty_input():
     assert list(iteration_utilities.take(
         iteration_utilities.padnone(empty), 2)) == [None, None]
     assert list(iteration_utilities.powerset(empty)) == [()]
-    assert iteration_utilities.quantify(empty, lambda x: x) == 0
     assert iteration_utilities.random_combination(empty, 0) == ()
     assert iteration_utilities.random_combination(empty, 0, True) == ()
     assert iteration_utilities.random_permutation(empty, 0) == ()
