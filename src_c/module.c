@@ -12,6 +12,7 @@
 #include "reduceone.c"
 #include "reducepartition.c"
 #include "reducequantify.c"
+#include "reducesecond.c"
 #include "recipesuniquejust.c"
 #include "recipesuniqueever.c"
 #include "recipesaccumulate.c"
@@ -92,6 +93,11 @@ iterationutils_methods[] = {
      (PyCFunction)reduce_first,
      METH_VARARGS | METH_KEYWORDS,
      reduce_first_doc},
+
+    {"second",
+     (PyCFunction)reduce_second,
+     METH_VARARGS | METH_KEYWORDS,
+     reduce_second_doc},
 
     {"one",
      (PyCFunction)reduce_one,

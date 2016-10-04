@@ -686,6 +686,168 @@ def test_first_memoryleak():
     assert not memory_leak(test, **kwargs_memoryleak)
 
 
+def test_second():
+    second = iteration_utilities.second
+
+    assert second([1, 2, 3]) == 2
+    assert second(range(10)) == 1
+
+    # With pred
+    assert second([0, 1, 2], pred=bool) == 2
+    assert second([0, 1, 2], pred=None) == 2
+    assert second([0]*100 + [1]*2, pred=bool) == 1
+    assert second([[1], [1, 2], [1, 2]], pred=lambda x: len(x) > 1) == [1, 2]
+
+    # pred with truthy/retpred
+    assert second([0, 1, 2, 3, 0], pred=bool, truthy=False) == 0
+    assert second([0, 1, 2, 3, 0], pred=bool, truthy=False,
+                  retpred=True) == False
+    assert second([0, 1, 2, 3, 0], pred=lambda x: x**2, truthy=False) == 0
+    assert second([0, 1, 2, 3, 0],
+                  pred=lambda x: x**2, truthy=False, retpred=True) == 0
+    assert second([0, 1, 2, 3], pred=bool) == 2
+    assert second([0, 1, 2, 3], pred=bool, retpred=True) == True
+    assert second([0, 2, 3], pred=lambda x: x**2) == 3
+    assert second([0, 2, 3], pred=lambda x: x**2, retpred=True) == 9
+
+    # With default
+    assert second([], default=None) is None
+    assert second([0, 0, 0], default=None, pred=bool) is None
+
+    # failures
+    with pytest.raises(TypeError):
+        second(100)
+
+    with pytest.raises(TypeError):
+        second([])
+
+    with pytest.raises(TypeError):
+        second([10])
+
+    with pytest.raises(TypeError):
+        second([0], pred=bool)
+
+    with pytest.raises(TypeError):
+        second([1], pred=bool)
+
+    with pytest.raises(TypeError):
+        second(['a', 'b'], pred=abs)
+
+
+def test_second_memoryleak():
+    second = iteration_utilities.second
+
+    class Test(object):
+        def __init__(self, value):
+            self.value = value
+
+        def __bool__(self):
+            return bool(self.value)
+
+        def __nonzero__(self):
+            return bool(self.value)
+
+        def __pow__(self, other):
+            return self.__class__(self.value ** other.value)
+
+    def test():
+        second([Test(1), Test(2), Test(3)])
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    # With pred
+    def test():
+        second([Test(0), Test(1), Test(2)], pred=bool)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        second([Test(0), Test(1), Test(2)], pred=None)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        second([Test(0)]*100 + [Test(1)]*2, pred=bool)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        second([[Test(0)], [Test(1), Test(2)]]*2, pred=lambda x: len(x) > 1)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    # pred with truthy/retpred
+    def test():
+        second([Test(0), Test(2), Test(3), Test(0)],
+               pred=bool, truthy=False)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        second([Test(0), Test(2), Test(3), Test(0)],
+               pred=bool, truthy=False, retpred=True)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        second([Test(0), Test(2), Test(3), Test(0)],
+               pred=lambda x: x**Test(2), truthy=False)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        second([Test(0), Test(2), Test(3), Test(0)],
+               pred=lambda x: x**Test(2), truthy=False, retpred=True)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        second([Test(0), Test(2), Test(3)],
+               pred=bool)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        second([Test(0), Test(2), Test(3)],
+               pred=bool, retpred=True)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        second([Test(0), Test(2), Test(3)],
+               pred=lambda x: x**Test(2))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        second([Test(0), Test(2), Test(3)],
+               pred=lambda x: x**Test(2), retpred=True)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    # With default
+    def test():
+        second([], default=None) is None
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        second([Test(0), Test(0), Test(0)], default=None, pred=bool) is None
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    # failures
+    def test():
+        with pytest_raises(TypeError):
+            second([])
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):
+            second([Test(0)])
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):
+            second(Test(100))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):
+            second([Test(1)], pred=bool)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):
+            second([Test('a'), Test('b')], pred=lambda x: abs(x.value))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+
 def test_applyfunc():
     applyfunc = iteration_utilities.applyfunc
     take = iteration_utilities.take
