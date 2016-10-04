@@ -48,7 +48,6 @@ def test_empty_input():
     assert list(x) == [] and list(y) == []
     # no need to test iter_except here
     # no need to test iter_subclasses here
-    assert not iteration_utilities.last_true(empty)
     assert list(iteration_utilities.ncycles(empty, 10)) == []
     assert list(iteration_utilities.take(
         iteration_utilities.padnone(empty), 2)) == [None, None]
