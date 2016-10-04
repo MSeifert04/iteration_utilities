@@ -94,7 +94,6 @@ Python2 and Python3 compatible. The documentation was added and/or modified.
 - :py:func:`ncycles`
 - :py:func:`padnone`
 - :py:func:`powerset`
-- :py:func:`quantify`
 - :py:func:`random_combination`
 - :py:func:`random_product`
 - :py:func:`random_permutation`
@@ -125,6 +124,7 @@ Additional recipes for iterations.
 - :py:func:`nth`
 - :py:func:`one`
 - :py:func:`partition`
+- :py:func:`quantify`
 
 
 .. py:currentmodule:: iteration_utilities

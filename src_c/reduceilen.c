@@ -3,9 +3,8 @@ reduce_ilen(PyObject *self, PyObject *args, PyObject *kwds)
 {
     static char *kwargs[] = {"iterable", NULL};
 
-    PyObject *iterable, *iterator, *item, *len;
+    PyObject *iterable, *iterator, *item;
     Py_ssize_t len_int = 0;
-    int fallback = 0;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O:ilen",
                                      kwargs, &iterable)) {
@@ -19,29 +18,22 @@ reduce_ilen(PyObject *self, PyObject *args, PyObject *kwds)
     }
 
     // Fast version with integer increment
-    while ((item = PyIter_Next(iterator))) {
+    while ((item = (*Py_TYPE(iterator)->tp_iternext)(iterator))) {
+        Py_DECREF(item);
         len_int++;
         if (len_int == PY_SSIZE_T_MAX) {
-            fallback = 1;
-            break;
+            Py_DECREF(iterator);
+            PyErr_Format(PyExc_TypeError,
+                         "`iterable` is too long to compute the length.");
+            return NULL;
         }
-        Py_DECREF(item);
     }
+
+    PyErr_Clear();
 
     Py_DECREF(iterator);
 
-    if (fallback > 0) {
-        PyErr_Format(PyExc_TypeError,
-                     "`iterable` is too long to compute the length.");
-        return NULL;
-    }
-
-    len = PyLong_FromSsize_t(len_int);
-    if (len == NULL) {
-        return NULL;
-    }
-
-    return len;
+    return PyLong_FromSsize_t(len_int);
 }
 
 

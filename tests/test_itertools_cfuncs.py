@@ -1492,6 +1492,84 @@ def test_nth_memoryleak():
     assert not memory_leak(test, **kwargs_memoryleak)
 
 
+def test_quantify():
+    quantify = iteration_utilities.quantify
+
+    assert quantify([]) == 0
+    assert quantify([0, 0]) == 0
+    assert quantify([0, 0, 1]) == 1
+    assert quantify([0, 0, 1, 1], None) == 2
+
+    assert quantify([], lambda x: x) == 0
+
+    assert quantify([1, 2, 3], lambda x: x > 2) == 1
+    assert quantify([1, 2, 3], lambda x: x < 3) == 2
+
+    with pytest.raises(TypeError):
+        quantify(1)
+
+    with pytest.raises(TypeError):
+        quantify([1], 1)
+
+
+def test_quantify_memoryleak():
+    quantify = iteration_utilities.quantify
+
+    class Test(object):
+        def __init__(self, value):
+            self.value = value
+
+        def __lt__(self, other):
+            return self.value < other.value
+
+        def __gt__(self, other):
+            return self.value > other.value
+
+        def __bool__(self):
+            return bool(self.value)
+
+        def __nonzero__(self):
+            return bool(self.value)
+
+    def test():
+        quantify([])
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        quantify([Test(0), Test(0)])
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        quantify([Test(0), Test(0), Test(1)])
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        quantify([Test(0), Test(0), Test(1), Test(1)], None)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        quantify([], iteration_utilities.return_first_positional_argument)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        quantify([Test(1), Test(2), Test(3)], lambda x: x > Test(2))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        quantify([Test(1), Test(2), Test(3)], lambda x: x < Test(3))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):
+            quantify(Test(1))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):
+            quantify([Test(1)], Test(1))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+
 @pytest.mark.xfail(iteration_utilities.PY2,
                    reason='Python 2 does not support this way of pickling.')
 def test_cfuncs_pickle():

@@ -10,6 +10,7 @@
 #include "reducenth.c"
 #include "reduceone.c"
 #include "reducepartition.c"
+#include "reducequantify.c"
 #include "recipesuniqueever.c"
 #include "recipesaccumulate.c"
 #include "recipesapplyfunc.c"
@@ -84,6 +85,11 @@ iterationutils_methods[] = {
      (PyCFunction)reduce_one,
      METH_O,
      reduce_one_doc},
+
+    {"quantify",
+     (PyCFunction)reduce_quantify,
+     METH_VARARGS | METH_KEYWORDS,
+     reduce_quantify_doc},
 
     {"partition",
      (PyCFunction)recipes_partition,
