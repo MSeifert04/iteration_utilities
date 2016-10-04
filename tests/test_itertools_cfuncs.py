@@ -2327,3 +2327,6 @@ def test_callbacks():
 
     assert iteration_utilities.is_odd(1)
     assert not iteration_utilities.is_odd(2)
+
+    assert not iteration_utilities.is_iterable(1)
+    assert iteration_utilities.is_iterable([1])
