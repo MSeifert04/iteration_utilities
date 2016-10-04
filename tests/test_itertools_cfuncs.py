@@ -1699,6 +1699,9 @@ def test_cfuncs_pickle():
     roundrobin = iteration_utilities.roundrobin
     complement = iteration_utilities.complement
 
+    # IMPORTANT: methoddescriptors like "str.lower" as key functions can not
+    #            be pickled before python 3.4
+
     # ----- Accumulate
     acc = accumulate([1, 2, 3, 4])
     assert next(acc) == 1
@@ -1807,11 +1810,11 @@ def test_cfuncs_pickle():
     x = pickle.dumps(ujs)
     assert list(pickle.loads(x)) == [2, 3]
 
-    ujs = unique_justseen(['a', 'A', 'a'], key=str.lower)
+    ujs = unique_justseen(['a', 'A', 'a'], key=operator.methodcaller('lower'))
     x = pickle.dumps(ujs)
     assert list(pickle.loads(x)) == ['a']
 
-    ujs = unique_justseen(['a', 'A', 'a'], key=str.lower)
+    ujs = unique_justseen(['a', 'A', 'a'], key=operator.methodcaller('lower'))
     assert next(ujs) == 'a'
     x = pickle.dumps(ujs)
     assert list(pickle.loads(x)) == []
