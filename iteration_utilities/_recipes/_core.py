@@ -8,7 +8,7 @@ from collections import deque
 from copy import copy
 from itertools import (islice, count, groupby, chain, repeat, starmap, tee,
                        combinations)
-from operator import mul, itemgetter
+from operator import mul
 from random import choice, sample, randrange
 
 # This module
