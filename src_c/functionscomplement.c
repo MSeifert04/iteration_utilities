@@ -108,7 +108,7 @@ complemented_func : callable\n\
 \n\
 Examples\n\
 --------\n\
-A few simple examples::\n\
+`complement` is equivalent to ``lambda x: not x()`` but significantly faster::\n\
 \n\
     >>> from iteration_utilities import complement\n\
     >>> from iteration_utilities import is_None\n\
