@@ -1812,7 +1812,7 @@ def test_cfuncs_pickle():
 
     # Pickling a method descriptor is not possible for Python 3.3 and before
     # Also operator.methodcaller loses it's methodname when pickled for Python
-    #   3.4 ans lower...
+    #   3.4 and lower...
     if iteration_utilities.PY34:
         ujs = unique_justseen(['a', 'A', 'a'], key=str.lower)
         x = pickle.dumps(ujs)
