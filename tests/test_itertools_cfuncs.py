@@ -1832,6 +1832,7 @@ def test_callbacks():
     assert iteration_utilities.return_called(int) == 0
 
     assert iteration_utilities.square(2) == 4
+    assert iteration_utilities.one_over(2) == 0.5
 
     assert iteration_utilities.is_None(None)
     assert not iteration_utilities.is_None(False)
