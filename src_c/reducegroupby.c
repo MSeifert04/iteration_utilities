@@ -116,11 +116,11 @@ A simple example::\n\
 \n\
     >>> from iteration_utilities import groupby2\n\
     >>> from operator import itemgetter\n\
-    >>> groupby2(['a', 'ab', 'abc', 'bac', 'ba'], key=itemgetter(0))\n\
+    >>> groupby2(['a', 'bac', 'ba', 'ab', 'abc'], key=itemgetter(0))\n\
     {'a': ['a', 'ab', 'abc'], 'b': ['bac', 'ba']}\n\
 \n\
 One could also specify a `keepkey`::\n\
-    >>> groupby2(['a', 'ab', 'abc', 'bac', 'ba'], key=itemgetter(0), keepkey=len)\n\
+    >>> groupby2(['a', 'bac', 'ba', 'ab', 'abc'], key=itemgetter(0), keepkey=len)\n\
     {'a': [1, 2, 3], 'b': [3, 2]}\n\
 \n\
 ");
