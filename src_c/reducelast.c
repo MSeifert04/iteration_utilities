@@ -55,6 +55,7 @@ reduce_last(PyObject *self, PyObject *args, PyObject *kwds)
                     Py_DECREF(last);
                 }
                 last = val;
+
             } else {
                 Py_XDECREF(val);
                 if (last != NULL) {
