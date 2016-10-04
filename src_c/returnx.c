@@ -115,7 +115,7 @@ identity : any type\n\
 \n\
 Examples\n\
 --------\n\
-This function is equivalent to ``lambda *x: x`` but significantly faster::\n\
+This function is equivalent to ``lambda x: x`` but significantly faster::\n\
 \n\
     >>> from iteration_utilities import return_identity\n\
     >>> return_identity(1)\n\
