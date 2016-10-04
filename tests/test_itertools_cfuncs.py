@@ -1828,6 +1828,7 @@ def test_callbacks():
     assert iteration_utilities.return_True()
     assert not iteration_utilities.return_False()
     assert iteration_utilities.return_None() is None
+    assert iteration_utilities.return_identity(1) == 1
     assert iteration_utilities.return_first_positional_argument(1, 2, 3) == 1
     assert iteration_utilities.return_called(int) == 0
 
