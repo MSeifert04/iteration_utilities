@@ -5,7 +5,7 @@ reduce_nth(PyObject *self, PyObject *args, PyObject *kwds)
     Py_ssize_t n;
     int truthy=1, retpred=0;
 
-    PyObject *iterator, *item, *last=NULL, *val=NULL;
+    PyObject *iterator, *item=NULL, *last=NULL, *val=NULL;
     Py_ssize_t i;
     int ok;
 
@@ -25,6 +25,11 @@ reduce_nth(PyObject *self, PyObject *args, PyObject *kwds)
 
     for (i=0 ; i<=n ; ) {
         item = (*Py_TYPE(iterator)->tp_iternext)(iterator);
+        if (item == NULL) {
+            Py_XDECREF(last);
+            last = NULL;
+            break;
+        }
         // Sequence contains an element and func is None: return it.
         if (func == NULL) {
             if (last != NULL) {

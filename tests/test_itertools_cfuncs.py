@@ -1751,16 +1751,43 @@ def test_one_memoryleak():
 def test_nth():
     nth = iteration_utilities.nth
 
-    assert nth([], 10, None) is None
-    assert nth([1, 2, 3], 0) == 1
     assert nth([1, 2, 3], 1) == 2
-    assert nth([1, 2, 3], 2) == 3
+    assert nth(range(10), 2) == 2
 
-    with pytest.raises(TypeError):  # not iterable
-        nth(1, 10)
+    # With pred
+    assert nth([0, 1, 2], 1, pred=bool) == 2
+    assert nth([0, 1, 2], 1, pred=None) == 2
+    assert nth([0]*100 + [1], 0, pred=bool) == 1
+    assert nth([[1], [1, 2], [1, 2]], 1, pred=lambda x: len(x) > 1) == [1, 2]
 
-    with pytest.raises(IndexError):  # nth not in iterable
+    # pred with truthy/retpred
+    assert nth([0, 1, 2, 3, 0], 1, pred=bool, truthy=False) == 0
+    assert nth([0, 1, 2, 3, 0], 1, pred=bool, truthy=False,
+                retpred=True) == False
+    assert nth([0, 1, 2, 3, 0], 1, pred=lambda x: x**2, truthy=False) == 0
+    assert nth([0, 1, 2, 3, 0], 1,
+               pred=lambda x: x**2, truthy=False, retpred=True) == 0
+    assert nth([0, 1, 2, 3], 2, pred=bool) == 3
+    assert nth([0, 1, 2, 3], 2, pred=bool, retpred=True) == True
+    assert nth([0, 2, 3, 4], 2, pred=lambda x: x**2) == 4
+    assert nth([0, 2, 3, 4], 2, pred=lambda x: x**2, retpred=True) == 16
+
+    # With default
+    assert nth([], 2, default=None) is None
+    assert nth([0, 0, 0], 1, default=None, pred=bool) is None
+
+    # failures
+    with pytest.raises(TypeError):
+        nth(100, 10)
+
+    with pytest.raises(IndexError):
         nth([], 10)
+
+    with pytest.raises(IndexError):
+        nth([0], 1, pred=bool)
+
+    with pytest.raises(TypeError):
+        nth(['a', 'b'], 1, pred=abs)
 
 
 def test_nth_memoryleak():
@@ -1770,30 +1797,97 @@ def test_nth_memoryleak():
         def __init__(self, value):
             self.value = value
 
-    def test():
-        nth([], 10, Test(1))
-    assert not memory_leak(test, **kwargs_memoryleak)
+        def __bool__(self):
+            return bool(self.value)
 
-    def test():
-        nth([Test(1), Test(2), Test(3)], 0)
-    assert not memory_leak(test, **kwargs_memoryleak)
+        def __nonzero__(self):
+            return bool(self.value)
+
+        def __pow__(self, other):
+            return self.__class__(self.value ** other.value)
 
     def test():
         nth([Test(1), Test(2), Test(3)], 1)
     assert not memory_leak(test, **kwargs_memoryleak)
 
+    # With pred
     def test():
-        nth([Test(1), Test(2), Test(3)], 2)
+        nth([Test(0), Test(1), Test(2)], 1, pred=bool)
     assert not memory_leak(test, **kwargs_memoryleak)
 
     def test():
-        with pytest_raises(TypeError):  # not iterable
-            nth(Test(1), 10)
+        nth([Test(0), Test(1), Test(2)], 1, pred=None)
     assert not memory_leak(test, **kwargs_memoryleak)
 
     def test():
-        with pytest_raises(IndexError):  # nth not in iterable
+        nth([Test(0)]*100 + [Test(1)]*2, 1, pred=bool)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        nth([[Test(0)], [Test(1), Test(2)]]*2, 1, pred=lambda x: len(x) > 1)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    # pred with truthy/retpred
+    def test():
+        nth([Test(0), Test(2), Test(3), Test(0)], 1,
+            pred=bool, truthy=False)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        nth([Test(0), Test(2), Test(3), Test(0)], 1,
+            pred=bool, truthy=False, retpred=True)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        nth([Test(0), Test(2), Test(3), Test(0)], 1,
+            pred=lambda x: x**Test(2), truthy=False)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        nth([Test(0), Test(2), Test(3), Test(0)], 0,
+            pred=lambda x: x**Test(2), truthy=False, retpred=True)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        nth([Test(0), Test(2), Test(3)], 1, pred=bool)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        nth([Test(0), Test(2), Test(3)], 1, pred=bool, retpred=True)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        nth([Test(0), Test(2), Test(3)], 1, pred=lambda x: x**Test(2))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        nth([Test(0), Test(2), Test(3)], 1,
+            pred=lambda x: x**Test(2), retpred=True)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    # With default
+    def test():
+        nth([], 2, default=None) is None
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        nth([Test(0), Test(0), Test(0)], 1, default=None, pred=bool) is None
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    # failures
+    def test():
+        with pytest_raises(IndexError):
             nth([], 10)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):
+            nth(Test(100), 10)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):
+            nth([Test('a'), Test('b')], 1, pred=lambda x: abs(x.value))
     assert not memory_leak(test, **kwargs_memoryleak)
 
 
