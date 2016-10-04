@@ -67,6 +67,11 @@ nth_item : any type\n\
     The `n`-th item of the `iterable` or `default` if the index wasn't\n\
     present in the `iterable`.\n\
 \n\
+Raises\n\
+------\n\
+IndexError\n\
+    If the `iterable` contains less than `n` items and `default` is not given.\n\
+\n\
 Examples\n\
 --------\n\
 Without `default` value::\n\
