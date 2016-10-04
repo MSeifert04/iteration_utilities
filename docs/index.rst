@@ -112,7 +112,6 @@ Additional recipes for iterations.
 
 - :py:func:`deepflatten`
 - :py:func:`itersubclasses`
-- :py:func:`last_true`
 
 
 .. py:currentmodule:: iteration_utilities._cfuncs
