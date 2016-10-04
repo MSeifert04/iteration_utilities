@@ -45,6 +45,16 @@ iterationutils_methods[] = {
      METH_O,
      isx_IsNotNone_doc},
 
+    {"is_even",
+     (PyCFunction)isx_IsEven,
+     METH_O,
+     isx_IsEven_doc},
+
+    {"is_odd",
+     (PyCFunction)isx_IsOdd,
+     METH_O,
+     isx_IsOdd_doc},
+
     {"square",
      (PyCFunction)mathematical_square,
      METH_O,
