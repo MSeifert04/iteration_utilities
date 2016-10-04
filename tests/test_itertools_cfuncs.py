@@ -1443,6 +1443,55 @@ def test_one_memoryleak():
     assert not memory_leak(test, **kwargs_memoryleak)
 
 
+def test_nth():
+    nth = iteration_utilities.nth
+
+    assert nth([], 10, None) is None
+    assert nth([1, 2, 3], 0) == 1
+    assert nth([1, 2, 3], 1) == 2
+    assert nth([1, 2, 3], 2) == 3
+
+    with pytest.raises(TypeError):  # not iterable
+        nth(1, 10)
+
+    with pytest.raises(IndexError):  # nth not in iterable
+        nth([], 10)
+
+
+def test_nth_memoryleak():
+    nth = iteration_utilities.nth
+
+    class Test(object):
+        def __init__(self, value):
+            self.value = value
+
+    def test():
+        nth([], 10, Test(1))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        nth([Test(1), Test(2), Test(3)], 0)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        nth([Test(1), Test(2), Test(3)], 1)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        nth([Test(1), Test(2), Test(3)], 2)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):  # not iterable
+            nth(Test(1), 10)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(IndexError):  # nth not in iterable
+            nth([], 10)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+
 @pytest.mark.xfail(iteration_utilities.PY2,
                    reason='Python 2 does not support this way of pickling.')
 def test_cfuncs_pickle():

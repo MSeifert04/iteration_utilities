@@ -92,7 +92,6 @@ Python2 and Python3 compatible. The documentation was added and/or modified.
 - :py:func:`ipartition`
 - :py:func:`iter_except`
 - :py:func:`ncycles`
-- :py:func:`nth`
 - :py:func:`padnone`
 - :py:func:`powerset`
 - :py:func:`quantify`
@@ -123,6 +122,7 @@ Additional recipes for iterations.
 - :py:func:`first`
 - :py:func:`ilen`
 - :py:func:`minmax`
+- :py:func:`nth`
 - :py:func:`one`
 - :py:func:`partition`
 
