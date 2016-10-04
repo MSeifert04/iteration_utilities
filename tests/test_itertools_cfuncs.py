@@ -1810,17 +1810,18 @@ def test_cfuncs_pickle():
     x = pickle.dumps(ujs)
     assert list(pickle.loads(x)) == [2, 3]
 
-    def calllower(item):
-        return item.lower()
+    # Pickling a method descriptor is not possible for Python 3.3 and before
+    # Also operator.methodcaller loses it's methodname when pickled for Python
+    #   3.4 ans lower...
+    if iteration_utilities.PY34:
+        ujs = unique_justseen(['a', 'A', 'a'], key=str.lower)
+        x = pickle.dumps(ujs)
+        assert list(pickle.loads(x)) == ['a']
 
-    ujs = unique_justseen(['a', 'A', 'a'], key=calllower)
-    x = pickle.dumps(ujs)
-    assert list(pickle.loads(x)) == ['a']
-
-    ujs = unique_justseen(['a', 'A', 'a'], key=calllower)
-    assert next(ujs) == 'a'
-    x = pickle.dumps(ujs)
-    assert list(pickle.loads(x)) == []
+        ujs = unique_justseen(['a', 'A', 'a'], key=str.lower)
+        assert next(ujs) == 'a'
+        x = pickle.dumps(ujs)
+        assert list(pickle.loads(x)) == []
 
 
 def test_callbacks():
