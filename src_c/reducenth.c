@@ -24,7 +24,7 @@ reduce_nth(PyObject *self, PyObject *args, PyObject *kwds)
     }
 
     for (i=0 ; i<=n ; ) {
-        item = PyIter_Next(iterator);
+        item = (*Py_TYPE(iterator)->tp_iternext)(iterator);
         // Sequence contains an element and func is None: return it.
         if (func == NULL) {
             if (last != NULL) {
