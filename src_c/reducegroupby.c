@@ -138,6 +138,7 @@ A simple example::\n\
     ['bac', 'ba']\n\
 \n\
 One could also specify a `keepkey`::\n\
+\n\
     >>> dct = groupby2(['a', 'bac', 'ba', 'ab', 'abc'], key=itemgetter(0), keepkey=len)\n\
     >>> dct['a']\n\
     [1, 2, 3]\n\
