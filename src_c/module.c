@@ -6,6 +6,7 @@
 #include "functionscomplement.c"
 #include "reduceminmax.c"
 #include "reducefirst.c"
+#include "reducegroupby.c"
 #include "reduceilen.c"
 #include "reducenth.c"
 #include "reduceone.c"
@@ -91,6 +92,11 @@ iterationutils_methods[] = {
      (PyCFunction)reduce_one,
      METH_O,
      reduce_one_doc},
+
+    {"other_groupby",
+     (PyCFunction)reduce_groupby,
+     METH_VARARGS | METH_KEYWORDS,
+     reduce_groupby_doc},
 
     {"quantify",
      (PyCFunction)reduce_quantify,
