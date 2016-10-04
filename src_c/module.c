@@ -11,6 +11,7 @@
 #include "reduceone.c"
 #include "reducepartition.c"
 #include "reducequantify.c"
+#include "recipesuniquejust.c"
 #include "recipesuniqueever.c"
 #include "recipesaccumulate.c"
 #include "recipesapplyfunc.c"
@@ -151,6 +152,7 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
         &recipes_roundrobin_type,
         &recipes_successive_type,
         &recipes_uniqueever_type,
+        &recipes_uniquejust_type,
         NULL
     };
 
@@ -194,6 +196,7 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
         &recipes_roundrobin_type,
         &recipes_successive_type,
         &recipes_uniqueever_type,
+        &recipes_uniquejust_type,
         NULL
     };
 
