@@ -29,61 +29,51 @@ reduce_groupby(PyObject *self, PyObject *args, PyObject *kwds)
     }
 
     while ( (item = PyIter_Next(iterator)) ) {
+        // Key
         val = PyObject_CallFunctionObjArgs(key1, item, NULL);
         if (val == NULL) {
-            Py_DECREF(iterator);
-            Py_DECREF(resdict);
             Py_DECREF(item);
-            return NULL;
+            goto Fail;
         }
 
+        // Value
         if (key2 == NULL || key2 == Py_None) {
             keep = item;
         } else {
             keep = PyObject_CallFunctionObjArgs(key2, item, NULL);
-            if (keep == NULL) {
-                Py_DECREF(iterator);
-                Py_DECREF(resdict);
-                Py_DECREF(item);
-                Py_DECREF(val);
-                return NULL;
-            }
             Py_DECREF(item);
+            if (keep == NULL) {
+                Py_DECREF(val);
+                goto Fail;
+            }
         }
 
+        // Append or create new one
         lst = PyDict_GetItem(resdict, val);  // ignores any exception!!!
         if (lst == NULL) {
             lst = PyList_New(1);
             if (lst == NULL) {
-                Py_DECREF(iterator);
-                Py_DECREF(resdict);
                 Py_DECREF(keep);
                 Py_DECREF(val);
                 Py_DECREF(lst);
-                return NULL;
+                goto Fail;
             }
 
             PyList_SET_ITEM(lst, 0, keep);
             ok = PyDict_SetItem(resdict, val, lst);
-            if (ok < 0) {
-                Py_DECREF(iterator);
-                Py_DECREF(resdict);
-                Py_DECREF(lst);
-                Py_DECREF(val);
-                return NULL;
-            }
-            Py_DECREF(val);
             Py_DECREF(lst);
+            Py_DECREF(val);
+            if (ok < 0) {
+                goto Fail;
+            }
+
         } else {
             Py_DECREF(val);
             ok = PyList_Append(lst, keep);
-            if (ok < 0) {
-                Py_DECREF(iterator);
-                Py_DECREF(resdict);
-                Py_DECREF(keep);
-                return NULL;
-            }
             Py_DECREF(keep);
+            if (ok < 0) {
+                goto Fail;
+            }
         }
     }
 
@@ -95,6 +85,11 @@ reduce_groupby(PyObject *self, PyObject *args, PyObject *kwds)
     }
 
     return resdict;
+
+Fail:
+    Py_XDECREF(iterator);
+    Py_XDECREF(resdict);
+    return NULL;
 }
 
 
