@@ -8,6 +8,7 @@
 #include "reducefirst.c"
 #include "reducegroupby.c"
 #include "reduceilen.c"
+#include "reducelast.c"
 #include "reducenth.c"
 #include "reduceone.c"
 #include "reducepartition.c"
@@ -98,6 +99,11 @@ iterationutils_methods[] = {
      (PyCFunction)reduce_second,
      METH_VARARGS | METH_KEYWORDS,
      reduce_second_doc},
+
+    {"last",
+     (PyCFunction)reduce_last,
+     METH_VARARGS | METH_KEYWORDS,
+     reduce_last_doc},
 
     {"one",
      (PyCFunction)reduce_one,

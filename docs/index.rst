@@ -120,6 +120,7 @@ Additional recipes for iterations.
 - :py:func:`first`
 - :py:func:`groupby2`
 - :py:func:`ilen`
+- :py:func:`last`
 - :py:func:`minmax`
 - :py:func:`nth`
 - :py:func:`one`
