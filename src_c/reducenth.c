@@ -27,11 +27,9 @@ reduce_nth(PyObject *self, PyObject *args, PyObject *kwds)
             Py_DECREF(iterator);
             PyErr_Clear();
             if (defaultitem == NULL) {
-                Py_DECREF(item);
                 PyErr_Format(PyExc_IndexError, "not enough values.");
                 return NULL;
             } else {
-                Py_DECREF(item);
                 Py_INCREF(defaultitem);
                 return defaultitem;
             }
