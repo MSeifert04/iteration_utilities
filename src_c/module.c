@@ -47,6 +47,11 @@ iterationutils_methods[] = {
      METH_O,
      mathematical_square_doc},
 
+    {"one_over",
+     (PyCFunction)mathematical_oneover,
+     METH_O,
+     mathematical_oneover_doc},
+
     {"return_True",
      (PyCFunction)returnx_returnTrue,
      METH_VARARGS | METH_KEYWORDS,
