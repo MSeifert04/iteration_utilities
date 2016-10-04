@@ -123,6 +123,7 @@ Additional recipes for iterations.
 - :py:func:`first`
 - :py:func:`ilen`
 - :py:func:`minmax`
+- :py:func:`one`
 - :py:func:`partition`
 
 

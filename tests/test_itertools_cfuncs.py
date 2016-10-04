@@ -1391,6 +1391,58 @@ def test_complement_memoryleak():
     assert not memory_leak(test, **kwargs_memoryleak)
 
 
+def test_one():
+    one = iteration_utilities.one
+
+    assert one([0]) == 0
+    assert one('a') == 'a'
+    assert one({'o': 10}) == 'o'
+
+    with pytest.raises(TypeError):
+        one(10)
+
+    with pytest.raises(ValueError):  # empty iterable
+        one([])
+
+    with pytest.raises(ValueError):  # more than 1 element
+        one([1, 2])
+
+
+def test_one_memoryleak():
+    one = iteration_utilities.one
+
+    class Test(object):
+        def __init__(self, value):
+            self.value = value
+
+    def test():
+        one([Test(0)])
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        one('a')
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        one({Test(0): 10})
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):
+            one(Test(0))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(ValueError):  # empty iterable
+            one([])
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(ValueError):  # more than 1 element
+            one([1, 2])
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+
 @pytest.mark.xfail(iteration_utilities.PY2,
                    reason='Python 2 does not support this way of pickling.')
 def test_cfuncs_pickle():
