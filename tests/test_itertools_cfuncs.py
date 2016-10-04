@@ -1683,6 +1683,88 @@ def test_unique_justseen_memoryleak():
     assert not memory_leak(test, **kwargs_memoryleak)
 
 
+def test_groupby2():
+    groupby2 = iteration_utilities.groupby2
+
+    assert groupby2([], key=lambda x: x) == {}
+    assert groupby2(['a', 'ab', 'abc'],
+                    key=operator.itemgetter(0)) == {'a': ['a', 'ab', 'abc']}
+    assert groupby2(['a', 'ba', 'ab', 'abc', 'b'],
+                    key=operator.itemgetter(0)) == {'a': ['a', 'ab', 'abc'],
+                                                    'b': ['ba', 'b']}
+    assert groupby2(['a', 'ba', 'ab', 'abc', 'b'],
+                    key=operator.itemgetter(0),
+                    keepkey=len) == {'a': [1, 2, 3], 'b': [2, 1]}
+
+    with pytest.raises(TypeError):  # not iterable
+        groupby2(1, key=len)
+
+    with pytest.raises(TypeError):  # key func fails
+        groupby2([1, 2, 3], key=lambda x: x + 'a')
+
+    with pytest.raises(TypeError):  # keepkey func fails
+        groupby2([1, 2, 3], key=lambda x: x, keepkey=lambda x: x + 'a')
+
+    with pytest.raises(TypeError):  # unhashable
+        groupby2([{'a': 10}], key=lambda x: x)
+
+
+def test_groupby2_memoryleak():
+    groupby2 = iteration_utilities.groupby2
+
+    class Test(object):
+        def __init__(self, value):
+            self.value = value
+
+        def __eq__(self, other):
+            return self.value == other.value
+
+        def __hash__(self):
+            return hash(self.value)
+
+    def test():
+        groupby2([], key=lambda x: x)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        groupby2([Test('a'), Test('ab'), Test('abc')],
+                 key=lambda x: Test(x.value[0]))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        groupby2([Test('a'), Test('ba'), Test('ab'), Test('abc'), Test('b')],
+                 key=lambda x: Test(x.value[0]))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        groupby2([Test('a'), Test('ba'), Test('ab'), Test('abc'), Test('b')],
+                 key=lambda x: Test(x.value[0]),
+                 keepkey=lambda x: Test(len(x.value)))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):  # not iterable
+            groupby2(Test(1), key=lambda x: Test(len(x.value)))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):  # key func fails
+            groupby2([Test(1), Test(2), Test(3)],
+                     key=lambda x: Test(x.value + 'a'))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):  # keepkey func fails
+            groupby2([Test(1), Test(2), Test(3)],
+                     key=lambda x: x, keepkey=lambda x: Test(x.value + 'a'))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):  # unhashable
+            groupby2([{Test('a'): Test(10)}], key=lambda x: x)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+
 @pytest.mark.xfail(iteration_utilities.PY2,
                    reason='Python 2 does not support this way of pickling.')
 def test_cfuncs_pickle():

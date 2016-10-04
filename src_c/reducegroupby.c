@@ -41,7 +41,7 @@ reduce_groupby(PyObject *self, PyObject *args, PyObject *kwds)
             keep = item;
         } else {
             keep = PyObject_CallFunctionObjArgs(key2, item, NULL);
-            if (val == NULL) {
+            if (keep == NULL) {
                 Py_DECREF(iterator);
                 Py_DECREF(resdict);
                 Py_DECREF(item);
@@ -54,15 +54,28 @@ reduce_groupby(PyObject *self, PyObject *args, PyObject *kwds)
         lst = PyDict_GetItem(resdict, val);  // ignores any exception!!!
         if (lst == NULL) {
             lst = PyList_New(1);
+            if (lst == NULL) {
+                Py_DECREF(iterator);
+                Py_DECREF(resdict);
+                Py_DECREF(keep);
+                Py_DECREF(val);
+                Py_DECREF(lst);
+                return NULL;
+            }
+
             PyList_SET_ITEM(lst, 0, keep);
             ok = PyDict_SetItem(resdict, val, lst);
             if (ok < 0) {
                 Py_DECREF(iterator);
                 Py_DECREF(resdict);
                 Py_DECREF(lst);
+                Py_DECREF(val);
                 return NULL;
             }
+            Py_DECREF(val);
+            Py_DECREF(lst);
         } else {
+            Py_DECREF(val);
             ok = PyList_Append(lst, keep);
             if (ok < 0) {
                 Py_DECREF(iterator);
@@ -70,8 +83,10 @@ reduce_groupby(PyObject *self, PyObject *args, PyObject *kwds)
                 Py_DECREF(keep);
                 return NULL;
             }
+            Py_DECREF(keep);
         }
     }
+
     Py_DECREF(iterator);
 
     if (PyErr_Occurred()) {
@@ -116,11 +131,17 @@ A simple example::\n\
 \n\
     >>> from iteration_utilities import groupby2\n\
     >>> from operator import itemgetter\n\
-    >>> groupby2(['a', 'bac', 'ba', 'ab', 'abc'], key=itemgetter(0))\n\
-    {'a': ['a', 'ab', 'abc'], 'b': ['bac', 'ba']}\n\
+    >>> dct = groupby2(['a', 'bac', 'ba', 'ab', 'abc'], key=itemgetter(0))\n\
+    >>> dct['a']\n\
+    ['a', 'ab', 'abc']\n\
+    >>> dct['b']\n\
+    ['bac', 'ba']\n\
 \n\
 One could also specify a `keepkey`::\n\
-    >>> groupby2(['a', 'bac', 'ba', 'ab', 'abc'], key=itemgetter(0), keepkey=len)\n\
-    {'a': [1, 2, 3], 'b': [3, 2]}\n\
+    >>> dct = groupby2(['a', 'bac', 'ba', 'ab', 'abc'], key=itemgetter(0), keepkey=len)\n\
+    >>> dct['a']\n\
+    [1, 2, 3]\n\
+    >>> dct['b']\n\
+    [3, 2]\n\
 \n\
 ");
