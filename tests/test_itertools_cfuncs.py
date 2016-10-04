@@ -1560,12 +1560,12 @@ def test_quantify_memoryleak():
     assert not memory_leak(test, **kwargs_memoryleak)
 
     def test():
-        with pytest.raises(TypeError):
+        with pytest_raises(TypeError):
             quantify(Test(1))
     assert not memory_leak(test, **kwargs_memoryleak)
 
     def test():
-        with pytest.raises(TypeError):
+        with pytest_raises(TypeError):
             quantify([Test(1)], Test(1))
     assert not memory_leak(test, **kwargs_memoryleak)
 
