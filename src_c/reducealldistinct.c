@@ -21,7 +21,6 @@ reduce_alldistinct(PyObject *self, PyObject *iterable)
     PyObject *item=NULL;
     PyObject *seen=NULL;
     PyObject *seenlist=NULL;
-
     int ok;
 
     it = PyObject_GetIter(iterable);
@@ -46,14 +45,11 @@ reduce_alldistinct(PyObject *self, PyObject *iterable)
             }
 
         } else if (ok == 1) {
-            Py_XDECREF(it);
-            Py_XDECREF(seen);
-            Py_XDECREF(seenlist);
-            Py_XDECREF(item);
-            Py_RETURN_FALSE;
+            goto Found;
 
         } else {
-            /* Error when checking if the value is in the set.*/
+            // TypeError when checking if the value is in the set.
+            // this means the value is not hashable
             if (PyErr_Occurred()) {
                 if (PyErr_ExceptionMatches(PyExc_TypeError)) {
                     PyErr_Clear();
@@ -62,6 +58,7 @@ reduce_alldistinct(PyObject *self, PyObject *iterable)
                 }
             }
 
+            // Create a list for the unhashable values
             if (seenlist == NULL) {
                 seenlist = PyList_New(0);
                 if (seenlist == NULL) {
@@ -78,11 +75,7 @@ reduce_alldistinct(PyObject *self, PyObject *iterable)
                 }
 
             } else if (ok == 1) {
-                Py_XDECREF(it);
-                Py_XDECREF(seen);
-                Py_XDECREF(seenlist);
-                Py_XDECREF(item);
-                Py_RETURN_FALSE;
+                goto Found;
 
             } else {
                 goto Fail;  // untested code path
@@ -92,6 +85,7 @@ reduce_alldistinct(PyObject *self, PyObject *iterable)
         Py_DECREF(item);
     }
 
+    // Prevent to return a pending StopIteration exception from tp_iternext.
     PyErr_Clear();
 
     Py_XDECREF(it);
@@ -107,6 +101,13 @@ Fail:
     Py_XDECREF(seenlist);
     Py_XDECREF(item);
     return NULL;
+
+Found:
+    Py_XDECREF(it);
+    Py_XDECREF(seen);
+    Py_XDECREF(seenlist);
+    Py_XDECREF(item);
+    Py_RETURN_FALSE;
 }
 
 
