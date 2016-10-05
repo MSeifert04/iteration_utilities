@@ -58,7 +58,7 @@ def test_applyfunc_pickle1():
     assert next(pickle.loads(x)) == 16
 
     def test():
-        apf = applyfunc(iteration_utilities.square, 2)
+        apf = applyfunc(lambda x: x**T(2), T(2))
         next(apf)
         x = pickle.dumps(apf)
         next(pickle.loads(x))

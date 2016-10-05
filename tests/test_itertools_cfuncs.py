@@ -15,67 +15,6 @@ from helper_leak import memory_leak
 from helper_pytest_monkeypatch import pytest_raises
 
 
-def test_successive():
-    successive = iteration_utilities.successive
-
-    assert list(successive([])) == []
-    assert list(successive([1])) == []
-    assert list(successive([], times=10)) == []
-    assert list(successive([1, 2, 3, 4, 5], times=10)) == []
-
-    assert list(successive(range(4))) == [(0, 1), (1, 2), (2, 3)]
-    assert list(successive(range(4), times=3)) == [(0, 1, 2), (1, 2, 3)]
-    assert list(successive(range(4), times=4)) == [(0, 1, 2, 3)]
-
-    with pytest.raises(TypeError):
-        successive(10)
-
-    with pytest.raises(ValueError):  # times must be > 0
-        successive([1, 2, 3], 0)
-
-
-def test_successive_memoryleak():
-    successive = iteration_utilities.successive
-
-    class Test(object):
-        def __init__(self, value):
-            self.value = value
-
-    def test():
-        list(successive([]))
-    assert not memory_leak(test)
-
-    def test():
-        list(successive([Test(1)]))
-    assert not memory_leak(test)
-
-    def test():
-        list(successive([Test(1), Test(2), Test(3)], times=10))
-    assert not memory_leak(test)
-
-    def test():
-        list(successive([Test(1), Test(2), Test(3), Test(4)]))
-    assert not memory_leak(test)
-
-    def test():
-        list(successive([Test(1), Test(2), Test(3), Test(4)], times=3))
-    assert not memory_leak(test)
-
-    def test():
-        list(successive([Test(1), Test(2), Test(3), Test(4)], times=4))
-    assert not memory_leak(test)
-
-    def test():
-        with pytest_raises(TypeError):
-            successive(Test(1))
-    assert not memory_leak(test)
-
-    def test():
-        with pytest_raises(ValueError):  # times must be > 0
-            successive([Test(1), Test(2), Test(3)], 0)
-    assert not memory_leak(test)
-
-
 def test_roundrobin():
     roundrobin = iteration_utilities.roundrobin
 
@@ -1439,19 +1378,12 @@ def test_cfuncs_pickle():
     intersperse = iteration_utilities.intersperse
     merge = iteration_utilities.merge
     unique_justseen = iteration_utilities.unique_justseen
-    successive = iteration_utilities.successive
     roundrobin = iteration_utilities.roundrobin
     complement = iteration_utilities.complement
     compose = iteration_utilities.compose
 
     # IMPORTANT: methoddescriptors like "str.lower" as key functions can not
     #            be pickled before python 3.4
-
-    # ----- Successive
-    suc = successive([1, 2, 3, 4])
-    assert next(suc) == (1, 2)
-    x = pickle.dumps(suc)
-    assert list(pickle.loads(x)) == [(2, 3), (3, 4)]
 
     # ----- Roundrobin
     rr = roundrobin([1, 2, 3], [1, 2, 3])
