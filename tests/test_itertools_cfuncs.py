@@ -2215,6 +2215,15 @@ def test_alldistinct_memoryleak():
 def test_all_equal():
     all_equal = iteration_utilities.all_equal
 
+    class Test(object):
+        def __init__(self, value):
+            self.value = value
+
+        def __eq__(self, other):
+            if type(self.value) != type(other.value):
+                raise TypeError('simulated failure.')
+            return self.value == other.value
+
     assert all_equal([])
     assert all_equal([1, 1, 1])
     assert not all_equal([1, 1, 2])
@@ -2224,7 +2233,7 @@ def test_all_equal():
 
     if not iteration_utilities.PY2:
         with pytest.raises(TypeError):  # comparison fail
-            all_equal([1, 'a'])
+            all_equal([Test(1), Test('a')])
 
 
 def test_all_equal_memoryleak():
