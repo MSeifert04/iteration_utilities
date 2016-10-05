@@ -4,6 +4,7 @@
 #include "returnx.c"
 #include "mathematical.c"
 #include "functionscomplement.c"
+#include "reducealldistinct.c"
 #include "reduceminmax.c"
 #include "reducefirst.c"
 #include "reducegroupby.c"
@@ -94,6 +95,11 @@ iterationutils_methods[] = {
      (PyCFunction)returnx_returnFirstPositionalArgument,
      METH_VARARGS | METH_KEYWORDS,
      returnx_returnFirstPositionalArgument_doc},
+
+    {"all_distinct",
+     (PyCFunction)reduce_alldistinct,
+     METH_O,
+     reduce_alldistinct_doc},
 
     {"minmax",
      (PyCFunction)reduce_minmax,

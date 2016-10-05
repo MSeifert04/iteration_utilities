@@ -116,6 +116,7 @@ Additional recipes for iterations.
 
 .. py:currentmodule:: iteration_utilities._cfuncs
 
+- :py:func:`all_distinct`
 - :py:func:`first`
 - :py:func:`groupby2`
 - :py:func:`ilen`
