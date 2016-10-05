@@ -57,10 +57,9 @@ Examples\n\
 Some basic examples::\n\
 \n\
     >>> from iteration_utilities import one\n\
-    >>> first([0])\n\
+    >>> one([0])\n\
     0\n\
-    >>> from iteration_utilities import one\n\
-    >>> first('b')\n\
+    >>> one('b')\n\
     'b'\n\
 \n\
 .. warning::\n\

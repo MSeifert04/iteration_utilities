@@ -2,6 +2,7 @@ static PyObject *
 reduce_nth(PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyObject *iterable, *defaultitem=NULL, *func=NULL;
+    PyObject *(*iternext)(PyObject *);
     Py_ssize_t n;
     int truthy=1, retpred=0;
 
@@ -23,11 +24,16 @@ reduce_nth(PyObject *self, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
-    for (i=0 ; i<=n ; ) {
-        item = (*Py_TYPE(iterator)->tp_iternext)(iterator);
+    iternext = *Py_TYPE(iterator)->tp_iternext;
+
+    for (i=0 ; i<=n || n < 0; ) {
+        item = iternext(iterator);
         if (item == NULL) {
-            Py_XDECREF(last);
-            last = NULL;
+            // Keep the last one in case we looked for the last one.
+            if (n >= 0) {
+                Py_XDECREF(last);
+                last = NULL;
+            }
             break;
         }
         // Sequence contains an element and func is None: return it.
@@ -109,43 +115,86 @@ reduce_nth(PyObject *self, PyObject *args, PyObject *kwds)
 
 PyDoc_STRVAR(reduce_nth_doc, "nth(iterable, n[, default])\n\
 \n\
-Returns the `n`-th item or a `default` value.\n\
+Returns the `n`-th value in the `iterable` or `default`.\n\
 \n\
 Parameters\n\
 ----------\n\
 iterable : iterable\n\
-    The `iterable` from which to take the item.\n\
+    The `iterable` for which to determine the nth value.\n\
 \n\
-n : :py:class:`int`\n\
-    Index of the item.\n\
+n : int\n\
+    The index of the wanted item. If negative the last item is searched.\n\
 \n\
 default : any type, optional\n\
-    `Default` value if the iterable doesn't contain the index.\n\
-    Default is ``None``.\n\
+    If no nth value is found and `default` is given the `default` is \n\
+    returned.\n\
+\n\
+pred : callable, optional\n\
+    If given return the nth item for which ``pred(item)`` is ``True``.\n\
+\n\
+truthy : bool, optional\n\
+    If ``False`` search for the nth item for which ``pred(item)`` is ``False``.\n\
+    Default is ``True``.\n\
+\n\
+    .. note::\n\
+       Parameter is ignored if `pred` is not given.\n\
+\n\
+retpred : bool, optional\n\
+    If given return ``pred(item)`` instead of ``item``.\n\
+    Default is ``False``.\n\
+\n\
+    .. note::\n\
+       Parameter is ignored if `pred` is not given.\n\
 \n\
 Returns\n\
 -------\n\
-nth_item : any type\n\
-    The `n`-th item of the `iterable` or `default` if the index wasn't\n\
-    present in the `iterable`.\n\
+nth : any type\n\
+    The last value or the nth value for which `pred` is ``True``.\n\
+    If there is no such value then `default` is returned.\n\
 \n\
 Raises\n\
-------\n\
-IndexError\n\
-    If the `iterable` contains less than `n` items and `default` is not given.\n\
+-------\n\
+TypeError :\n\
+    If there is no nth element and no `default` is given.\n\
 \n\
 Examples\n\
 --------\n\
-Without `default` value::\n\
+Some basic examples including the use of ``pred``::\n\
 \n\
     >>> from iteration_utilities import nth\n\
-    >>> g = (x**2 for x in range(10))\n\
-    >>> nth(g, 5)\n\
-    25\n\
-\n\
-Or with `default` if the index is not present::\n\
-\n\
-    >>> g = (x**2 for x in range(10))\n\
-    >>> nth(g, 15, 0)\n\
+    >>> # First item\n\
+    >>> nth([0, 1, 2], 0)\n\
     0\n\
+    >>> # Second item\n\
+    >>> nth([0, 1, 2], 1)\n\
+    1\n\
+    >>> # Last item\n\
+    >>> nth([0, 1, 2], -1)\n\
+    2\n\
+    \n\
+    >>> nth([0, 10, '', tuple(), 20], 1, pred=bool)\n\
+    20\n\
+    \n\
+    >>> # second odd number\n\
+    >>> nth([0, 2, 3, 5, 8, 9, 10], 1, pred=lambda x: x%2)\n\
+    5\n\
+    \n\
+    >>> # default value if empty or no true value\n\
+    >>> nth([], 0, default=100)\n\
+    100\n\
+    >>> nth([0, 10, 0, 0], -1, pred=bool, default=100)\n\
+    10\n\
+\n\
+Given a `pred` it is also possible to look for the nth ``False`` value and \n\
+return the result of ``pred(item)``::\n\
+\n\
+    >>> nth([1,2,0], 1, pred=bool)\n\
+    2\n\
+    >>> nth([1,0,2,0], -1, pred=bool, truthy=False)\n\
+    0\n\
+    >>> import operator\n\
+    >>> nth([[0,3], [0,1], [0,2]], -1, pred=operator.itemgetter(1))\n\
+    [0, 2]\n\
+    >>> nth([[0,3], [0,1], [0,2]], -1, pred=operator.itemgetter(1), retpred=True)\n\
+    2\n\
 ");
