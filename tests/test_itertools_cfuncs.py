@@ -2,7 +2,6 @@
 from __future__ import absolute_import, division, print_function
 import itertools
 import operator
-import weakref
 
 # 3rd party
 import pytest
@@ -11,448 +10,8 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_doctest import doctest_module_no_failure
 from helper_leak import memory_leak
 from helper_pytest_monkeypatch import pytest_raises
-
-
-kwargs_memoryleak = {'exclude_object': weakref.ref}
-
-
-def test_doctests():
-    # classes are added to the main module code. :-)
-    doctest_module_no_failure(iteration_utilities)
-    doctest_module_no_failure(iteration_utilities._cfuncs)
-
-
-def test_minmax():
-    minmax = iteration_utilities.minmax
-    # Test some inputs
-    assert minmax([1]) == (1, 1)
-    assert minmax([1, 2]) == (1, 2)
-    assert minmax([2, 1]) == (1, 2)
-    assert minmax([1, 2, 3]) == (1, 3)
-    assert minmax([1, 3, 2]) == (1, 3)
-    # Other input types
-    assert minmax(range(100)) == (0, 99)
-    assert minmax(range(101)) == (0, 100)
-    assert minmax({1, 2, -3}) == (-3, 2)
-    assert minmax({1: 0, 2: 0, 3: 0}) == (1, 3)
-    # Test multiple args instead of one sequence
-    assert minmax(1, 2, 3) == (1, 3)
-    assert minmax(4, 3, 2, 1) == (1, 4)
-    # Test key-function
-    assert minmax('a', 'b', 'c',
-                  key=operator.methodcaller('upper')) == ('a', 'c')
-    assert minmax((1, 2), (2, 3), (3, 1),
-                  key=operator.itemgetter(1)) == ((3, 1), (2, 3))
-    # Test default value
-    assert minmax([], default=10) == (10, 10)
-
-    # Test stablility
-    assert minmax([(1, 5)],
-                  key=operator.itemgetter(0)) == ((1, 5), (1, 5))
-    assert minmax((1, 5), (1, 1),
-                  key=operator.itemgetter(0)) == ((1, 5), (1, 5))
-    assert minmax((1, 5), (1, 1), (1, 2),
-                  key=operator.itemgetter(0)) == ((1, 5), (1, 5))
-    assert minmax((1, 5), (1, 1), (1, 2), (1, 3),
-                  key=operator.itemgetter(0)) == ((1, 5), (1, 5))
-    assert minmax((5, 5), (1, 5), (1, 2), (1, 3),
-                  key=operator.itemgetter(0)) == ((1, 5), (5, 5))
-    assert minmax((5, 5), (3, 5), (1, 5), (1, 3),
-                  key=operator.itemgetter(0)) == ((1, 5), (5, 5))
-    assert minmax((5, 5), (3, 5), (4, 5), (1, 5),
-                  key=operator.itemgetter(0)) == ((1, 5), (5, 5))
-
-    # Test exceptions
-    with pytest.raises(TypeError):  # No args
-        minmax()
-    with pytest.raises(ValueError):  # empty sequence no default
-        minmax([])
-    with pytest.raises(TypeError):  # invalid kwarg
-        minmax(1, 2, invalid_kw='a')
-    with pytest.raises(TypeError):  # default with multiple args
-        minmax(1, 2, default=10)
-    with pytest.raises(TypeError):  # arg is not iterable
-        minmax(100)
-    with pytest.raises(TypeError):  # func fails on odd numbered arg
-        minmax(100, 'a', key=lambda x: x + '')
-    with pytest.raises(TypeError):  # func fails on even numbered arg
-        minmax('a', 100, key=lambda x: x + '')
-    if not iteration_utilities.PY2:
-        with pytest.raises(TypeError):  # unable to compare first and second
-            minmax(100, 'a')
-        with pytest.raises(TypeError):  # unable to compare third and fourth
-            minmax(100, 20, 100, 'a')
-        with pytest.raises(TypeError):  # unable to compare first and third
-            minmax(1, 20, 'a', 'c')
-        with pytest.raises(TypeError):  # unable to compare second and fourth
-            # This is tricky. The elements are explicitly chosen so that
-            # 1 compares with 2 without error: 1 current min, 2 current max
-            # 3 compares with 4: 3 < 4
-            # 3 compares with 1: 1 still current minimum
-            # 4 compares not with 2 because the first element is equal and then
-            # the comparison with the second element throws and error because
-            # str and int are not compareable.
-            minmax((100, 'a'), (200, 10), (150, 'b'), (200, 'd'))
-
-
-def test_minmax_memoryleak():
-    minmax = iteration_utilities.minmax
-
-    class Test(object):
-        def __init__(self, value):
-            self.value = value
-
-        def __gt__(self, other):
-            return self.value > other.value
-
-        def __lt__(self, other):
-            return self.value < other.value
-
-    # Test some inputs
-    def test():
-        minmax([Test(1)])
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        minmax([Test(1), Test(2)])
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        minmax([Test(2), Test(1)])
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        minmax([Test(1), Test(2), Test(3)])
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        minmax([Test(1), Test(3), Test(2)])
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    # Other input types
-    def test():
-        minmax(map(Test, range(100)))
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        minmax(map(Test, range(101)))
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        minmax({Test(1), Test(2), Test(-3)})
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        minmax({Test(1): Test(0), Test(2): Test(0), Test(3): Test(0)})
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    # Test multiple args instead of one sequence
-    def test():
-        minmax(Test(1), Test(2), Test(3))
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        minmax(Test(4), Test(3), Test(2), Test(1))
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    # Test key-function
-    def test():
-        minmax(Test('a'), Test('b'), Test('c'), key=lambda x: x.value.upper())
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        minmax(Test((Test(1), Test(2))), Test((Test(2), Test(3))),
-               Test((Test(3), Test(1))), key=lambda x: x.value[1])
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    # Test default value
-    def test():
-        minmax([], default=Test(10))
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    # Test stablility
-    def test():
-        minmax([Test((Test(1), Test(5)))], key=lambda x: x.value[0])
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        minmax(Test((Test(1), Test(5))), Test((Test(1), Test(1))),
-               key=lambda x: x.value[0])
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        minmax(Test((Test(1), Test(5))), Test((Test(1), Test(1))),
-               Test((Test(1), Test(2))), key=lambda x: x.value[0])
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        minmax(Test((Test(1), Test(5))), Test((Test(1), Test(1))),
-               Test((Test(1), Test(2))), Test((Test(1), Test(3))),
-               key=lambda x: x.value[0])
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        minmax(Test((Test(5), Test(5))), Test((Test(1), Test(5))),
-               Test((Test(1), Test(2))), Test((Test(1), Test(3))),
-               key=lambda x: x.value[0])
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        minmax(Test((Test(5), Test(5))), Test((Test(3), Test(5))),
-               Test((Test(1), Test(5))), Test((Test(1), Test(3))),
-               key=lambda x: x.value[0])
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        minmax(Test((Test(5), Test(5))), Test((Test(3), Test(5))),
-               Test((Test(4), Test(5))), Test((Test(1), Test(5))),
-               key=lambda x: x.value[0])
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    # Test exceptions
-    def test():
-        with pytest_raises(TypeError):  # No args
-            minmax()
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        with pytest_raises(ValueError):  # empty sequence no default
-            minmax([])
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        with pytest_raises(TypeError):  # invalid kwarg
-            minmax(Test(1), Test(2), invalid_kw='a')
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        with pytest_raises(TypeError):  # default with multiple args
-            minmax(Test(1), Test(2), default=Test(10))
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        with pytest_raises(TypeError):  # arg is not iterable
-            minmax(Test(100))
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        with pytest_raises(TypeError):  # func fails on odd numbered arg
-            minmax(Test(100), Test('a'), key=lambda x: x.value + '')
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        with pytest_raises(TypeError):  # func fails on even numbered arg
-            minmax(Test('a'), Test(100), key=lambda x: x.value + '')
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    if not iteration_utilities.PY2:
-        def test():
-            with pytest_raises(TypeError):  # unable to compare 1 and 2
-                minmax(Test(100), Test('a'))
-        assert not memory_leak(test, **kwargs_memoryleak)
-
-        def test():
-            with pytest_raises(TypeError):  # unable to compare 3 and 4
-                minmax(Test(100), Test(20), Test(100), Test('a'))
-        assert not memory_leak(test, **kwargs_memoryleak)
-
-        def test():
-            with pytest_raises(TypeError):  # unable to compare 1 and 3
-                minmax(Test(1), Test(20), Test('a'), Test('c'))
-        assert not memory_leak(test, **kwargs_memoryleak)
-
-        def test():
-            with pytest_raises(TypeError):  # unable to compare 2 and 4
-                # This is tricky. The elements are explicitly chosen so that
-                # 1 compares with 2 without error: 1 current min, 2 current max
-                # 3 compares with 4: 3 < 4
-                # 3 compares with 1: 1 still current minimum
-                # 4 compares not with 2 because the first element is equal and
-                # then the comparison with the second element throws and error
-                # because str and int are not compareable.
-                minmax(Test((100, 'a')), Test((200, 10)),
-                       Test((150, 'b')), Test((200, 'd')))
-        assert not memory_leak(test, **kwargs_memoryleak)
-
-
-def test_accumulate():
-    accumulate = iteration_utilities.accumulate
-
-    # Test one-argument form
-    assert list(accumulate([])) == []
-    assert list(accumulate([1, 2, 3])) == [1, 3, 6]
-
-    # Test multiple accumulators
-    assert list(accumulate(None, [])) == []
-    assert list(accumulate(None, [1, 2, 3, 4])) == [1, 3, 6, 10]
-    assert list(accumulate(operator.add, [1, 2, 3, 4])) == [1, 3, 6, 10]
-    assert list(accumulate(operator.mul, [1, 2, 3, 4])) == [1, 2, 6, 24]
-
-    # Start value
-    assert list(accumulate(None, [1, 2, 3], 10)) == [11, 13, 16]
-
-    # failures
-    with pytest.raises(TypeError):
-        list(accumulate(None, [1, 2, 3], 'a'))
-
-    with pytest.raises(TypeError):
-        list(accumulate(operator.add, [1, 2, 3], 'a'))
-
-    with pytest.raises(TypeError):
-        list(accumulate(['a', 2, 3]))
-
-
-def test_accumulate_memoryleak():
-    accumulate = iteration_utilities.accumulate
-
-    class Test(object):
-        def __init__(self, value):
-            self.value = value
-
-        def __add__(self, other):
-            return self.__class__(self.value + other.value)
-
-        def __mul__(self, other):
-            return self.__class__(self.value * other.value)
-
-    def test():
-        list(accumulate([]))
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        list(accumulate([Test(1), Test(2), Test(3)]))
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        list(accumulate(None, []))
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        list(accumulate(None, [Test(1), Test(2), Test(3)]))
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        list(accumulate(operator.add, [Test(1), Test(2), Test(3)]))
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        list(accumulate(operator.mul, [Test(1), Test(2), Test(3)]))
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        list(accumulate(operator.add, [Test(1), Test(2), Test(3)], Test(10)))
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        with pytest_raises(TypeError):
-            list(accumulate(operator.add,
-                            [Test(1), Test(2), Test(3)],
-                            Test('a')))
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        with pytest_raises(TypeError):
-            list(accumulate(None,
-                            [Test(1), Test(2), Test(3)],
-                            Test('a')))
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        with pytest_raises(TypeError):
-            list(accumulate([Test('a'), Test(2), Test(3)]))
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-
-def test_partition():
-    partition = iteration_utilities.partition
-    # One argument form
-    assert partition([]) == ([], [])
-    assert partition([0, 1, 2]) == ([0], [1, 2])
-    assert partition([3, 1, 0]) == ([0], [3, 1])
-    assert partition([0, 0, 0]) == ([0, 0, 0], [])
-    assert partition([1, 1, 1]) == ([], [1, 1, 1])
-
-    # With predicate function
-    assert partition([0, 1, 2], lambda x: x > 1) == ([0, 1], [2])
-    assert partition([0, 1, 2], lambda x: x < 1) == ([1, 2], [0])
-
-    # not-iterable
-    with pytest.raises(TypeError):
-        partition(10)
-    with pytest.raises(TypeError):
-        partition([1, 2, 3, 4, 'a'], lambda x: x + 3)
-    with pytest.raises(TypeError):
-        partition([1, 2, 3, 4, 'a'], lambda x: x - 3)
-    with pytest.raises(TypeError):
-        partition([1, 2, 3, 4, 'a'], lambda x: x + 'a')
-
-
-def test_partition_memoryleak():
-    partition = iteration_utilities.partition
-
-    class Test(object):
-        def __init__(self, value):
-            self.value = value
-
-        def __bool__(self):
-            return bool(self.value)
-
-        def __nonzero__(self):
-            return bool(self.value)
-
-    # One argument form
-    def test():
-        partition([])
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        partition([Test(0), Test(1), Test(2)])
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        partition([Test(3), Test(1), Test(0)])
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        partition([Test(0), Test(0), Test(0)])
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        partition([Test(1), Test(1), Test(1)])
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    # With predicate function
-    def test():
-        partition([Test(0), Test(1), Test(2)], lambda x: x.value > 1)
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        partition([Test(0), Test(1), Test(2)], lambda x: x.value < 1)
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    # not-iterable
-    def test():
-        with pytest_raises(TypeError):
-            partition(Test(10))
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        with pytest_raises(TypeError):
-            partition([Test(1), Test('a')], lambda x: x.value + 3)
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        with pytest_raises(TypeError):
-            partition([Test(1), Test('a')], lambda x: x.value - 1)
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        with pytest_raises(TypeError):
-            partition([Test(1), Test('a')], lambda x: x.value + 'a')
-    assert not memory_leak(test, **kwargs_memoryleak)
 
 
 def test_unique_everseen():
@@ -492,48 +51,48 @@ def test_unique_everseen_memoryleak():
 
     def test():
         list(unique_everseen([]))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(unique_everseen([Test(1), Test(2), Test(3)]))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(unique_everseen([Test(1), Test(2), Test(1)],
                              lambda x: abs(x.value)))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(unique_everseen([Test(1), Test(1), Test(-1)],
                              lambda x: abs(x.value)))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # unhashable types
     def test():
         list(unique_everseen([{Test(1): Test(1)}, {Test(2): Test(2)},
                               {Test(1): Test(1)}]))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(unique_everseen([[Test(1)], [Test(2)], [Test(1)]]))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(unique_everseen([[Test(1), Test(1)], [Test(1), Test(2)],
                               [Test(1), Test(3)]], operator.itemgetter(0)))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # failures
     def test():
         with pytest_raises(TypeError):
             list(unique_everseen(Test(10)))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             list(unique_everseen([Test(1), Test(2), Test(3), Test('a')],
                                  lambda x: abs(x.value)))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
 
 def test_first():
@@ -595,95 +154,95 @@ def test_first_memoryleak():
 
     def test():
         first([Test(1), Test(2), Test(3)])
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # With pred
     def test():
         first([Test(0), Test(1), Test(2)], pred=bool)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         first([Test(0), Test(1), Test(2)], pred=None)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         first([Test(0)]*100 + [Test(1)], pred=bool)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         first([[Test(0)], [Test(1), Test(2)]], pred=lambda x: len(x) > 1)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # pred with truthy/retpred
     def test():
         first([Test(0), Test(2), Test(3)],
               pred=bool, truthy=False)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         first([Test(0), Test(2), Test(3)],
               pred=bool, truthy=False, retpred=True)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         first([Test(0), Test(2), Test(3)],
               pred=lambda x: x**Test(2), truthy=False)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         first([Test(0), Test(2), Test(3)],
               pred=lambda x: x**Test(2), truthy=False, retpred=True)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         first([Test(0), Test(2), Test(3)],
               pred=bool)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         first([Test(0), Test(2), Test(3)],
               pred=bool, retpred=True)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         first([Test(0), Test(2), Test(3)],
               pred=lambda x: x**Test(2))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         first([Test(0), Test(2), Test(3)],
               pred=lambda x: x**Test(2), retpred=True)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # With default
     def test():
         first([], default=None) is None
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         first([Test(0), Test(0), Test(0)], default=None, pred=bool) is None
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # failures
     def test():
         with pytest_raises(TypeError):
             first([])
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             first(Test(100))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             first([Test(0)], pred=bool)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             first([Test('a'), Test('b')], pred=lambda x: abs(x.value))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
 
 def test_second():
@@ -752,100 +311,100 @@ def test_second_memoryleak():
 
     def test():
         second([Test(1), Test(2), Test(3)])
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # With pred
     def test():
         second([Test(0), Test(1), Test(2)], pred=bool)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         second([Test(0), Test(1), Test(2)], pred=None)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         second([Test(0)]*100 + [Test(1)]*2, pred=bool)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         second([[Test(0)], [Test(1), Test(2)]]*2, pred=lambda x: len(x) > 1)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # pred with truthy/retpred
     def test():
         second([Test(0), Test(2), Test(3), Test(0)],
                pred=bool, truthy=False)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         second([Test(0), Test(2), Test(3), Test(0)],
                pred=bool, truthy=False, retpred=True)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         second([Test(0), Test(2), Test(3), Test(0)],
                pred=lambda x: x**Test(2), truthy=False)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         second([Test(0), Test(2), Test(3), Test(0)],
                pred=lambda x: x**Test(2), truthy=False, retpred=True)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         second([Test(0), Test(2), Test(3)],
                pred=bool)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         second([Test(0), Test(2), Test(3)],
                pred=bool, retpred=True)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         second([Test(0), Test(2), Test(3)],
                pred=lambda x: x**Test(2))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         second([Test(0), Test(2), Test(3)],
                pred=lambda x: x**Test(2), retpred=True)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # With default
     def test():
         second([], default=None) is None
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         second([Test(0), Test(0), Test(0)], default=None, pred=bool) is None
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # failures
     def test():
         with pytest_raises(TypeError):
             second([])
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             second([Test(0)])
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             second(Test(100))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             second([Test(1)], pred=bool)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             second([Test('a'), Test('b')], pred=lambda x: abs(x.value))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
 
 def test_last():
@@ -908,87 +467,87 @@ def test_last_memoryleak():
 
     def test():
         last([Test(1), Test(2), Test(3)])
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # With pred
     def test():
         last([Test(0), Test(1), Test(2)], pred=bool)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         last([Test(0), Test(1), Test(2)], pred=None)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         last([Test(0)]*100 + [Test(1)]*2, pred=bool)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         last([[Test(0)], [Test(1), Test(2)]]*2, pred=lambda x: len(x) > 1)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # pred with truthy/retpred
     def test():
         last([Test(0), Test(2), Test(3), Test(0)],
              pred=bool, truthy=False)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         last([Test(0), Test(2), Test(3), Test(0)],
              pred=bool, truthy=False, retpred=True)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         last([Test(0), Test(2), Test(3), Test(0)],
              pred=lambda x: x**Test(2), truthy=False)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         last([Test(0), Test(2), Test(3), Test(0)],
              pred=lambda x: x**Test(2), truthy=False, retpred=True)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         last([Test(0), Test(2), Test(3)], pred=bool)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         last([Test(0), Test(2), Test(3)], pred=bool, retpred=True)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         last([Test(0), Test(2), Test(3)], pred=lambda x: x**Test(2))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         last([Test(0), Test(2), Test(3)],
              pred=lambda x: x**Test(2), retpred=True)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # With default
     def test():
         last([], default=None) is None
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         last([Test(0), Test(0), Test(0)], default=None, pred=bool) is None
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # failures
     def test():
         with pytest_raises(TypeError):
             last([])
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             last(Test(100))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             last([Test('a'), Test('b')], pred=lambda x: abs(x.value))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
 
 def test_applyfunc():
@@ -1015,16 +574,16 @@ def test_applyfunc_memoryleak():
 
     def test():
         take(applyfunc(lambda x: x**Test(2), Test(2)), 3)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         take(applyfunc(lambda x: x, Test(2)), 3)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             take(applyfunc(lambda x: x**Test(2), Test('a')), 3)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
 
 def test_successive():
@@ -1055,37 +614,37 @@ def test_successive_memoryleak():
 
     def test():
         list(successive([]))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(successive([Test(1)]))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(successive([Test(1), Test(2), Test(3)], times=10))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(successive([Test(1), Test(2), Test(3), Test(4)]))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(successive([Test(1), Test(2), Test(3), Test(4)], times=3))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(successive([Test(1), Test(2), Test(3), Test(4)], times=4))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             successive(Test(1))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(ValueError):  # times must be > 0
             successive([Test(1), Test(2), Test(3)], 0)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
 
 def test_roundrobin():
@@ -1115,43 +674,43 @@ def test_roundrobin_memoryleak():
 
     def test():
         list(roundrobin())
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(roundrobin([]))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(roundrobin([], (), {}))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(roundrobin([Test(1)],
                         [Test(1), Test(2)],
                         [Test(1), Test(2), Test(3)]))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(roundrobin([Test(1), Test(2), Test(3)],
                         [Test(1)],
                         [Test(1), Test(2)]))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(roundrobin([Test(1), Test(2)],
                         [Test(1), Test(2), Test(3)],
                         [Test(1)]))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             list(roundrobin(Test(1)))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             list(roundrobin([Test(1)], Test(1)))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
 
 def test_merge():
@@ -1257,118 +816,118 @@ def test_merge_memoryleak():
 
     def test():
         list(merge())
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(merge([]))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(merge([], (), {}))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     for seq in itertools.permutations([[Test(1)], [Test(2)], [Test(3)]]):
         def test():
             list(merge(*seq))
-        assert not memory_leak(test, **kwargs_memoryleak)
+        assert not memory_leak(test)
 
     for seq in itertools.permutations([[Test(1)], [Test(2)], [Test(3)], []]):
         def test():
             list(merge(*seq))
-        assert not memory_leak(test, **kwargs_memoryleak)
+        assert not memory_leak(test)
 
     for seq in itertools.permutations([[Test(1), Test(2.5)],
                                        [Test(2)], [Test(3)]]):
         def test():
             list(merge(*seq))
-        assert not memory_leak(test, **kwargs_memoryleak)
+        assert not memory_leak(test)
 
     for seq in itertools.permutations([[Test(1), Test(2.5)],
                                        [Test(0.5), Test(2)],
                                        [Test(3)]]):
         def test():
             list(merge(*seq))
-        assert not memory_leak(test, **kwargs_memoryleak)
+        assert not memory_leak(test)
 
     # Stability tests
     def test():
         list(merge([Test(1)], [Test(1.)]))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # Key function tests
     def test():
         seq = ([(Test(1), Test(0)), (Test(2), Test(0))],
                [(Test(1), Test(-1)), (Test(2), Test(-1))])
         list(merge(*seq, key=operator.itemgetter(0)))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # Reverse test
     for seq in itertools.permutations([[Test(1)], [Test(2)], [Test(3)]]):
         def test():
             list(merge(*seq, reverse=True))
-        assert not memory_leak(test, **kwargs_memoryleak)
+        assert not memory_leak(test)
 
     for seq in itertools.permutations([[Test(1)], [Test(2)], [Test(3)], []]):
         def test():
             list(merge(*seq, reverse=True))
-        assert not memory_leak(test, **kwargs_memoryleak)
+        assert not memory_leak(test)
 
     for seq in itertools.permutations([[Test(2.5), Test(1)],
                                        [Test(2)],
                                        [Test(3)]]):
         def test():
             list(merge(*seq, reverse=True))
-        assert not memory_leak(test, **kwargs_memoryleak)
+        assert not memory_leak(test)
 
     for seq in itertools.permutations([[Test(2.5), Test(1)],
                                        [Test(2), Test(0.5)],
                                        [Test(3)]]):
         def test():
             list(merge(*seq, reverse=True))
-        assert not memory_leak(test, **kwargs_memoryleak)
+        assert not memory_leak(test)
 
     # Key+reverse function tests
     def test():
         seq = ([(Test(2), Test(0)), (Test(1), Test(0))],
                [(Test(2), Test(-1)), (Test(1), Test(-1))])
         list(merge(*seq, reverse=True, key=operator.itemgetter(0)))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # One iterable is not iterable
     def test():
         with pytest_raises(TypeError):
             merge(Test(10))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             merge([Test(10), Test(20)], Test(10))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # Unexpected keyword argument
     def test():
         with pytest_raises(TypeError):
             merge([Test(10), Test(20)], [Test(20), Test(30)],
                   reverse=True, key=abs, wrongkwd=True)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             merge([Test(10), Test(20)], [Test(20), Test(30)],
                   reverse=True, wrongkwd=True)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             merge([Test(10), Test(20)], [Test(20), Test(30)],
                   key=abs, wrongkwd=True)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             merge([Test(10), Test(20)], [Test(20), Test(30)],
                   wrongkwd=True)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # Key function fails
     def test():
@@ -1376,26 +935,26 @@ def test_merge_memoryleak():
             list(merge([Test(2), (Test(2), Test(0))],
                        [(Test(1), Test(2)), (Test(1), Test(3))],
                        key=operator.itemgetter(0)))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             list(merge([(Test(2), Test(0)), Test(2)],
                        [(Test(1), Test(2)), (Test(1), Test(3))],
                        key=operator.itemgetter(0)))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # Comparison fails
     if not iteration_utilities.PY2:
         def test():
             with pytest_raises(TypeError):
                 list(merge([Test('a'), Test('b')], [Test(2), Test(3)]))
-        assert not memory_leak(test, **kwargs_memoryleak)
+        assert not memory_leak(test)
 
         def test():
             with pytest_raises(TypeError):
                 list(merge([Test(1), Test('b')], [Test(2), Test(3)]))
-        assert not memory_leak(test, **kwargs_memoryleak)
+        assert not memory_leak(test)
 
 
 def test_grouper():
@@ -1460,112 +1019,112 @@ def test_grouper_memoryleak():
     # Empty iterable
     def test():
         list(grouper([], 2))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # no fillvalue + truncate
     def test():
         list(grouper([Test(1)], 3))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(grouper([Test(1), Test(2)], 3))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(grouper([Test(1), Test(2), Test(3)], 3))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(grouper([Test(1), Test(2), Test(3), Test(4)], 3))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(grouper([Test(1), Test(2), Test(3), Test(4), Test(5)], 3))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(grouper([Test(1), Test(2), Test(3), Test(4), Test(5), Test(6)],
                      3))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # with fillvalue
     def test():
         list(grouper([Test(1)], 3,
                      fillvalue=Test(0)))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(grouper([Test(1), Test(2)], 3,
                      fillvalue=Test(0)))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(grouper([Test(1), Test(2), Test(3)], 3,
                      fillvalue=Test(0)))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(grouper([Test(1), Test(2), Test(3), Test(4)], 3,
                      fillvalue=Test(0)))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(grouper([Test(1), Test(2), Test(3), Test(4), Test(5)], 3,
                      fillvalue=Test(0)))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(grouper([Test(1), Test(2), Test(3), Test(4), Test(5), Test(6)], 3,
                      fillvalue=Test(0)))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # with truncate
     def test():
         list(grouper([Test(1)], 3,
                      truncate=True))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(grouper([Test(1), Test(2)], 3,
                      truncate=True))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(grouper([Test(1), Test(2), Test(3)], 3,
                      truncate=True))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(grouper([Test(1), Test(2), Test(3), Test(4)], 3,
                      truncate=True))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(grouper([Test(1), Test(2), Test(3), Test(4), Test(5)], 3,
                      truncate=True))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(grouper([Test(1), Test(2), Test(3), Test(4), Test(5), Test(6)], 3,
                      truncate=True))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # failures
     def test():
         with pytest_raises(TypeError):  # fillvalue + truncate is forbidden
             grouper([Test(1), Test(2), Test(3)], 2,
                     fillvalue=Test(0), truncate=True)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(ValueError):  # n must be > 0
             grouper([Test(1), Test(2), Test(3)], 0)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):  # iterable must be iterable
             grouper(Test(1), 2)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
 
 def test_ilen():
@@ -1592,26 +1151,26 @@ def test_ilen_memoryleak():
 
     def test():
         ilen([])
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         ilen(range(10))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         ilen([Test(1), Test(2), Test(3), Test(4), Test(5)])
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         generator = (i for i in [Test(1), Test(2), Test(3), Test(4), Test(5)])
         ilen(generator) == 5
         ilen(generator) == 0
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             ilen(100)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
 
 def test_intersperse():
@@ -1634,20 +1193,20 @@ def test_intersperse_memoryleak():
 
     def test():
         list(intersperse([], Test(0)))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(intersperse([Test(1)], Test(0)))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(intersperse([Test(1), Test(2)], Test(0)))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             intersperse(Test(100), Test(0))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
 
 def test_complement():
@@ -1669,31 +1228,31 @@ def test_complement_memoryleak():
 
     def test():
         complement(lambda x: x is True)(True)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         complement(lambda x: x is True)(False)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         complement(lambda x: x is False)(True)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         complement(lambda x: x is False)(False)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         complement(iteration_utilities.is_None)(None)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         complement(iteration_utilities.is_None)(False)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         complement(iteration_utilities.is_None)(True)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
 
 def test_compose():
@@ -1732,27 +1291,27 @@ def test_compose_memoryleak():
     def test():
         compose(lambda x: x*2, lambda x: x+1)(Test(10))
         compose(lambda x: x*2, lambda x: x+1)(Test(2))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):  # at least one func must be present
             compose()
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):  # kwarg not accepted
             compose(lambda x: x+1, invalidkwarg=lambda x: x*2)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):  # func fails
             compose(lambda x: x+1)(Test('a'))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):  # second func fails
             compose(lambda x: x*2, lambda x: x+1)(Test('a'))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
 
 def test_one():
@@ -1781,30 +1340,30 @@ def test_one_memoryleak():
 
     def test():
         one([Test(0)])
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         one('a')
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         one({Test(0): 10})
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             one(Test(0))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(ValueError):  # empty iterable
             one([])
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(ValueError):  # more than 1 element
             one([1, 2])
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
 
 def test_nth():
@@ -1867,87 +1426,87 @@ def test_nth_memoryleak():
 
     def test():
         nth([Test(1), Test(2), Test(3)], 1)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # With pred
     def test():
         nth([Test(0), Test(1), Test(2)], 1, pred=bool)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         nth([Test(0), Test(1), Test(2)], 1, pred=None)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         nth([Test(0)]*100 + [Test(1)]*2, 1, pred=bool)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         nth([[Test(0)], [Test(1), Test(2)]]*2, 1, pred=lambda x: len(x) > 1)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # pred with truthy/retpred
     def test():
         nth([Test(0), Test(2), Test(3), Test(0)], 1,
             pred=bool, truthy=False)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         nth([Test(0), Test(2), Test(3), Test(0)], 1,
             pred=bool, truthy=False, retpred=True)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         nth([Test(0), Test(2), Test(3), Test(0)], 1,
             pred=lambda x: x**Test(2), truthy=False)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         nth([Test(0), Test(2), Test(3), Test(0)], 0,
             pred=lambda x: x**Test(2), truthy=False, retpred=True)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         nth([Test(0), Test(2), Test(3)], 1, pred=bool)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         nth([Test(0), Test(2), Test(3)], 1, pred=bool, retpred=True)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         nth([Test(0), Test(2), Test(3)], 1, pred=lambda x: x**Test(2))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         nth([Test(0), Test(2), Test(3)], 1,
             pred=lambda x: x**Test(2), retpred=True)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # With default
     def test():
         nth([], 2, default=None) is None
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         nth([Test(0), Test(0), Test(0)], 1, default=None, pred=bool) is None
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # failures
     def test():
         with pytest_raises(IndexError):
             nth([], 10)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             nth(Test(100), 10)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             nth([Test('a'), Test('b')], 1, pred=lambda x: abs(x.value))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
 
 def test_quantify():
@@ -1991,41 +1550,41 @@ def test_quantify_memoryleak():
 
     def test():
         quantify([])
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         quantify([Test(0), Test(0)])
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         quantify([Test(0), Test(0), Test(1)])
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         quantify([Test(0), Test(0), Test(1), Test(1)], None)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         quantify([], iteration_utilities.return_first_positional_argument)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         quantify([Test(1), Test(2), Test(3)], lambda x: x > Test(2))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         quantify([Test(1), Test(2), Test(3)], lambda x: x < Test(3))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             quantify(Test(1))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):
             quantify([Test(1)], Test(1))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
 
 def test_unique_justseen():
@@ -2103,42 +1662,42 @@ def test_unique_justseen_memoryleak():
 
     def test():
         list(unique_justseen([])) == []
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(unique_justseen([Test(1), Test(1), Test(2), Test(3), Test(3)]))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(unique_justseen([Test(1), Test(-1), Test(1),
                               Test(2), Test(-2), Test(2)]))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(unique_justseen([Test(1), Test(-1), Test(1),
                               Test(2), Test(-2), Test(2)],
                              key=lambda x: abs(x.value)))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):  # not iterable
             unique_justseen(Test(1))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):  # function call fails
             list(unique_justseen([Test(1), Test(2), Test(3)],
                                  key=lambda x: x + 'a'))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):  # objects do not support eq or ne
             list(unique_justseen([Test2(1), Test2(2)]))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(unique_justseen([Test3(1), Test3(1)]))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
 
 def test_groupby2():
@@ -2182,45 +1741,45 @@ def test_groupby2_memoryleak():
 
     def test():
         groupby2([], key=lambda x: x)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         groupby2([Test('a'), Test('ab'), Test('abc')],
                  key=lambda x: Test(x.value[0]))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         groupby2([Test('a'), Test('ba'), Test('ab'), Test('abc'), Test('b')],
                  key=lambda x: Test(x.value[0]))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         groupby2([Test('a'), Test('ba'), Test('ab'), Test('abc'), Test('b')],
                  key=lambda x: Test(x.value[0]),
                  keepkey=lambda x: Test(len(x.value)))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):  # not iterable
             groupby2(Test(1), key=lambda x: Test(len(x.value)))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):  # key func fails
             groupby2([Test(1), Test(2), Test(3)],
                      key=lambda x: Test(x.value + 'a'))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):  # keepkey func fails
             groupby2([Test(1), Test(2), Test(3)],
                      key=lambda x: x, keepkey=lambda x: Test(x.value + 'a'))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):  # unhashable
             groupby2([{Test('a'): Test(10)}], key=lambda x: x)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
 
 def test_alldistinct():
@@ -2251,24 +1810,24 @@ def test_alldistinct_memoryleak():
 
     def test():
         all_distinct([Test(1), Test(2), Test(3)])
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         all_distinct([Test(1), Test(1), Test(1)])
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         all_distinct([{Test('a'): Test(1)}, {Test('a'): Test(2)}])
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         all_distinct([{Test('a'): Test(1)}, {Test('a'): Test(1)}])
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):  # iterable is not iterable
             all_distinct(Test(1))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
 
 def test_all_equal():
@@ -2309,26 +1868,26 @@ def test_all_equal_memoryleak():
 
     def test():
         all_equal([])
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         all_equal([Test(1), Test(1), Test(1)])
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         all_equal([Test(1), Test(1), Test(2)])
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):  # not iterable
             all_equal(Test(1))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     if not iteration_utilities.PY2:
         def test():
             with pytest_raises(TypeError):  # comparison fail
                 all_equal([Test(1), Test('a')])
-        assert not memory_leak(test, **kwargs_memoryleak)
+        assert not memory_leak(test)
 
 
 def test_split():
@@ -2387,60 +1946,60 @@ def test_split_memoryleak():
 
     def test():
         list(split([], lambda x: False)) == []
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(split([Test(1), Test(2), Test(3)], lambda x: x.value == 2))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(split([Test(1), Test(2), Test(3)], lambda x: x.value == 3))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # keep
     def test():
         list(split([Test(1), Test(2), Test(3)], lambda x: x.value == 2,
                    keep=True))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(split([Test(1), Test(2), Test(3)], lambda x: x.value == 3,
                    keep=True))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # maxsplit
     def test():
         list(split([Test(1), Test(2), Test(3), Test(4), Test(5)],
                    lambda x: x.value % 2 == 0, maxsplit=1))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         list(split([Test(1), Test(2), Test(3), Test(4), Test(5)],
                    lambda x: x.value % 2 == 0, maxsplit=2))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # equality
     def test():
         list(split([Test(1), Test(2), Test(3), Test(2), Test(5)], Test(2),
                    eq=True))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     # failures
     def test():
         with pytest_raises(TypeError):  # not iterable
             split(Test(1), lambda x: False)
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):  # func fails
             list(split([Test(1), Test(2), Test(3)],
                        lambda x: Test(x.value + 'a')))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
     def test():
         with pytest_raises(TypeError):  # cmp fails
             list(split([Test(1), Test(2), Test(3)], Test('a'), eq=True))
-    assert not memory_leak(test, **kwargs_memoryleak)
+    assert not memory_leak(test)
 
 
 @pytest.mark.xfail(iteration_utilities.PY2,
@@ -2448,7 +2007,6 @@ def test_split_memoryleak():
 def test_cfuncs_pickle():
     import pickle
 
-    accumulate = iteration_utilities.accumulate
     applyfunc = iteration_utilities.applyfunc
     grouper = iteration_utilities.grouper
     intersperse = iteration_utilities.intersperse
@@ -2462,12 +2020,6 @@ def test_cfuncs_pickle():
 
     # IMPORTANT: methoddescriptors like "str.lower" as key functions can not
     #            be pickled before python 3.4
-
-    # ----- Accumulate
-    acc = accumulate([1, 2, 3, 4])
-    assert next(acc) == 1
-    x = pickle.dumps(acc)
-    assert list(pickle.loads(x)) == [3, 6, 10]
 
     # ----- Applyfunc
     apf = applyfunc(iteration_utilities.square, 2)

@@ -2,9 +2,10 @@
 from __future__ import absolute_import, division, print_function
 from collections import Counter
 from gc import get_objects
+from weakref import ref
 
 
-def memory_leak(func, specific_object=None, exclude_object=None):
+def memory_leak(func, specific_object=None, exclude_object=ref):
     """Compares the number of tracked python objects before and after a
     function call and returns a dict containing differences.
 
@@ -15,7 +16,11 @@ def memory_leak(func, specific_object=None, exclude_object=None):
 
     specific_object : type or None, optional
         Test all tracked types (None) or only one specific type.
-        Default is None.
+        Default is ``None``.
+
+    exclude_object : type or None, optional
+        Exclude specific types or use all (None).
+        Default is ``weakref.ref``.
 
     Returns
     -------
