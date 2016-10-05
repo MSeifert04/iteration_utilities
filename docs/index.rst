@@ -85,7 +85,6 @@ Python2 and Python3 compatible. The documentation was added and/or modified.
 
 .. py:currentmodule:: iteration_utilities._recipes._core
 
-- :py:func:`all_equal`
 - :py:func:`consume`
 - :py:func:`dotproduct`
 - :py:func:`flatten`
@@ -119,6 +118,7 @@ Additional recipes for iterations.
 .. py:currentmodule:: iteration_utilities._cfuncs
 
 - :py:func:`all_distinct`
+- :py:func:`all_equal`
 - :py:func:`first`
 - :py:func:`groupby2`
 - :py:func:`ilen`
