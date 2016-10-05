@@ -51,6 +51,8 @@ def test_applyfunc_failure1():
     assert not memory_leak(test)
 
 
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 def test_applyfunc_pickle1():
     apf = applyfunc(iteration_utilities.square, 2)
     assert next(apf) == 4

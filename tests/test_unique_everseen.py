@@ -110,6 +110,8 @@ def test_uniqueeverseen_failure2():
     assert not memory_leak(test)
 
 
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 def test_uniqueeverseen_pickle1():
     uqe = unique_everseen([1, 2, 1, 2])
     assert next(uqe) == 1

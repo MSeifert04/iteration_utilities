@@ -97,6 +97,8 @@ def test_successive_failure2():
     assert not memory_leak(test)
 
 
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 def test_successive_pickle1():
     suc = successive([1, 2, 3, 4])
     assert next(suc) == (1, 2)
