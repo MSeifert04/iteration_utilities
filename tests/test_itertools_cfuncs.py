@@ -2235,6 +2235,8 @@ def test_all_equal_memoryleak():
             self.value = value
 
         def __eq__(self, other):
+            if type(self.value) != type(other.value):
+                raise TypeError('simulated failure.')
             return self.value == other.value
 
     def test():
