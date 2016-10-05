@@ -110,8 +110,10 @@ Additional recipes for iterations.
 
 .. py:currentmodule:: iteration_utilities._recipes._additional
 
+- :py:func:`append`
 - :py:func:`deepflatten`
 - :py:func:`itersubclasses`
+- :py:func:`prepend`
 
 
 .. py:currentmodule:: iteration_utilities._cfuncs
