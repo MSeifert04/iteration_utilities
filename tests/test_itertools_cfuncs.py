@@ -2164,6 +2164,54 @@ def test_groupby2_memoryleak():
     assert not memory_leak(test, **kwargs_memoryleak)
 
 
+def test_alldistinct():
+    all_distinct = iteration_utilities.all_distinct
+
+    assert all_distinct([1, 2, 3])
+    assert not all_distinct([1, 1, 1])
+
+    assert all_distinct([{'a': 1}, {'a': 2}])
+    assert not all_distinct([{'a': 1}, {'a': 1}])
+
+    with pytest.raises(TypeError):  # iterable is not iterable
+        all_distinct(1)
+
+
+def test_alldistinct_memoryleak():
+    all_distinct = iteration_utilities.all_distinct
+
+    class Test(object):
+        def __init__(self, value):
+            self.value = value
+
+        def __eq__(self, other):
+            return self.value == other.value
+
+        def __hash__(self):
+            return hash(self.value)
+
+    def test():
+        all_distinct([Test(1), Test(2), Test(3)])
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        all_distinct([Test(1), Test(1), Test(1)])
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        all_distinct([{Test('a'): Test(1)}, {Test('a'): Test(2)}])
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        all_distinct([{Test('a'): Test(1)}, {Test('a'): Test(1)}])
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):  # iterable is not iterable
+            all_distinct(Test(1))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+
 @pytest.mark.xfail(iteration_utilities.PY2,
                    reason='Python 2 does not support this way of pickling.')
 def test_cfuncs_pickle():

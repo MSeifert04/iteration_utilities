@@ -16,10 +16,10 @@ reduce_allequal_helper_list_contains(PyObject *a, PyObject *el)  // PyListObject
 static PyObject *
 reduce_alldistinct(PyObject *self, PyObject *iterable)
 {
-    PyObject *it;
+    PyObject *it=NULL;
     PyObject *(*iternext)(PyObject *);
-    PyObject *item;
-    PyObject *seen;
+    PyObject *item=NULL;
+    PyObject *seen=NULL;
     PyObject *seenlist=NULL;
 
     int ok;
@@ -35,11 +35,7 @@ reduce_alldistinct(PyObject *self, PyObject *iterable)
     }
 
     iternext = *Py_TYPE(it)->tp_iternext;
-    for (;;) {
-        item = iternext(it);
-        if (item == NULL) {
-            break;
-        }
+    while ( (item = iternext(it)) ) {
 
         ok = PySet_Contains(seen, item);
 
@@ -89,10 +85,11 @@ reduce_alldistinct(PyObject *self, PyObject *iterable)
                 Py_RETURN_FALSE;
 
             } else {
-                goto Fail;
+                goto Fail;  // untested code path
             }
 
         }
+        Py_DECREF(item);
     }
 
     PyErr_Clear();
@@ -115,4 +112,27 @@ Fail:
 
 PyDoc_STRVAR(reduce_alldistinct_doc,
 "all_distinct(iterable)\n\
+\n\
+Checks if all items in the `iterable` are distinct.\n\
+\n\
+Parameters\n\
+----------\n\
+iterable : iterable\n\
+    `Iterable` containing the elements.\n\
+\n\
+Returns\n\
+-------\n\
+distinct : bool\n\
+    ``True`` if no two values are equal and ``False`` if there is at least\n\
+    one duplicate in `iterable`.\n\
+\n\
+\n\
+Examples\n\
+--------\n\
+>>> from iteration_utilities import all_distinct\n\
+>>> all_distinct('AAAABBBCCDAABBB')\n\
+False\n\
+\n\
+>>> all_distinct('abcd')\n\
+True\n\
 ");
