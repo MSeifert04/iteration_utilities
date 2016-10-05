@@ -168,7 +168,7 @@ value : any type \n\
 \n\
 Returns\n\
 -------\n\
-is_even : bool\n\
+is_odd : bool\n\
     ``True`` if `value` is odd otherwise it returns ``False``.\n\
 \n\
 Examples\n\
@@ -183,5 +183,51 @@ faster::\n\
     True\n\
     >>> is_odd(2)\n\
     False\n\
+\n\
+");
+
+
+/******************************************************************************
+ * Iterable
+ *****************************************************************************/
+
+static PyObject*
+isx_IsIterable(PyObject *self, PyObject *args) {
+    PyObject *it = PyObject_GetIter(args);
+    if (it == NULL) {
+        PyErr_Clear();
+        Py_RETURN_FALSE;
+    }
+    Py_DECREF(it);
+    Py_RETURN_TRUE;
+}
+
+
+PyDoc_STRVAR(isx_IsIterable_doc,
+"is_iterable(value)\n\
+\n\
+Returns ``True`` if `value` is iterable, otherwise ``False``.\n\
+\n\
+Parameters\n\
+----------\n\
+value : any type \n\
+    The value to test if iterable.\n\
+\n\
+Returns\n\
+-------\n\
+is_iterable : bool\n\
+    ``True`` if `value` is iterable otherwise it returns ``False``.\n\
+\n\
+Examples\n\
+--------\n\
+A few simple examples::\n\
+\n\
+    >>> from iteration_utilities import is_iterable\n\
+    >>> is_iterable(0)\n\
+    False\n\
+    >>> is_iterable('abc')\n\
+    True\n\
+    >>> is_iterable([1,2,3])\n\
+    True\n\
 \n\
 ");
