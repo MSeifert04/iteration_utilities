@@ -2272,6 +2272,118 @@ def test_all_equal_memoryleak():
         assert not memory_leak(test, **kwargs_memoryleak)
 
 
+def test_split():
+    split = iteration_utilities.split
+
+    class Test(object):
+        def __init__(self, value):
+            self.value = value
+
+        def __eq__(self, other):
+            if type(self.value) != type(other.value):
+                raise TypeError('simulated failure.')
+            return self.value == other.value
+
+    assert list(split([], lambda x: False)) == []
+
+    assert list(split([1, 2, 3], lambda x: x == 2)) == [[1], [3]]
+    assert list(split([1, 2, 3], lambda x: x == 3)) == [[1, 2]]
+
+    # keep
+    assert list(split([1, 2, 3], lambda x: x == 2,
+                      keep=True)) == [[1], [2], [3]]
+    assert list(split([1, 2, 3], lambda x: x == 3,
+                      keep=True)) == [[1, 2], [3]]
+
+    # maxsplit
+    assert list(split([1, 2, 3, 4, 5], lambda x: x % 2 == 0,
+                      maxsplit=1)) == [[1], [3, 4, 5]]
+    assert list(split([1, 2, 3, 4, 5], lambda x: x % 2 == 0,
+                      maxsplit=2)) == [[1], [3], [5]]
+
+    # equality
+    assert list(split([1, 2, 3, 2, 5], 2,
+                      eq=True)) == [[1], [3], [5]]
+
+    # failures
+    with pytest.raises(TypeError):  # not iterable
+        split(1, lambda x: False)
+    with pytest.raises(TypeError):  # func fails
+        list(split([1, 2, 3], lambda x: x + 'a'))
+    with pytest.raises(TypeError):  # cmp fails
+        list(split([Test(1), Test(2), Test(3)], Test('a'), eq=True))
+
+
+def test_split_memoryleak():
+    split = iteration_utilities.split
+
+    class Test(object):
+        def __init__(self, value):
+            self.value = value
+
+        def __eq__(self, other):
+            if type(self.value) != type(other.value):
+                raise TypeError('simulated failure.')
+            return self.value == other.value
+
+    def test():
+        list(split([], lambda x: False)) == []
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(split([Test(1), Test(2), Test(3)], lambda x: x.value == 2))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(split([Test(1), Test(2), Test(3)], lambda x: x.value == 3))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    # keep
+    def test():
+        list(split([Test(1), Test(2), Test(3)], lambda x: x.value == 2,
+                   keep=True))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(split([Test(1), Test(2), Test(3)], lambda x: x.value == 3,
+                   keep=True))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    # maxsplit
+    def test():
+        list(split([Test(1), Test(2), Test(3), Test(4), Test(5)],
+                   lambda x: x.value % 2 == 0, maxsplit=1))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        list(split([Test(1), Test(2), Test(3), Test(4), Test(5)],
+                   lambda x: x.value % 2 == 0, maxsplit=2))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    # equality
+    def test():
+        list(split([Test(1), Test(2), Test(3), Test(2), Test(5)], Test(2),
+                   eq=True))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    # failures
+    def test():
+        with pytest_raises(TypeError):  # not iterable
+            split(Test(1), lambda x: False)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):  # func fails
+            list(split([Test(1), Test(2), Test(3)],
+                       lambda x: Test(x.value + 'a')))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):  # cmp fails
+            list(split([Test(1), Test(2), Test(3)], Test('a'), eq=True))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+
 @pytest.mark.xfail(iteration_utilities.PY2,
                    reason='Python 2 does not support this way of pickling.')
 def test_cfuncs_pickle():

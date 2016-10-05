@@ -22,6 +22,7 @@
 #include "recipesapplyfunc.c"
 #include "recipesgrouper.c"
 #include "recipesintersperse.c"
+#include "recipessplit.c"
 #include "recipessuccessive.c"
 #include "recipesroundrobin.c"
 #include "recipesmerge.c"
@@ -205,6 +206,7 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
         &recipes_intersperse_type,
         &recipes_merge_type,
         &recipes_roundrobin_type,
+        &recipes_split_type,
         &recipes_successive_type,
         &recipes_uniqueever_type,
         &recipes_uniquejust_type,
@@ -249,6 +251,7 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
         &recipes_intersperse_type,
         &recipes_merge_type,
         &recipes_roundrobin_type,
+        &recipes_split_type,
         &recipes_successive_type,
         &recipes_uniqueever_type,
         &recipes_uniquejust_type,
