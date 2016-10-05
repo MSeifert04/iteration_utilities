@@ -145,6 +145,7 @@ Additional recipes for iterations.
 .. py:currentmodule:: iteration_utilities
 
 - :py:func:`complement`
+- :py:func:`compose`
 
 
 Compatibility layer

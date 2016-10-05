@@ -1,84 +1,96 @@
 typedef struct {
     PyObject_HEAD
     PyObject *funcs;
-} functions_complement_object;
+} functions_compose_object;
 
-static PyTypeObject functions_complement_type;
+static PyTypeObject functions_compose_type;
 
 
 static PyObject *
-functions_complement_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+functions_compose_new(PyTypeObject *type, PyObject *funcs, PyObject *kwds)
 {
-    static char *kwargs[] = {"func", NULL};
+    functions_compose_object *lz;
 
-    PyObject *func;
-
-    functions_complement_object *lz;
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O:complement", kwargs,
-                                     &func)) {
+    if (funcs == NULL || !PyTuple_Check(funcs) || PyTuple_Size(funcs) <= 0) {
+        PyErr_Format(PyExc_TypeError,
+                     "at least 1 function must be given.");
         return NULL;
     }
 
-    lz = (functions_complement_object *)type->tp_alloc(type, 0);
+    if (kwds != NULL) {
+        PyErr_Format(PyExc_TypeError,
+                     "`compose` does not accept keyword arguments.");
+        return NULL;
+    }
+
+    lz = (functions_compose_object *)type->tp_alloc(type, 0);
     if (lz == NULL)
         return NULL;
 
-    Py_INCREF(func);
-
-    lz->func = func;
+    Py_INCREF(funcs);
+    lz->funcs = funcs;
 
     return (PyObject *)lz;
 }
 
 
 static void
-functions_complement_dealloc(functions_complement_object *lz)
+functions_compose_dealloc(functions_compose_object *lz)
 {
     PyObject_GC_UnTrack(lz);
-    Py_XDECREF(lz->func);
+    Py_XDECREF(lz->funcs);
     Py_TYPE(lz)->tp_free(lz);
 }
 
 
 static int
-functions_complement_traverse(functions_complement_object *lz, visitproc visit, void *arg)
+functions_compose_traverse(functions_compose_object *lz, visitproc visit, void *arg)
 {
-    Py_VISIT(lz->func);
+    Py_VISIT(lz->funcs);
     return 0;
 }
 
 
 static PyObject *
-functions_complement_call(functions_complement_object *lz, PyObject *args, PyObject *kw)
+functions_compose_call(functions_compose_object *lz, PyObject *args, PyObject *kw)
 {
-    PyObject *temp;
-    int res;
+    PyObject *funcs = lz->funcs;
+    PyObject *func = NULL;
+    PyObject *temp = NULL;
+    PyObject *oldtemp = NULL;
+    Py_ssize_t i;
 
-    temp = PyObject_Call(lz->func, args, kw);
-    res = PyObject_Not(temp);
-    Py_DECREF(temp);
+    for (i=0 ; i<PyTuple_Size(funcs) ; i++) {
 
-    if (res < 0) {
-        return NULL;
-    } else if (res == 0) {
-        Py_RETURN_FALSE;
-    } else {
-        Py_RETURN_TRUE;
+        func = PyTuple_GET_ITEM(funcs, i);
+
+        if (temp == NULL) {
+            temp = PyObject_Call(func, args, kw);
+        } else {
+            oldtemp = temp;
+            temp = PyObject_CallFunctionObjArgs(func, temp, NULL);
+            Py_DECREF(oldtemp);
+        }
+
+        if (temp == NULL) {
+            return NULL;
+        }
     }
+
+    return temp;
 }
 
 
 static PyObject *
-functions_complement_reduce(functions_complement_object *lz, PyObject *unused)
+functions_compose_reduce(functions_compose_object *lz, PyObject *unused)
 {
     return Py_BuildValue("O(O)", Py_TYPE(lz),
-                         lz->func);
+                         lz->funcs);
 }
 
-static PyMethodDef functions_complement_methods[] = {
+static PyMethodDef functions_compose_methods[] = {
     {"__reduce__",
-     (PyCFunction)functions_complement_reduce,
+     (PyCFunction)functions_compose_reduce,
      METH_NOARGS,
      ""},
 
@@ -86,49 +98,42 @@ static PyMethodDef functions_complement_methods[] = {
 };
 
 
-PyDoc_STRVAR(functions_complement_doc,
-"complement(func)\n\
+
+PyDoc_STRVAR(functions_compose_doc,
+"compose(*funcs)\n\
 \n\
-Invert a predicate function. homonymous function in the `toolz` package \n\
-([0]_) but significantly modified.\n\
+Chains several function calls.\n\
 \n\
 Parameters\n\
 ----------\n\
-func : callable\n\
-    The function to complement.\n\
+funcs\n\
+    Any number of callables.\n\
 \n\
 Returns\n\
 -------\n\
-complemented_func : callable\n\
-    The complement to `func`.\n\
+composed_func : callable\n\
+    The chained `funcs`.\n\
 \n\
 Examples\n\
 --------\n\
-`complement` is equivalent to ``lambda x: not x()`` but significantly faster::\n\
+`compose` simple calls all `funcs` on the result of the previous one::\n\
 \n\
-    >>> from iteration_utilities import complement\n\
-    >>> from iteration_utilities import is_None\n\
-    >>> is_not_None = complement(is_None)\n\
-    >>> list(filter(is_not_None, [1,2,None,3,4,None]))\n\
-    [1, 2, 3, 4]\n\
-\n\
-.. note::\n\
-    The same could be done with `itertools.filterfalse` or \n\
-    `iteration_utilities.is_not_None`.\n\
-\n\
-References\n\
-----------\n\
-.. [0] https://toolz.readthedocs.io/en/latest/index.html\n\
+    >>> from iteration_utilities import compose\n\
+    >>> double = lambda x: x*2\n\
+    >>> increment = lambda x: x+1\n\
+    >>> double_then_increment = compose(double, increment)\n\
+    >>> double_then_increment(10)\n\
+    21\n\
 ");
 
 
-static PyTypeObject functions_complement_type = {
+static PyTypeObject functions_compose_type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.complement",   /* tp_name */
-    sizeof(functions_complement_object), /* tp_basicsize */
+    "iteration_utilities.compose",      /* tp_name */
+    sizeof(functions_compose_object),   /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
-    (destructor)functions_complement_dealloc, /* tp_dealloc */
+    (destructor)functions_compose_dealloc, /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -138,21 +143,21 @@ static PyTypeObject functions_complement_type = {
     0,                                  /* tp_as_sequence */
     0,                                  /* tp_as_mapping */
     0,                                  /* tp_hash */
-    (ternaryfunc)functions_complement_call, /* tp_call */
+    (ternaryfunc)functions_compose_call, /* tp_call */
     0,                                  /* tp_str */
     PyObject_GenericGetAttr,            /* tp_getattro */
     0,                                  /* tp_setattro */
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    functions_complement_doc,           /* tp_doc */
-    (traverseproc)functions_complement_traverse, /* tp_traverse */
+    functions_compose_doc,              /* tp_doc */
+    (traverseproc)functions_compose_traverse, /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
     0,                                  /* tp_iter */
     0,                                  /* tp_iternext */
-    functions_complement_methods,       /* tp_methods */
+    functions_compose_methods,          /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
@@ -162,6 +167,6 @@ static PyTypeObject functions_complement_type = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     0,                                  /* tp_alloc */
-    functions_complement_new,           /* tp_new */
+    functions_compose_new,              /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };
