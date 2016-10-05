@@ -127,7 +127,6 @@ distinct : bool\n\
     ``True`` if no two values are equal and ``False`` if there is at least\n\
     one duplicate in `iterable`.\n\
 \n\
-\n\
 Examples\n\
 --------\n\
 >>> from iteration_utilities import all_distinct\n\
