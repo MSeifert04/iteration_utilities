@@ -63,7 +63,6 @@ reduce_nth(PyObject *self, PyObject *args, PyObject *kwds)
                     Py_DECREF(last);
                 }
                 last = val;
-                i++;
 
             } else {
                 Py_XDECREF(val);
@@ -71,8 +70,8 @@ reduce_nth(PyObject *self, PyObject *args, PyObject *kwds)
                     Py_DECREF(last);
                 }
                 last = item;
-                i++;
             }
+            i++;
 
         } else if (ok < 0) {
             Py_DECREF(iterator);
