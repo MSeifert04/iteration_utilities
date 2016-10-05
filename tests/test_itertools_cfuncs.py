@@ -2309,9 +2309,9 @@ def test_split():
     with pytest.raises(TypeError):  # not iterable
         split(1, lambda x: False)
     with pytest.raises(TypeError):  # func fails
-        split([1, 2, 3], lambda x: x + 'a')
+        list(split([1, 2, 3], lambda x: x + 'a'))
     with pytest.raises(TypeError):  # cmp fails
-        split([Test(1), Test(2), Test(3)], Test('a'), eq=True)
+        list(split([Test(1), Test(2), Test(3)], Test('a'), eq=True))
 
 
 def test_split_memoryleak():
@@ -2374,12 +2374,13 @@ def test_split_memoryleak():
 
     def test():
         with pytest_raises(TypeError):  # func fails
-            split([Test(1), Test(2), Test(3)], lambda x: Test(x.value + 'a'))
+            list(split([Test(1), Test(2), Test(3)],
+                       lambda x: Test(x.value + 'a')))
     assert not memory_leak(test, **kwargs_memoryleak)
 
     def test():
         with pytest_raises(TypeError):  # cmp fails
-            split([Test(1), Test(2), Test(3)], Test('a'), eq=True)
+            list(split([Test(1), Test(2), Test(3)], Test('a'), eq=True))
     assert not memory_leak(test, **kwargs_memoryleak)
 
 
