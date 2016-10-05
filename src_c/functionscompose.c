@@ -1,6 +1,6 @@
 typedef struct {
     PyObject_HEAD
-    PyObject *func;
+    PyObject *funcs;
 } functions_complement_object;
 
 static PyTypeObject functions_complement_type;
