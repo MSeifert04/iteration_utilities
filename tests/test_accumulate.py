@@ -127,7 +127,7 @@ def test_accumulate_pickle1():
     assert list(pickle.loads(x)) == [3, 6, 10]
 
     def test():
-        acc = accumulate([1, 2, 3, 4])
+        acc = accumulate([Test(1), Test(2), Test(3), Test(4)])
         next(acc)
         x = pickle.dumps(acc)
         list(pickle.loads(x))
