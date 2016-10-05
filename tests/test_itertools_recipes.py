@@ -39,7 +39,6 @@ def test_exceptions():
 
 def test_empty_input():
     empty = []
-    assert iteration_utilities.all_equal(empty)
     assert iteration_utilities.consume(empty, 2) is None
     assert list(iteration_utilities.deepflatten(empty)) == []
     assert iteration_utilities.dotproduct(empty, empty) == 0

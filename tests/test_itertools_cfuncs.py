@@ -2212,6 +2212,66 @@ def test_alldistinct_memoryleak():
     assert not memory_leak(test, **kwargs_memoryleak)
 
 
+def test_all_equal():
+    all_equal = iteration_utilities.all_equal
+
+    class Test(object):
+        def __init__(self, value):
+            self.value = value
+
+        def __eq__(self, other):
+            if type(self.value) != type(other.value):
+                raise TypeError('simulated failure.')
+            return self.value == other.value
+
+    assert all_equal([])
+    assert all_equal([1, 1, 1])
+    assert not all_equal([1, 1, 2])
+
+    with pytest.raises(TypeError):  # not iterable
+        all_equal(1)
+
+    if not iteration_utilities.PY2:
+        with pytest.raises(TypeError):  # comparison fail
+            all_equal([Test(1), Test('a')])
+
+
+def test_all_equal_memoryleak():
+    all_equal = iteration_utilities.all_equal
+
+    class Test(object):
+        def __init__(self, value):
+            self.value = value
+
+        def __eq__(self, other):
+            if type(self.value) != type(other.value):
+                raise TypeError('simulated failure.')
+            return self.value == other.value
+
+    def test():
+        all_equal([])
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        all_equal([Test(1), Test(1), Test(1)])
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        all_equal([Test(1), Test(1), Test(2)])
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):  # not iterable
+            all_equal(Test(1))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    if not iteration_utilities.PY2:
+        def test():
+            with pytest_raises(TypeError):  # comparison fail
+                all_equal([Test(1), Test('a')])
+        assert not memory_leak(test, **kwargs_memoryleak)
+
+
 @pytest.mark.xfail(iteration_utilities.PY2,
                    reason='Python 2 does not support this way of pickling.')
 def test_cfuncs_pickle():

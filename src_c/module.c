@@ -5,6 +5,7 @@
 #include "mathematical.c"
 #include "functionscomplement.c"
 #include "reducealldistinct.c"
+#include "reduceallequal.c"
 #include "reduceminmax.c"
 #include "reducefirst.c"
 #include "reducegroupby.c"
@@ -105,6 +106,11 @@ iterationutils_methods[] = {
      (PyCFunction)reduce_alldistinct,
      METH_O,
      reduce_alldistinct_doc},
+
+    {"all_equal",
+     (PyCFunction)reduce_allequal,
+     METH_O,
+     reduce_allequal_doc},
 
     {"minmax",
      (PyCFunction)reduce_minmax,
