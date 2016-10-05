@@ -84,7 +84,7 @@ functions_compose_call(functions_compose_object *lz, PyObject *args, PyObject *k
 static PyObject *
 functions_compose_reduce(functions_compose_object *lz, PyObject *unused)
 {
-    return Py_BuildValue("O(O)", Py_TYPE(lz),
+    return Py_BuildValue("OO", Py_TYPE(lz),
                          lz->funcs);
 }
 

@@ -2272,6 +2272,65 @@ def test_all_equal_memoryleak():
         assert not memory_leak(test, **kwargs_memoryleak)
 
 
+def test_compose():
+    compose = iteration_utilities.compose
+
+    double_increment = compose(lambda x: x*2, lambda x: x+1)
+    assert double_increment(10) == 21
+    assert double_increment(2.) == 5
+
+    with pytest.raises(TypeError):  # at least one func must be present
+        compose()
+
+    with pytest.raises(TypeError):  # kwarg not accepted
+        compose(lambda x: x+1, invalidkwarg=lambda x: x*2)
+
+    with pytest.raises(TypeError):  # func fails
+        compose(lambda x: x+1)('a')
+
+    with pytest.raises(TypeError):  # second func fails
+        compose(lambda x: x*2, lambda x: x+1)('a')
+
+
+def test_compose_memoryleak():
+    compose = iteration_utilities.compose
+
+    class Test(object):
+        def __init__(self, value):
+            self.value = value
+
+        def __add__(self, other):
+            return self.__class__(self.value + other)
+
+        def __mul__(self, other):
+            return self.__class__(self.value + other)
+
+    def test():
+        compose(lambda x: x*2, lambda x: x+1)(Test(10))
+        compose(lambda x: x*2, lambda x: x+1)(Test(2))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):  # at least one func must be present
+            compose()
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):  # kwarg not accepted
+            compose(lambda x: x+1, invalidkwarg=lambda x: x*2)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):  # func fails
+            compose(lambda x: x+1)(Test('a'))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):  # second func fails
+            compose(lambda x: x*2, lambda x: x+1)(Test('a'))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+
 @pytest.mark.xfail(iteration_utilities.PY2,
                    reason='Python 2 does not support this way of pickling.')
 def test_cfuncs_pickle():
@@ -2287,6 +2346,7 @@ def test_cfuncs_pickle():
     successive = iteration_utilities.successive
     roundrobin = iteration_utilities.roundrobin
     complement = iteration_utilities.complement
+    compose = iteration_utilities.compose
 
     # IMPORTANT: methoddescriptors like "str.lower" as key functions can not
     #            be pickled before python 3.4
@@ -2411,6 +2471,13 @@ def test_cfuncs_pickle():
         assert next(ujs) == 'a'
         x = pickle.dumps(ujs)
         assert list(pickle.loads(x)) == []
+
+    # ----- Compose
+
+    cmp = compose(iteration_utilities.square, iteration_utilities.one_over)
+    x = pickle.dumps(cmp)
+    assert pickle.loads(x)(10) == 1/100
+    assert pickle.loads(x)(2) == 1/4
 
 
 def test_callbacks():
