@@ -1930,7 +1930,6 @@ def test_cfuncs_pickle():
     grouper = iteration_utilities.grouper
     intersperse = iteration_utilities.intersperse
     merge = iteration_utilities.merge
-    unique_everseen = iteration_utilities.unique_everseen
     unique_justseen = iteration_utilities.unique_justseen
     successive = iteration_utilities.successive
     roundrobin = iteration_utilities.roundrobin
@@ -1947,10 +1946,6 @@ def test_cfuncs_pickle():
     assert next(pickle.loads(x)) == 16
 
     # ----- Unique Everseen
-    uqe = unique_everseen([1, 2, 1, 2])
-    assert next(uqe) == 1
-    x = pickle.dumps(uqe)
-    assert list(pickle.loads(x)) == [2]
 
     # ----- Successive
     suc = successive([1, 2, 3, 4])

@@ -15,7 +15,7 @@ from helper_pytest_monkeypatch import pytest_raises
 partition = iteration_utilities.partition
 
 
-class Test(object):
+class T(object):
     def __init__(self, value):
         self.value = value
 
@@ -38,7 +38,7 @@ def test_partition_normal1():
     assert partition([0, 1, 2]) == ([0], [1, 2])
 
     def test():
-        partition([Test(0), Test(1), Test(2)])
+        partition([T(0), T(1), T(2)])
     assert not memory_leak(test)
 
 
@@ -46,7 +46,7 @@ def test_partition_normal2():
     assert partition([3, 1, 0]) == ([0], [3, 1])
 
     def test():
-        partition([Test(3), Test(1), Test(0)])
+        partition([T(3), T(1), T(0)])
     assert not memory_leak(test)
 
 
@@ -54,7 +54,7 @@ def test_partition_normal3():
     assert partition([0, 0, 0]) == ([0, 0, 0], [])
 
     def test():
-        partition([Test(0), Test(0), Test(0)])
+        partition([T(0), T(0), T(0)])
     assert not memory_leak(test)
 
 
@@ -62,7 +62,7 @@ def test_partition_normal4():
     assert partition([1, 1, 1]) == ([], [1, 1, 1])
 
     def test():
-        partition([Test(1), Test(1), Test(1)])
+        partition([T(1), T(1), T(1)])
     assert not memory_leak(test)
 
 
@@ -70,7 +70,7 @@ def test_partition_pred1():
     assert partition([0, 1, 2], lambda x: x > 1) == ([0, 1], [2])
 
     def test():
-        partition([Test(0), Test(1), Test(2)], lambda x: x.value > 1)
+        partition([T(0), T(1), T(2)], lambda x: x.value > 1)
     assert not memory_leak(test)
 
 
@@ -78,7 +78,7 @@ def test_partition_pred2():
     assert partition([0, 1, 2], lambda x: x < 1) == ([1, 2], [0])
 
     def test():
-        partition([Test(0), Test(1), Test(2)], lambda x: x.value < 1)
+        partition([T(0), T(1), T(2)], lambda x: x.value < 1)
     assert not memory_leak(test)
 
 
@@ -89,7 +89,7 @@ def test_partition_failure1():
 
     def test():
         with pytest_raises(TypeError):
-            partition(Test(10))
+            partition(T(10))
     assert not memory_leak(test)
 
 
@@ -99,7 +99,7 @@ def test_partition_failure2():
 
     def test():
         with pytest_raises(TypeError):
-            partition([Test(1), Test('a')], lambda x: x.value + 3)
+            partition([T(1), T('a')], lambda x: x.value + 3)
     assert not memory_leak(test)
 
 
@@ -110,7 +110,7 @@ def test_partition_failure3():
 
     def test():
         with pytest_raises(TypeError):
-            partition([Test(1), Test('a')], lambda x: x.value - 1)
+            partition([T(1), T('a')], lambda x: x.value - 1)
     assert not memory_leak(test)
 
 
@@ -120,5 +120,5 @@ def test_partition_failure4():
 
     def test():
         with pytest_raises(TypeError):
-            partition([Test(1), Test('a')], lambda x: x.value + 'a')
+            partition([T(1), T('a')], lambda x: x.value + 'a')
     assert not memory_leak(test)
