@@ -138,6 +138,7 @@ Additional recipes for iterations.
 - :py:func:`intersperse`
 - :py:func:`merge`
 - :py:func:`roundrobin`
+- :py:func:`split`
 - :py:func:`successive`
 - :py:func:`unique_everseen`
 - :py:func:`unique_justseen`
