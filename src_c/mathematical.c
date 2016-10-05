@@ -92,3 +92,183 @@ than ``lambda x: 1/x``::\n\
     >>> one_over(4)\n\
     0.25\n\
 ");
+
+
+static PyObject*
+mathematical_radd(PyObject *self, PyObject *args) {
+    PyObject *op1, *op2;
+    if (PyArg_UnpackTuple(args, "radd", 2, 2, &op1, &op2)) {
+        return PyNumber_Add(op2, op1);
+    } else {
+        return NULL;
+    }
+}
+
+
+static PyObject*
+mathematical_rsub(PyObject *self, PyObject *args) {
+    PyObject *op1, *op2;
+    if (PyArg_UnpackTuple(args, "rsub", 2, 2, &op1, &op2)) {
+        return PyNumber_Subtract(op2, op1);
+    } else {
+        return NULL;
+    }
+}
+
+
+static PyObject*
+mathematical_rmul(PyObject *self, PyObject *args) {
+    PyObject *op1, *op2;
+    if (PyArg_UnpackTuple(args, "rmul", 2, 2, &op1, &op2)) {
+        return PyNumber_Multiply(op2, op1);
+    } else {
+        return NULL;
+    }
+}
+
+
+static PyObject*
+mathematical_rdiv(PyObject *self, PyObject *args) {
+    PyObject *op1, *op2;
+    if (PyArg_UnpackTuple(args, "rtruediv", 2, 2, &op1, &op2)) {
+        return PyNumber_TrueDivide(op2, op1);
+    } else {
+        return NULL;
+    }
+}
+
+
+static PyObject*
+mathematical_rpow(PyObject *self, PyObject *args) {
+    PyObject *op1, *op2;
+    if (PyArg_UnpackTuple(args, "rpow", 2, 2, &op1, &op2)) {
+        return PyNumber_Power(op2, op1, Py_None);
+    } else {
+        return NULL;
+    }
+}
+
+
+PyDoc_STRVAR(mathematical_radd_doc,
+"radd(op1, op2)\n\
+\n\
+Returns ``op2 + op1``.\n\
+\n\
+Parameters\n\
+----------\n\
+op1, op2 : any type\n\
+    The values to be added.\n\
+\n\
+Returns\n\
+-------\n\
+radd : any type\n\
+    Returns ``op2 + op1``.\n\
+\n\
+Examples\n\
+--------\n\
+Equivalent to ``lambda x, y: y + x``::\n\
+\n\
+    >>> from iteration_utilities import radd\n\
+    >>> radd(2, 2)\n\
+    4\n\
+");
+
+
+PyDoc_STRVAR(mathematical_rsub_doc,
+"rsub(op1, op2)\n\
+\n\
+Returns ``op2 - op1``.\n\
+\n\
+Parameters\n\
+----------\n\
+op1, op2 : any type\n\
+    The values to be subtracted.\n\
+\n\
+Returns\n\
+-------\n\
+rsub : any type\n\
+    Returns ``op2 - op1``.\n\
+\n\
+Examples\n\
+--------\n\
+Equivalent to ``lambda x, y: y - x``::\n\
+\n\
+    >>> from iteration_utilities import rsub\n\
+    >>> rsub(2, 5)\n\
+    3\n\
+");
+
+
+PyDoc_STRVAR(mathematical_rmul_doc,
+"rmul(op1, op2)\n\
+\n\
+Returns ``op2 * op1``.\n\
+\n\
+Parameters\n\
+----------\n\
+op1, op2 : any type\n\
+    The values to be multiplied.\n\
+\n\
+Returns\n\
+-------\n\
+rmul : any type\n\
+    Returns ``op2 * op1``.\n\
+\n\
+Examples\n\
+--------\n\
+Equivalent to ``lambda x, y: y * x``::\n\
+\n\
+    >>> from iteration_utilities import rmul\n\
+    >>> rmul(2, 2)\n\
+    4\n\
+");
+
+
+PyDoc_STRVAR(mathematical_rdiv_doc,
+"rdiv(op1, op2)\n\
+\n\
+Returns ``op2 / op1``.\n\
+\n\
+Parameters\n\
+----------\n\
+op1, op2 : any type\n\
+    The values to be divided.\n\
+\n\
+Returns\n\
+-------\n\
+rdiv : any type\n\
+    Returns ``op2 / op1``.\n\
+\n\
+Examples\n\
+--------\n\
+Equivalent to ``lambda x, y: y / x``::\n\
+\n\
+    >>> from iteration_utilities import rdiv\n\
+    >>> rdiv(10, 1)\n\
+    0.1\n\
+");
+
+
+PyDoc_STRVAR(mathematical_rpow_doc,
+"rpow(op1, op2)\n\
+\n\
+Returns ``op2 ** op1``.\n\
+\n\
+Parameters\n\
+----------\n\
+op1, op2 : any type\n\
+    The values for the operation.\n\
+\n\
+Returns\n\
+-------\n\
+rpow : any type\n\
+    Returns ``op2 ** op1``.\n\
+\n\
+Examples\n\
+--------\n\
+Equivalent to ``lambda x, y: y ** x``::\n\
+\n\
+    >>> from iteration_utilities import rpow\n\
+    >>> rpow(3, 2)\n\
+    8\n\
+");

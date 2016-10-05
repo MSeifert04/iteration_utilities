@@ -74,6 +74,31 @@ iterationutils_methods[] = {
      METH_O,
      mathematical_oneover_doc},
 
+    {"radd",
+     (PyCFunction)mathematical_radd,
+     METH_VARARGS,
+     mathematical_radd_doc},
+
+    {"rsub",
+     (PyCFunction)mathematical_rsub,
+     METH_VARARGS,
+     mathematical_rsub_doc},
+
+    {"rmul",
+     (PyCFunction)mathematical_rmul,
+     METH_VARARGS,
+     mathematical_rmul_doc},
+
+    {"rdiv",
+     (PyCFunction)mathematical_rdiv,
+     METH_VARARGS,
+     mathematical_rdiv_doc},
+
+    {"rpow",
+     (PyCFunction)mathematical_rpow,
+     METH_VARARGS,
+     mathematical_rpow_doc},
+
     {"return_True",
      (PyCFunction)returnx_returnTrue,
      METH_VARARGS | METH_KEYWORDS,
