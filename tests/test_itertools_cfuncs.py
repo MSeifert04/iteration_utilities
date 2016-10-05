@@ -1696,6 +1696,65 @@ def test_complement_memoryleak():
     assert not memory_leak(test, **kwargs_memoryleak)
 
 
+def test_compose():
+    compose = iteration_utilities.compose
+
+    double_increment = compose(lambda x: x*2, lambda x: x+1)
+    assert double_increment(10) == 21
+    assert double_increment(2.) == 5
+
+    with pytest.raises(TypeError):  # at least one func must be present
+        compose()
+
+    with pytest.raises(TypeError):  # kwarg not accepted
+        compose(lambda x: x+1, invalidkwarg=lambda x: x*2)
+
+    with pytest.raises(TypeError):  # func fails
+        compose(lambda x: x+1)('a')
+
+    with pytest.raises(TypeError):  # second func fails
+        compose(lambda x: x*2, lambda x: x+1)('a')
+
+
+def test_compose_memoryleak():
+    compose = iteration_utilities.compose
+
+    class Test(object):
+        def __init__(self, value):
+            self.value = value
+
+        def __add__(self, other):
+            return self.__class__(self.value + other)
+
+        def __mul__(self, other):
+            return self.__class__(self.value + other)
+
+    def test():
+        compose(lambda x: x*2, lambda x: x+1)(Test(10))
+        compose(lambda x: x*2, lambda x: x+1)(Test(2))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):  # at least one func must be present
+            compose()
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):  # kwarg not accepted
+            compose(lambda x: x+1, invalidkwarg=lambda x: x*2)
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):  # func fails
+            compose(lambda x: x+1)(Test('a'))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+    def test():
+        with pytest_raises(TypeError):  # second func fails
+            compose(lambda x: x*2, lambda x: x+1)(Test('a'))
+    assert not memory_leak(test, **kwargs_memoryleak)
+
+
 def test_one():
     one = iteration_utilities.one
 
@@ -2270,65 +2329,6 @@ def test_all_equal_memoryleak():
             with pytest_raises(TypeError):  # comparison fail
                 all_equal([Test(1), Test('a')])
         assert not memory_leak(test, **kwargs_memoryleak)
-
-
-def test_compose():
-    compose = iteration_utilities.compose
-
-    double_increment = compose(lambda x: x*2, lambda x: x+1)
-    assert double_increment(10) == 21
-    assert double_increment(2.) == 5
-
-    with pytest.raises(TypeError):  # at least one func must be present
-        compose()
-
-    with pytest.raises(TypeError):  # kwarg not accepted
-        compose(lambda x: x+1, invalidkwarg=lambda x: x*2)
-
-    with pytest.raises(TypeError):  # func fails
-        compose(lambda x: x+1)('a')
-
-    with pytest.raises(TypeError):  # second func fails
-        compose(lambda x: x*2, lambda x: x+1)('a')
-
-
-def test_compose_memoryleak():
-    compose = iteration_utilities.compose
-
-    class Test(object):
-        def __init__(self, value):
-            self.value = value
-
-        def __add__(self, other):
-            return self.__class__(self.value + other)
-
-        def __mul__(self, other):
-            return self.__class__(self.value + other)
-
-    def test():
-        compose(lambda x: x*2, lambda x: x+1)(Test(10))
-        compose(lambda x: x*2, lambda x: x+1)(Test(2))
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        with pytest_raises(TypeError):  # at least one func must be present
-            compose()
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        with pytest_raises(TypeError):  # kwarg not accepted
-            compose(lambda x: x+1, invalidkwarg=lambda x: x*2)
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        with pytest_raises(TypeError):  # func fails
-            compose(lambda x: x+1)(Test('a'))
-    assert not memory_leak(test, **kwargs_memoryleak)
-
-    def test():
-        with pytest_raises(TypeError):  # second func fails
-            compose(lambda x: x*2, lambda x: x+1)(Test('a'))
-    assert not memory_leak(test, **kwargs_memoryleak)
 
 
 @pytest.mark.xfail(iteration_utilities.PY2,
