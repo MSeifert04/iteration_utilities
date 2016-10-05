@@ -4,6 +4,7 @@
 #include "returnx.c"
 #include "mathematical.c"
 #include "functionscomplement.c"
+#include "functionscompose.c"
 #include "reducealldistinct.c"
 #include "reduceallequal.c"
 #include "reduceminmax.c"
@@ -200,6 +201,7 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
     // a few lines later.
     PyTypeObject *typelist[] = {
         &functions_complement_type,
+        &functions_compose_type,
         &recipes_accumulate_type,
         &recipes_applyfunc_type,
         &recipes_grouper_type,
@@ -245,6 +247,7 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
     // a few lines earlier.
     PyTypeObject *typelist[] = {
         &functions_complement_type,
+        &functions_compose_type,
         &recipes_accumulate_type,
         &recipes_applyfunc_type,
         &recipes_grouper_type,
