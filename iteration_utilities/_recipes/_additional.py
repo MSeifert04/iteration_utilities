@@ -5,9 +5,10 @@ Additional recipes
 # Built-ins
 from __future__ import absolute_import, division, print_function
 from collections import Iterable
+from itertools import chain
 
 
-__all__ = ['deepflatten', 'itersubclasses']
+__all__ = ['append', 'deepflatten', 'itersubclasses', 'prepend']
 
 
 def itersubclasses(cls, seen=None):
@@ -183,3 +184,63 @@ def deepflatten(iterable, depth=None, types=Iterable, ignore=None):
                     yield item
             else:
                 yield x
+
+
+def append(element, iterable):
+    """Append one `element` on `iterable`.
+
+    Parameters
+    ----------
+    element : any type
+        The `element` to append to the `iterable`.
+
+    iterable : iterable
+        The `iterable`.
+
+    Returns
+    -------
+    appended : generator
+        The `iterable` followed by `element` as generator.
+
+    Examples
+    --------
+    Some simple examples::
+
+        >>> from iteration_utilities import append
+        >>> list(append(10, range(3)))
+        [0, 1, 2, 10]
+
+        >>> list(append(0, []))
+        [0]
+    """
+    return chain(iterable, [element])
+
+
+def prepend(element, iterable):
+    """Prepend one `element` on `iterable`.
+
+    Parameters
+    ----------
+    element : any type
+        The `element` to prepend to the `iterable`.
+
+    iterable : iterable
+        The `iterable`.
+
+    Returns
+    -------
+    prepended : generator
+        The `element` followed by `iterable` as generator.
+
+    Examples
+    --------
+    Some simple examples::
+
+        >>> from iteration_utilities import prepend
+        >>> list(prepend(10, range(3)))
+        [10, 0, 1, 2]
+
+        >>> list(prepend(0, []))
+        [0]
+    """
+    return chain([element], iterable)
