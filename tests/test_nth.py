@@ -191,7 +191,7 @@ def test_nth_failures3():
 
     def test():
         with pytest_raises(IndexError):
-            nth([T(0)], T(1))
+            nth([T(0)], 1)
     assert not memory_leak(test)
 
 
