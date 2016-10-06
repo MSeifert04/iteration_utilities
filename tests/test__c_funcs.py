@@ -13,7 +13,7 @@ from helper_leak import memory_leak
 from helper_pytest_monkeypatch import pytest_raises
 
 
-def test_callbacks():
+def test_other_c_funcs():
     assert iteration_utilities.return_True()
     assert not iteration_utilities.return_False()
     assert iteration_utilities.return_None() is None
