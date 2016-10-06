@@ -117,7 +117,7 @@ def test_unique_justseen_failure3():
 def test_unique_justseen_failure4():
     res = list(unique_justseen([T3(1), T3(1)]))
     assert len(res) == 1
-    assert isinstance(res[0], Test3)
+    assert isinstance(res[0], T3)
     assert res[0].value == 1
 
     def test():
