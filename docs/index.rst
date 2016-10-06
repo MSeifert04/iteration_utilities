@@ -119,16 +119,13 @@ Additional recipes for iterations.
 
 - :py:func:`all_distinct`
 - :py:func:`all_equal`
-- :py:func:`first`
 - :py:func:`groupby2`
 - :py:func:`ilen`
-- :py:func:`last`
 - :py:func:`minmax`
 - :py:func:`nth`
 - :py:func:`one`
 - :py:func:`partition`
 - :py:func:`quantify`
-- :py:func:`second`
 
 
 .. py:currentmodule:: iteration_utilities

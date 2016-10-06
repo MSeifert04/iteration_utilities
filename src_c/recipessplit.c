@@ -33,9 +33,9 @@ recipes_split_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
-    if (maxsplit <= -2 || maxsplit == 0) {
+    if (maxsplit <= -2) {
         PyErr_Format(PyExc_ValueError,
-                     "`maxsplit` must be -1 or greater than 0.");
+                     "`maxsplit` must be -1 or greater.");
         return NULL;
     }
 

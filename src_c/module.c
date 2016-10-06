@@ -1,5 +1,6 @@
 #include <Python.h>
 #include <structmember.h>
+
 #include "isx.c"
 #include "returnx.c"
 #include "mathematical.c"
@@ -8,15 +9,12 @@
 #include "reducealldistinct.c"
 #include "reduceallequal.c"
 #include "reduceminmax.c"
-#include "reducefirst.c"
 #include "reducegroupby.c"
 #include "reduceilen.c"
-#include "reducelast.c"
 #include "reducenth.c"
 #include "reduceone.c"
 #include "reducepartition.c"
 #include "reducequantify.c"
-#include "reducesecond.c"
 #include "recipesuniquejust.c"
 #include "recipesuniqueever.c"
 #include "recipesaccumulate.c"
@@ -143,21 +141,6 @@ iterationutils_methods[] = {
      (PyCFunction)reduce_minmax,
      METH_VARARGS | METH_KEYWORDS,
      reduce_minmax_doc},
-
-    {"first",
-     (PyCFunction)reduce_first,
-     METH_VARARGS | METH_KEYWORDS,
-     reduce_first_doc},
-
-    {"second",
-     (PyCFunction)reduce_second,
-     METH_VARARGS | METH_KEYWORDS,
-     reduce_second_doc},
-
-    {"last",
-     (PyCFunction)reduce_last,
-     METH_VARARGS | METH_KEYWORDS,
-     reduce_last_doc},
 
     {"one",
      (PyCFunction)reduce_one,

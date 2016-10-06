@@ -123,11 +123,19 @@ recipes_accumulate_next(recipes_accumulateobject *lz)
 static PyObject *
 recipes_accumulate_reduce(recipes_accumulateobject *lz)
 {
-    return Py_BuildValue("O(OOO)",
-                         Py_TYPE(lz),
-                         lz->binop ? lz->binop : Py_None,
-                         lz->iterator,
-                         lz->total ? lz->total : Py_None);
+    if (lz->total != NULL) {
+        return Py_BuildValue("O(OOO)",
+                             Py_TYPE(lz),
+                             lz->binop ? lz->binop : Py_None,
+                             lz->iterator,
+                             lz->total);
+    } else {
+        return Py_BuildValue("O(OO)",
+                             Py_TYPE(lz),
+                             lz->binop ? lz->binop : Py_None,
+                             lz->iterator);
+    }
+
 }
 
 static PyMethodDef recipes_accumulate_methods[] = {
