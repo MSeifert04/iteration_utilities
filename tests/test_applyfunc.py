@@ -22,7 +22,10 @@ class T(object):
         self.value = value
 
     def __pow__(self, other):
-        return self.__class__(self.value**other.value)
+        if isinstance(other, self.__class__):
+            return self.__class__(self.value**other.value)
+        else:
+            return self.__class__(self.value**other)
 
 
 def test_applyfunc_normal1():
@@ -60,7 +63,7 @@ def test_applyfunc_pickle1():
     assert next(pickle.loads(x)) == 16
 
     def test():
-        apf = applyfunc(lambda x: x**T(2), T(2))
+        apf = applyfunc(iteration_utilities.square, T(2))
         next(apf)
         x = pickle.dumps(apf)
         next(pickle.loads(x))

@@ -28,6 +28,9 @@ class T(object):
     def __lt__(self, other):
         return self.value < other.value
 
+    def __abs__(self):
+        return self.__class__(abs(self.value))
+
 
 def test_merge_empty1():
     assert list(merge()) == []
@@ -347,7 +350,7 @@ def test_merge_pickle3():
     assert list(pickle.loads(x)) == [2, 1, 0]
 
     def test():
-        mge = merge([T(2), T(1)], [T(0)], [3], reverse=True)
+        mge = merge([T(2), T(1)], [T(0)], [T(3)], reverse=True)
         next(mge)
         x = pickle.dumps(mge)
         list(pickle.loads(x))

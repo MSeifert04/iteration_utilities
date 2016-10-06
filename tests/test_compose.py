@@ -92,6 +92,6 @@ def test_compose_pickle1():
     def test():
         cmp = compose(iteration_utilities.square, iteration_utilities.one_over)
         x = pickle.dumps(cmp)
-        pickle.loads(x)(T(10))
-        pickle.loads(x)(T(2))
+        pickle.loads(x)(10)
+        pickle.loads(x)(2)
     assert not memory_leak(test)
