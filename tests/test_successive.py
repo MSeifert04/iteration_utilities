@@ -20,6 +20,12 @@ class T(object):
     def __init__(self, value):
         self.value = value
 
+    def __hash__(self):
+        return hash(self.value)
+
+    def __eq__(self, other):
+        return self.value == other.value
+
 
 def test_successive_empty1():
     assert list(successive([])) == []
@@ -74,6 +80,14 @@ def test_successive_normal3():
 
     def test():
         list(successive([T(1), T(2), T(3), T(4)], times=4))
+    assert not memory_leak(test)
+
+
+def test_successive_normal4():
+    assert dict(successive(range(4))) == {0: 1, 1: 2, 2: 3}
+
+    def test():
+        dict(successive([T(1), T(2), T(3), T(4)]))
     assert not memory_leak(test)
 
 

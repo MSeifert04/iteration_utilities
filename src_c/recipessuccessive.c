@@ -110,7 +110,7 @@ recipes_successive_next(recipes_successive_object *lz)
         // Shift all earlier items one index to the left.
         for (i=1 ; i < times ; i++) {
             olditem = PyTuple_GET_ITEM(result, i);
-            Py_INCREF(olditem);
+            //Py_INCREF(olditem);
             if (i == 1) {
                 // Temporarly get the first item because it's going to be kicked.
                 temp = PyTuple_GET_ITEM(result, 0);
@@ -118,6 +118,7 @@ recipes_successive_next(recipes_successive_object *lz)
             } else {
                 PyTuple_SET_ITEM(result, i-1, olditem);
             }
+            //Py_DECREF(olditem);
         }
         // Insert the new item
         PyTuple_SET_ITEM(result, times-1, item);
