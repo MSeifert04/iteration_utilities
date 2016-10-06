@@ -101,6 +101,7 @@ def test_merge_normal5():
         assert list(merge(*seq)) == [0, 0, 1, 1, 2, 2, 3, 4, 4, 5, 6]
     # TODO: Missing memoryleak
 
+
 def test_merge_stable1():
     # Stability tests
     it = merge([1], [1.])
@@ -302,4 +303,52 @@ def test_merge_failure10():
     def test():
         with pytest_raises(TypeError):
             list(merge([T(1), T('b')], [T(2), T(3)]))
+    assert not memory_leak(test)
+
+
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
+def test_merge_pickle1():
+    mge = merge([0], [1, 2], [2])
+    assert next(mge) == 0
+    x = pickle.dumps(mge)
+    assert list(pickle.loads(x)) == [1, 2, 2]
+
+    def test():
+        mge = merge([T(0)], [T(1), T(2)], [T(2)])
+        next(mge)
+        x = pickle.dumps(mge)
+        list(pickle.loads(x))
+    assert not memory_leak(test)
+
+
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
+def test_merge_pickle2():
+    mge = merge([1, 2], [0], [-2], key=abs)
+    assert next(mge) == 0
+    x = pickle.dumps(mge)
+    assert list(pickle.loads(x)) == [1, 2, -2]
+
+    def test():
+        mge = merge([T(1), T(2)], [T(0)], [T(-2)], key=abs)
+        next(mge)
+        x = pickle.dumps(mge)
+        list(pickle.loads(x))
+    assert not memory_leak(test)
+
+
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
+def test_merge_pickle3():
+    mge = merge([2, 1], [0], [3], reverse=True)
+    assert next(mge) == 3
+    x = pickle.dumps(mge)
+    assert list(pickle.loads(x)) == [2, 1, 0]
+
+    def test():
+        mge = merge([T(2), T(1)], [T(0)], [3], reverse=True)
+        next(mge)
+        x = pickle.dumps(mge)
+        list(pickle.loads(x))
     assert not memory_leak(test)

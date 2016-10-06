@@ -70,3 +70,19 @@ def test_complement_normal7():
     def test():
         complement(iteration_utilities.is_None)(True)
     assert not memory_leak(test)
+
+
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
+def test_complement_pickle1():
+    x = pickle.dumps(complement(iteration_utilities.is_None))
+    assert pickle.loads(x)(False)
+    assert pickle.loads(x)(True)
+    assert not pickle.loads(x)(None)
+
+    def test():
+        x = pickle.dumps(complement(iteration_utilities.is_None))
+        pickle.loads(x)(False)
+        pickle.loads(x)(True)
+        pickle.loads(x)(None)
+    assert not memory_leak(test)

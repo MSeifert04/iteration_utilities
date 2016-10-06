@@ -123,3 +123,67 @@ def test_unique_justseen_failure4():
     def test():
         list(unique_justseen([T3(1), T3(1)]))
     assert not memory_leak(test)
+
+
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
+def test_unique_justseen_pickle1():
+    ujs = unique_justseen([1, 2, 3])
+    x = pickle.dumps(ujs)
+    assert list(pickle.loads(x)) == [1, 2, 3]
+
+    def test():
+        ujs = unique_justseen([T(1), T(2), T(3)])
+        x = pickle.dumps(ujs)
+        list(pickle.loads(x))
+    assert not memory_leak(test)
+
+
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
+def test_unique_justseen_pickle2():
+    ujs = unique_justseen([1, 2, 3])
+    assert next(ujs) == 1
+    x = pickle.dumps(ujs)
+    assert list(pickle.loads(x)) == [2, 3]
+
+    def test():
+        ujs = unique_justseen([T(1), T(2), T(3)])
+        next(ujs)
+        x = pickle.dumps(ujs)
+        list(pickle.loads(x))
+    assert not memory_leak(test)
+
+
+@pytest.mark.xfail(iteration_utilities.PY34, reason='see method comments')
+def test_unique_justseen_pickle3():
+    # Pickling a method descriptor is not possible for Python 3.3 and before
+    # Also operator.methodcaller loses it's methodname when pickled for Python
+    #   3.4 and lower...
+    ujs = unique_justseen(['a', 'A', 'a'], key=str.lower)
+    x = pickle.dumps(ujs)
+    assert list(pickle.loads(x)) == ['a']
+
+    def test():
+        ujs = unique_justseen(['a', 'A', 'a'], key=str.lower)
+        x = pickle.dumps(ujs)
+        list(pickle.loads(x))
+    assert not memory_leak(test)
+
+
+@pytest.mark.xfail(iteration_utilities.PY34, reason='see method comments')
+def test_unique_justseen_pickle4():
+    # Pickling a method descriptor is not possible for Python 3.3 and before
+    # Also operator.methodcaller loses it's methodname when pickled for Python
+    #   3.4 and lower...
+    ujs = unique_justseen(['a', 'A', 'a'], key=str.lower)
+    assert next(ujs) == 'a'
+    x = pickle.dumps(ujs)
+    assert list(pickle.loads(x)) == []
+
+    def test():
+        ujs = unique_justseen(['a', 'A', 'a'], key=str.lower)
+        next(ujs)
+        x = pickle.dumps(ujs)
+        list(pickle.loads(x))
+    assert not memory_leak(test)

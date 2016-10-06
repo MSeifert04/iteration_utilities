@@ -234,3 +234,51 @@ def test_grouper_failure3():
         with pytest_raises(TypeError):
             grouper(T(1), 2)
     assert not memory_leak(test)
+
+
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
+def test_grouper_pickle1():
+    grp = grouper(range(10), 3)
+    assert next(grp) == (0, 1, 2)
+    x = pickle.dumps(grp)
+    assert list(pickle.loads(x)) == [(3, 4, 5), (6, 7, 8), (9,)]
+
+    def test():
+        grp = grouper(list(map(T, range(10))), 3)
+        next(grp)
+        x = pickle.dumps(grp)
+        list(pickle.loads(x))
+    assert not memory_leak(test)
+
+
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
+def test_grouper_pickle2():
+    grp = grouper(range(10), 3, fillvalue=0)
+    assert next(grp) == (0, 1, 2)
+    x = pickle.dumps(grp)
+    assert list(pickle.loads(x)) == [(3, 4, 5), (6, 7, 8), (9, 0, 0)]
+
+    def test():
+        grp = grouper(list(map(T, range(10))), 3, fillvalue=T(0))
+        next(grp)
+        x = pickle.dumps(grp)
+        list(pickle.loads(x))
+    assert not memory_leak(test)
+
+
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
+def test_grouper_pickle3():
+    grp = grouper(range(10), 3, truncate=True)
+    assert next(grp) == (0, 1, 2)
+    x = pickle.dumps(grp)
+    assert list(pickle.loads(x)) == [(3, 4, 5), (6, 7, 8)]
+
+    def test():
+        grp = grouper(list(map(T, range(10))), 3, truncate=True)
+        next(grp)
+        x = pickle.dumps(grp)
+        list(pickle.loads(x))
+    assert not memory_leak(test)

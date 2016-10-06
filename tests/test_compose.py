@@ -24,7 +24,10 @@ class T(object):
         return self.__class__(self.value + other)
 
     def __mul__(self, other):
-        return self.__class__(self.value + other)
+        return self.__class__(self.value * other)
+
+    def __pow__(self, other):
+        return self.__class__(self.value ** other)
 
 
 def test_compose_normal1():
@@ -75,4 +78,20 @@ def test_compose_failure4():
     def test():
         with pytest_raises(TypeError):  # second func fails
             compose(lambda x: x*2, lambda x: x+1)(T('a'))
+    assert not memory_leak(test)
+
+
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
+def test_compose_pickle1():
+    cmp = compose(iteration_utilities.square, iteration_utilities.one_over)
+    x = pickle.dumps(cmp)
+    assert pickle.loads(x)(10) == 1/100
+    assert pickle.loads(x)(2) == 1/4
+
+    def test():
+        cmp = compose(iteration_utilities.square, iteration_utilities.one_over)
+        x = pickle.dumps(cmp)
+        pickle.loads(x)(T(10))
+        pickle.loads(x)(T(2))
     assert not memory_leak(test)
