@@ -317,14 +317,13 @@ def test_merge_pickle1():
     x = pickle.dumps(mge)
     assert list(pickle.loads(x)) == [1, 2, 2]
 
-    """
     def test():
         mge = merge([T(0)], [T(1), T(2)], [T(2)])
         next(mge)
         x = pickle.dumps(mge)
         list(pickle.loads(x))
+    memory_leak(test)
     assert not memory_leak(test)
-    """
 
 
 @pytest.mark.xfail(iteration_utilities.PY2,

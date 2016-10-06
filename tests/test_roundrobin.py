@@ -109,6 +109,7 @@ def test_roundrobin_pickle1():
         next(rr)
         x = pickle.dumps(rr)
         list(pickle.loads(x))
+    memory_leak(test)
     assert not memory_leak(test)
 
 

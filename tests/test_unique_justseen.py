@@ -132,13 +132,12 @@ def test_unique_justseen_pickle1():
     x = pickle.dumps(ujs)
     assert list(pickle.loads(x)) == [1, 2, 3]
 
-    """
     def test():
         ujs = unique_justseen([T(1), T(2), T(3)])
         x = pickle.dumps(ujs)
         list(pickle.loads(x))
+    memory_leak(test)
     assert not memory_leak(test)
-    """
 
 
 @pytest.mark.xfail(iteration_utilities.PY2,

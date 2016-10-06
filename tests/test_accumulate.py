@@ -126,14 +126,13 @@ def test_accumulate_pickle1():
     x = pickle.dumps(acc)
     assert list(pickle.loads(x)) == [3, 6, 10]
 
-    """
     def test():
         acc = accumulate([T(1), T(2), T(3), T(4)])
         next(acc)
         x = pickle.dumps(acc)
         list(pickle.loads(x))
+    memory_leak(test)
     assert not memory_leak(test)
-    """
 
 
 @pytest.mark.xfail(iteration_utilities.PY2,
