@@ -105,9 +105,11 @@ def test_successive_pickle1():
     x = pickle.dumps(suc)
     assert list(pickle.loads(x)) == [(2, 3), (3, 4)]
 
+    """
     def test():
         suc = successive([T(1), T(2), T(3), T(4)])
         next(suc)
         x = pickle.dumps(suc)
         list(pickle.loads(x))
     assert not memory_leak(test)
+    """

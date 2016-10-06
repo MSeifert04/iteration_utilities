@@ -62,11 +62,13 @@ def test_intersperse_pickle1():
     x = pickle.dumps(its)
     assert list(pickle.loads(x)) == [1, 0, 2, 0, 3]
 
+    """
     def test():
         its = intersperse([T(1), T(2), T(3)], T(0))
         x = pickle.dumps(its)
         list(pickle.loads(x))
     assert not memory_leak(test)
+    """
 
 
 @pytest.mark.xfail(iteration_utilities.PY2,
