@@ -15,6 +15,7 @@ from helper_pytest_monkeypatch import pytest_raises
 
 quantify = iteration_utilities.quantify
 
+
 class T(object):
     def __init__(self, value):
         self.value = value
@@ -30,11 +31,6 @@ class T(object):
 
     def __nonzero__(self):
         return bool(self.value)
-
-
-
-
-
 
 
 def test_quantify_empty1():
