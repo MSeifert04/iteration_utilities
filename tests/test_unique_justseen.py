@@ -155,7 +155,7 @@ def test_unique_justseen_pickle2():
     assert not memory_leak(test)
 
 
-@pytest.mark.xfail(iteration_utilities.PY34, reason='see method comments')
+@pytest.mark.xfail(not iteration_utilities.PY34, reason='see method comments')
 def test_unique_justseen_pickle3():
     # Pickling a method descriptor is not possible for Python 3.3 and before
     # Also operator.methodcaller loses it's methodname when pickled for Python
@@ -171,7 +171,7 @@ def test_unique_justseen_pickle3():
     assert not memory_leak(test)
 
 
-@pytest.mark.xfail(iteration_utilities.PY34, reason='see method comments')
+@pytest.mark.xfail(not iteration_utilities.PY34, reason='see method comments')
 def test_unique_justseen_pickle4():
     # Pickling a method descriptor is not possible for Python 3.3 and before
     # Also operator.methodcaller loses it's methodname when pickled for Python
