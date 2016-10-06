@@ -132,3 +132,17 @@ def test_accumulate_pickle1():
         x = pickle.dumps(acc)
         list(pickle.loads(x))
     assert not memory_leak(test)
+
+
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
+def test_accumulate_pickle2():
+    acc = accumulate([1, 2, 3, 4])
+    x = pickle.dumps(acc)
+    assert list(pickle.loads(x)) == [1, 3, 6, 10]
+
+    def test():
+        acc = accumulate([T(1), T(2), T(3), T(4)])
+        x = pickle.dumps(acc)
+        list(pickle.loads(x))
+    assert not memory_leak(test)
