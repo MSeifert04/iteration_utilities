@@ -154,9 +154,14 @@ recipes_successive_next(recipes_successive_object *lz)
 static PyObject *
 recipes_successive_reduce(recipes_successive_object *lz)
 {
-    return Py_BuildValue("O(On)(O)", Py_TYPE(lz),
-                         lz->it, lz->times,
-                         lz->result ? lz->result : Py_None);
+    if (lz->result == NULL) {
+        return Py_BuildValue("O(On)", Py_TYPE(lz),
+                             lz->it, lz->times);
+    } else {
+        return Py_BuildValue("O(On)(O)", Py_TYPE(lz),
+                             lz->it, lz->times,
+                             lz->result);
+    }
 }
 
 static PyObject *

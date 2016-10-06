@@ -112,3 +112,17 @@ def test_successive_pickle1():
         list(pickle.loads(x))
     memory_leak(test)
     assert not memory_leak(test)
+
+
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
+def test_successive_pickle2():
+    suc = successive([1, 2, 3, 4])
+    x = pickle.dumps(suc)
+    assert list(pickle.loads(x)) == [(1, 2), (2, 3), (3, 4)]
+
+    def test():
+        suc = successive([T(1), T(2), T(3), T(4)])
+        x = pickle.dumps(suc)
+        list(pickle.loads(x))
+    assert not memory_leak(test)
