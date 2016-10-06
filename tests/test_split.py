@@ -140,6 +140,8 @@ def test_split_failure3():
     assert not memory_leak(test)
 
 
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 def test_split_pickle1():
     l = [1, 2, 3, 4, 5, 3, 7, 8]
     spl = split(l, equalsthree)
@@ -155,6 +157,8 @@ def test_split_pickle1():
     assert not memory_leak(test)
 
 
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 def test_split_pickle2():
     l = [1, 2, 3, 4, 5, 3, 7, 8]
     spl = split(l, equalsthree)
@@ -171,6 +175,8 @@ def test_split_pickle2():
     assert not memory_leak(test)
 
 
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 def test_split_pickle3():
     l = [1, 2, 3, 4, 5, 3, 7, 8]
     spl = split(l, equalsthree, keep=True)
@@ -187,6 +193,8 @@ def test_split_pickle3():
     assert not memory_leak(test)
 
 
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 def test_split_pickle4():
     l = [1, 2, 3, 4, 5, 3, 7, 8]
     spl = split(l, equalsthree, maxsplit=1)
@@ -203,6 +211,8 @@ def test_split_pickle4():
     assert not memory_leak(test)
 
 
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 def test_split_pickle5():
     l = [1, 2, 3, 4, 5, 3, 7, 8]
     spl = split(l, 3, eq=True)
