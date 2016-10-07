@@ -1,6 +1,7 @@
 #include <Python.h>
 #include <structmember.h>
 
+#include "allhelper.c"
 #include "isx.c"
 #include "returnx.c"
 #include "mathematical.c"

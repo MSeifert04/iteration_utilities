@@ -29,7 +29,7 @@ reduce_ilen(PyObject *self, PyObject *args, PyObject *kwds)
         }
     }
 
-    PyErr_Clear();
+    helper_ExceptionClearStopIter();
 
     Py_DECREF(iterator);
 
