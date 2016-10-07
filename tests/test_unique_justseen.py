@@ -35,17 +35,6 @@ class T2(object):
         raise TypeError()
 
 
-class T3(object):
-    def __init__(self, value):
-        self.value = value
-
-    def __eq__(self, other):
-        raise TypeError()
-
-    def __ne__(self, other):
-        return self.value != other.value
-
-
 def test_unique_justseen_empty1():
     assert list(unique_justseen([])) == []
 
@@ -111,17 +100,6 @@ def test_unique_justseen_failure3():
     def test():
         with pytest_raises(TypeError):
             list(unique_justseen([T2(1), T2(2)]))
-    assert not memory_leak(test)
-
-
-def test_unique_justseen_failure4():
-    res = list(unique_justseen([T3(1), T3(1)]))
-    assert len(res) == 1
-    assert isinstance(res[0], T3)
-    assert res[0].value == 1
-
-    def test():
-        list(unique_justseen([T3(1), T3(1)]))
     assert not memory_leak(test)
 
 

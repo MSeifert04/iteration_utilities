@@ -101,16 +101,9 @@ recipes_uniquejust_next(recipes_uniquejust_object *lz)
         ok = PyObject_RichCompareBool(val, lz->lastitem, Py_EQ);
 
         if (ok < 0) {
-            PyErr_Clear();
-            // If there is no __eq__ method Python falls back to "x is y"
-            // but we want it to fallback to "not (x != y)"...
-            ok = PyObject_RichCompareBool(val, lz->lastitem, Py_NE);
-            if (ok < 0) {
-                Py_DECREF(val);
-                Py_DECREF(item);
-                return NULL;
-            }
-            ok = ok ? 0 : 1;
+            Py_DECREF(val);
+            Py_DECREF(item);
+            return NULL;
         }
 
         if (ok == 0) {
@@ -177,8 +170,7 @@ static PyMethodDef recipes_uniquejust_methods[] = {
 PyDoc_STRVAR(recipes_uniquejust_doc,
 "unique_justseen(iterable[, key])\n\
 \n\
-List unique elements, preserving order. Remember only the element just \n\
-seen.\n\
+List unique elements, preserving order. Remember only the element just seen.\n\
 \n\
 Parameters\n\
 ----------\n\
