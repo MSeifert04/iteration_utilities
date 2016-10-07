@@ -53,7 +53,7 @@ reduce_quantify(PyObject *self, PyObject *args, PyObject *kwds)
         Py_XDECREF(val);
     }
 
-    PyErr_Clear();
+    helper_ExceptionClearStopIter();
 
     Py_DECREF(iterator);
 

@@ -93,7 +93,7 @@ reduce_nth(PyObject *self, PyObject *args, PyObject *kwds)
 
     Py_DECREF(iterator);
 
-    PyErr_Clear();
+    helper_ExceptionClearStopIter();
 
     if (last != NULL) {
         return last;

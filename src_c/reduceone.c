@@ -11,7 +11,7 @@ reduce_one(PyObject *self, PyObject *iterable)
 
     item1 = (*Py_TYPE(iterator)->tp_iternext)(iterator);
     if (item1 == NULL) {
-        PyErr_Clear();
+        helper_ExceptionClearStopIter();
         Py_DECREF(iterator);
         PyErr_Format(PyExc_ValueError, "not enough values to unpack (expected 1, got 0)");
         return NULL;
@@ -19,7 +19,7 @@ reduce_one(PyObject *self, PyObject *iterable)
 
     item2 = (*Py_TYPE(iterator)->tp_iternext)(iterator);
     if (item2 != NULL) {
-        PyErr_Clear();
+        helper_ExceptionClearStopIter();
         Py_DECREF(iterator);
         Py_DECREF(item1);
         Py_DECREF(item2);
