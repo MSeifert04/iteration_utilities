@@ -170,8 +170,7 @@ static PyMethodDef recipes_uniquejust_methods[] = {
 PyDoc_STRVAR(recipes_uniquejust_doc,
 "unique_justseen(iterable[, key])\n\
 \n\
-List unique elements, preserving order. Remember only the element just \n\
-seen.\n\
+List unique elements, preserving order. Remember only the element just seen.\n\
 \n\
 Parameters\n\
 ----------\n\
