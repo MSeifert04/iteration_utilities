@@ -7,6 +7,7 @@
 #include "mathematical.c"
 #include "functionscomplement.c"
 #include "functionscompose.c"
+#include "functionsconst.c"
 #include "reducealldistinct.c"
 #include "reduceallequal.c"
 #include "reduceminmax.c"
@@ -98,21 +99,6 @@ iterationutils_methods[] = {
      METH_VARARGS,
      mathematical_rpow_doc},
 
-    {"return_True",
-     (PyCFunction)returnx_returnTrue,
-     METH_VARARGS | METH_KEYWORDS,
-     returnx_returnTrue_doc},
-
-    {"return_False",
-     (PyCFunction)returnx_returnFalse,
-     METH_VARARGS | METH_KEYWORDS,
-     returnx_returnFalse_doc},
-
-    {"return_None",
-     (PyCFunction)returnx_returnNone,
-     METH_VARARGS | METH_KEYWORDS,
-     returnx_returnNone_doc},
-
     {"return_called",
      (PyCFunction)returnx_returnCallResult,
      METH_O,
@@ -179,6 +165,10 @@ iterationutils_methods[] = {
 PyDoc_STRVAR(iterationutils_module_name, "_cfuncs");
 PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
 
+PyDoc_STRVAR(returnx_returnTrue_name, "return_True");
+PyDoc_STRVAR(returnx_returnFalse_name, "return_False");
+PyDoc_STRVAR(returnx_returnNone_name, "return_None");
+
 #if PY_MAJOR_VERSION >= 3
   //Module definition
   //The arguments of this structure tell Python what to call your extension,
@@ -205,12 +195,14 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
     int i;
     PyObject *m;
     char *name;
+    PyObject *returnx_returnTrue, *returnx_returnFalse, *returnx_returnNone;
 
     // Fill in classes! Must be synced with the Python2 version of module init
     // a few lines later.
     PyTypeObject *typelist[] = {
         &functions_complement_type,
         &functions_compose_type,
+        &functions_constant_type,
         &recipes_accumulate_type,
         &recipes_applyfunc_type,
         &recipes_grouper_type,
@@ -239,6 +231,18 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
         PyModule_AddObject(m, name+1, (PyObject *)typelist[i]);
     }
 
+    returnx_returnTrue = functions_constant_new(&functions_constant_type,
+                             Py_BuildValue("(O)", Py_True), NULL);
+    PyModule_AddObject(m, returnx_returnTrue_name, returnx_returnTrue);
+
+    returnx_returnFalse = functions_constant_new(&functions_constant_type,
+                              Py_BuildValue("(O)", Py_False), NULL);
+    PyModule_AddObject(m, returnx_returnFalse_name, returnx_returnFalse);
+
+    returnx_returnNone = functions_constant_new(&functions_constant_type,
+                             Py_BuildValue("(O)", Py_None), NULL);
+    PyModule_AddObject(m, returnx_returnNone_name, returnx_returnNone);
+
     return m;
   }
 
@@ -251,12 +255,14 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
     int i;
     PyObject *m;
     char *name;
+    PyObject *returnx_returnTrue, *returnx_returnFalse, *returnx_returnNone;
 
     // Fill in classes! Must be synced with the Python3 version of module init
     // a few lines earlier.
     PyTypeObject *typelist[] = {
         &functions_complement_type,
         &functions_compose_type,
+        &functions_constant_type,
         &recipes_accumulate_type,
         &recipes_applyfunc_type,
         &recipes_grouper_type,
@@ -286,5 +292,17 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
         Py_INCREF(typelist[i]);
         PyModule_AddObject(m, name+1, (PyObject *)typelist[i]);
     }
+
+    returnx_returnTrue = functions_constant_new(&functions_constant_type,
+                             Py_BuildValue("(O)", Py_True), NULL);
+    PyModule_AddObject(m, returnx_returnTrue_name, returnx_returnTrue);
+
+    returnx_returnFalse = functions_constant_new(&functions_constant_type,
+                              Py_BuildValue("(O)", Py_False), NULL);
+    PyModule_AddObject(m, returnx_returnFalse_name, returnx_returnFalse);
+
+    returnx_returnNone = functions_constant_new(&functions_constant_type,
+                             Py_BuildValue("(O)", Py_None), NULL);
+    PyModule_AddObject(m, returnx_returnNone_name, returnx_returnNone);
   }
 #endif
