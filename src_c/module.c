@@ -7,6 +7,7 @@
 #include "mathematical.c"
 #include "functionscomplement.c"
 #include "functionscompose.c"
+#include "functionsconst.c"
 #include "reducealldistinct.c"
 #include "reduceallequal.c"
 #include "reduceminmax.c"
@@ -98,21 +99,6 @@ iterationutils_methods[] = {
      METH_VARARGS,
      mathematical_rpow_doc},
 
-    {"return_True",
-     (PyCFunction)returnx_returnTrue,
-     METH_VARARGS | METH_KEYWORDS,
-     returnx_returnTrue_doc},
-
-    {"return_False",
-     (PyCFunction)returnx_returnFalse,
-     METH_VARARGS | METH_KEYWORDS,
-     returnx_returnFalse_doc},
-
-    {"return_None",
-     (PyCFunction)returnx_returnNone,
-     METH_VARARGS | METH_KEYWORDS,
-     returnx_returnNone_doc},
-
     {"return_called",
      (PyCFunction)returnx_returnCallResult,
      METH_O,
@@ -176,6 +162,21 @@ iterationutils_methods[] = {
     {NULL, NULL}
 };
 
+returnx_returnTrue = functions_constant_new(&functions_constant_type,
+                                            Py_BuildValue("(O)", Py_True),
+                                            NULL);
+returnx_returnTrue_name = "return_True";
+
+returnx_returnFalse = functions_constant_new(&functions_constant_type,
+                                            Py_BuildValue("(O)", Py_False),
+                                            NULL);
+returnx_returnTrue_name = "return_False";
+
+returnx_returnNone = functions_constant_new(&functions_constant_type,
+                                            Py_BuildValue("(O)", Py_None),
+                                            NULL);
+returnx_returnTrue_name = "return_None";
+
 PyDoc_STRVAR(iterationutils_module_name, "_cfuncs");
 PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
 
@@ -211,6 +212,7 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
     PyTypeObject *typelist[] = {
         &functions_complement_type,
         &functions_compose_type,
+        &functions_constant_type,
         &recipes_accumulate_type,
         &recipes_applyfunc_type,
         &recipes_grouper_type,
@@ -239,6 +241,10 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
         PyModule_AddObject(m, name+1, (PyObject *)typelist[i]);
     }
 
+    PyModule_AddObject(m, returnx_returnTrue_name, returnx_returnTrue);
+    PyModule_AddObject(m, returnx_returnFalse_name, returnx_returnFalse);
+    PyModule_AddObject(m, returnx_returnNone_name, returnx_returnNone);
+
     return m;
   }
 
@@ -257,6 +263,7 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
     PyTypeObject *typelist[] = {
         &functions_complement_type,
         &functions_compose_type,
+        &functions_constant_type,
         &recipes_accumulate_type,
         &recipes_applyfunc_type,
         &recipes_grouper_type,
@@ -286,5 +293,9 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
         Py_INCREF(typelist[i]);
         PyModule_AddObject(m, name+1, (PyObject *)typelist[i]);
     }
+
+    PyModule_AddObject(m, returnx_returnTrue_name, returnx_returnTrue);
+    PyModule_AddObject(m, returnx_returnFalse_name, returnx_returnFalse);
+    PyModule_AddObject(m, returnx_returnNone_name, returnx_returnNone);
   }
 #endif
