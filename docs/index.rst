@@ -144,6 +144,7 @@ Additional recipes for iterations.
 
 - :py:func:`complement`
 - :py:func:`compose`
+- :py:func:`const`
 
 
 Compatibility layer
