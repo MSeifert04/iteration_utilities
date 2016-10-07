@@ -101,14 +101,8 @@ recipes_uniquejust_next(recipes_uniquejust_object *lz)
         ok = PyObject_RichCompareBool(val, lz->lastitem, Py_EQ);
 
         if (ok < 0) {
-            PyErr_Clear();
-            ok = PyObject_RichCompareBool(val, lz->lastitem, Py_NE);
-            if (ok < 0) {
-                Py_DECREF(val);
-                Py_DECREF(item);
-                return NULL;
-            }
-            ok = ok ? 0 : 1;
+            Py_DECREF(val);
+            Py_DECREF(item);
         }
 
         if (ok == 0) {
