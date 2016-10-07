@@ -162,21 +162,6 @@ iterationutils_methods[] = {
     {NULL, NULL}
 };
 
-returnx_returnTrue = functions_constant_new(&functions_constant_type,
-                                            Py_BuildValue("(O)", Py_True),
-                                            NULL);
-returnx_returnTrue_name = "return_True";
-
-returnx_returnFalse = functions_constant_new(&functions_constant_type,
-                                            Py_BuildValue("(O)", Py_False),
-                                            NULL);
-returnx_returnTrue_name = "return_False";
-
-returnx_returnNone = functions_constant_new(&functions_constant_type,
-                                            Py_BuildValue("(O)", Py_None),
-                                            NULL);
-returnx_returnTrue_name = "return_None";
-
 PyDoc_STRVAR(iterationutils_module_name, "_cfuncs");
 PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
 
@@ -241,8 +226,19 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
         PyModule_AddObject(m, name+1, (PyObject *)typelist[i]);
     }
 
+    PyObject * returnx_returnTrue = functions_constant_new(&functions_constant_type,
+                                        Py_BuildValue("(O)", Py_True), NULL);
+    PyDoc_STRVAR(returnx_returnTrue_name, "return_True");
     PyModule_AddObject(m, returnx_returnTrue_name, returnx_returnTrue);
+
+    PyObject * returnx_returnFalse = functions_constant_new(&functions_constant_type,
+                                         Py_BuildValue("(O)", Py_False), NULL);
+    PyDoc_STRVAR(returnx_returnFalse_name, "return_False");
     PyModule_AddObject(m, returnx_returnFalse_name, returnx_returnFalse);
+
+    PyObject * returnx_returnNone = functions_constant_new(&functions_constant_type,
+                                        Py_BuildValue("(O)", Py_None), NULL);
+    PyDoc_STRVAR(returnx_returnNone_name, "return_None");
     PyModule_AddObject(m, returnx_returnNone_name, returnx_returnNone);
 
     return m;
@@ -294,8 +290,19 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
         PyModule_AddObject(m, name+1, (PyObject *)typelist[i]);
     }
 
+    PyObject * returnx_returnTrue = functions_constant_new(&functions_constant_type,
+                                        Py_BuildValue("(O)", Py_True), NULL);
+    PyDoc_STRVAR(returnx_returnTrue_name, "return_True");
     PyModule_AddObject(m, returnx_returnTrue_name, returnx_returnTrue);
+
+    PyObject * returnx_returnFalse = functions_constant_new(&functions_constant_type,
+                                         Py_BuildValue("(O)", Py_False), NULL);
+    PyDoc_STRVAR(returnx_returnTrue_name, "return_False");
     PyModule_AddObject(m, returnx_returnFalse_name, returnx_returnFalse);
+
+    PyObject * returnx_returnNone = functions_constant_new(&functions_constant_type,
+                                        Py_BuildValue("(O)", Py_None), NULL);
+    PyDoc_STRVAR(returnx_returnTrue_name, "return_None");
     PyModule_AddObject(m, returnx_returnNone_name, returnx_returnNone);
   }
 #endif
