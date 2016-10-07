@@ -165,6 +165,10 @@ iterationutils_methods[] = {
 PyDoc_STRVAR(iterationutils_module_name, "_cfuncs");
 PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
 
+PyDoc_STRVAR(returnx_returnTrue_name, "return_True");
+PyDoc_STRVAR(returnx_returnFalse_name, "return_False");
+PyDoc_STRVAR(returnx_returnNone_name, "return_None");
+
 #if PY_MAJOR_VERSION >= 3
   //Module definition
   //The arguments of this structure tell Python what to call your extension,
@@ -191,6 +195,7 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
     int i;
     PyObject *m;
     char *name;
+    PyObject *returnx_returnTrue, *returnx_returnFalse, *returnx_returnNone;
 
     // Fill in classes! Must be synced with the Python2 version of module init
     // a few lines later.
@@ -226,19 +231,16 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
         PyModule_AddObject(m, name+1, (PyObject *)typelist[i]);
     }
 
-    PyObject * returnx_returnTrue = functions_constant_new(&functions_constant_type,
-                                        Py_BuildValue("(O)", Py_True), NULL);
-    PyDoc_STRVAR(returnx_returnTrue_name, "return_True");
+    returnx_returnTrue = functions_constant_new(&functions_constant_type,
+                             Py_BuildValue("(O)", Py_True), NULL);
     PyModule_AddObject(m, returnx_returnTrue_name, returnx_returnTrue);
 
-    PyObject * returnx_returnFalse = functions_constant_new(&functions_constant_type,
-                                         Py_BuildValue("(O)", Py_False), NULL);
-    PyDoc_STRVAR(returnx_returnFalse_name, "return_False");
+    returnx_returnFalse = functions_constant_new(&functions_constant_type,
+                              Py_BuildValue("(O)", Py_False), NULL);
     PyModule_AddObject(m, returnx_returnFalse_name, returnx_returnFalse);
 
-    PyObject * returnx_returnNone = functions_constant_new(&functions_constant_type,
-                                        Py_BuildValue("(O)", Py_None), NULL);
-    PyDoc_STRVAR(returnx_returnNone_name, "return_None");
+    returnx_returnNone = functions_constant_new(&functions_constant_type,
+                             Py_BuildValue("(O)", Py_None), NULL);
     PyModule_AddObject(m, returnx_returnNone_name, returnx_returnNone);
 
     return m;
@@ -253,6 +255,7 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
     int i;
     PyObject *m;
     char *name;
+    PyObject *returnx_returnTrue, *returnx_returnFalse, *returnx_returnNone;
 
     // Fill in classes! Must be synced with the Python3 version of module init
     // a few lines earlier.
@@ -290,19 +293,16 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
         PyModule_AddObject(m, name+1, (PyObject *)typelist[i]);
     }
 
-    PyObject * returnx_returnTrue = functions_constant_new(&functions_constant_type,
-                                        Py_BuildValue("(O)", Py_True), NULL);
-    PyDoc_STRVAR(returnx_returnTrue_name, "return_True");
+    returnx_returnTrue = functions_constant_new(&functions_constant_type,
+                             Py_BuildValue("(O)", Py_True), NULL);
     PyModule_AddObject(m, returnx_returnTrue_name, returnx_returnTrue);
 
-    PyObject * returnx_returnFalse = functions_constant_new(&functions_constant_type,
-                                         Py_BuildValue("(O)", Py_False), NULL);
-    PyDoc_STRVAR(returnx_returnTrue_name, "return_False");
+    returnx_returnFalse = functions_constant_new(&functions_constant_type,
+                              Py_BuildValue("(O)", Py_False), NULL);
     PyModule_AddObject(m, returnx_returnFalse_name, returnx_returnFalse);
 
-    PyObject * returnx_returnNone = functions_constant_new(&functions_constant_type,
-                                        Py_BuildValue("(O)", Py_None), NULL);
-    PyDoc_STRVAR(returnx_returnTrue_name, "return_None");
+    returnx_returnNone = functions_constant_new(&functions_constant_type,
+                             Py_BuildValue("(O)", Py_None), NULL);
     PyModule_AddObject(m, returnx_returnNone_name, returnx_returnNone);
   }
 #endif
