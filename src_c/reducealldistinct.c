@@ -66,7 +66,7 @@ reduce_alldistinct(PyObject *self, PyObject *iterable)
                 }
             }
 
-            ok = reduce_allequal_helper_list_contains(seenlist, item);
+            ok = seenlist->ob_type->tp_as_sequence->sq_contains(seenlist, item);
 
             if (ok == 0) {
                 ok = PyList_Append(seenlist, item);

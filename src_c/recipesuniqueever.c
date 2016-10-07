@@ -152,7 +152,7 @@ recipes_uniqueever_next(recipes_uniqueever_object *lz)
                 lz->seenlist = seenlist;
             }
 
-            ok = helper_list_contains(seenlist, temp);
+            ok = seenlist->ob_type->tp_as_sequence->sq_contains(seenlist, temp);
 
             if (ok == 0) {
                 /* Item not found in list, add it and return */
