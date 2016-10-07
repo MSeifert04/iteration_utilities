@@ -103,6 +103,7 @@ recipes_uniquejust_next(recipes_uniquejust_object *lz)
         if (ok < 0) {
             Py_DECREF(val);
             Py_DECREF(item);
+            return NULL;
         }
 
         if (ok == 0) {
