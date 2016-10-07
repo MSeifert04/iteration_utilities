@@ -1,18 +1,3 @@
-/******************************************************************************
- * Helper function copied from listobject.c (Python module objects)
- *****************************************************************************/
-static int
-reduce_allequal_helper_list_contains(PyObject *a, PyObject *el)  // PyListObject *a in the original
-{
-    Py_ssize_t i;
-    int cmp;
-
-    for (i = 0, cmp = 0 ; cmp == 0 && i < Py_SIZE(a); ++i)
-        cmp = PyObject_RichCompareBool(el, PyList_GET_ITEM(a, i), Py_EQ);
-    return cmp;
-}
-
-
 static PyObject *
 reduce_alldistinct(PyObject *self, PyObject *iterable)
 {
