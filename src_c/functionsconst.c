@@ -75,6 +75,48 @@ static PyMethodDef functions_constant_methods[] = {
 
 PyDoc_STRVAR(functions_constant_doc,
 "constant(x)\n\
+\n\
+Class that always returns `x` when called.\n\
+\n\
+Parameters\n\
+----------\n\
+x : any type\n\
+    The item that should be returned when called.\n\
+\n\
+Methods\n\
+-------\n\
+__call__(\\*args, \\*\\*kwargs)\n\
+    Returns `x`.\n\
+\n\
+Examples\n\
+--------\n\
+Creating `const` instances::\n\
+\n\
+    >>> from iteration_utilities import const\n\
+    >>> five = const(5)\n\
+    >>> five()\n\
+    5\n\
+    >>> ten = const(10)\n\
+    >>> # Any parameters are ignored\n\
+    >>> ten(5, give_me=100)\n\
+    10\n\
+\n\
+There are already three predefined instances:\n\
+\n\
+- ``return_True`` : always returns `True`.\n\
+- ``return_False`` : always returns `False`.\n\
+- ``return_None`` : always returns `None`.\n\
+\n\
+For example::\n\
+\n\
+    >>> from iteration_utilities import return_True, return_False, return_None\n\
+    >>> return_True()\n\
+    True\n\
+    >>> return_False()\n\
+    False\n\
+    >>> return_None()\n\
+    >>> return_None() is None\n\
+    True\n\
 ");
 
 
