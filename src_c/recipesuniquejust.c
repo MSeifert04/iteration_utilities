@@ -102,6 +102,8 @@ recipes_uniquejust_next(recipes_uniquejust_object *lz)
 
         if (ok < 0) {
             PyErr_Clear();
+            // If there is no __eq__ method Python falls back to "x is y"
+            // but we want it to fallback to "not (x != y)"...
             ok = PyObject_RichCompareBool(val, lz->lastitem, Py_NE);
             if (ok < 0) {
                 Py_DECREF(val);
