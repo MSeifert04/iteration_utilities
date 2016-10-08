@@ -193,13 +193,11 @@ faster::\n\
 
 static PyObject*
 isx_IsIterable(PyObject *self, PyObject *args) {
-    PyObject *it = PyObject_GetIter(args);
-    if (it == NULL) {
-        PyErr_Clear();
+    if (PyIter_Check(args)) {
+        Py_RETURN_TRUE;
+    } else {
         Py_RETURN_FALSE;
     }
-    Py_DECREF(it);
-    Py_RETURN_TRUE;
 }
 
 
