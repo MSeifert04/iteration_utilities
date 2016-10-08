@@ -49,23 +49,28 @@ functions_nth_call(functions_nth_object *lz, PyObject *args, PyObject *kwds)
     Py_ssize_t n = lz->index;
     PyObject *iterable, *defaultitem=NULL, *func=NULL;
     PyObject *(*iternext)(PyObject *);
-    int truthy=1, retpred=0;
+    int truthy=1, retpred=0, retidx=0;
 
     PyObject *iterator, *item=NULL, *last=NULL, *val=NULL;
-    Py_ssize_t i;
+    Py_ssize_t i, idx=-1;
     int ok;
 
     static char *kwlist[] = {"iterable", "default", "pred", "truthy",
-                             "retpred", NULL};
+                             "retpred", "retidx", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOii:nth", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOiii:nth", kwlist,
                                      &iterable, &defaultitem, &func,
-                                     &truthy, &retpred)) {
+                                     &truthy, &retpred, &retidx)) {
         return NULL;
     }
 
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
+        return NULL;
+    }
+
+    if (retpred && retidx) {
+        PyErr_Format(PyExc_ValueError, "can only specify `retpred` or `retidx`.");
         return NULL;
     }
 
@@ -81,6 +86,8 @@ functions_nth_call(functions_nth_object *lz, PyObject *args, PyObject *kwds)
             }
             break;
         }
+        if (retidx)
+            idx++;
         // Sequence contains an element and func is None: return it.
         if (func == NULL) {
             if (last != NULL) {
@@ -141,6 +148,10 @@ functions_nth_call(functions_nth_object *lz, PyObject *args, PyObject *kwds)
     helper_ExceptionClearStopIter();
 
     if (last != NULL) {
+        if (retidx) {
+            Py_DECREF(last);
+            return PyLong_FromSsize_t(idx);
+        }
         return last;
     }
 
