@@ -8,6 +8,7 @@
 #include "functionscomplement.c"
 #include "functionscompose.c"
 #include "functionsconst.c"
+#include "functionsnth.c"
 #include "reducealldistinct.c"
 #include "reduceallequal.c"
 #include "reduceminmax.c"
@@ -203,6 +204,7 @@ PyDoc_STRVAR(returnx_returnNone_name, "return_None");
         &functions_complement_type,
         &functions_compose_type,
         &functions_constant_type,
+        &functions_nth_type,
         &recipes_accumulate_type,
         &recipes_applyfunc_type,
         &recipes_grouper_type,
@@ -263,6 +265,7 @@ PyDoc_STRVAR(returnx_returnNone_name, "return_None");
         &functions_complement_type,
         &functions_compose_type,
         &functions_constant_type,
+        &functions_nth_type,
         &recipes_accumulate_type,
         &recipes_applyfunc_type,
         &recipes_grouper_type,
