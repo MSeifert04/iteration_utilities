@@ -13,7 +13,7 @@ from helper_leak import memory_leak
 from helper_pytest_monkeypatch import pytest_raises
 
 
-const = iteration_utilities.const
+const = iteration_utilities.constant
 
 
 class T(object):

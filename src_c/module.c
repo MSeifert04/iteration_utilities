@@ -170,6 +170,11 @@ PyDoc_STRVAR(returnx_returnTrue_name, "return_True");
 PyDoc_STRVAR(returnx_returnFalse_name, "return_False");
 PyDoc_STRVAR(returnx_returnNone_name, "return_None");
 
+PyDoc_STRVAR(returnx_nthFirst_name, "first");
+PyDoc_STRVAR(returnx_nthSecond_name, "second");
+PyDoc_STRVAR(returnx_nthThird_name, "third");
+PyDoc_STRVAR(returnx_nthLast_name, "last");
+
 #if PY_MAJOR_VERSION >= 3
   //Module definition
   //The arguments of this structure tell Python what to call your extension,
@@ -192,11 +197,20 @@ PyDoc_STRVAR(returnx_returnNone_name, "return_None");
   PyMODINIT_FUNC
   PyInit__cfuncs(void)
   {
+#else
+  void
+  init_cfuncs(void)
+  {
+#endif
+
     //Py_Initialize();
     int i;
     PyObject *m;
     char *name;
     PyObject *returnx_returnTrue, *returnx_returnFalse, *returnx_returnNone;
+    PyObject *returnx_returnFirst, *returnx_returnSecond, *returnx_returnThird;
+    PyObject *returnx_returnLast;
+    Py_ssize_t minus_one = -1;
 
     // Fill in classes! Must be synced with the Python2 version of module init
     // a few lines later.
@@ -218,7 +232,14 @@ PyDoc_STRVAR(returnx_returnNone_name, "return_None");
         NULL
     };
 
+#if PY_MAJOR_VERSION >= 3
     m = PyModule_Create(&iterationutils_definition);
+#else
+    m = Py_InitModule3(iterationutils_module_name,
+                       iterationutils_methods,
+                       iterationutils_module_doc);
+#endif
+
     if (m == NULL)
         return NULL;
 
@@ -245,67 +266,24 @@ PyDoc_STRVAR(returnx_returnNone_name, "return_None");
                              Py_BuildValue("(O)", Py_None), NULL);
     PyModule_AddObject(m, returnx_returnNone_name, returnx_returnNone);
 
+
+    returnx_returnFirst = functions_nth_new(&functions_nth_type,
+                              Py_BuildValue("(n)", 0), NULL);
+    PyModule_AddObject(m, returnx_nthFirst_name, returnx_returnFirst);
+
+    returnx_returnSecond = functions_nth_new(&functions_nth_type,
+                              Py_BuildValue("(n)", 1), NULL);
+    PyModule_AddObject(m, returnx_nthSecond_name, returnx_returnSecond);
+
+    returnx_returnThird = functions_nth_new(&functions_nth_type,
+                              Py_BuildValue("(n)", 2), NULL);
+    PyModule_AddObject(m, returnx_nthThird_name, returnx_returnThird);
+
+    returnx_returnLast = functions_nth_new(&functions_nth_type,
+                              Py_BuildValue("(n)", minus_one), NULL);
+    PyModule_AddObject(m, returnx_nthLast_name, returnx_returnLast);
+
+#if PY_MAJOR_VERSION >= 3
     return m;
-  }
-
-#else
-
-  void
-  init_cfuncs(void)
-  {
-    /* Create the module and add the functions */
-    int i;
-    PyObject *m;
-    char *name;
-    PyObject *returnx_returnTrue, *returnx_returnFalse, *returnx_returnNone;
-
-    // Fill in classes! Must be synced with the Python3 version of module init
-    // a few lines earlier.
-    PyTypeObject *typelist[] = {
-        &functions_complement_type,
-        &functions_compose_type,
-        &functions_constant_type,
-        &functions_nth_type,
-        &recipes_accumulate_type,
-        &recipes_applyfunc_type,
-        &recipes_grouper_type,
-        &recipes_intersperse_type,
-        &recipes_merge_type,
-        &recipes_roundrobin_type,
-        &recipes_split_type,
-        &recipes_successive_type,
-        &recipes_uniqueever_type,
-        &recipes_uniquejust_type,
-        NULL
-    };
-
-    m = Py_InitModule3(iterationutils_module_name,
-                       iterationutils_methods,
-                       iterationutils_module_doc);
-    if (m == NULL)
-        return;
-
-    // Add classes to the module but only use the name starting after the first
-    // occurence of ".".
-    for (i=0 ; typelist[i] != NULL ; i++) {
-        if (PyType_Ready(typelist[i]) < 0)
-            return;
-        name = strchr(typelist[i]->tp_name, '.');
-        assert (name != NULL);
-        Py_INCREF(typelist[i]);
-        PyModule_AddObject(m, name+1, (PyObject *)typelist[i]);
-    }
-
-    returnx_returnTrue = functions_constant_new(&functions_constant_type,
-                             Py_BuildValue("(O)", Py_True), NULL);
-    PyModule_AddObject(m, returnx_returnTrue_name, returnx_returnTrue);
-
-    returnx_returnFalse = functions_constant_new(&functions_constant_type,
-                              Py_BuildValue("(O)", Py_False), NULL);
-    PyModule_AddObject(m, returnx_returnFalse_name, returnx_returnFalse);
-
-    returnx_returnNone = functions_constant_new(&functions_constant_type,
-                             Py_BuildValue("(O)", Py_None), NULL);
-    PyModule_AddObject(m, returnx_returnNone_name, returnx_returnNone);
-  }
 #endif
+}
