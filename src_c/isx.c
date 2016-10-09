@@ -192,11 +192,28 @@ faster::\n\
  *****************************************************************************/
 
 static PyObject*
-isx_IsIterable(PyObject *self, PyObject *args) {
-    if (PyIter_Check(args)) {
-        Py_RETURN_TRUE;
-    } else {
-        Py_RETURN_FALSE;
+isx_IsIterable(PyObject *self, PyObject *o) {
+    PyTypeObject *t = o->ob_type;
+    getiterfunc f = NULL;
+    f = t->tp_iter;
+
+    if (f == NULL) {
+        if (PySequence_Check(o)) {
+            Py_RETURN_TRUE;
+        } else {
+            Py_RETURN_FALSE;
+        }
+    }
+
+    else {
+        PyObject *res = (*f)(o);
+        if (res != NULL && !PyIter_Check(res)) {
+            Py_DECREF(res);
+            Py_RETURN_FALSE;
+        } else {
+            Py_DECREF(res);
+            Py_RETURN_TRUE;
+        }
     }
 }
 
