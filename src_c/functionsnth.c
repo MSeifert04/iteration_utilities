@@ -193,8 +193,10 @@ Parameters\n\
 ----------\n\
 n : int\n\
     The index of the wanted item. If negative the last item is searched.\n\
-\n\
-The following parameters should be provided when calling the instance.\n\
+    \n\
+    .. note::\n\
+       This is the only parameter for ``__init__``. The following parameters\n\
+       have to be specified when calling the instance.\n\
 \n\
 iterable : iterable\n\
     The `iterable` for which to determine the nth value.\n\
@@ -286,7 +288,7 @@ return the result of ``pred(item)``::\n\
 
 static PyTypeObject functions_nth_type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.nth_cls",      /* tp_name */
+    "iteration_utilities.nth",          /* tp_name */
     sizeof(functions_nth_object),       /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */

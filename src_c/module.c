@@ -14,7 +14,6 @@
 #include "reduceminmax.c"
 #include "reducegroupby.c"
 #include "reduceilen.c"
-#include "reducenth.c"
 #include "reduceone.c"
 #include "reducepartition.c"
 #include "reducequantify.c"
@@ -149,11 +148,6 @@ iterationutils_methods[] = {
      (PyCFunction)recipes_partition,
      METH_VARARGS | METH_KEYWORDS,
      recipes_partition_doc},
-
-    {"nth",
-     (PyCFunction)reduce_nth,
-     METH_VARARGS | METH_KEYWORDS,
-     reduce_nth_doc},
 
     {"ilen",
      (PyCFunction)reduce_ilen,
