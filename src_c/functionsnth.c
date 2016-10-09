@@ -187,6 +187,100 @@ static PyMethodDef functions_nth_methods[] = {
 PyDoc_STRVAR(functions_nth_doc,
 "nth(x)\n\
 \n\
+Class that returns the `n`-th found value.\n\
+\n\
+Parameters\n\
+----------\n\
+n : int\n\
+    The index of the wanted item. If negative the last item is searched.\n\
+\n\
+The following parameters should be provided when calling the instance.\n\
+\n\
+iterable : iterable\n\
+    The `iterable` for which to determine the nth value.\n\
+\n\
+default : any type, optional\n\
+    If no nth value is found and `default` is given the `default` is \n\
+    returned.\n\
+\n\
+pred : callable, optional\n\
+    If given return the nth item for which ``pred(item)`` is ``True``.\n\
+\n\
+truthy : bool, optional\n\
+    If ``False`` search for the nth item for which ``pred(item)`` is ``False``.\n\
+    Default is ``True``.\n\
+\n\
+    .. note::\n\
+       Parameter is ignored if `pred` is not given.\n\
+\n\
+retpred : bool, optional\n\
+    If given return ``pred(item)`` instead of ``item``.\n\
+    Default is ``False``.\n\
+\n\
+    .. note::\n\
+       Parameter is ignored if `pred` is not given.\n\
+\n\
+retidx : bool, optional\n\
+    If given return the index of the `n`-th element instead of the value.\n\
+    Default is ``False``.\n\
+\n\
+Methods\n\
+-------\n\
+__call__(iterable[, default, pred, truthy, retpred, retidx]))\n\
+    Find the `n`-th element.\n\
+\n\
+Returns\n\
+-------\n\
+nth : any type\n\
+    The last value or the nth value for which `pred` is ``True``.\n\
+    If there is no such value then `default` is returned.\n\
+\n\
+Raises\n\
+-------\n\
+TypeError :\n\
+    If there is no nth element and no `default` is given.\n\
+\n\
+Examples\n\
+--------\n\
+Some basic examples including the use of ``pred``::\n\
+\n\
+    >>> from iteration_utilities import nth\n\
+    >>> # First item\n\
+    >>> nth(0)([0, 1, 2])\n\
+    0\n\
+    >>> # Second item\n\
+    >>> nth(1)([0, 1, 2])\n\
+    1\n\
+    >>> # Last item\n\
+    >>> nth(-1)([0, 1, 2])\n\
+    2\n\
+    \n\
+    >>> nth(1)([0, 10, '', tuple(), 20], pred=bool)\n\
+    20\n\
+    \n\
+    >>> # second odd number\n\
+    >>> nth(1)([0, 2, 3, 5, 8, 9, 10], pred=lambda x: x%2)\n\
+    5\n\
+    \n\
+    >>> # default value if empty or no true value\n\
+    >>> nth(0)([], default=100)\n\
+    100\n\
+    >>> nth(-1)([0, 10, 0, 0], pred=bool, default=100)\n\
+    10\n\
+\n\
+Given a `pred` it is also possible to look for the nth ``False`` value and \n\
+return the result of ``pred(item)``::\n\
+\n\
+    >>> nth(1)([1,2,0], pred=bool)\n\
+    2\n\
+    >>> nth(-1)([1,0,2,0], pred=bool, truthy=False)\n\
+    0\n\
+    >>> import operator\n\
+    >>> nth(-1)([[0,3], [0,1], [0,2]], pred=operator.itemgetter(1))\n\
+    [0, 2]\n\
+    >>> nth(-1)([[0,3], [0,1], [0,2]], pred=operator.itemgetter(1), retpred=True)\n\
+    2\n\
+\n\
 ");
 
 
