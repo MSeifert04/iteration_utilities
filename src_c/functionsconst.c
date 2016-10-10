@@ -92,11 +92,11 @@ Examples\n\
 --------\n\
 Creating `const` instances::\n\
 \n\
-    >>> from iteration_utilities import const\n\
-    >>> five = const(5)\n\
+    >>> from iteration_utilities import constant\n\
+    >>> five = constant(5)\n\
     >>> five()\n\
     5\n\
-    >>> ten = const(10)\n\
+    >>> ten = constant(10)\n\
     >>> # Any parameters are ignored\n\
     >>> ten(5, give_me=100)\n\
     10\n\
@@ -122,7 +122,7 @@ For example::\n\
 
 static PyTypeObject functions_constant_type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.const",        /* tp_name */
+    "iteration_utilities.constant",     /* tp_name */
     sizeof(functions_constant_object),  /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */

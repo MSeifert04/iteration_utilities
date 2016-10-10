@@ -8,12 +8,12 @@
 #include "functionscomplement.c"
 #include "functionscompose.c"
 #include "functionsconst.c"
+#include "functionsnth.c"
 #include "reducealldistinct.c"
 #include "reduceallequal.c"
 #include "reduceminmax.c"
 #include "reducegroupby.c"
 #include "reduceilen.c"
-#include "reducenth.c"
 #include "reduceone.c"
 #include "reducepartition.c"
 #include "reducequantify.c"
@@ -39,135 +39,49 @@
 static PyMethodDef
 iterationutils_methods[] = {
 
-    {"is_None",
-     (PyCFunction)isx_IsNone,
-     METH_O,
-     isx_IsNone_doc},
+    {"is_None", (PyCFunction)isx_IsNone, METH_O, isx_IsNone_doc},
+    {"is_not_None", (PyCFunction)isx_IsNotNone, METH_O, isx_IsNotNone_doc},
+    {"is_even", (PyCFunction)isx_IsEven, METH_O, isx_IsEven_doc},
+    {"is_odd", (PyCFunction)isx_IsOdd, METH_O, isx_IsOdd_doc},
+    {"is_iterable", (PyCFunction)isx_IsIterable, METH_O, isx_IsIterable_doc},
 
-    {"is_not_None",
-     (PyCFunction)isx_IsNotNone,
-     METH_O,
-     isx_IsNotNone_doc},
+    {"square", (PyCFunction)mathematical_square, METH_O, mathematical_square_doc},
+    {"one_over", (PyCFunction)mathematical_oneover, METH_O, mathematical_oneover_doc},
+    {"radd", (PyCFunction)mathematical_radd, METH_VARARGS, mathematical_radd_doc},
+    {"rsub", (PyCFunction)mathematical_rsub, METH_VARARGS, mathematical_rsub_doc},
+    {"rmul", (PyCFunction)mathematical_rmul, METH_VARARGS, mathematical_rmul_doc},
+    {"rdiv", (PyCFunction)mathematical_rdiv, METH_VARARGS, mathematical_rdiv_doc},
+    {"rpow", (PyCFunction)mathematical_rpow, METH_VARARGS, mathematical_rpow_doc},
 
-    {"is_even",
-     (PyCFunction)isx_IsEven,
-     METH_O,
-     isx_IsEven_doc},
+    {"return_called", (PyCFunction)returnx_returnCallResult, METH_O, returnx_returnCallResult_doc},
+    {"return_identity", (PyCFunction)returnx_returnIt, METH_O, returnx_returnIt_doc},
+    {"return_first_positional_argument", (PyCFunction)returnx_returnFirstPositionalArgument,
+     METH_VARARGS | METH_KEYWORDS, returnx_returnFirstPositionalArgument_doc},
 
-    {"is_odd",
-     (PyCFunction)isx_IsOdd,
-     METH_O,
-     isx_IsOdd_doc},
-
-    {"is_iterable",
-     (PyCFunction)isx_IsIterable,
-     METH_O,
-     isx_IsIterable_doc},
-
-    {"square",
-     (PyCFunction)mathematical_square,
-     METH_O,
-     mathematical_square_doc},
-
-    {"one_over",
-     (PyCFunction)mathematical_oneover,
-     METH_O,
-     mathematical_oneover_doc},
-
-    {"radd",
-     (PyCFunction)mathematical_radd,
-     METH_VARARGS,
-     mathematical_radd_doc},
-
-    {"rsub",
-     (PyCFunction)mathematical_rsub,
-     METH_VARARGS,
-     mathematical_rsub_doc},
-
-    {"rmul",
-     (PyCFunction)mathematical_rmul,
-     METH_VARARGS,
-     mathematical_rmul_doc},
-
-    {"rdiv",
-     (PyCFunction)mathematical_rdiv,
-     METH_VARARGS,
-     mathematical_rdiv_doc},
-
-    {"rpow",
-     (PyCFunction)mathematical_rpow,
-     METH_VARARGS,
-     mathematical_rpow_doc},
-
-    {"return_called",
-     (PyCFunction)returnx_returnCallResult,
-     METH_O,
-     returnx_returnCallResult_doc},
-
-    {"return_identity",
-     (PyCFunction)returnx_returnIt,
-     METH_O,
-     returnx_returnIt_doc},
-
-    {"return_first_positional_argument",
-     (PyCFunction)returnx_returnFirstPositionalArgument,
-     METH_VARARGS | METH_KEYWORDS,
-     returnx_returnFirstPositionalArgument_doc},
-
-    {"all_distinct",
-     (PyCFunction)reduce_alldistinct,
-     METH_O,
-     reduce_alldistinct_doc},
-
-    {"all_equal",
-     (PyCFunction)reduce_allequal,
-     METH_O,
-     reduce_allequal_doc},
-
-    {"minmax",
-     (PyCFunction)reduce_minmax,
-     METH_VARARGS | METH_KEYWORDS,
-     reduce_minmax_doc},
-
-    {"one",
-     (PyCFunction)reduce_one,
-     METH_O,
-     reduce_one_doc},
-
-    {"groupby2",
-     (PyCFunction)reduce_groupby,
-     METH_VARARGS | METH_KEYWORDS,
-     reduce_groupby_doc},
-
-    {"quantify",
-     (PyCFunction)reduce_quantify,
-     METH_VARARGS | METH_KEYWORDS,
-     reduce_quantify_doc},
-
-    {"partition",
-     (PyCFunction)recipes_partition,
-     METH_VARARGS | METH_KEYWORDS,
-     recipes_partition_doc},
-
-    {"nth",
-     (PyCFunction)reduce_nth,
-     METH_VARARGS | METH_KEYWORDS,
-     reduce_nth_doc},
-
-    {"ilen",
-     (PyCFunction)reduce_ilen,
-     METH_VARARGS | METH_KEYWORDS,
-     reduce_ilen_doc},
+    {"all_distinct", (PyCFunction)reduce_alldistinct, METH_O, reduce_alldistinct_doc},
+    {"all_equal", (PyCFunction)reduce_allequal, METH_O, reduce_allequal_doc},
+    {"minmax", (PyCFunction)reduce_minmax, METH_VARARGS | METH_KEYWORDS, reduce_minmax_doc},
+    {"one", (PyCFunction)reduce_one, METH_O, reduce_one_doc},
+    {"groupby2", (PyCFunction)reduce_groupby, METH_VARARGS | METH_KEYWORDS, reduce_groupby_doc},
+    {"quantify", (PyCFunction)reduce_quantify, METH_VARARGS | METH_KEYWORDS, reduce_quantify_doc},
+    {"partition", (PyCFunction)recipes_partition, METH_VARARGS | METH_KEYWORDS, recipes_partition_doc},
+    {"ilen", (PyCFunction)reduce_ilen, METH_VARARGS | METH_KEYWORDS, reduce_ilen_doc},
 
     {NULL, NULL}
 };
 
-PyDoc_STRVAR(iterationutils_module_name, "_cfuncs");
-PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
-
+// Names for pre-defined instances.
 PyDoc_STRVAR(returnx_returnTrue_name, "return_True");
 PyDoc_STRVAR(returnx_returnFalse_name, "return_False");
 PyDoc_STRVAR(returnx_returnNone_name, "return_None");
+PyDoc_STRVAR(returnx_nthFirst_name, "first");
+PyDoc_STRVAR(returnx_nthSecond_name, "second");
+PyDoc_STRVAR(returnx_nthThird_name, "third");
+PyDoc_STRVAR(returnx_nthLast_name, "last");
+
+// Name and docstring of C-module
+PyDoc_STRVAR(iterationutils_module_name, "_cfuncs");
+PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
 
 #if PY_MAJOR_VERSION >= 3
   //Module definition
@@ -191,18 +105,27 @@ PyDoc_STRVAR(returnx_returnNone_name, "return_None");
   PyMODINIT_FUNC
   PyInit__cfuncs(void)
   {
+#else
+  void
+  init_cfuncs(void)
+  {
+#endif
+
     //Py_Initialize();
     int i;
     PyObject *m;
     char *name;
     PyObject *returnx_returnTrue, *returnx_returnFalse, *returnx_returnNone;
+    PyObject *returnx_returnFirst, *returnx_returnSecond, *returnx_returnThird;
+    PyObject *returnx_returnLast;
+    Py_ssize_t minus_one = -1;  // no idea why this is needed but -1 in call doesn't work
 
-    // Fill in classes! Must be synced with the Python2 version of module init
-    // a few lines later.
+    // Classes avaiable in module
     PyTypeObject *typelist[] = {
         &functions_complement_type,
         &functions_compose_type,
         &functions_constant_type,
+        &functions_nth_type,
         &recipes_accumulate_type,
         &recipes_applyfunc_type,
         &recipes_grouper_type,
@@ -216,7 +139,14 @@ PyDoc_STRVAR(returnx_returnNone_name, "return_None");
         NULL
     };
 
+#if PY_MAJOR_VERSION >= 3
     m = PyModule_Create(&iterationutils_definition);
+#else
+    m = Py_InitModule3(iterationutils_module_name,
+                       iterationutils_methods,
+                       iterationutils_module_doc);
+#endif
+
     if (m == NULL)
         return NULL;
 
@@ -231,78 +161,31 @@ PyDoc_STRVAR(returnx_returnNone_name, "return_None");
         PyModule_AddObject(m, name+1, (PyObject *)typelist[i]);
     }
 
+    // Add pre-defined instances.
     returnx_returnTrue = functions_constant_new(&functions_constant_type,
                              Py_BuildValue("(O)", Py_True), NULL);
     PyModule_AddObject(m, returnx_returnTrue_name, returnx_returnTrue);
-
     returnx_returnFalse = functions_constant_new(&functions_constant_type,
                               Py_BuildValue("(O)", Py_False), NULL);
     PyModule_AddObject(m, returnx_returnFalse_name, returnx_returnFalse);
-
     returnx_returnNone = functions_constant_new(&functions_constant_type,
                              Py_BuildValue("(O)", Py_None), NULL);
     PyModule_AddObject(m, returnx_returnNone_name, returnx_returnNone);
 
+    returnx_returnFirst = functions_nth_new(&functions_nth_type,
+                              Py_BuildValue("(n)", 0), NULL);
+    PyModule_AddObject(m, returnx_nthFirst_name, returnx_returnFirst);
+    returnx_returnSecond = functions_nth_new(&functions_nth_type,
+                              Py_BuildValue("(n)", 1), NULL);
+    PyModule_AddObject(m, returnx_nthSecond_name, returnx_returnSecond);
+    returnx_returnThird = functions_nth_new(&functions_nth_type,
+                              Py_BuildValue("(n)", 2), NULL);
+    PyModule_AddObject(m, returnx_nthThird_name, returnx_returnThird);
+    returnx_returnLast = functions_nth_new(&functions_nth_type,
+                              Py_BuildValue("(n)", minus_one), NULL);
+    PyModule_AddObject(m, returnx_nthLast_name, returnx_returnLast);
+
+#if PY_MAJOR_VERSION >= 3
     return m;
-  }
-
-#else
-
-  void
-  init_cfuncs(void)
-  {
-    /* Create the module and add the functions */
-    int i;
-    PyObject *m;
-    char *name;
-    PyObject *returnx_returnTrue, *returnx_returnFalse, *returnx_returnNone;
-
-    // Fill in classes! Must be synced with the Python3 version of module init
-    // a few lines earlier.
-    PyTypeObject *typelist[] = {
-        &functions_complement_type,
-        &functions_compose_type,
-        &functions_constant_type,
-        &recipes_accumulate_type,
-        &recipes_applyfunc_type,
-        &recipes_grouper_type,
-        &recipes_intersperse_type,
-        &recipes_merge_type,
-        &recipes_roundrobin_type,
-        &recipes_split_type,
-        &recipes_successive_type,
-        &recipes_uniqueever_type,
-        &recipes_uniquejust_type,
-        NULL
-    };
-
-    m = Py_InitModule3(iterationutils_module_name,
-                       iterationutils_methods,
-                       iterationutils_module_doc);
-    if (m == NULL)
-        return;
-
-    // Add classes to the module but only use the name starting after the first
-    // occurence of ".".
-    for (i=0 ; typelist[i] != NULL ; i++) {
-        if (PyType_Ready(typelist[i]) < 0)
-            return;
-        name = strchr(typelist[i]->tp_name, '.');
-        assert (name != NULL);
-        Py_INCREF(typelist[i]);
-        PyModule_AddObject(m, name+1, (PyObject *)typelist[i]);
-    }
-
-    returnx_returnTrue = functions_constant_new(&functions_constant_type,
-                             Py_BuildValue("(O)", Py_True), NULL);
-    PyModule_AddObject(m, returnx_returnTrue_name, returnx_returnTrue);
-
-    returnx_returnFalse = functions_constant_new(&functions_constant_type,
-                              Py_BuildValue("(O)", Py_False), NULL);
-    PyModule_AddObject(m, returnx_returnFalse_name, returnx_returnFalse);
-
-    returnx_returnNone = functions_constant_new(&functions_constant_type,
-                             Py_BuildValue("(O)", Py_None), NULL);
-    PyModule_AddObject(m, returnx_returnNone_name, returnx_returnNone);
-  }
 #endif
+}
