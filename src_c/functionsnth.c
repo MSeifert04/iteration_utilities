@@ -283,6 +283,12 @@ return the result of ``pred(item)``::\n\
     >>> nth(-1)([[0,3], [0,1], [0,2]], pred=operator.itemgetter(1), retpred=True)\n\
     2\n\
 \n\
+There are already three predefined instances:\n\
+\n\
+- ``first`` : equivalent to ``nth(0)``.\n\
+- ``second`` : equivalent to ``nth(1)``.\n\
+- ``third`` : equivalent to ``nth(2)``.\n\
+- ``last`` : equivalent to ``nth(-1)``.\n\
 ");
 
 

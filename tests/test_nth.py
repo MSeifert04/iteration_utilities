@@ -203,3 +203,26 @@ def test_nth_failures4():
         with pytest_raises(TypeError):
             nth(1)([T('a'), T('b')], pred=lambda x: abs(x.value))
     assert not memory_leak(test)
+
+
+def test_nth_failures5():
+    with pytest.raises(TypeError):
+        nth('a')
+
+    def test():
+        with pytest_raises(TypeError):
+            nth('a')
+    assert not memory_leak(test)
+
+
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
+def test_complement_pickle1():
+    x = pickle.dumps(nth(2))
+    assert pickle.loads(x)([1, 2, 3, 4]) == 3
+
+    def test():
+        x = pickle.dumps(nth(2))
+        pickle.loads(x)([T(1), T(2), T(3), T(4)])
+    memory_leak(test)
+    assert not memory_leak(test)

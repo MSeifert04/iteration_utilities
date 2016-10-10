@@ -122,7 +122,6 @@ Additional recipes for iterations.
 - :py:func:`groupby2`
 - :py:func:`ilen`
 - :py:func:`minmax`
-- :py:func:`nth`
 - :py:func:`one`
 - :py:func:`partition`
 - :py:func:`quantify`
@@ -145,7 +144,7 @@ Additional recipes for iterations.
 - :py:func:`complement`
 - :py:func:`compose`
 - :py:func:`constant`
-- :py:func:`nth_cls`
+- :py:func:`nth`
 
 
 Compatibility layer
