@@ -94,6 +94,8 @@ reduce_minmax(PyObject *self, PyObject *args, PyObject *kwds)
                 val2 = PyObject_CallFunctionObjArgs(keyfunc, item2, NULL);
                 if (val2 == NULL) {
                     goto Fail;
+                } else {
+                    helper_ExceptionClearStopIter();
                 }
             }
         }
@@ -104,6 +106,8 @@ reduce_minmax(PyObject *self, PyObject *args, PyObject *kwds)
             if (item2 != NULL) {
                 val2 = item2;
                 Py_INCREF(val2);
+            } else {
+                helper_ExceptionClearStopIter();
             }
         }
 
@@ -144,9 +148,6 @@ reduce_minmax(PyObject *self, PyObject *args, PyObject *kwds)
                     }
                 }
             } else {
-                // If item2 is not set we need to clear a possible StopIteration
-                // exception.
-                helper_ExceptionClearStopIter();
                 // If only one is set we can set min and max to the only item.
                 minitem = item1;
                 minval = val1;
