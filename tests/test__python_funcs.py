@@ -55,8 +55,6 @@ def test_empty_input():
     x, y = iteration_utilities.ipartition(empty, lambda x: x)
     assert list(x) == [] and list(y) == []
 
-    # no need to test iter_except here
-
     # no need to test iter_subclasses here
 
     assert list(iteration_utilities.ncycles(empty, 10)) == []
