@@ -2,6 +2,7 @@ static PyObject *
 reduce_minmax(PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyObject *sequence, *iterator;
+    PyObject *(*iternext)(PyObject *);
     PyObject *defaultitem = NULL, *keyfunc = NULL;
     PyObject *item1 = NULL, *item2 = NULL, *val1 = NULL, *val2 = NULL;
     PyObject *maxitem = NULL, *maxval = NULL, *minitem = NULL, *minval = NULL;
@@ -75,11 +76,13 @@ reduce_minmax(PyObject *self, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
+    iternext = *Py_TYPE(iterator)->tp_iternext;
+
     // Iterate over the sequence
-    while (( item1 = PyIter_Next(iterator) )) {
+    while (( item1 = iternext(iterator) )) {
 
         // It could be NULL (end of sequence) but don't care .. yet.
-        item2 = PyIter_Next(iterator);
+        item2 = iternext(iterator);
 
         /* get the value from the key function */
         if (keyfunc != NULL) {
@@ -141,6 +144,9 @@ reduce_minmax(PyObject *self, PyObject *args, PyObject *kwds)
                     }
                 }
             } else {
+                // If item2 is not set we need to clear a possible StopIteration
+                // exception.
+                helper_ExceptionClearStopIter();
                 // If only one is set we can set min and max to the only item.
                 minitem = item1;
                 minval = val1;
@@ -203,6 +209,8 @@ reduce_minmax(PyObject *self, PyObject *args, PyObject *kwds)
             }
         }
     }
+
+    helper_ExceptionClearStopIter();
 
     if (PyErr_Occurred()) {
         goto Fail;
