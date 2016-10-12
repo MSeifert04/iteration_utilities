@@ -115,6 +115,22 @@ def test_minmax_normal11():
     assert not memory_leak(test)
 
 
+def test_minmax_normal12():
+    assert minmax((i for i in [4, 3, 2, 5, 3])) == (2, 5)
+
+    def test():
+        minmax((T(i) for i in [4, 3, 2, 5, 3]))
+    assert not memory_leak(test)
+
+
+def test_minmax_normal13():
+    assert minmax((i for i in [4, 3, 2, 5, 3, 3])) == (2, 5)
+
+    def test():
+        minmax((T(i) for i in [4, 3, 2, 5, 3, 3]))
+    assert not memory_leak(test)
+
+
 def test_minmax_key1():
     assert minmax('a', 'b', 'c',
                   key=operator.methodcaller('upper')) == ('a', 'c')
