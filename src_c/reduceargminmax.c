@@ -40,7 +40,11 @@ reduce_argminmax(PyObject *self, PyObject *args, PyObject *kwds, int cmpop)
         defaultvalue = PyDict_GetItemString(kwds, "default");
         if (defaultvalue != NULL) {
             nkwds++;
+#if PY_MAJOR_VERSION >= 3
             defaultitem = PyLong_AsSsize_t(defaultvalue);
+#else
+            defaultitem = PyInt_AsSsize_t(defaultvalue);
+#endif
             if (PyErr_Occurred()) {
                 goto Fail;
             }
