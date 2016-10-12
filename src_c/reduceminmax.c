@@ -94,9 +94,9 @@ reduce_minmax(PyObject *self, PyObject *args, PyObject *kwds)
                 val2 = PyObject_CallFunctionObjArgs(keyfunc, item2, NULL);
                 if (val2 == NULL) {
                     goto Fail;
-                } else {
-                    helper_ExceptionClearStopIter();
                 }
+            } else {
+                helper_ExceptionClearStopIter();
             }
         }
         /* no key function; the value is the item */
