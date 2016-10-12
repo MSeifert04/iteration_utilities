@@ -163,12 +163,12 @@ Notes\n\
 -----\n\
 Further examples:\n\
 \n\
-- ``bsddbiter = iter_except(db.next, bsddb.error, db.first)``\n\
-- ``heapiter = iter_except(functools.partial(heappop, h), IndexError)``\n\
-- ``dictiter = iter_except(d.popitem, KeyError)``\n\
-- ``dequeiter = iter_except(d.popleft, IndexError)``\n\
-- ``queueiter = iter_except(q.get_nowait, Queue.Empty)``\n\
-- ``setiter = iter_except(s.pop, KeyError)``\n\
+- ``bsd_db_iter = iter_except(db.next, bsddb.error, db.first)``\n\
+- ``heap_iter = iter_except(functools.partial(heappop, h), IndexError)``\n\
+- ``dict_iter = iter_except(d.popitem, KeyError)``\n\
+- ``deque_iter = iter_except(d.popleft, IndexError)``\n\
+- ``queue_iter = iter_except(q.get_nowait, Queue.Empty)``\n\
+- ``set_iter = iter_except(s.pop, KeyError)``\n\
 ");
 
 PyTypeObject recipes_iterexcept_type = {
