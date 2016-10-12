@@ -119,6 +119,8 @@ Additional recipes for iterations.
 
 - :py:func:`all_distinct`
 - :py:func:`all_equal`
+- :py:func:`argmax`
+- :py:func:`argmin`
 - :py:func:`groupby2`
 - :py:func:`ilen`
 - :py:func:`minmax`

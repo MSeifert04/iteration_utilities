@@ -9,7 +9,7 @@ reduce_minmax(PyObject *self, PyObject *args, PyObject *kwds)
 
     const int positional = PyTuple_Size(args) > 1;
     static char *kwlist[] = {"key", "default", NULL};
-    int nkwds = 0;
+    Py_ssize_t nkwds = 0;
     int ret;
     int cmp;
 
