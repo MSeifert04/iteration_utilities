@@ -49,6 +49,7 @@ iterationutils_methods[] = {
     {"is_iterable", (PyCFunction)isx_IsIterable, METH_O, isx_IsIterable_doc},
 
     {"square", (PyCFunction)mathematical_square, METH_O, mathematical_square_doc},
+    {"double", (PyCFunction)mathematical_double, METH_O, mathematical_double_doc},
     {"one_over", (PyCFunction)mathematical_oneover, METH_O, mathematical_oneover_doc},
     {"radd", (PyCFunction)mathematical_radd, METH_VARARGS, mathematical_radd_doc},
     {"rsub", (PyCFunction)mathematical_rsub, METH_VARARGS, mathematical_rsub_doc},
