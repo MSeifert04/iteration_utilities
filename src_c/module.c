@@ -25,6 +25,7 @@
 #include "recipesapplyfunc.c"
 #include "recipesgrouper.c"
 #include "recipesintersperse.c"
+#include "recipesiterexcept.c"
 #include "recipessplit.c"
 #include "recipessuccessive.c"
 #include "recipesroundrobin.c"
@@ -135,6 +136,7 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
         &recipes_applyfunc_type,
         &recipes_grouper_type,
         &recipes_intersperse_type,
+        &recipes_iterexcept_type,
         &recipes_merge_type,
         &recipes_roundrobin_type,
         &recipes_split_type,

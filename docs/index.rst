@@ -89,7 +89,6 @@ Python2 and Python3 compatible. The documentation was added and/or modified.
 - :py:func:`dotproduct`
 - :py:func:`flatten`
 - :py:func:`ipartition`
-- :py:func:`iter_except`
 - :py:func:`ncycles`
 - :py:func:`padnone`
 - :py:func:`powerset`
@@ -134,6 +133,7 @@ Additional recipes for iterations.
 - :py:func:`applyfunc`
 - :py:func:`grouper`
 - :py:func:`intersperse`
+- :py:func:`iter_except`
 - :py:func:`merge`
 - :py:func:`roundrobin`
 - :py:func:`split`
