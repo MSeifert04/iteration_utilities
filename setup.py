@@ -12,7 +12,7 @@ def readme():
         return f.read()
 
 # Must be a seperate variable because conf.py reads the version from here.
-version = "0.0.4"
+version = "0.1.0"
 
 
 setup(name='iteration_utilities',
