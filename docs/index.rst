@@ -117,6 +117,8 @@ Additional recipes for iterations.
 
 .. py:currentmodule:: iteration_utilities._cfuncs
 
+- :py:func:`argmax`
+- :py:func:`argmin`
 - :py:func:`all_distinct`
 - :py:func:`all_equal`
 - :py:func:`groupby2`

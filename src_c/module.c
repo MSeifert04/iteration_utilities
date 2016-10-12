@@ -9,6 +9,7 @@
 #include "functionscompose.c"
 #include "functionsconst.c"
 #include "functionsnth.c"
+#include "reduceargminmax.c"
 #include "reducealldistinct.c"
 #include "reduceallequal.c"
 #include "reduceminmax.c"
@@ -58,6 +59,8 @@ iterationutils_methods[] = {
     {"return_first_positional_argument", (PyCFunction)returnx_returnFirstPositionalArgument,
      METH_VARARGS | METH_KEYWORDS, returnx_returnFirstPositionalArgument_doc},
 
+    {"argmin", (PyCFunction)reduce_argmin, METH_VARARGS | METH_KEYWORDS, reduce_argmin_doc},
+    {"argmax", (PyCFunction)reduce_argmax, METH_VARARGS | METH_KEYWORDS, reduce_argmax_doc},
     {"all_distinct", (PyCFunction)reduce_alldistinct, METH_O, reduce_alldistinct_doc},
     {"all_equal", (PyCFunction)reduce_allequal, METH_O, reduce_allequal_doc},
     {"minmax", (PyCFunction)reduce_minmax, METH_VARARGS | METH_KEYWORDS, reduce_minmax_doc},
