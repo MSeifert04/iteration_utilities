@@ -84,8 +84,11 @@ reduce_minmax(PyObject *self, PyObject *args, PyObject *kwds)
         // It could be NULL (end of sequence) but don't care .. yet.
         item2 = iternext(iterator);
 
-        /* get the value from the key function */
-        if (keyfunc != NULL) {
+        if (item2 == NULL) {
+            helper_ExceptionClearStopIter();
+        }
+
+        if (keyfunc != NULL) { /* get the value from the key function */
             val1 = PyObject_CallFunctionObjArgs(keyfunc, item1, NULL);
             if (val1 == NULL) {
                 goto Fail;
@@ -95,19 +98,13 @@ reduce_minmax(PyObject *self, PyObject *args, PyObject *kwds)
                 if (val2 == NULL) {
                     goto Fail;
                 }
-            } else {
-                helper_ExceptionClearStopIter();
             }
-        }
-        /* no key function; the value is the item */
-        else {
+        } else { /* no key function; the value is the item */
             val1 = item1;
             Py_INCREF(val1);
             if (item2 != NULL) {
                 val2 = item2;
                 Py_INCREF(val2);
-            } else {
-                helper_ExceptionClearStopIter();
             }
         }
 
