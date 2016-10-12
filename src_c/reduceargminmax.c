@@ -43,6 +43,8 @@ reduce_argminmax(PyObject *self, PyObject *args, PyObject *kwds, int cmpop)
 #if PY_MAJOR_VERSION >= 3
             defaultitem = PyLong_AsSsize_t(defaultvalue);
 #else
+            // This will convert the value to an integer first so this differs
+            // from the Py3 case.
             defaultitem = PyInt_AsSsize_t(defaultvalue);
 #endif
             if (PyErr_Occurred()) {

@@ -101,11 +101,11 @@ def test_argmin_failure1():
 def test_argmin_failure2():
     # not integer default value
     with pytest.raises(TypeError):
-        argmin([3, 0, 1], default=1.5, key=lambda x: x + 1)
+        argmin([3, 0, 1], default='1.5', key=lambda x: x + 1)
 
     def test():
         with pytest_raises(TypeError):
-            argmin([T(3), T(0), T(1)], default=1.5, key=lambda x: x + 1)
+            argmin([T(3), T(0), T(1)], default='1.5', key=lambda x: x + 1)
     assert not memory_leak(test)
 
 
