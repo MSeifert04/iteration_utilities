@@ -146,6 +146,7 @@ Additional recipes for iterations.
 - :py:func:`complement`
 - :py:func:`compose`
 - :py:func:`constant`
+- :py:func:`flip`
 - :py:func:`nth`
 
 
