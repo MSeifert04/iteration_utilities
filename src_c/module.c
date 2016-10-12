@@ -8,6 +8,7 @@
 #include "functionscomplement.c"
 #include "functionscompose.c"
 #include "functionsconst.c"
+#include "functionsflip.c"
 #include "functionsnth.c"
 #include "reduceargminmax.c"
 #include "reducealldistinct.c"
@@ -128,6 +129,7 @@ PyDoc_STRVAR(iterationutils_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
         &functions_complement_type,
         &functions_compose_type,
         &functions_constant_type,
+        &functions_flip_type,
         &functions_nth_type,
         &recipes_accumulate_type,
         &recipes_applyfunc_type,
