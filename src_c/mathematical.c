@@ -32,6 +32,10 @@ mathematical_square(PyObject *self, PyObject *args) {
     return PyNumber_Power(args, mathematical_get_2(), Py_None);
 }
 static PyObject*
+mathematical_double(PyObject *self, PyObject *args) {
+    return PyNumber_Multiply(args, mathematical_get_2());
+}
+static PyObject*
 mathematical_oneover(PyObject *self, PyObject *args) {
     return PyNumber_TrueDivide(mathematical_get_1(), args);
 }
@@ -60,6 +64,33 @@ a one-argument square function and is significantly faster than ``lambda x: x**2
     >>> square(1)\n\
     1\n\
     >>> square(2.0)\n\
+    4.0\n\
+");
+
+PyDoc_STRVAR(mathematical_double_doc,
+"double(value)\n\
+\n\
+Returns the doubled `value`.\n\
+\n\
+Parameters\n\
+----------\n\
+value : any type\n\
+    The value to be doubled..\n\
+\n\
+Returns\n\
+-------\n\
+doubled : any type\n\
+    Returns ``value*2``.\n\
+\n\
+Examples\n\
+--------\n\
+It is not possible to apply ``functools.partial`` to ``operator.mul`` so that one has\n\
+a one-argument double function and is significantly faster than ``lambda x: x*2``::\n\
+\n\
+    >>> from iteration_utilities import double\n\
+    >>> double(1)\n\
+    2\n\
+    >>> double(2.0)\n\
     4.0\n\
 ");
 
