@@ -23,6 +23,9 @@ class T(object):
     def __lt__(self, other):
         return self.value < other.value
 
+    def __abs__(self):
+        return self.__class__(abs(self.value))
+
 
 minmax = iteration_utilities.minmax
 
@@ -112,6 +115,38 @@ def test_minmax_normal11():
 
     def test():
         minmax(T(4), T(3), T(2), T(1))
+    assert not memory_leak(test)
+
+
+def test_minmax_normal12():
+    assert minmax((i for i in [4, 3, 2, 5, 3])) == (2, 5)
+
+    def test():
+        minmax((T(i) for i in [4, 3, 2, 5, 3]))
+    assert not memory_leak(test)
+
+
+def test_minmax_normal13():
+    assert minmax((i for i in [4, 3, 2, 5, 3, 3])) == (2, 5)
+
+    def test():
+        minmax((T(i) for i in [4, 3, 2, 5, 3, 3]))
+    assert not memory_leak(test)
+
+
+def test_minmax_normal14():
+    assert minmax((i for i in [4, 3, 2, 5, 3]), key=abs) == (2, 5)
+
+    def test():
+        minmax((T(i) for i in [4, 3, 2, 5, 3]), key=abs)
+    assert not memory_leak(test)
+
+
+def test_minmax_normal15():
+    assert minmax((i for i in [4, 3, 2, 5, 3, 3]), key=abs) == (2, 5)
+
+    def test():
+        minmax((T(i) for i in [4, 3, 2, 5, 3, 3]), key=abs)
     assert not memory_leak(test)
 
 

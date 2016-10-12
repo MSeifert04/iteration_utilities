@@ -2,6 +2,7 @@ static PyObject *
 reduce_minmax(PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyObject *sequence, *iterator;
+    PyObject *(*iternext)(PyObject *);
     PyObject *defaultitem = NULL, *keyfunc = NULL;
     PyObject *item1 = NULL, *item2 = NULL, *val1 = NULL, *val2 = NULL;
     PyObject *maxitem = NULL, *maxval = NULL, *minitem = NULL, *minval = NULL;
@@ -75,14 +76,19 @@ reduce_minmax(PyObject *self, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
+    iternext = *Py_TYPE(iterator)->tp_iternext;
+
     // Iterate over the sequence
-    while (( item1 = PyIter_Next(iterator) )) {
+    while (( item1 = iternext(iterator) )) {
 
         // It could be NULL (end of sequence) but don't care .. yet.
-        item2 = PyIter_Next(iterator);
+        item2 = iternext(iterator);
 
-        /* get the value from the key function */
-        if (keyfunc != NULL) {
+        if (item2 == NULL) {
+            helper_ExceptionClearStopIter();
+        }
+
+        if (keyfunc != NULL) { /* get the value from the key function */
             val1 = PyObject_CallFunctionObjArgs(keyfunc, item1, NULL);
             if (val1 == NULL) {
                 goto Fail;
@@ -93,9 +99,7 @@ reduce_minmax(PyObject *self, PyObject *args, PyObject *kwds)
                     goto Fail;
                 }
             }
-        }
-        /* no key function; the value is the item */
-        else {
+        } else { /* no key function; the value is the item */
             val1 = item1;
             Py_INCREF(val1);
             if (item2 != NULL) {
@@ -203,6 +207,8 @@ reduce_minmax(PyObject *self, PyObject *args, PyObject *kwds)
             }
         }
     }
+
+    helper_ExceptionClearStopIter();
 
     if (PyErr_Occurred()) {
         goto Fail;
