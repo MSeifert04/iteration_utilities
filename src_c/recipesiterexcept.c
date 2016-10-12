@@ -6,8 +6,6 @@ typedef struct {
 
 } recipes_iterexcept_object;
 
-static PyTypeObject recipes_iterexcept_type;
-
 static PyObject *
 recipes_iterexcept_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
