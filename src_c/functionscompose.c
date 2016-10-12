@@ -173,6 +173,13 @@ Returns\n\
 composed_func : callable\n\
     The chained `funcs`.\n\
 \n\
+Methods\n\
+-------\n\
+__call__(\\*args, \\*\\*kwargs)\n\
+   Returns ``func1(...(funcn(*args, **kwargs)))``.\n\
+   or ``funcn(...(func1(*args, **kwargs)))`` (if `reverse` is True).\n\
+   or ``func1(*args, **kwargs), ..., funcn(*args, **kwargs)`` if `all` is True.\n\
+\n\
 Examples\n\
 --------\n\
 `compose` simple calls all `funcs` on the result of the previous one::\n\
