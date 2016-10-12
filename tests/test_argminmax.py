@@ -143,6 +143,7 @@ def test_argmin_failure5():
     assert not memory_leak(test)
 
 
+@pytest.mark.xfail(iteration_utilities.PY2, reason='cmp works on Python 2')
 def test_argmin_failure6():
     # cmp failed
     with pytest.raises(TypeError):

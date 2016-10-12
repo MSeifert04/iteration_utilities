@@ -17,6 +17,7 @@ reduce_argminmax(PyObject *self, PyObject *args, PyObject *kwds, int cmpop)
     int defaultisset = 0;
 
     // Internally used current max or min
+    Py_ssize_t idx = -1;
     PyObject *maxval = NULL;
     Py_ssize_t maxidx = -1;
 
@@ -65,7 +66,6 @@ reduce_argminmax(PyObject *self, PyObject *args, PyObject *kwds, int cmpop)
     }
     iternext = *Py_TYPE(iterator)->tp_iternext;
 
-    Py_ssize_t idx = -1;
     // Iterate over the sequence
     while (( item = iternext(iterator) )) {
         idx++;
