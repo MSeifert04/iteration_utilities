@@ -13,24 +13,22 @@ static PyTypeObject PyIUType_Complement;
 
 static PyObject * complement_new(PyTypeObject *type, PyObject *args,
                                  PyObject *kwargs) {
-    static char *kwlist[] = {"func", NULL};
     PyIUObject_Complement *lz;
 
     PyObject *func;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O:complement", kwlist,
-                                     &func)) {
+    /* Parse arguments */
+    if (!PyArg_UnpackTuple(args, "complement", 1, 1, &func)) {
         return NULL;
     }
 
+    /* Create struct */
     lz = (PyIUObject_Complement *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         return NULL;
     }
-
     Py_INCREF(func);
     lz->func = func;
-
     return (PyObject *)lz;
 }
 
@@ -69,6 +67,7 @@ static PyObject * complement_call(PyIUObject_Complement *lz, PyObject *args,
     PyObject *temp;
     int res;
 
+    // "not func(*args, **kwargs)"
     temp = PyObject_Call(lz->func, args, kwargs);
     res = PyObject_Not(temp);
     Py_DECREF(temp);

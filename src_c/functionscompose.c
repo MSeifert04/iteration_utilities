@@ -17,26 +17,32 @@ static PyObject * compose_new(PyTypeObject *type, PyObject *funcs,
                               PyObject *kwargs) {
     PyIUObject_Compose *lz;
 
-    PyObject *reversekw, *allkw;
-    Py_ssize_t nkwargs = 0;
-    int reverse = 0, all = 0;
+    PyObject *kwarg;
+    Py_ssize_t nkwargs;
+    int reverse = 0;
+    int all = 0;
 
+    /* Parse arguments */
     if (funcs == NULL || !PyTuple_Check(funcs) || PyTuple_Size(funcs) <= 0) {
         PyErr_Format(PyExc_TypeError, "at least 1 function must be given.");
         return NULL;
     }
 
     if (kwargs != NULL && PyDict_Check(kwargs) && PyDict_Size(kwargs)) {
-        reversekw = PyDict_GetItemString(kwargs, "reverse");
-        if (reversekw != NULL) {
-            reverse = PyLong_AsLong(reversekw);
+        nkwargs = 0;
+
+        kwarg = PyDict_GetItemString(kwargs, "reverse");
+        if (kwarg != NULL) {
+            reverse = PyLong_AsLong(kwarg);
             nkwargs++;
         }
-        allkw = PyDict_GetItemString(kwargs, "all");
-        if (allkw != NULL) {
-            all = PyLong_AsLong(allkw);
+
+        kwarg = PyDict_GetItemString(kwargs, "all");
+        if (kwarg != NULL) {
+            all = PyLong_AsLong(kwarg);
             nkwargs++;
         }
+
         if (PyDict_Size(kwargs) - nkwargs != 0) {
             PyErr_Format(PyExc_TypeError,
                          "`compose` got an unexpected keyword argument");
@@ -44,16 +50,15 @@ static PyObject * compose_new(PyTypeObject *type, PyObject *funcs,
         }
     }
 
+    /* Create struct */
     lz = (PyIUObject_Compose *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         return NULL;
     }
-
     Py_INCREF(funcs);
     lz->funcs = funcs;
     lz->reverse = reverse;
     lz->all = all;
-
     return (PyObject *)lz;
 }
 
@@ -89,27 +94,27 @@ static int compose_traverse(PyIUObject_Compose *lz, visitproc visit,
 
 static PyObject * compose_call(PyIUObject_Compose *lz, PyObject *args,
                                PyObject *kwargs) {
-    PyObject *funcs;
-    PyObject *func = NULL, *temp = NULL, *oldtemp = NULL, *result = NULL;
+    PyObject *func, *temp, *oldtemp, *result;
     Py_ssize_t tuplesize, idx;
-    int reverse;
 
-    funcs = lz->funcs;
-    tuplesize = PyTuple_Size(funcs);
-    reverse = lz->reverse;
+    tuplesize = PyTuple_Size(lz->funcs);
+    temp = NULL;
 
+    // Create a placeholder tuple for "all=True"
     if (lz->all) {
         result = PyTuple_New(tuplesize);
     }
 
     for (idx=0 ; idx<tuplesize ; idx++) {
 
-        if (reverse) {
-            func = PyTuple_GET_ITEM(funcs, tuplesize - idx - 1);
+        // Get the function
+        if (lz->reverse) {
+            func = PyTuple_GET_ITEM(lz->funcs, tuplesize - idx - 1);
         } else {
-            func = PyTuple_GET_ITEM(funcs, idx);
+            func = PyTuple_GET_ITEM(lz->funcs, idx);
         }
 
+        // Call the function and process the result
         if (temp == NULL || lz->all) {
             temp = PyObject_Call(func, args, kwargs);
             if (lz->all) {
@@ -121,6 +126,7 @@ static PyObject * compose_call(PyIUObject_Compose *lz, PyObject *args,
             Py_DECREF(oldtemp);
         }
 
+        // In case something went wrong when calling the function
         if (temp == NULL) {
             return NULL;
         }
@@ -128,8 +134,9 @@ static PyObject * compose_call(PyIUObject_Compose *lz, PyObject *args,
 
     if (lz->all) {
         return result;
+    } else {
+        return temp;
     }
-    return temp;
 }
 
 /******************************************************************************

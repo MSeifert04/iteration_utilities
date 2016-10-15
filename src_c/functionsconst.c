@@ -13,24 +13,22 @@ static PyTypeObject PyIUType_Constant;
 
 static PyObject * constant_new(PyTypeObject *type, PyObject *args,
                                PyObject *kwargs) {
-    static char *kwlist[] = {"x", NULL};
     PyIUObject_Constant *lz;
 
     PyObject *item;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O:constant", kwlist,
-                                     &item)) {
+    /* Parse arguments */
+    if (!PyArg_UnpackTuple(args, "constant", 1, 1, &item)) {
         return NULL;
     }
 
+    /* Create struct */
     lz = (PyIUObject_Constant *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         return NULL;
     }
-
     Py_INCREF(item);
     lz->item = item;
-
     return (PyObject *)lz;
 }
 
@@ -77,8 +75,7 @@ static PyObject * constant_call(PyIUObject_Constant *lz, PyObject *args,
  *****************************************************************************/
 
 static PyObject * constant_reduce(PyIUObject_Constant *lz, PyObject *unused) {
-    return Py_BuildValue("O(O)", Py_TYPE(lz),
-                         lz->item);
+    return Py_BuildValue("O(O)", Py_TYPE(lz), lz->item);
 }
 
 /******************************************************************************
@@ -152,10 +149,10 @@ For example::\n\
 static PyTypeObject PyIUType_Constant = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.constant",     /* tp_name */
-    sizeof(PyIUObject_Constant),  /* tp_basicsize */
+    sizeof(PyIUObject_Constant),        /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
-    (destructor)constant_dealloc, /* tp_dealloc */
+    (destructor)constant_dealloc,       /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -165,21 +162,21 @@ static PyTypeObject PyIUType_Constant = {
     0,                                  /* tp_as_sequence */
     0,                                  /* tp_as_mapping */
     0,                                  /* tp_hash */
-    (ternaryfunc)constant_call, /* tp_call */
+    (ternaryfunc)constant_call,         /* tp_call */
     0,                                  /* tp_str */
     PyObject_GenericGetAttr,            /* tp_getattro */
     0,                                  /* tp_setattro */
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    constant_doc,             /* tp_doc */
-    (traverseproc)constant_traverse, /* tp_traverse */
+    constant_doc,                       /* tp_doc */
+    (traverseproc)constant_traverse,    /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
     0,                                  /* tp_iter */
     0,                                  /* tp_iternext */
-    constant_methods,         /* tp_methods */
+    constant_methods,                   /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
@@ -189,6 +186,6 @@ static PyTypeObject PyIUType_Constant = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     0,                                  /* tp_alloc */
-    constant_new,             /* tp_new */
+    constant_new,                       /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };

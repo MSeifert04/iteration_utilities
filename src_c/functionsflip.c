@@ -13,24 +13,22 @@ static PyTypeObject PyIUType_Flip;
 
 static PyObject * flip_new(PyTypeObject *type, PyObject *args,
                            PyObject *kwargs) {
-    static char *kwlist[] = {"func", NULL};
     PyIUObject_Flip *lz;
 
     PyObject *func;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O:flip", kwlist,
-                                     &func)) {
+    /* Parse arguments */
+    if (!PyArg_UnpackTuple(args, "flip", 1, 1, &func)) {
         return NULL;
     }
 
+    /* Create struct */
     lz = (PyIUObject_Flip *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         return NULL;
     }
-
     Py_INCREF(func);
     lz->func = func;
-
     return (PyObject *)lz;
 }
 
@@ -65,21 +63,12 @@ static int flip_traverse(PyIUObject_Flip *lz, visitproc visit, void *arg) {
 
 static PyObject * flip_call(PyIUObject_Flip *lz, PyObject *args,
                             PyObject *kwargs) {
-    PyObject *result, *newargs, *item;
-    Py_ssize_t numargs, idx;
+    PyObject *result, *newargs;
 
-    numargs = PyTuple_Size(args);
-
-    if (numargs != 0) {
-        newargs = PyTuple_New(numargs);
-        for (idx=0 ; idx < numargs ; idx++) {
-            item = PyTuple_GET_ITEM(args, idx);
-            Py_INCREF(item);
-            PyTuple_SET_ITEM(newargs, numargs - idx - 1, item);
-        }
+    if (args != NULL) {
+        newargs = PyUI_TupleReverse(args);
         result = PyObject_Call(lz->func, newargs, kwargs);
         Py_DECREF(newargs);
-
     } else {
         result = PyObject_Call(lz->func, args, kwargs);
     }

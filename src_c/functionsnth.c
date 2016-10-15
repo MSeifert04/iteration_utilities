@@ -13,20 +13,20 @@ static PyTypeObject PyIUType_Nth;
 
 static PyObject * nth_new(PyTypeObject *type, PyObject *args,
                           PyObject *kwargs) {
-    static char *kwlist[] = {"n", NULL};
     PyIUObject_Nth *lz;
 
     Py_ssize_t index;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "n:nth", kwlist,
-                                     &index)) {
+    /* Parse arguments */
+    if (!PyArg_ParseTuple(args, "n:nth", &index)) {
         return NULL;
     }
 
+    /* Create struct */
     lz = (PyIUObject_Nth *)type->tp_alloc(type, 0);
-    if (lz == NULL)
+    if (lz == NULL) {
         return NULL;
-
+    }
     lz->index = index;
     return (PyObject *)lz;
 }
@@ -62,22 +62,17 @@ static PyObject * nth_call(PyIUObject_Nth *lz, PyObject *args,
                            PyObject *kwargs) {
     static char *kwlist[] = {"iterable", "default", "pred", "truthy",
                              "retpred", "retidx", NULL};
-    Py_ssize_t n = lz->index;
-    PyObject *iterable, *defaultitem=NULL, *func=NULL;
-    PyObject *(*iternext)(PyObject *);
-    int truthy=1, retpred=0, retidx=0;
-    PyObject *iterator, *item=NULL, *last=NULL, *val=NULL;
-    Py_ssize_t i, idx=-1;
-    int ok;
 
+    PyObject *(*iternext)(PyObject *);
+    PyObject *iterable, *iterator, *item;
+    PyObject *defaultitem=NULL, *func=NULL, *last=NULL, *val=NULL;
+    int ok, truthy=1, retpred=0, retidx=0;
+    Py_ssize_t idx, nfound=-1;
+
+    /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OOiii:nth", kwlist,
                                      &iterable, &defaultitem, &func,
                                      &truthy, &retpred, &retidx)) {
-        return NULL;
-    }
-
-    iterator = PyObject_GetIter(iterable);
-    if (iterator == NULL) {
         return NULL;
     }
 
@@ -87,32 +82,47 @@ static PyObject * nth_call(PyIUObject_Nth *lz, PyObject *args,
         return NULL;
     }
 
+    iterator = PyObject_GetIter(iterable);
+    if (iterator == NULL) {
+        return NULL;
+    }
     iternext = *Py_TYPE(iterator)->tp_iternext;
 
-    for (i=0 ; i<=n || n < 0; ) {
+    // The loop variable "idx" is only incremented if a suitable item was found.
+    for (idx=0 ; idx<=lz->index || lz->index < 0; ) {
         item = iternext(iterator);
+
+        // If the iterator terminates also terminate the loop and remove the
+        // last found item (except one looks for the last one "lz->index == -1").
         if (item == NULL) {
-            // Keep the last one in case we looked for the last one.
-            if (n >= 0) {
+            if (lz->index >= 0) {
                 Py_XDECREF(last);
                 last = NULL;
             }
             break;
         }
+
+        // In case the index of the found element should be returned we need to
+        // increment the "nfound" counter.
         if (retidx)
-            idx++;
-        // Sequence contains an element and func is None: return it.
+            nfound++;
+
+        // If no function is given we can skip the remainder of the loop and
+        // just use the new item.
         if (func == NULL) {
             if (last != NULL) {
                 Py_DECREF(last);
             }
             last = item;
-            i++;
+            idx++;
             continue;
 
+        // If "None" or "bool" is given as predicate we don't need to call the
+        // function explicitly.
         } else if (func == Py_None || func == (PyObject *)&PyBool_Type) {
             ok = PyObject_IsTrue(item);
 
+        // Otherwise call the function
         } else {
             val = PyObject_CallFunctionObjArgs(func, item, NULL);
             if (val == NULL) {
@@ -124,10 +134,15 @@ static PyObject * nth_call(PyIUObject_Nth *lz, PyObject *args,
             ok = PyObject_IsTrue(val);
         }
 
+        // Compare if the "ok" variable matches the required "truthyness" and
+        // replace the last found item with the new found one.
         if (ok == truthy) {
+            // If the predicate should be returned we don't need the original
+            // item but only keep the result of the function call.
             if (retpred) {
                 Py_DECREF(item);
                 if (val == NULL) {
+                    // Predicate was None or bool and no "val" was created.
                     val = PyBool_FromLong(ok);
                 }
                 if (last != NULL) {
@@ -135,6 +150,8 @@ static PyObject * nth_call(PyIUObject_Nth *lz, PyObject *args,
                 }
                 last = val;
 
+            // Otherwise discard the value from the function call and keep the
+            // item from the iterator
             } else {
                 Py_XDECREF(val);
                 if (last != NULL) {
@@ -142,14 +159,16 @@ static PyObject * nth_call(PyIUObject_Nth *lz, PyObject *args,
                 }
                 last = item;
             }
-            i++;
+            idx++;
 
+        // Error happened when calling the function or when comparing to True.
         } else if (ok < 0) {
             Py_DECREF(iterator);
             Py_DECREF(item);
             Py_XDECREF(val);
             return NULL;
 
+        // The object is not considered suitable and it will be discarded.
         } else {
             Py_DECREF(item);
             Py_XDECREF(val);
@@ -157,25 +176,26 @@ static PyObject * nth_call(PyIUObject_Nth *lz, PyObject *args,
     }
 
     Py_DECREF(iterator);
-
     PYIU_CLEAR_STOPITERATION;
 
+    // We still have a last element (so the loop did not terminate without
+    // finding the indexed element).
     if (last != NULL) {
         if (retidx) {
             Py_DECREF(last);
-            return PyLong_FromSsize_t(idx);
+            return PyLong_FromSsize_t(nfound);
         }
         return last;
-    }
 
-    Py_XDECREF(last);
-
-    if (defaultitem == NULL) {
-        PyErr_Format(PyExc_IndexError, "not enough values.");
-        return NULL;
-    } else {
+    // No last element but a default was given
+    } else if (defaultitem != NULL) {
         Py_INCREF(defaultitem);
         return defaultitem;
+
+    // No item, no default raises an IndexError
+    } else {
+        PyErr_Format(PyExc_IndexError, "not enough values.");
+        return NULL;
     }
 }
 
@@ -322,10 +342,10 @@ There are already three predefined instances:\n\
 static PyTypeObject PyIUType_Nth = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.nth",          /* tp_name */
-    sizeof(PyIUObject_Nth),       /* tp_basicsize */
+    sizeof(PyIUObject_Nth),             /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
-    (destructor)nth_dealloc,  /* tp_dealloc */
+    (destructor)nth_dealloc,            /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -335,21 +355,21 @@ static PyTypeObject PyIUType_Nth = {
     0,                                  /* tp_as_sequence */
     0,                                  /* tp_as_mapping */
     0,                                  /* tp_hash */
-    (ternaryfunc)nth_call,    /* tp_call */
+    (ternaryfunc)nth_call,              /* tp_call */
     0,                                  /* tp_str */
     PyObject_GenericGetAttr,            /* tp_getattro */
     0,                                  /* tp_setattro */
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    nth_doc,                  /* tp_doc */
-    (traverseproc)nth_traverse, /* tp_traverse */
+    nth_doc,                            /* tp_doc */
+    (traverseproc)nth_traverse,         /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
     0,                                  /* tp_iter */
     0,                                  /* tp_iternext */
-    nth_methods,              /* tp_methods */
+    nth_methods,                        /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
@@ -359,6 +379,6 @@ static PyTypeObject PyIUType_Nth = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     0,                                  /* tp_alloc */
-    nth_new,                  /* tp_new */
+    nth_new,                            /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };
