@@ -12,7 +12,6 @@ typedef struct {
     PyObject *binop;
 } PyIUObject_Accumulate;
 
-
 static PyTypeObject PyIUType_Accumulate;
 
 /******************************************************************************

@@ -1,14 +1,12 @@
 static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
-    static char *kwlist[] = {"key", "default", NULL};
     PyObject *sequence, *iterator;
     PyObject *(*iternext)(PyObject *);
     PyObject *defaultitem = NULL, *keyfunc = NULL;
     PyObject *item1 = NULL, *item2 = NULL, *val1 = NULL, *val2 = NULL;
     PyObject *maxitem = NULL, *maxval = NULL, *minitem = NULL, *minval = NULL;
-    PyObject *temp = NULL, *emptytuple = NULL, *resulttuple = NULL;
+    PyObject *temp = NULL, *resulttuple = NULL;
     const int positional = PyTuple_Size(args) > 1;
     Py_ssize_t nkwargs = 0;
-    int ret;
     int cmp;
 
     if (positional) {
@@ -17,21 +15,6 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
         return NULL;
     }
 
-#if PY_MAJOR_VERSION >= 3
-    emptytuple = PyTuple_New(0);
-    if (emptytuple == NULL) {
-        return NULL;
-    }
-
-    ret = PyArg_ParseTupleAndKeywords(emptytuple, kwargs, "|$OO", kwlist,
-                                      &keyfunc, &defaultitem);
-
-    Py_DECREF(emptytuple);
-
-    if (!ret) {
-        return NULL;
-    }
-#else
     if (kwargs != NULL && PyDict_Check(kwargs) && PyDict_Size(kwargs)) {
         keyfunc = PyDict_GetItemString(kwargs, "key");
         if (keyfunc != NULL) {
@@ -51,25 +34,20 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
             return NULL;
         }
     }
-#endif
 
     if (positional && defaultitem != NULL) {
         PyErr_Format(PyExc_TypeError,
                      "Cannot specify a default for minmax with multiple "
                      "positional arguments");
-#if PY_MAJOR_VERSION == 2
         Py_XDECREF(keyfunc);
         Py_XDECREF(defaultitem);
-#endif
         return NULL;
     }
 
     iterator = PyObject_GetIter(sequence);
     if (iterator == NULL) {
-#if PY_MAJOR_VERSION == 2
         Py_XDECREF(keyfunc);
         Py_XDECREF(defaultitem);
-#endif
         return NULL;
     }
 
@@ -211,9 +189,7 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
         goto Fail;
     }
 
-#if PY_MAJOR_VERSION == 2
     Py_XDECREF(keyfunc);
-#endif
 
     if (minval == NULL) {
         if (maxval != NULL || minitem != NULL || maxitem != NULL) {
@@ -233,9 +209,7 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
         Py_DECREF(minval);
         Py_DECREF(maxval);
     }
-#if PY_MAJOR_VERSION == 2
     Py_XDECREF(defaultitem);
-#endif
 
     Py_DECREF(iterator);
 
@@ -251,10 +225,8 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
     return resulttuple;
 
 Fail:
-#if PY_MAJOR_VERSION == 2
     Py_XDECREF(keyfunc);
     Py_XDECREF(defaultitem);
-#endif
     Py_XDECREF(item1);
     Py_XDECREF(item2);
     Py_XDECREF(val1);

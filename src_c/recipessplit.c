@@ -5,9 +5,7 @@ typedef struct {
     Py_ssize_t maxsplit;
     int keep_delimiter;
     int cmp;
-
     PyObject *next;
-
 } PyIUObject_Split;
 
 static PyTypeObject PyIUType_Split;
@@ -289,7 +287,7 @@ Examples\n\
  *
  *****************************************************************************/
 
-PyTypeObject PyIUType_Split = {
+static PyTypeObject PyIUType_Split = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.split",      /* tp_name */
     sizeof(PyIUObject_Split),     /* tp_basicsize */

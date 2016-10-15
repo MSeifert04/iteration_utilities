@@ -265,7 +265,7 @@ Varying the `times` can give you also 3 successive elements::\n\
  *
  *****************************************************************************/
 
-PyTypeObject PyIUType_Successive = {
+static PyTypeObject PyIUType_Successive = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.successive",   /* tp_name */
     sizeof(PyIUObject_Successive),  /* tp_basicsize */

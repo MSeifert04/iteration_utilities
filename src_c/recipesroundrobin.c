@@ -84,7 +84,6 @@ static int roundrobin_traverse(PyIUObject_Roundrobin *lz, visitproc visit,
 
 static PyObject * roundrobin_next(PyIUObject_Roundrobin *lz) {
     PyObject *ittuple = lz->ittuple;
-    Py_ssize_t numactive = lz->numactive;
     Py_ssize_t active = lz->active;
     Py_ssize_t i;
 
@@ -220,7 +219,7 @@ References\n\
  *
  *****************************************************************************/
 
-PyTypeObject PyIUType_Roundrobin = {
+static PyTypeObject PyIUType_Roundrobin = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.roundrobin",   /* tp_name */
     sizeof(PyIUObject_Roundrobin),  /* tp_basicsize */

@@ -4,7 +4,6 @@ typedef struct {
     Py_ssize_t times;
     PyObject *fillvalue;
     int truncate;
-
     PyObject *result;
 } PyIUObject_Grouper;
 
@@ -310,7 +309,7 @@ Examples\n\
  *
  *****************************************************************************/
 
-PyTypeObject PyIUType_Grouper = {
+static PyTypeObject PyIUType_Grouper = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.grouper",      /* tp_name */
     sizeof(PyIUObject_Grouper),     /* tp_basicsize */

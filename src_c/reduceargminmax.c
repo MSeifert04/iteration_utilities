@@ -1,6 +1,5 @@
 static PyObject * argminmax(PyObject *m, PyObject *args, PyObject *kwargs,
                             int cmpop){
-    static char *kwlist[] = {"key", "default", NULL};
     PyObject *sequence;
     PyObject *keyfunc = NULL, *defaultvalue = NULL;
     PyObject *iterator = NULL;

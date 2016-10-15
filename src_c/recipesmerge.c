@@ -39,13 +39,11 @@ Py_ssize_t helper_bisect_right(PyObject *list, PyObject *item, Py_ssize_t hi, in
     return lo;
 }
 
-
 typedef struct {
     PyObject_HEAD
     PyObject *ittuple;
     PyObject *keyfunc;
     int reverse;
-
     PyObject *current;
     Py_ssize_t numactive;
 } PyIUObject_Merge;
@@ -224,7 +222,7 @@ static int merge_init_current(PyIUObject_Merge *lz) {
 
 static PyObject * merge_next(PyIUObject_Merge *lz) {
     PyObject *iterator, *item, *val, *next, *keyval, *oldkeyval;
-    Py_ssize_t i, active=0, insert=0;
+    Py_ssize_t idx, insert=0;
 
     // No current then we create one from the first elements of each iterable
     if (lz->current == NULL || lz->current == Py_None) {
@@ -249,12 +247,12 @@ static PyObject * merge_next(PyIUObject_Merge *lz) {
     }
     Py_INCREF(val);
     // Iterable from which the value was taken
-    i = PyLong_AsSsize_t(PyTuple_GET_ITEM(next, 1));
+    idx = PyLong_AsSsize_t(PyTuple_GET_ITEM(next, 1));
     // Get the next value from the iterable where the value was from
     if (lz->reverse) {
-        iterator = PyTuple_GET_ITEM(lz->ittuple, -i);
+        iterator = PyTuple_GET_ITEM(lz->ittuple, -idx);
     } else {
-        iterator = PyTuple_GET_ITEM(lz->ittuple, i);
+        iterator = PyTuple_GET_ITEM(lz->ittuple, idx);
     }
     item = PyIter_Next(iterator);
 
@@ -435,7 +433,7 @@ However if the `iterabes` are not sorted the result will be unsorted\n\
  *
  *****************************************************************************/
 
-PyTypeObject PyIUType_Merge = {
+static PyTypeObject PyIUType_Merge = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.merge",        /* tp_name */
     sizeof(PyIUObject_Merge),       /* tp_basicsize */
