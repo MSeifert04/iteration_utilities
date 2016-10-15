@@ -1,7 +1,3 @@
-# Own rules (benchmarks and old versions)
-.historical/
-.benchmarks/
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
