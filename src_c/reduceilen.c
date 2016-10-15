@@ -1,17 +1,7 @@
-static PyObject *
-reduce_ilen(PyObject *self, PyObject *args, PyObject *kwds)
-{
-    static char *kwargs[] = {"iterable", NULL};
-
-    PyObject *iterable, *iterator, *item;
+static PyObject * PyIU_Ilen(PyObject *m, PyObject *iterable) {
+    PyObject *iterator, *item;
     Py_ssize_t len_int = 0;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O:ilen",
-                                     kwargs, &iterable)) {
-        return NULL;
-    }
-
-    /* Get iterator. */
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
         return NULL;
@@ -36,8 +26,13 @@ reduce_ilen(PyObject *self, PyObject *args, PyObject *kwds)
     return PyLong_FromSsize_t(len_int);
 }
 
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
 
-PyDoc_STRVAR(reduce_ilen_doc, "ilen(iterable)\n\
+PyDoc_STRVAR(PyIU_Ilen_doc, "ilen(iterable)\n\
 \n\
 Computes the `len` of an `iterable` by accessing all elements.\n\
 \n\

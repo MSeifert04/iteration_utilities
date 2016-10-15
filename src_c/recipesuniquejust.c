@@ -3,26 +3,29 @@ typedef struct {
     PyObject *it;
     PyObject *keyfunc;
     PyObject *lastitem;
-} recipes_uniquejust_object;
+} PyIUObject_UniqueJust;
 
-static PyTypeObject recipes_uniquejust_type;
+static PyTypeObject PyIUType_UniqueJust;
 
-static PyObject *
-recipes_uniquejust_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    static char *kwargs[] = {"iterable", "key", NULL};
+/******************************************************************************
+ *
+ * New
+ *
+ *****************************************************************************/
+
+static PyObject * uniquejust_new(PyTypeObject *type, PyObject *args,
+                                 PyObject *kwargs) {
+    static char *kwlist[] = {"iterable", "key", NULL};
+    PyIUObject_UniqueJust *lz;
 
     PyObject *iterable, *keyfunc=NULL;
     PyObject *it;
 
-    recipes_uniquejust_object *lz;
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|O:unique_justseen", kwargs,
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:unique_justseen", kwlist,
                                      &iterable, &keyfunc)) {
         return NULL;
     }
 
-    /* Get iterator. */
     it = PyObject_GetIter(iterable);
     if (it == NULL) {
         return NULL;
@@ -36,8 +39,7 @@ recipes_uniquejust_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         }
     }
 
-    /* create uniquejust structure */
-    lz = (recipes_uniquejust_object *)type->tp_alloc(type, 0);
+    lz = (PyIUObject_UniqueJust *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         Py_DECREF(it);
         Py_XDECREF(keyfunc);
@@ -51,9 +53,13 @@ recipes_uniquejust_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)lz;
 }
 
-static void
-recipes_uniquejust_dealloc(recipes_uniquejust_object *lz)
-{
+/******************************************************************************
+ *
+ * Destructor
+ *
+ *****************************************************************************/
+
+static void uniquejust_dealloc(PyIUObject_UniqueJust *lz) {
     PyObject_GC_UnTrack(lz);
     Py_XDECREF(lz->it);
     Py_XDECREF(lz->keyfunc);
@@ -61,19 +67,21 @@ recipes_uniquejust_dealloc(recipes_uniquejust_object *lz)
     Py_TYPE(lz)->tp_free(lz);
 }
 
-static int
-recipes_uniquejust_traverse(recipes_uniquejust_object *lz, visitproc visit,
-                            void *arg)
-{
+/******************************************************************************
+ *
+ * Traverse
+ *
+ *****************************************************************************/
+
+static int uniquejust_traverse(PyIUObject_UniqueJust *lz, visitproc visit,
+                               void *arg) {
     Py_VISIT(lz->it);
     Py_VISIT(lz->keyfunc);
     Py_VISIT(lz->lastitem);
     return 0;
 }
 
-static PyObject *
-recipes_uniquejust_next(recipes_uniquejust_object *lz)
-{
+static PyObject * uniquejust_next(PyIUObject_UniqueJust *lz) {
     PyObject *it = lz->it;
     PyObject *keyfunc = lz->keyfunc;
 
@@ -119,8 +127,13 @@ recipes_uniquejust_next(recipes_uniquejust_object *lz)
     return NULL;
 }
 
-static PyObject *
-recipes_uniquejust_reduce(recipes_uniquejust_object *lz) {
+/******************************************************************************
+ *
+ * Reduce
+ *
+ *****************************************************************************/
+
+static PyObject * uniquejust_reduce(PyIUObject_UniqueJust *lz) {
     PyObject *value;
 
     if (lz->lastitem != NULL) {
@@ -137,9 +150,14 @@ recipes_uniquejust_reduce(recipes_uniquejust_object *lz) {
     return value;
 }
 
-static PyObject *
-recipes_uniquejust_setstate(recipes_uniquejust_object *lz, PyObject *state)
-{
+/******************************************************************************
+ *
+ * Setstate
+ *
+ *****************************************************************************/
+
+static PyObject * uniquejust_setstate(PyIUObject_UniqueJust *lz,
+                                      PyObject *state) {
     PyObject *lastitem;
 
     if (!PyArg_ParseTuple(state, "O", &lastitem)) {
@@ -153,22 +171,25 @@ recipes_uniquejust_setstate(recipes_uniquejust_object *lz, PyObject *state)
     Py_RETURN_NONE;
 }
 
-static PyMethodDef recipes_uniquejust_methods[] = {
-    {"__reduce__",
-     (PyCFunction)recipes_uniquejust_reduce,
-     METH_NOARGS,
-     ""},
+/******************************************************************************
+ *
+ * Methods
+ *
+ *****************************************************************************/
 
-    {"__setstate__",
-     (PyCFunction)recipes_uniquejust_setstate,
-     METH_O,
-     ""},
-
-    {NULL,              NULL}   /* sentinel */
+static PyMethodDef uniquejust_methods[] = {
+    {"__reduce__", (PyCFunction)uniquejust_reduce, METH_NOARGS, ""},
+    {"__setstate__", (PyCFunction)uniquejust_setstate, METH_O, ""},
+    {NULL, NULL}
 };
 
-PyDoc_STRVAR(recipes_uniquejust_doc,
-"unique_justseen(iterable[, key])\n\
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
+
+PyDoc_STRVAR(uniquejust_doc, "unique_justseen(iterable[, key])\n\
 \n\
 List unique elements, preserving order. Remember only the element just seen.\n\
 \n\
@@ -197,13 +218,19 @@ Examples\n\
 ['A', 'B', 'C', 'A', 'D']\n\
 ");
 
-static PyTypeObject recipes_uniquejust_type = {
+/******************************************************************************
+ *
+ * Type
+ *
+ *****************************************************************************/
+
+static PyTypeObject PyIUType_UniqueJust = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.unique_justseen", /* tp_name */
-    sizeof(recipes_uniquejust_object),  /* tp_basicsize */
+    sizeof(PyIUObject_UniqueJust),  /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
-    (destructor)recipes_uniquejust_dealloc, /* tp_dealloc */
+    (destructor)uniquejust_dealloc, /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -220,14 +247,14 @@ static PyTypeObject recipes_uniquejust_type = {
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    recipes_uniquejust_doc,             /* tp_doc */
-    (traverseproc)recipes_uniquejust_traverse, /* tp_traverse */
+    uniquejust_doc,             /* tp_doc */
+    (traverseproc)uniquejust_traverse, /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
     PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)recipes_uniquejust_next, /* tp_iternext */
-    recipes_uniquejust_methods,         /* tp_methods */
+    (iternextfunc)uniquejust_next, /* tp_iternext */
+    uniquejust_methods,         /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
@@ -237,6 +264,6 @@ static PyTypeObject recipes_uniquejust_type = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     0,                                  /* tp_alloc */
-    recipes_uniquejust_new,             /* tp_new */
+    uniquejust_new,             /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };

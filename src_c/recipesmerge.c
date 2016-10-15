@@ -1,6 +1,4 @@
-static void
-helper_tuple_insert(PyObject *tuple, Py_ssize_t where, PyObject *v, Py_ssize_t num)
-{
+static void helper_tuple_insert(PyObject *tuple, Py_ssize_t where, PyObject *v, Py_ssize_t num) {
     // Last item of the tuple MUST be NULL otherwise this leaves a dangling
     // reference!
     Py_ssize_t i;
@@ -13,9 +11,7 @@ helper_tuple_insert(PyObject *tuple, Py_ssize_t where, PyObject *v, Py_ssize_t n
     PyTuple_SET_ITEM(tuple, where, v);
 }
 
-Py_ssize_t
-helper_bisect_right(PyObject *list, PyObject *item, Py_ssize_t hi, int cmpop)
-{
+Py_ssize_t helper_bisect_right(PyObject *list, PyObject *item, Py_ssize_t hi, int cmpop) {
     PyObject *litem;
     Py_ssize_t mid;
     int res;
@@ -52,23 +48,27 @@ typedef struct {
 
     PyObject *current;
     Py_ssize_t numactive;
-} recipes_merge_object;
+} PyIUObject_Merge;
 
+static PyTypeObject PyIUType_Merge;
 
-static PyObject *
-recipes_merge_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    recipes_merge_object *lz;
+/******************************************************************************
+ *
+ * New
+ *
+ *****************************************************************************/
+
+static PyObject * merge_new(PyTypeObject *type, PyObject *args,
+                            PyObject *kwargs) {
+    PyIUObject_Merge *lz;
 
     PyObject *ittuple;
     PyObject *keyfunc = NULL;
     PyObject *reversekw = NULL;
     int reverse = Py_LT;
-
     Py_ssize_t numactive;
-
     PyObject *it;
-    Py_ssize_t i, nkwds=0;
+    Py_ssize_t i, nkwargs=0;
 
     if (!PyTuple_Check(args)) {
         PyErr_Format(PyExc_TypeError,
@@ -92,20 +92,20 @@ recipes_merge_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyTuple_SET_ITEM(ittuple, i, it);
     }
 
-    if (kwds != NULL && PyDict_Check(kwds) && PyDict_Size(kwds)) {
-        keyfunc = PyDict_GetItemString(kwds, "key");
+    if (kwargs != NULL && PyDict_Check(kwargs) && PyDict_Size(kwargs)) {
+        keyfunc = PyDict_GetItemString(kwargs, "key");
         if (keyfunc != NULL) {
-            nkwds++;
+            nkwargs++;
             Py_INCREF(keyfunc);
         }
-        reversekw = PyDict_GetItemString(kwds, "reverse");
+        reversekw = PyDict_GetItemString(kwargs, "reverse");
         if (reversekw != NULL) {
-            nkwds++;
+            nkwargs++;
             if (PyObject_IsTrue(reversekw)) {
                 reverse = Py_GT;
             }
         }
-        if (PyDict_Size(kwds) - nkwds != 0) {
+        if (PyDict_Size(kwargs) - nkwargs != 0) {
             PyErr_Format(PyExc_TypeError,
                          "merge got an unexpected keyword argument");
             Py_XDECREF(keyfunc);
@@ -114,8 +114,7 @@ recipes_merge_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         }
     }
 
-    /* create recipes_merge_object structure */
-    lz = (recipes_merge_object *)type->tp_alloc(type, 0);
+    lz = (PyIUObject_Merge *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         Py_XDECREF(keyfunc);
         Py_DECREF(ittuple);
@@ -131,10 +130,13 @@ recipes_merge_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)lz;
 }
 
+/******************************************************************************
+ *
+ * Destructor
+ *
+ *****************************************************************************/
 
-static void
-recipes_merge_dealloc(recipes_merge_object *lz)
-{
+static void merge_dealloc(PyIUObject_Merge *lz) {
     PyObject_GC_UnTrack(lz);
     Py_XDECREF(lz->ittuple);
     Py_XDECREF(lz->keyfunc);
@@ -142,10 +144,13 @@ recipes_merge_dealloc(recipes_merge_object *lz)
     Py_TYPE(lz)->tp_free(lz);
 }
 
+/******************************************************************************
+ *
+ * Traverse
+ *
+ *****************************************************************************/
 
-static int
-recipes_merge_traverse(recipes_merge_object *lz, visitproc visit, void *arg)
-{
+static int merge_traverse(PyIUObject_Merge *lz, visitproc visit, void *arg) {
     Py_VISIT(lz->ittuple);
     Py_VISIT(lz->keyfunc);
     Py_VISIT(lz->current);
@@ -153,9 +158,7 @@ recipes_merge_traverse(recipes_merge_object *lz, visitproc visit, void *arg)
 }
 
 
-static int
-recipes_merge_init_current(recipes_merge_object *lz)
-{
+static int merge_init_current(PyIUObject_Merge *lz) {
     PyObject *ittuple = lz->ittuple;
     PyObject *current, *it, *item, *idx, *newitem, *keyval;
     Py_ssize_t i, insert;
@@ -219,15 +222,13 @@ recipes_merge_init_current(recipes_merge_object *lz)
 }
 
 
-static PyObject *
-recipes_merge_next(recipes_merge_object *lz)
-{
+static PyObject * merge_next(PyIUObject_Merge *lz) {
     PyObject *iterator, *item, *val, *next, *keyval, *oldkeyval;
     Py_ssize_t i, active=0, insert=0;
 
     // No current then we create one from the first elements of each iterable
     if (lz->current == NULL || lz->current == Py_None) {
-        if (recipes_merge_init_current(lz) < 0) {
+        if (merge_init_current(lz) < 0) {
             return NULL;
         }
     }
@@ -282,7 +283,8 @@ recipes_merge_next(recipes_merge_object *lz)
         }
 
         // Change if reverse is given
-        insert = helper_bisect_right(lz->current, next, lz->numactive, lz->reverse);
+        insert = helper_bisect_right(lz->current, next, lz->numactive,
+                                     lz->reverse);
         if (insert < 0) {
             Py_DECREF(next);
             Py_DECREF(next);
@@ -297,9 +299,13 @@ recipes_merge_next(recipes_merge_object *lz)
     return val;
 }
 
-static PyObject *
-recipes_merge_reduce(recipes_merge_object *lz)
-{
+/******************************************************************************
+ *
+ * Reduce
+ *
+ *****************************************************************************/
+
+static PyObject * merge_reduce(PyIUObject_Merge *lz) {
     PyObject * res;
     res = Py_BuildValue("OO(OiOn)", Py_TYPE(lz),
                         lz->ittuple,
@@ -310,13 +316,18 @@ recipes_merge_reduce(recipes_merge_object *lz)
     return res;
 }
 
-static PyObject *
-recipes_merge_setstate(recipes_merge_object *lz, PyObject *state)
-{
+/******************************************************************************
+ *
+ * Setstate
+ *
+ *****************************************************************************/
+
+static PyObject * merge_setstate(PyIUObject_Merge *lz, PyObject *state) {
     PyObject *current, *keyfunc;
     Py_ssize_t numactive;
     int reverse;
-    if (!PyArg_ParseTuple(state, "OiOn", &keyfunc, &reverse, &current, &numactive)) {
+    if (!PyArg_ParseTuple(state, "OiOn",
+                          &keyfunc, &reverse, &current, &numactive)) {
         return NULL;
     }
 
@@ -336,24 +347,25 @@ recipes_merge_setstate(recipes_merge_object *lz, PyObject *state)
     Py_RETURN_NONE;
 }
 
+/******************************************************************************
+ *
+ * Methods
+ *
+ *****************************************************************************/
 
-static PyMethodDef recipes_merge_methods[] = {
-    {"__reduce__",
-     (PyCFunction)recipes_merge_reduce,
-     METH_NOARGS,
-     ""},
-
-    {"__setstate__",
-     (PyCFunction)recipes_merge_setstate,
-     METH_O,
-     ""},
-
-    {NULL,           NULL}           /* sentinel */
+static PyMethodDef merge_methods[] = {
+    {"__reduce__", (PyCFunction)merge_reduce, METH_NOARGS, ""},
+    {"__setstate__", (PyCFunction)merge_setstate, METH_O, ""},
+    {NULL, NULL}
 };
 
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
 
-PyDoc_STRVAR(recipes_merge_doc,
-"merge(*iterable, [key, reverse])\n\
+PyDoc_STRVAR(merge_doc, "merge(*iterable, [key, reverse])\n\
 \n\
 Merge sorted `iterables` into one.\n\
 \n\
@@ -417,13 +429,19 @@ However if the `iterabes` are not sorted the result will be unsorted\n\
     [0, 1, 2, 3, 4, 5, 6, 6, 1, 3, 2, 6, 1, 6, 7, 8, 9]\n\
 ");
 
-PyTypeObject recipes_merge_type = {
+/******************************************************************************
+ *
+ * Type
+ *
+ *****************************************************************************/
+
+PyTypeObject PyIUType_Merge = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.merge",        /* tp_name */
-    sizeof(recipes_merge_object),       /* tp_basicsize */
+    sizeof(PyIUObject_Merge),       /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
-    (destructor)recipes_merge_dealloc,  /* tp_dealloc */
+    (destructor)merge_dealloc,  /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -440,14 +458,14 @@ PyTypeObject recipes_merge_type = {
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    recipes_merge_doc,                  /* tp_doc */
-    (traverseproc)recipes_merge_traverse, /* tp_traverse */
+    merge_doc,                  /* tp_doc */
+    (traverseproc)merge_traverse, /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
     PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)recipes_merge_next,   /* tp_iternext */
-    recipes_merge_methods,              /* tp_methods */
+    (iternextfunc)merge_next,   /* tp_iternext */
+    merge_methods,              /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
@@ -457,6 +475,6 @@ PyTypeObject recipes_merge_type = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     PyType_GenericAlloc,                /* tp_alloc */
-    recipes_merge_new,                  /* tp_new */
+    merge_new,                  /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };

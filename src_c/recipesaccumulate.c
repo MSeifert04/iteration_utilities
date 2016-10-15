@@ -10,39 +10,42 @@ typedef struct {
     PyObject *total;
     PyObject *iterator;
     PyObject *binop;
-} recipes_accumulateobject;
+} PyIUObject_Accumulate;
 
 
-static PyTypeObject recipes_accumulate_type;
+static PyTypeObject PyIUType_Accumulate;
 
+/******************************************************************************
+ *
+ * New
+ *
+ *****************************************************************************/
 
-static PyObject *
-recipes_accumulate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    static char *kwargs[] = {"func", "iterable", "start", NULL};
+static PyObject * accumulate_new(PyTypeObject *type, PyObject *args,
+                                 PyObject *kwargs) {
+    static char *kwlist[] = {"func", "iterable", "start", NULL};
+    PyIUObject_Accumulate *lz;
+
     PyObject *iterable=NULL, *binop=NULL, *start=NULL;
     PyObject *iterator;
-    recipes_accumulateobject *lz;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OO:accumulate",
-                                     kwargs, &binop, &iterable, &start)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OO:accumulate", kwlist,
+                                     &binop, &iterable, &start)) {
         return NULL;
     }
 
     /* If only one positional argument was given interpret this as iterable. */
-    if (kwds == NULL && iterable == NULL && start == NULL) {
+    if (kwargs == NULL && iterable == NULL && start == NULL) {
         iterable = binop;
         binop = NULL;
     }
 
-    /* Get iterator. */
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
         return NULL;
     }
 
-    /* create accumulateobject structure */
-    lz = (recipes_accumulateobject *)type->tp_alloc(type, 0);
+    lz = (PyIUObject_Accumulate *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         Py_DECREF(iterator);
         return NULL;
@@ -64,10 +67,13 @@ recipes_accumulate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)lz;
 }
 
+/******************************************************************************
+ *
+ * Destructor
+ *
+ *****************************************************************************/
 
-static void
-recipes_accumulate_dealloc(recipes_accumulateobject *lz)
-{
+static void accumulate_dealloc(PyIUObject_Accumulate *lz) {
     PyObject_GC_UnTrack(lz);
     Py_XDECREF(lz->binop);
     Py_XDECREF(lz->total);
@@ -75,10 +81,14 @@ recipes_accumulate_dealloc(recipes_accumulateobject *lz)
     Py_TYPE(lz)->tp_free(lz);
 }
 
+/******************************************************************************
+ *
+ * Traverse
+ *
+ *****************************************************************************/
 
-static int
-recipes_accumulate_traverse(recipes_accumulateobject *lz, visitproc visit, void *arg)
-{
+static int accumulate_traverse(PyIUObject_Accumulate *lz, visitproc visit,
+                               void *arg) {
     Py_VISIT(lz->binop);
     Py_VISIT(lz->iterator);
     Py_VISIT(lz->total);
@@ -86,9 +96,7 @@ recipes_accumulate_traverse(recipes_accumulateobject *lz, visitproc visit, void 
 }
 
 
-static PyObject *
-recipes_accumulate_next(recipes_accumulateobject *lz)
-{
+static PyObject * accumulate_next(PyIUObject_Accumulate *lz) {
     PyObject *val, *oldtotal, *newtotal;
 
     val = (*Py_TYPE(lz->iterator)->tp_iternext)(lz->iterator);
@@ -120,9 +128,13 @@ recipes_accumulate_next(recipes_accumulateobject *lz)
     return newtotal;
 }
 
-static PyObject *
-recipes_accumulate_reduce(recipes_accumulateobject *lz)
-{
+/******************************************************************************
+ *
+ * Reduce
+ *
+ *****************************************************************************/
+
+static PyObject * accumulate_reduce(PyIUObject_Accumulate *lz) {
     if (lz->total != NULL) {
         return Py_BuildValue("O(OOO)",
                              Py_TYPE(lz),
@@ -138,18 +150,24 @@ recipes_accumulate_reduce(recipes_accumulateobject *lz)
 
 }
 
-static PyMethodDef recipes_accumulate_methods[] = {
-    {"__reduce__",
-     (PyCFunction)recipes_accumulate_reduce,
-     METH_NOARGS,
-     ""},
+/******************************************************************************
+ *
+ * Methods
+ *
+ *****************************************************************************/
 
-    {NULL,              NULL}   /* sentinel */
+static PyMethodDef accumulate_methods[] = {
+    {"__reduce__", (PyCFunction)accumulate_reduce, METH_NOARGS, ""},
+    {NULL, NULL}
 };
 
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
 
-PyDoc_STRVAR(recipes_accumulate_doc,
-"accumulate(iterable, *)\n\
+PyDoc_STRVAR(accumulate_doc, "accumulate(iterable, *)\n\
 accumulate(func, iterable[, start])\n\
 \n\
 Make an iterator that returns accumulated sums, or accumulated\n\
@@ -227,15 +245,22 @@ Chaotic recurrence relation [1]_::\n\
 References\n\
 ----------\n\
 .. [0] https://docs.python.org/3/library/itertools.html#itertools.accumulate\n\
-.. [1] https://en.wikipedia.org/wiki/Logistic_map");
+.. [1] https://en.wikipedia.org/wiki/Logistic_map\n\
+");
 
-static PyTypeObject recipes_accumulate_type = {
+/******************************************************************************
+ *
+ * Type
+ *
+ *****************************************************************************/
+
+static PyTypeObject PyIUType_Accumulate = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.accumulate",   /* tp_name */
-    sizeof(recipes_accumulateobject),   /* tp_basicsize */
+    sizeof(PyIUObject_Accumulate),   /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
-    (destructor)recipes_accumulate_dealloc, /* tp_dealloc */
+    (destructor)accumulate_dealloc, /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -252,14 +277,14 @@ static PyTypeObject recipes_accumulate_type = {
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    recipes_accumulate_doc,             /* tp_doc */
-    (traverseproc)recipes_accumulate_traverse, /* tp_traverse */
+    accumulate_doc,             /* tp_doc */
+    (traverseproc)accumulate_traverse, /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
     PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)recipes_accumulate_next, /* tp_iternext */
-    recipes_accumulate_methods,         /* tp_methods */
+    (iternextfunc)accumulate_next, /* tp_iternext */
+    accumulate_methods,         /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
@@ -269,6 +294,6 @@ static PyTypeObject recipes_accumulate_type = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     0,                                  /* tp_alloc */
-    recipes_accumulate_new,             /* tp_new */
+    accumulate_new,             /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };

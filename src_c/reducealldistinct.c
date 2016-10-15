@@ -1,6 +1,4 @@
-static PyObject *
-reduce_alldistinct(PyObject *self, PyObject *iterable)
-{
+static PyObject * PyIU_AllDistinct(PyObject *m, PyObject *iterable) {
     PyObject *it=NULL;
     PyObject *(*iternext)(PyObject *);
     PyObject *item=NULL;
@@ -94,9 +92,13 @@ Found:
     Py_RETURN_FALSE;
 }
 
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
 
-PyDoc_STRVAR(reduce_alldistinct_doc,
-"all_distinct(iterable)\n\
+PyDoc_STRVAR(PyIU_AllDistinct_doc, "all_distinct(iterable)\n\
 \n\
 Checks if all items in the `iterable` are distinct.\n\
 \n\

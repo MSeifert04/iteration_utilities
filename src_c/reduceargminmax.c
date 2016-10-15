@@ -1,29 +1,18 @@
-static PyObject *
-reduce_argminmax(PyObject *self, PyObject *args, PyObject *kwds, int cmpop)
-{
-    // Required parameters
-    PyObject *sequence;
-    // Optional (keyword) parameters
+static PyObject * argminmax(PyObject *m, PyObject *args, PyObject *kwargs,
+                            int cmpop){
     static char *kwlist[] = {"key", "default", NULL};
+    PyObject *sequence;
     PyObject *keyfunc = NULL, *defaultvalue = NULL;
-
-    // Iterator & Next function
     PyObject *iterator = NULL;
     PyObject *(*iternext)(PyObject *);
     PyObject *item = NULL, *val = NULL;
-
-    // Internally used converted default
     Py_ssize_t defaultitem = 0;
     int defaultisset = 0;
-
-    // Internally used current max or min
     Py_ssize_t idx = -1;
     PyObject *maxval = NULL;
     Py_ssize_t maxidx = -1;
-
-    // Temporaries
     const int positional = PyTuple_Size(args) > 1;
-    Py_ssize_t nkwds = 0;
+    Py_ssize_t nkwargs = 0;
 
     if (positional) {
         sequence = args;
@@ -31,15 +20,15 @@ reduce_argminmax(PyObject *self, PyObject *args, PyObject *kwds, int cmpop)
         return NULL;
     }
 
-    if (kwds != NULL && PyDict_Check(kwds) && PyDict_Size(kwds)) {
-        keyfunc = PyDict_GetItemString(kwds, "key");
+    if (kwargs != NULL && PyDict_Check(kwargs) && PyDict_Size(kwargs)) {
+        keyfunc = PyDict_GetItemString(kwargs, "key");
         if (keyfunc != NULL) {
-            nkwds++;
+            nkwargs++;
             Py_INCREF(keyfunc);
         }
-        defaultvalue = PyDict_GetItemString(kwds, "default");
+        defaultvalue = PyDict_GetItemString(kwargs, "default");
         if (defaultvalue != NULL) {
-            nkwds++;
+            nkwargs++;
 #if PY_MAJOR_VERSION >= 3
             defaultitem = PyLong_AsSsize_t(defaultvalue);
 #else
@@ -52,7 +41,7 @@ reduce_argminmax(PyObject *self, PyObject *args, PyObject *kwds, int cmpop)
             }
             defaultisset = 1;
         }
-        if (PyDict_Size(kwds) - nkwds != 0) {
+        if (PyDict_Size(kwargs) - nkwargs != 0) {
             PyErr_Format(PyExc_TypeError,
                          "argmin/argmax got an unexpected keyword argument");
             goto Fail;
@@ -135,20 +124,33 @@ Fail:
     return NULL;
 }
 
-static PyObject *
-reduce_argmin(PyObject *self, PyObject *args, PyObject *kwds, int cmpop)
-{
-    return reduce_argminmax(self, args, kwds, Py_LT);
+/******************************************************************************
+ *
+ * Argmin
+ *
+ *****************************************************************************/
+
+static PyObject * PyIU_Argmin(PyObject *self, PyObject *args, PyObject *kwargs) {
+    return argminmax(self, args, kwargs, Py_LT);
 }
 
-static PyObject *
-reduce_argmax(PyObject *self, PyObject *args, PyObject *kwds, int cmpop)
-{
-    return reduce_argminmax(self, args, kwds, Py_GT);
+/******************************************************************************
+ *
+ * Argmax
+ *
+ *****************************************************************************/
+
+static PyObject * PyIU_Argmax(PyObject *self, PyObject *args, PyObject *kwargs) {
+    return argminmax(self, args, kwargs, Py_GT);
 }
 
-PyDoc_STRVAR(reduce_argmin_doc,
-"argmin(iterable, *[, key, default])\n\
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
+
+PyDoc_STRVAR(PyIU_Argmin_doc, "argmin(iterable, *[, key, default])\n\
 argmin(arg1, arg2, *iterable[, key])\n\
 \n\
 Find index of the minimum.\n\
@@ -191,8 +193,7 @@ And a `default`::\n\
     10\n\
 ");
 
-PyDoc_STRVAR(reduce_argmax_doc,
-"argmax(iterable, *[, key, default])\n\
+PyDoc_STRVAR(PyIU_Argmax_doc, "argmax(iterable, *[, key, default])\n\
 argmax(arg1, arg2, *iterable[, key])\n\
 \n\
 Find index of the maximum.\n\

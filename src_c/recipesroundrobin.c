@@ -3,16 +3,22 @@ typedef struct {
     PyObject *ittuple;
     Py_ssize_t numactive;
     Py_ssize_t active;
-} recipes_roundrobin_object;
+} PyIUObject_Roundrobin;
 
+static PyTypeObject PyIUType_Roundrobin;
 
-static PyObject *
-recipes_roundrobin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
+/******************************************************************************
+ *
+ * New
+ *
+ *****************************************************************************/
+
+static PyObject * roundrobin_new(PyTypeObject *type, PyObject *args,
+                                 PyObject *kwargs) {
+    PyIUObject_Roundrobin *lz;
+
     PyObject *ittuple;
     Py_ssize_t numactive;
-    recipes_roundrobin_object *lz;
-
     PyObject *item, *iterator;
     Py_ssize_t i;
 
@@ -38,8 +44,7 @@ recipes_roundrobin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyTuple_SET_ITEM(ittuple, i, iterator); //REFCNT(iterator) = 0
     }
 
-    /* create recipes_roundrobin_object structure */
-    lz = (recipes_roundrobin_object *)type->tp_alloc(type, 0);
+    lz = (PyIUObject_Roundrobin *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         Py_DECREF(ittuple);
         return NULL;
@@ -52,27 +57,32 @@ recipes_roundrobin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)lz;
 }
 
+/******************************************************************************
+ *
+ * Destructor
+ *
+ *****************************************************************************/
 
-static void
-recipes_roundrobin_dealloc(recipes_roundrobin_object *lz)
-{
+static void roundrobin_dealloc(PyIUObject_Roundrobin *lz) {
     PyObject_GC_UnTrack(lz);
     Py_XDECREF(lz->ittuple);
     Py_TYPE(lz)->tp_free(lz);
 }
 
+/******************************************************************************
+ *
+ * Traverse
+ *
+ *****************************************************************************/
 
-static int
-recipes_roundrobin_traverse(recipes_roundrobin_object *lz, visitproc visit, void *arg)
-{
+static int roundrobin_traverse(PyIUObject_Roundrobin *lz, visitproc visit,
+                               void *arg) {
     Py_VISIT(lz->ittuple);
     return 0;
 }
 
 
-static PyObject *
-recipes_roundrobin_next(recipes_roundrobin_object *lz)
-{
+static PyObject * roundrobin_next(PyIUObject_Roundrobin *lz) {
     PyObject *ittuple = lz->ittuple;
     Py_ssize_t numactive = lz->numactive;
     Py_ssize_t active = lz->active;
@@ -110,10 +120,13 @@ recipes_roundrobin_next(recipes_roundrobin_object *lz)
     return item;
 }
 
+/******************************************************************************
+ *
+ * Reduce
+ *
+ *****************************************************************************/
 
-static PyObject *
-recipes_roundrobin_reduce(recipes_roundrobin_object *lz)
-{
+static PyObject * roundrobin_reduce(PyIUObject_Roundrobin *lz) {
     PyObject *ittuple, *temp, *res;
     Py_ssize_t i;
 
@@ -138,9 +151,14 @@ recipes_roundrobin_reduce(recipes_roundrobin_object *lz)
     return res;
 }
 
-static PyObject *
-recipes_roundrobin_setstate(recipes_roundrobin_object *lz, PyObject *state)
-{
+/******************************************************************************
+ *
+ * Setstate
+ *
+ *****************************************************************************/
+
+static PyObject * roundrobin_setstate(PyIUObject_Roundrobin *lz,
+                                      PyObject *state) {
     Py_ssize_t numactive, active;
     if (!PyArg_ParseTuple(state, "nn", &numactive, &active)) {
         return NULL;
@@ -152,24 +170,25 @@ recipes_roundrobin_setstate(recipes_roundrobin_object *lz, PyObject *state)
     Py_RETURN_NONE;
 }
 
+/******************************************************************************
+ *
+ * Methods
+ *
+ *****************************************************************************/
 
-static PyMethodDef recipes_roundrobin_methods[] = {
-    {"__reduce__",
-     (PyCFunction)recipes_roundrobin_reduce,
-     METH_NOARGS,
-     ""},
-
-    {"__setstate__",
-     (PyCFunction)recipes_roundrobin_setstate,
-     METH_O,
-     ""},
-
-    {NULL,           NULL}           /* sentinel */
+static PyMethodDef roundrobin_methods[] = {
+    {"__reduce__", (PyCFunction)roundrobin_reduce, METH_NOARGS, ""},
+    {"__setstate__", (PyCFunction)roundrobin_setstate, METH_O, ""},
+    {NULL, NULL}
 };
 
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
 
-PyDoc_STRVAR(recipes_roundrobin_doc,
-"roundrobin(*iterable)\n\
+PyDoc_STRVAR(roundrobin_doc, "roundrobin(*iterables)\n\
 \n\
 Round-Robin implementation ([0]_).\n\
 \n\
@@ -195,13 +214,19 @@ References\n\
 .. [0] https://en.wikipedia.org/wiki/Round-robin_scheduling\n\
 ");
 
-PyTypeObject recipes_roundrobin_type = {
+/******************************************************************************
+ *
+ * Type
+ *
+ *****************************************************************************/
+
+PyTypeObject PyIUType_Roundrobin = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.roundrobin",   /* tp_name */
-    sizeof(recipes_roundrobin_object),  /* tp_basicsize */
+    sizeof(PyIUObject_Roundrobin),  /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
-    (destructor)recipes_roundrobin_dealloc, /* tp_dealloc */
+    (destructor)roundrobin_dealloc, /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -218,14 +243,14 @@ PyTypeObject recipes_roundrobin_type = {
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    recipes_roundrobin_doc,             /* tp_doc */
-    (traverseproc)recipes_roundrobin_traverse, /* tp_traverse */
+    roundrobin_doc,             /* tp_doc */
+    (traverseproc)roundrobin_traverse, /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
     PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)recipes_roundrobin_next, /* tp_iternext */
-    recipes_roundrobin_methods,         /* tp_methods */
+    (iternextfunc)roundrobin_next, /* tp_iternext */
+    roundrobin_methods,         /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
@@ -235,6 +260,6 @@ PyTypeObject recipes_roundrobin_type = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     PyType_GenericAlloc,                /* tp_alloc */
-    recipes_roundrobin_new,             /* tp_new */
+    roundrobin_new,             /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };

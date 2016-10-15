@@ -1,14 +1,12 @@
-static PyObject *
-recipes_partition(PyObject *self, PyObject *args, PyObject *kwds)
-{
-    static char *kwargs[] = {"iterable", "func", NULL};
+static PyObject * PyIU_Partition(PyObject *m, PyObject *args,
+                                 PyObject *kwargs) {
+    static char *kwlist[] = {"iterable", "func", NULL};
     PyObject *iterable=NULL, *func=Py_None;
     PyObject *iterator, *item, *result1, *result2, *result, *temp;
-
     long ok;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|O:partition",
-                                     kwargs, &iterable, &func)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:partition", kwlist,
+                                     &iterable, &func)) {
         return NULL;
     }
 
@@ -88,8 +86,13 @@ Fail:
     return NULL;
 }
 
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
 
-PyDoc_STRVAR(recipes_partition_doc, "partition(iterable[, func])\n\
+PyDoc_STRVAR(PyIU_Partition_doc, "partition(iterable[, func])\n\
 \n\
 Use a predicate to partition entries into ``False`` entries and ``True``\n\
 entries.\n\

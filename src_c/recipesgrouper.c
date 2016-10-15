@@ -6,25 +6,31 @@ typedef struct {
     int truncate;
 
     PyObject *result;
-} recipes_grouper_object;
+} PyIUObject_Grouper;
 
+static PyTypeObject PyIUType_Grouper;
 
-static PyObject *
-recipes_grouper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    static char *kwargs[] = {"iterable", "n", "fillvalue", "truncate", NULL};
+/******************************************************************************
+ *
+ * New
+ *
+ *****************************************************************************/
+
+static PyObject * grouper_new(PyTypeObject *type, PyObject *args,
+                              PyObject *kwargs) {
+    static char *kwlist[] = {"iterable", "n", "fillvalue", "truncate", NULL};
+    PyIUObject_Grouper *lz;
+
     PyObject *iterable;
     Py_ssize_t times;
     PyObject *fillvalue = NULL;
     int truncate = 0;
-
     PyObject *it;
     PyObject *result = NULL;
 
-    recipes_grouper_object *lz;
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "On|Oi:grouper", kwargs,
-                                     &iterable, &times, &fillvalue, &truncate)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "On|Oi:grouper", kwlist,
+                                     &iterable, &times,
+                                     &fillvalue, &truncate)) {
         return NULL;
     }
 
@@ -45,8 +51,7 @@ recipes_grouper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
-    /* create recipes_grouper_object structure */
-    lz = (recipes_grouper_object *)type->tp_alloc(type, 0);
+    lz = (PyIUObject_Grouper *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         Py_DECREF(it);
         return NULL;
@@ -62,10 +67,13 @@ recipes_grouper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)lz;
 }
 
+/******************************************************************************
+ *
+ * Destructor
+ *
+ *****************************************************************************/
 
-static void
-recipes_grouper_dealloc(recipes_grouper_object *lz)
-{
+static void grouper_dealloc(PyIUObject_Grouper *lz) {
     PyObject_GC_UnTrack(lz);
     Py_XDECREF(lz->it);
     Py_XDECREF(lz->fillvalue);
@@ -73,10 +81,14 @@ recipes_grouper_dealloc(recipes_grouper_object *lz)
     Py_TYPE(lz)->tp_free(lz);
 }
 
+/******************************************************************************
+ *
+ * Traverse
+ *
+ *****************************************************************************/
 
-static int
-recipes_grouper_traverse(recipes_grouper_object *lz, visitproc visit, void *arg)
-{
+static int grouper_traverse(PyIUObject_Grouper *lz, visitproc visit,
+                            void *arg) {
     Py_VISIT(lz->it);
     Py_VISIT(lz->fillvalue);
     Py_VISIT(lz->result);
@@ -84,9 +96,7 @@ recipes_grouper_traverse(recipes_grouper_object *lz, visitproc visit, void *arg)
 }
 
 
-static PyObject *
-recipes_grouper_next(recipes_grouper_object *lz)
-{
+static PyObject * grouper_next(PyIUObject_Grouper *lz) {
     PyObject *it = lz->it;
     Py_ssize_t times = lz->times;
     PyObject *fillvalue = lz->fillvalue;
@@ -179,10 +189,13 @@ recipes_grouper_next(recipes_grouper_object *lz)
     }
 }
 
+/******************************************************************************
+ *
+ * Reduce
+ *
+ *****************************************************************************/
 
-static PyObject *
-recipes_grouper_reduce(recipes_grouper_object *lz)
-{
+static PyObject * grouper_reduce(PyIUObject_Grouper *lz) {
     if (lz->fillvalue == NULL) {
         return Py_BuildValue("O(On)(Oi)", Py_TYPE(lz),
                              lz->it,
@@ -199,9 +212,13 @@ recipes_grouper_reduce(recipes_grouper_object *lz)
     }
 }
 
-static PyObject *
-recipes_grouper_setstate(recipes_grouper_object *lz, PyObject *state)
-{
+/******************************************************************************
+ *
+ * Setstate
+ *
+ *****************************************************************************/
+
+static PyObject * grouper_setstate(PyIUObject_Grouper *lz, PyObject *state) {
     PyObject *result;
     int truncate;
 
@@ -223,24 +240,25 @@ recipes_grouper_setstate(recipes_grouper_object *lz, PyObject *state)
     Py_RETURN_NONE;
 }
 
+/******************************************************************************
+ *
+ * Methods
+ *
+ *****************************************************************************/
 
-static PyMethodDef recipes_grouper_methods[] = {
-    {"__reduce__",
-     (PyCFunction)recipes_grouper_reduce,
-     METH_NOARGS,
-     ""},
-
-    {"__setstate__",
-     (PyCFunction)recipes_grouper_setstate,
-     METH_O,
-     ""},
-
-    {NULL,           NULL}           /* sentinel */
+static PyMethodDef grouper_methods[] = {
+    {"__reduce__", (PyCFunction)grouper_reduce, METH_NOARGS, ""},
+    {"__setstate__", (PyCFunction)grouper_setstate, METH_O, ""},
+    {NULL, NULL}
 };
 
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
 
-PyDoc_STRVAR(recipes_grouper_doc,
-"grouper(iterable, times[, fillvalue, truncate])\n\
+PyDoc_STRVAR(grouper_doc, "grouper(iterable, times[, fillvalue, truncate])\n\
 \n\
 Collect data into fixed-length chunks or blocks.\n\
 \n\
@@ -286,13 +304,19 @@ Examples\n\
 [('A', 'B', 'C'), ('D', 'E', 'F')]\n\
 ");
 
-PyTypeObject recipes_grouper_type = {
+/******************************************************************************
+ *
+ * Type
+ *
+ *****************************************************************************/
+
+PyTypeObject PyIUType_Grouper = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.grouper",      /* tp_name */
-    sizeof(recipes_grouper_object),     /* tp_basicsize */
+    sizeof(PyIUObject_Grouper),     /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
-    (destructor)recipes_grouper_dealloc, /* tp_dealloc */
+    (destructor)grouper_dealloc, /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -309,14 +333,14 @@ PyTypeObject recipes_grouper_type = {
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    recipes_grouper_doc,                /* tp_doc */
-    (traverseproc)recipes_grouper_traverse, /* tp_traverse */
+    grouper_doc,                /* tp_doc */
+    (traverseproc)grouper_traverse, /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
     PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)recipes_grouper_next, /* tp_iternext */
-    recipes_grouper_methods,            /* tp_methods */
+    (iternextfunc)grouper_next, /* tp_iternext */
+    grouper_methods,            /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
@@ -326,6 +350,6 @@ PyTypeObject recipes_grouper_type = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     PyType_GenericAlloc,                /* tp_alloc */
-    recipes_grouper_new,                /* tp_new */
+    grouper_new,                /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };

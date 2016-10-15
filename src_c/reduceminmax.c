@@ -1,16 +1,13 @@
-static PyObject *
-reduce_minmax(PyObject *self, PyObject *args, PyObject *kwds)
-{
+static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
+    static char *kwlist[] = {"key", "default", NULL};
     PyObject *sequence, *iterator;
     PyObject *(*iternext)(PyObject *);
     PyObject *defaultitem = NULL, *keyfunc = NULL;
     PyObject *item1 = NULL, *item2 = NULL, *val1 = NULL, *val2 = NULL;
     PyObject *maxitem = NULL, *maxval = NULL, *minitem = NULL, *minval = NULL;
     PyObject *temp = NULL, *emptytuple = NULL, *resulttuple = NULL;
-
     const int positional = PyTuple_Size(args) > 1;
-    static char *kwlist[] = {"key", "default", NULL};
-    Py_ssize_t nkwds = 0;
+    Py_ssize_t nkwargs = 0;
     int ret;
     int cmp;
 
@@ -26,7 +23,7 @@ reduce_minmax(PyObject *self, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
-    ret = PyArg_ParseTupleAndKeywords(emptytuple, kwds, "|$OO", kwlist,
+    ret = PyArg_ParseTupleAndKeywords(emptytuple, kwargs, "|$OO", kwlist,
                                       &keyfunc, &defaultitem);
 
     Py_DECREF(emptytuple);
@@ -35,18 +32,18 @@ reduce_minmax(PyObject *self, PyObject *args, PyObject *kwds)
         return NULL;
     }
 #else
-    if (kwds != NULL && PyDict_Check(kwds) && PyDict_Size(kwds)) {
-        keyfunc = PyDict_GetItemString(kwds, "key");
+    if (kwargs != NULL && PyDict_Check(kwargs) && PyDict_Size(kwargs)) {
+        keyfunc = PyDict_GetItemString(kwargs, "key");
         if (keyfunc != NULL) {
-            nkwds++;
+            nkwargs++;
             Py_INCREF(keyfunc);
         }
-        defaultitem = PyDict_GetItemString(kwds, "default");
+        defaultitem = PyDict_GetItemString(kwargs, "default");
         if (defaultitem != NULL) {
-            nkwds++;
+            nkwargs++;
             Py_INCREF(defaultitem);
         }
-        if (PyDict_Size(kwds) - nkwds != 0) {
+        if (PyDict_Size(kwargs) - nkwargs != 0) {
             PyErr_Format(PyExc_TypeError,
                          "minmax got an unexpected keyword argument");
             Py_XDECREF(keyfunc);
@@ -270,8 +267,13 @@ Fail:
     return NULL;
 }
 
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
 
-PyDoc_STRVAR(reduce_minmax_doc, "minmax(iterable, *[, key, default])\n\
+PyDoc_STRVAR(PyIU_MinMax_doc, "minmax(iterable, *[, key, default])\n\
 minmax(arg1, arg2, *args[, key])\n\
 \n\
 Computes the minimum and maximum values in one-pass using only\n\

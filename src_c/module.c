@@ -60,16 +60,16 @@ static PyMethodDef PyIU_methods[] = {
     {"return_first_arg", (PyCFunction)PyIU_ReturnFirstArg, METH_VARARGS | METH_KEYWORDS, PyIU_ReturnFirstArg_doc},
     {"return_called", (PyCFunction)PyIU_ReturnCalled, METH_O, PyIU_ReturnCalled_doc},
 
-    {"argmin", (PyCFunction)reduce_argmin, METH_VARARGS | METH_KEYWORDS, reduce_argmin_doc},
-    {"argmax", (PyCFunction)reduce_argmax, METH_VARARGS | METH_KEYWORDS, reduce_argmax_doc},
-    {"all_distinct", (PyCFunction)reduce_alldistinct, METH_O, reduce_alldistinct_doc},
-    {"all_equal", (PyCFunction)reduce_allequal, METH_O, reduce_allequal_doc},
-    {"minmax", (PyCFunction)reduce_minmax, METH_VARARGS | METH_KEYWORDS, reduce_minmax_doc},
-    {"one", (PyCFunction)reduce_one, METH_O, reduce_one_doc},
-    {"groupby2", (PyCFunction)reduce_groupby, METH_VARARGS | METH_KEYWORDS, reduce_groupby_doc},
-    {"quantify", (PyCFunction)reduce_quantify, METH_VARARGS | METH_KEYWORDS, reduce_quantify_doc},
-    {"partition", (PyCFunction)recipes_partition, METH_VARARGS | METH_KEYWORDS, recipes_partition_doc},
-    {"ilen", (PyCFunction)reduce_ilen, METH_VARARGS | METH_KEYWORDS, reduce_ilen_doc},
+    {"argmin", (PyCFunction)PyIU_Argmin, METH_VARARGS | METH_KEYWORDS, PyIU_Argmin_doc},
+    {"argmax", (PyCFunction)PyIU_Argmax, METH_VARARGS | METH_KEYWORDS, PyIU_Argmax_doc},
+    {"all_distinct", (PyCFunction)PyIU_AllDistinct, METH_O, PyIU_AllDistinct_doc},
+    {"all_equal", (PyCFunction)PyIU_AllEqual, METH_O, PyIU_AllEqual_doc},
+    {"minmax", (PyCFunction)PyIU_MinMax, METH_VARARGS | METH_KEYWORDS, PyIU_MinMax_doc},
+    {"one", (PyCFunction)PyIU_One, METH_O, PyIU_One_doc},
+    {"groupby2", (PyCFunction)PyIU_Groupby, METH_VARARGS | METH_KEYWORDS, PyIU_Groupby_doc},
+    {"quantify", (PyCFunction)PyIU_Quantify, METH_VARARGS | METH_KEYWORDS, PyIU_Quantify_doc},
+    {"partition", (PyCFunction)PyIU_Partition, METH_VARARGS | METH_KEYWORDS, PyIU_Partition_doc},
+    {"ilen", (PyCFunction)PyIU_Ilen, METH_O, PyIU_Ilen_doc},
 
     {NULL, NULL}
 };
@@ -78,10 +78,10 @@ static PyMethodDef PyIU_methods[] = {
 PyDoc_STRVAR(PyIU_returnTrue_name, "return_True");
 PyDoc_STRVAR(PyIU_returnFalse_name, "return_False");
 PyDoc_STRVAR(PyIU_returnNone_name, "return_None");
-PyDoc_STRVAR(returnx_nthFirst_name, "first");
-PyDoc_STRVAR(returnx_nthSecond_name, "second");
-PyDoc_STRVAR(returnx_nthThird_name, "third");
-PyDoc_STRVAR(returnx_nthLast_name, "last");
+PyDoc_STRVAR(PyIU_ReduceFirst_name, "first");
+PyDoc_STRVAR(PyIU_ReduceSecond_name, "second");
+PyDoc_STRVAR(PyIU_ReduceThird_name, "third");
+PyDoc_STRVAR(PyIU_ReduceLast_name, "last");
 
 // Name and docstring of C-module
 PyDoc_STRVAR(PyIU_module_name, "_cfuncs");
@@ -116,28 +116,27 @@ PyDoc_STRVAR(PyIU_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
     PyObject *m;
     char *name;
     PyObject *PyIU_returnTrue, *PyIU_returnFalse, *PyIU_returnNone;
-    PyObject *returnx_returnFirst, *returnx_returnSecond, *returnx_returnThird;
-    PyObject *returnx_returnLast;
+    PyObject *PyIU_ReduceFirst, *PyIU_ReduceSecond, *PyIU_ReduceThird, *PyIU_ReduceLast;
     Py_ssize_t minus_one = -1;  // no idea why this is needed but -1 in call doesn't work
 
     // Classes avaiable in module
     PyTypeObject *typelist[] = {
-        &functions_complement_type,
-        &functions_compose_type,
-        &functions_constant_type,
-        &functions_flip_type,
-        &functions_nth_type,
-        &recipes_accumulate_type,
-        &recipes_applyfunc_type,
-        &recipes_grouper_type,
-        &recipes_intersperse_type,
-        &recipes_iterexcept_type,
-        &recipes_merge_type,
-        &recipes_roundrobin_type,
-        &recipes_split_type,
-        &recipes_successive_type,
-        &recipes_uniqueever_type,
-        &recipes_uniquejust_type,
+        &PyIUType_Complement,
+        &PyIUType_Compose,
+        &PyIUType_Constant,
+        &PyIUType_Flip,
+        &PyIUType_Nth,
+        &PyIUType_Accumulate,
+        &PyIUType_Applyfunc,
+        &PyIUType_Grouper,
+        &PyIUType_Intersperse,
+        &PyIUType_Iterexcept,
+        &PyIUType_Merge,
+        &PyIUType_Roundrobin,
+        &PyIUType_Split,
+        &PyIUType_Successive,
+        &PyIUType_UniqueEver,
+        &PyIUType_UniqueJust,
         NULL
     };
 
@@ -162,28 +161,21 @@ PyDoc_STRVAR(PyIU_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
     }
 
     // Add pre-defined instances.
-    PyIU_returnTrue = functions_constant_new(&functions_constant_type,
-                             Py_BuildValue("(O)", Py_True), NULL);
+    PyIU_returnTrue = constant_new(&PyIUType_Constant, Py_BuildValue("(O)", Py_True), NULL);
     PyModule_AddObject(m, PyIU_returnTrue_name, PyIU_returnTrue);
-    PyIU_returnFalse = functions_constant_new(&functions_constant_type,
-                              Py_BuildValue("(O)", Py_False), NULL);
+    PyIU_returnFalse = constant_new(&PyIUType_Constant, Py_BuildValue("(O)", Py_False), NULL);
     PyModule_AddObject(m, PyIU_returnFalse_name, PyIU_returnFalse);
-    PyIU_returnNone = functions_constant_new(&functions_constant_type,
-                             Py_BuildValue("(O)", Py_None), NULL);
+    PyIU_returnNone = constant_new(&PyIUType_Constant, Py_BuildValue("(O)", Py_None), NULL);
     PyModule_AddObject(m, PyIU_returnNone_name, PyIU_returnNone);
 
-    returnx_returnFirst = functions_nth_new(&functions_nth_type,
-                              Py_BuildValue("(n)", 0), NULL);
-    PyModule_AddObject(m, returnx_nthFirst_name, returnx_returnFirst);
-    returnx_returnSecond = functions_nth_new(&functions_nth_type,
-                              Py_BuildValue("(n)", 1), NULL);
-    PyModule_AddObject(m, returnx_nthSecond_name, returnx_returnSecond);
-    returnx_returnThird = functions_nth_new(&functions_nth_type,
-                              Py_BuildValue("(n)", 2), NULL);
-    PyModule_AddObject(m, returnx_nthThird_name, returnx_returnThird);
-    returnx_returnLast = functions_nth_new(&functions_nth_type,
-                              Py_BuildValue("(n)", minus_one), NULL);
-    PyModule_AddObject(m, returnx_nthLast_name, returnx_returnLast);
+    PyIU_ReduceFirst = nth_new(&PyIUType_Nth, Py_BuildValue("(n)", 0), NULL);
+    PyModule_AddObject(m, PyIU_ReduceFirst_name, PyIU_ReduceFirst);
+    PyIU_ReduceSecond = nth_new(&PyIUType_Nth, Py_BuildValue("(n)", 1), NULL);
+    PyModule_AddObject(m, PyIU_ReduceSecond_name, PyIU_ReduceSecond);
+    PyIU_ReduceThird = nth_new(&PyIUType_Nth, Py_BuildValue("(n)", 2), NULL);
+    PyModule_AddObject(m, PyIU_ReduceThird_name, PyIU_ReduceThird);
+    PyIU_ReduceLast = nth_new(&PyIUType_Nth, Py_BuildValue("(n)", minus_one), NULL);
+    PyModule_AddObject(m, PyIU_ReduceLast_name, PyIU_ReduceLast);
 
 #if PY_MAJOR_VERSION >= 3
     return m;

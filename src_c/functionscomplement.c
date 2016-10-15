@@ -1,61 +1,75 @@
 typedef struct {
     PyObject_HEAD
     PyObject *func;
-} functions_complement_object;
+} PyIUObject_Complement;
 
-static PyTypeObject functions_complement_type;
+static PyTypeObject PyIUType_Complement;
 
+/******************************************************************************
+ *
+ * New
+ *
+ *****************************************************************************/
 
-static PyObject *
-functions_complement_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    static char *kwargs[] = {"func", NULL};
+static PyObject * complement_new(PyTypeObject *type, PyObject *args,
+                                 PyObject *kwargs) {
+    static char *kwlist[] = {"func", NULL};
+    PyIUObject_Complement *lz;
 
     PyObject *func;
 
-    functions_complement_object *lz;
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O:complement", kwargs,
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O:complement", kwlist,
                                      &func)) {
         return NULL;
     }
 
-    lz = (functions_complement_object *)type->tp_alloc(type, 0);
-    if (lz == NULL)
+    lz = (PyIUObject_Complement *)type->tp_alloc(type, 0);
+    if (lz == NULL) {
         return NULL;
+    }
 
     Py_INCREF(func);
-
     lz->func = func;
 
     return (PyObject *)lz;
 }
 
+/******************************************************************************
+ *
+ * Destructor
+ *
+ *****************************************************************************/
 
-static void
-functions_complement_dealloc(functions_complement_object *lz)
-{
+static void complement_dealloc(PyIUObject_Complement *lz) {
     PyObject_GC_UnTrack(lz);
     Py_XDECREF(lz->func);
     Py_TYPE(lz)->tp_free(lz);
 }
 
+/******************************************************************************
+ *
+ * Traverse
+ *
+ *****************************************************************************/
 
-static int
-functions_complement_traverse(functions_complement_object *lz, visitproc visit, void *arg)
-{
+static int complement_traverse(PyIUObject_Complement *lz, visitproc visit,
+                               void *arg) {
     Py_VISIT(lz->func);
     return 0;
 }
 
+/******************************************************************************
+ *
+ * Call
+ *
+ *****************************************************************************/
 
-static PyObject *
-functions_complement_call(functions_complement_object *lz, PyObject *args, PyObject *kw)
-{
+static PyObject * complement_call(PyIUObject_Complement *lz, PyObject *args,
+                                  PyObject *kwargs) {
     PyObject *temp;
     int res;
 
-    temp = PyObject_Call(lz->func, args, kw);
+    temp = PyObject_Call(lz->func, args, kwargs);
     res = PyObject_Not(temp);
     Py_DECREF(temp);
 
@@ -68,26 +82,35 @@ functions_complement_call(functions_complement_object *lz, PyObject *args, PyObj
     }
 }
 
+/******************************************************************************
+ *
+ * Reduce
+ *
+ *****************************************************************************/
 
-static PyObject *
-functions_complement_reduce(functions_complement_object *lz, PyObject *unused)
-{
-    return Py_BuildValue("O(O)", Py_TYPE(lz),
-                         lz->func);
+static PyObject * complement_reduce(PyIUObject_Complement *lz,
+                                    PyObject *unused) {
+    return Py_BuildValue("O(O)", Py_TYPE(lz), lz->func);
 }
 
-static PyMethodDef functions_complement_methods[] = {
-    {"__reduce__",
-     (PyCFunction)functions_complement_reduce,
-     METH_NOARGS,
-     ""},
+/******************************************************************************
+ *
+ * Methods
+ *
+ *****************************************************************************/
 
-    {NULL,              NULL}
+static PyMethodDef complement_methods[] = {
+    {"__reduce__", (PyCFunction)complement_reduce, METH_NOARGS, ""},
+    {NULL, NULL}
 };
 
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
 
-PyDoc_STRVAR(functions_complement_doc,
-"complement(func)\n\
+PyDoc_STRVAR(complement_doc, "complement(func)\n\
 \n\
 Invert a predicate function. homonymous function in the `toolz` package \n\
 ([0]_) but significantly modified.\n\
@@ -121,14 +144,19 @@ References\n\
 .. [0] https://toolz.readthedocs.io/en/latest/index.html\n\
 ");
 
+/******************************************************************************
+ *
+ * Type
+ *
+ *****************************************************************************/
 
-static PyTypeObject functions_complement_type = {
+static PyTypeObject PyIUType_Complement = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.complement",   /* tp_name */
-    sizeof(functions_complement_object), /* tp_basicsize */
+    sizeof(PyIUObject_Complement),      /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
-    (destructor)functions_complement_dealloc, /* tp_dealloc */
+    (destructor)complement_dealloc,     /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -138,21 +166,21 @@ static PyTypeObject functions_complement_type = {
     0,                                  /* tp_as_sequence */
     0,                                  /* tp_as_mapping */
     0,                                  /* tp_hash */
-    (ternaryfunc)functions_complement_call, /* tp_call */
+    (ternaryfunc)complement_call,       /* tp_call */
     0,                                  /* tp_str */
     PyObject_GenericGetAttr,            /* tp_getattro */
     0,                                  /* tp_setattro */
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    functions_complement_doc,           /* tp_doc */
-    (traverseproc)functions_complement_traverse, /* tp_traverse */
+    complement_doc,                     /* tp_doc */
+    (traverseproc)complement_traverse,  /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
     0,                                  /* tp_iter */
     0,                                  /* tp_iternext */
-    functions_complement_methods,       /* tp_methods */
+    complement_methods,                 /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
@@ -162,6 +190,6 @@ static PyTypeObject functions_complement_type = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     0,                                  /* tp_alloc */
-    functions_complement_new,           /* tp_new */
+    complement_new,                     /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };

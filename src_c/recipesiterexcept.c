@@ -4,18 +4,24 @@ typedef struct {
     PyObject *except;
     PyObject *first;
 
-} recipes_iterexcept_object;
+} PyIUObject_Iterexcept;
 
-static PyObject *
-recipes_iterexcept_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    recipes_iterexcept_object *lz;
-    static char *kwargs[] = {"func", "exception", "first", NULL};
+static PyTypeObject PyIUType_Iterexcept;
 
-    // arguments
+/******************************************************************************
+ *
+ * New
+ *
+ *****************************************************************************/
+
+static PyObject * iterexcept_new(PyTypeObject *type, PyObject *args,
+                                 PyObject *kwargs) {
+    static char *kwlist[] = {"func", "exception", "first", NULL};
+    PyIUObject_Iterexcept *lz;
+
     PyObject *func, *except, *first=NULL;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|O:iter_except", kwargs,
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|O:iter_except", kwlist,
                                      &func, &except,
                                      &first)) {
         return NULL;
@@ -25,8 +31,7 @@ recipes_iterexcept_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         first = NULL;
     }
 
-    /* create recipes_iterexcept_object structure */
-    lz = (recipes_iterexcept_object *)type->tp_alloc(type, 0);
+    lz = (PyIUObject_Iterexcept *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         return NULL;
     }
@@ -41,10 +46,13 @@ recipes_iterexcept_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)lz;
 }
 
+/******************************************************************************
+ *
+ * Destructor
+ *
+ *****************************************************************************/
 
-static void
-recipes_iterexcept_dealloc(recipes_iterexcept_object *lz)
-{
+static void iterexcept_dealloc(PyIUObject_Iterexcept *lz) {
     PyObject_GC_UnTrack(lz);
     Py_XDECREF(lz->func);
     Py_XDECREF(lz->except);
@@ -52,20 +60,21 @@ recipes_iterexcept_dealloc(recipes_iterexcept_object *lz)
     Py_TYPE(lz)->tp_free(lz);
 }
 
+/******************************************************************************
+ *
+ * Traverse
+ *
+ *****************************************************************************/
 
-static int
-recipes_iterexcept_traverse(recipes_iterexcept_object *lz, visitproc visit, void *arg)
-{
+static int iterexcept_traverse(PyIUObject_Iterexcept *lz, visitproc visit,
+                               void *arg) {
     Py_VISIT(lz->func);
     Py_VISIT(lz->except);
     Py_VISIT(lz->first);
     return 0;
 }
 
-
-static PyObject *
-recipes_iterexcept_next(recipes_iterexcept_object *lz)
-{
+static PyObject * iterexcept_next(PyIUObject_Iterexcept *lz) {
     PyObject *result;
 
     if (lz->first == NULL) {
@@ -84,10 +93,13 @@ recipes_iterexcept_next(recipes_iterexcept_object *lz)
     return result;
 }
 
+/******************************************************************************
+ *
+ * Reduce
+ *
+ *****************************************************************************/
 
-static PyObject *
-recipes_iterexcept_reduce(recipes_iterexcept_object *lz)
-{
+static PyObject * iterexcept_reduce(PyIUObject_Iterexcept *lz) {
     if (lz->first == NULL) {
         return Py_BuildValue("O(OO)", Py_TYPE(lz),
                              lz->func,
@@ -100,19 +112,24 @@ recipes_iterexcept_reduce(recipes_iterexcept_object *lz)
     }
 }
 
+/******************************************************************************
+ *
+ * Methods
+ *
+ *****************************************************************************/
 
-static PyMethodDef recipes_iterexcept_methods[] = {
-    {"__reduce__",
-     (PyCFunction)recipes_iterexcept_reduce,
-     METH_NOARGS,
-     ""},
-
-    {NULL,           NULL}           /* sentinel */
+static PyMethodDef iterexcept_methods[] = {
+    {"__reduce__", (PyCFunction)iterexcept_reduce, METH_NOARGS, ""},
+    {NULL, NULL}
 };
 
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
 
-PyDoc_STRVAR(recipes_iterexcept_doc,
-"iter_except(func, exception[, first])\n\
+PyDoc_STRVAR(iterexcept_doc, "iter_except(func, exception[, first])\n\
 \n\
 Call a function repeatedly until an `exception` is raised.\n\
 \n\
@@ -171,13 +188,19 @@ Further examples:\n\
 - ``set_iter = iter_except(s.pop, KeyError)``\n\
 ");
 
-PyTypeObject recipes_iterexcept_type = {
+/******************************************************************************
+ *
+ * Type
+ *
+ *****************************************************************************/
+
+PyTypeObject PyIUType_Iterexcept = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.iter_except",  /* tp_name */
-    sizeof(recipes_iterexcept_object),  /* tp_basicsize */
+    sizeof(PyIUObject_Iterexcept),  /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
-    (destructor)recipes_iterexcept_dealloc, /* tp_dealloc */
+    (destructor)iterexcept_dealloc, /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -194,14 +217,14 @@ PyTypeObject recipes_iterexcept_type = {
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    recipes_iterexcept_doc,             /* tp_doc */
-    (traverseproc)recipes_iterexcept_traverse, /* tp_traverse */
+    iterexcept_doc,             /* tp_doc */
+    (traverseproc)iterexcept_traverse, /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
     PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)recipes_iterexcept_next, /* tp_iternext */
-    recipes_iterexcept_methods,         /* tp_methods */
+    (iternextfunc)iterexcept_next, /* tp_iternext */
+    iterexcept_methods,         /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
@@ -211,6 +234,6 @@ PyTypeObject recipes_iterexcept_type = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     PyType_GenericAlloc,                /* tp_alloc */
-    recipes_iterexcept_new,             /* tp_new */
+    iterexcept_new,             /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };

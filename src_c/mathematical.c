@@ -109,8 +109,7 @@ static PyObject* PyIU_MathRpow(PyObject *m, PyObject *args) {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(PyIU_MathSquare_doc,
-"square(value)\n\
+PyDoc_STRVAR(PyIU_MathSquare_doc, "square(value)\n\
 \n\
 Returns the squared `value`.\n\
 \n\
@@ -136,8 +135,7 @@ a one-argument square function and is significantly faster than ``lambda x: x**2
     4.0\n\
 ");
 
-PyDoc_STRVAR(PyIU_MathDouble_doc,
-"double(value)\n\
+PyDoc_STRVAR(PyIU_MathDouble_doc, "double(value)\n\
 \n\
 Returns the doubled `value`.\n\
 \n\
@@ -163,8 +161,7 @@ a one-argument double function and is significantly faster than ``lambda x: x*2`
     4.0\n\
 ");
 
-PyDoc_STRVAR(PyIU_MathOneOver_doc,
-"one_over(value)\n\
+PyDoc_STRVAR(PyIU_MathOneOver_doc, "one_over(value)\n\
 \n\
 Returns ``1/value``.\n\
 \n\
@@ -193,8 +190,7 @@ than ``lambda x: 1/x``::\n\
     0.25\n\
 ");
 
-PyDoc_STRVAR(PyIU_MathRadd_doc,
-"radd(op1, op2)\n\
+PyDoc_STRVAR(PyIU_MathRadd_doc, "radd(op1, op2)\n\
 \n\
 Returns ``op2 + op1``.\n\
 \n\
@@ -217,8 +213,7 @@ Equivalent to ``lambda x, y: y + x``::\n\
     4\n\
 ");
 
-PyDoc_STRVAR(PyIU_MathRsub_doc,
-"rsub(op1, op2)\n\
+PyDoc_STRVAR(PyIU_MathRsub_doc, "rsub(op1, op2)\n\
 \n\
 Returns ``op2 - op1``.\n\
 \n\
@@ -241,8 +236,7 @@ Equivalent to ``lambda x, y: y - x``::\n\
     3\n\
 ");
 
-PyDoc_STRVAR(PyIU_MathRmul_doc,
-"rmul(op1, op2)\n\
+PyDoc_STRVAR(PyIU_MathRmul_doc, "rmul(op1, op2)\n\
 \n\
 Returns ``op2 * op1``.\n\
 \n\
@@ -265,8 +259,7 @@ Equivalent to ``lambda x, y: y * x``::\n\
     4\n\
 ");
 
-PyDoc_STRVAR(PyIU_MathRdiv_doc,
-"rdiv(op1, op2)\n\
+PyDoc_STRVAR(PyIU_MathRdiv_doc, "rdiv(op1, op2)\n\
 \n\
 Returns ``op2 / op1``.\n\
 \n\
@@ -289,8 +282,7 @@ Equivalent to ``lambda x, y: y / x``::\n\
     0.1\n\
 ");
 
-PyDoc_STRVAR(PyIU_MathRpow_doc,
-"rpow(op1, op2)\n\
+PyDoc_STRVAR(PyIU_MathRpow_doc, "rpow(op1, op2)\n\
 \n\
 Returns ``op2 ** op1``.\n\
 \n\

@@ -1,6 +1,4 @@
-static PyObject *
-reduce_allequal(PyObject *self, PyObject *iterable)
-{
+static PyObject * PyIU_AllEqual(PyObject *m, PyObject *iterable) {
     PyObject *it=NULL;
     PyObject *(*iternext)(PyObject *);
     PyObject *item=NULL;
@@ -48,9 +46,13 @@ Found:
     Py_RETURN_FALSE;
 }
 
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
 
-PyDoc_STRVAR(reduce_allequal_doc,
-"all_equal(iterable)\n\
+PyDoc_STRVAR(PyIU_AllEqual_doc, "all_equal(iterable)\n\
 \n\
 Checks if all the elements are equal to each other.\n\
 \n\

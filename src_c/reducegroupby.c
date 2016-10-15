@@ -1,18 +1,13 @@
-static PyObject *
-reduce_groupby(PyObject *self, PyObject *args, PyObject *kwds)
-{
-    static char *kwargs[] = {"iterable", "key", "keepkey", NULL};
-
-    PyObject *iterable, *key1;  // mandatory arguments
-    PyObject *key2=NULL;        // optional arguments
-
+static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
+    static char *kwlist[] = {"iterable", "key", "keepkey", NULL};
+    PyObject *iterable, *key1;
+    PyObject *key2=NULL;
     PyObject *iterator, *item, *val, *lst, *keep;
     int ok;
-
     PyObject *resdict;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|O:groupby",
-                                     kwargs, &iterable, &key1, &key2)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|O:groupby", kwlist,
+                                     &iterable, &key1, &key2)) {
         return NULL;
     }
 
@@ -92,8 +87,13 @@ Fail:
     return NULL;
 }
 
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
 
-PyDoc_STRVAR(reduce_groupby_doc, "groupby2(iterable, key[, keepkey])\n\
+PyDoc_STRVAR(PyIU_Groupby_doc, "groupby2(iterable, key[, keepkey])\n\
 \n\
 Group values of `iterable` by a `key` function.\n\
 \n\

@@ -1,6 +1,4 @@
-static PyObject *
-reduce_one(PyObject *self, PyObject *iterable)
-{
+static PyObject * PyIU_One(PyObject *m, PyObject *iterable) {
     PyObject *iterator;
     PyObject *item1, *item2;
 
@@ -32,8 +30,13 @@ reduce_one(PyObject *self, PyObject *iterable)
     return item1;
 }
 
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
 
-PyDoc_STRVAR(reduce_one_doc, "one(iterable)\n\
+PyDoc_STRVAR(PyIU_One_doc, "one(iterable)\n\
 \n\
 Return the first value in the `iterable` and expects it only contains one element.\n\
 \n\

@@ -15,11 +15,13 @@ static PyObject* PyIU_ReturnIdentity(PyObject *m, PyObject *o) {
  * lambda *args, **kwargs: args[0]
  *****************************************************************************/
 
-static PyObject* PyIU_ReturnFirstArg(PyObject *m, PyObject *args, PyObject *kwds) {
+static PyObject* PyIU_ReturnFirstArg(PyObject *m, PyObject *args,
+                                     PyObject *kwargs) {
     PyObject *first;
 
-    if (PyTuple_Size(args) == 0) {
-        PyErr_Format(PyExc_TypeError, "Expected at least one positional argument.");
+    if (!PyTuple_Check(args) || PyTuple_Size(args) == 0) {
+        PyErr_Format(PyExc_TypeError,
+                     "Expected at least one positional argument.");
         return NULL;
     }
 
@@ -44,8 +46,7 @@ static PyObject* PyIU_ReturnCalled(PyObject *m, PyObject *o) {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(PyIU_ReturnIdentity_doc,
-"return_identity(obj)\n\
+PyDoc_STRVAR(PyIU_ReturnIdentity_doc, "return_identity(obj)\n\
 \n\
 Always return the argument.\n\
 \n\
@@ -70,8 +71,7 @@ This function is equivalent to ``lambda x: x`` but significantly faster::\n\
     'abc'\n\
 ");
 
-PyDoc_STRVAR(PyIU_ReturnFirstArg_doc,
-"return_first_arg(*args, **kwargs)\n\
+PyDoc_STRVAR(PyIU_ReturnFirstArg_doc, "return_first_arg(*args, **kwargs)\n\
 \n\
 Always return the first positional argument given to the function.\n\
 \n\
@@ -87,16 +87,15 @@ first_positional_argument : any type\n\
 \n\
 Examples\n\
 --------\n\
-This function is equivalent to ``lambda *args, **kwargs: args[0]`` but significantly\n\
-faster::\n\
+This function is equivalent to ``lambda *args, **kwargs: args[0]`` but\n\
+significantly faster::\n\
 \n\
     >>> from iteration_utilities import return_first_arg\n\
     >>> return_first_arg(1, 2, 3, 4, a=100)\n\
     1\n\
 ");
 
-PyDoc_STRVAR(PyIU_ReturnCalled_doc,
-"return_called(func)\n\
+PyDoc_STRVAR(PyIU_ReturnCalled_doc, "return_called(func)\n\
 \n\
 Return the result of ``func()``.\n\
 \n\

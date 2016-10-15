@@ -4,33 +4,35 @@ typedef struct {
     PyObject *filler;
     PyObject *nextitem;
     int started;
-} recipes_intersperse_object;
+} PyIUObject_Intersperse;
 
-static PyTypeObject recipes_intersperse_type;
+static PyTypeObject PyIUType_Intersperse;
 
-static PyObject *
-recipes_intersperse_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    static char *kwargs[] = {"iterable", "e", NULL};
+/******************************************************************************
+ *
+ * New
+ *
+ *****************************************************************************/
+
+static PyObject * intersperse_new(PyTypeObject *type, PyObject *args,
+                                  PyObject *kwargs) {
+    static char *kwlist[] = {"iterable", "e", NULL};
+    PyIUObject_Intersperse *lz;
 
     PyObject *iterable, *filler;
     PyObject *it;
 
-    recipes_intersperse_object *lz;
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO:intersperse",
-                                     kwargs, &iterable, &filler)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO:intersperse", kwlist,
+                                     &iterable, &filler)) {
         return NULL;
     }
 
-    /* Get iterator. */
     it = PyObject_GetIter(iterable);
     if (it == NULL) {
         return NULL;
     }
 
-    /* create intersperse structure */
-    lz = (recipes_intersperse_object *)type->tp_alloc(type, 0);
+    lz = (PyIUObject_Intersperse *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         Py_DECREF(it);
         return NULL;
@@ -45,9 +47,13 @@ recipes_intersperse_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)lz;
 }
 
-static void
-recipes_intersperse_dealloc(recipes_intersperse_object *lz)
-{
+/******************************************************************************
+ *
+ * Destructor
+ *
+ *****************************************************************************/
+
+static void intersperse_dealloc(PyIUObject_Intersperse *lz) {
     PyObject_GC_UnTrack(lz);
     Py_XDECREF(lz->it);
     Py_XDECREF(lz->filler);
@@ -55,19 +61,21 @@ recipes_intersperse_dealloc(recipes_intersperse_object *lz)
     Py_TYPE(lz)->tp_free(lz);
 }
 
-static int
-recipes_intersperse_traverse(recipes_intersperse_object *lz, visitproc visit,
-                            void *arg)
-{
+/******************************************************************************
+ *
+ * Traverse
+ *
+ *****************************************************************************/
+
+static int intersperse_traverse(PyIUObject_Intersperse *lz, visitproc visit,
+                                void *arg) {
     Py_VISIT(lz->it);
     Py_VISIT(lz->filler);
     Py_VISIT(lz->nextitem);
     return 0;
 }
 
-static PyObject *
-recipes_intersperse_next(recipes_intersperse_object *lz)
-{
+static PyObject * intersperse_next(PyIUObject_Intersperse *lz) {
     PyObject *it = lz->it;
     PyObject *filler = lz->filler;
     PyObject *nextitem = lz->nextitem;
@@ -93,8 +101,13 @@ recipes_intersperse_next(recipes_intersperse_object *lz)
     }
 }
 
-static PyObject *
-recipes_intersperse_reduce(recipes_intersperse_object *lz) {
+/******************************************************************************
+ *
+ * Reduce
+ *
+ *****************************************************************************/
+
+static PyObject * intersperse_reduce(PyIUObject_Intersperse *lz) {
     PyObject *value;
     if (lz->nextitem == NULL) {
         value = Py_BuildValue("O(OO)(i)", Py_TYPE(lz),
@@ -111,9 +124,14 @@ recipes_intersperse_reduce(recipes_intersperse_object *lz) {
     return value;
 }
 
-static PyObject *
-recipes_intersperse_setstate(recipes_intersperse_object *lz, PyObject *state)
-{
+/******************************************************************************
+ *
+ * Setstate
+ *
+ *****************************************************************************/
+
+static PyObject * intersperse_setstate(PyIUObject_Intersperse *lz,
+                                       PyObject *state) {
     int started;
     PyObject *nextitem;
 
@@ -136,22 +154,25 @@ recipes_intersperse_setstate(recipes_intersperse_object *lz, PyObject *state)
     Py_RETURN_NONE;
 }
 
-static PyMethodDef recipes_intersperse_methods[] = {
-    {"__reduce__",
-     (PyCFunction)recipes_intersperse_reduce,
-     METH_NOARGS,
-     ""},
+/******************************************************************************
+ *
+ * Methods
+ *
+ *****************************************************************************/
 
-    {"__setstate__",
-     (PyCFunction)recipes_intersperse_setstate,
-     METH_O,
-     ""},
-
-    {NULL,              NULL}   /* sentinel */
+static PyMethodDef intersperse_methods[] = {
+    {"__reduce__", (PyCFunction)intersperse_reduce, METH_NOARGS, ""},
+    {"__setstate__", (PyCFunction)intersperse_setstate, METH_O, ""},
+    {NULL,              NULL}
 };
 
-PyDoc_STRVAR(recipes_intersperse_doc,
-"intersperse(iterable, e)\n\
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
+
+PyDoc_STRVAR(intersperse_doc, "intersperse(iterable, e)\n\
 \n\
 Alternately yield an item from the `iterable` and `e`. Recipe based on the\n\
 homonymous function in the `more-itertools` package ([0]_) but significantly\n\
@@ -192,13 +213,19 @@ References\n\
 .. [0] https://github.com/erikrose/more-itertools\n\
 ");
 
-static PyTypeObject recipes_intersperse_type = {
+/******************************************************************************
+ *
+ * Type
+ *
+ *****************************************************************************/
+
+static PyTypeObject PyIUType_Intersperse = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.intersperse",  /* tp_name */
-    sizeof(recipes_intersperse_object), /* tp_basicsize */
+    sizeof(PyIUObject_Intersperse), /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
-    (destructor)recipes_intersperse_dealloc, /* tp_dealloc */
+    (destructor)intersperse_dealloc, /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -215,14 +242,14 @@ static PyTypeObject recipes_intersperse_type = {
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    recipes_intersperse_doc,            /* tp_doc */
-    (traverseproc)recipes_intersperse_traverse, /* tp_traverse */
+    intersperse_doc,            /* tp_doc */
+    (traverseproc)intersperse_traverse, /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
     PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)recipes_intersperse_next, /* tp_iternext */
-    recipes_intersperse_methods,        /* tp_methods */
+    (iternextfunc)intersperse_next, /* tp_iternext */
+    intersperse_methods,        /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
@@ -232,6 +259,6 @@ static PyTypeObject recipes_intersperse_type = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     0,                                  /* tp_alloc */
-    recipes_intersperse_new,            /* tp_new */
+    intersperse_new,            /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };

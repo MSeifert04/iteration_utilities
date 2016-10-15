@@ -3,20 +3,27 @@ typedef struct {
     PyObject *it;
     Py_ssize_t times;
     PyObject *result;
-} recipes_successive_object;
+} PyIUObject_Successive;
 
+static PyTypeObject PyIUType_Successive;
 
-static PyObject *
-recipes_successive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    static char *kwargs[] = {"iterable", "times", NULL};
+/******************************************************************************
+ *
+ * New
+ *
+ *****************************************************************************/
+
+static PyObject * successive_new(PyTypeObject *type, PyObject *args,
+                                 PyObject *kwargs) {
+    static char *kwlist[] = {"iterable", "times", NULL};
+    PyIUObject_Successive *lz;
+
     PyObject *iterable;
     Py_ssize_t times = 2;
     PyObject *it;
     PyObject *result = NULL;
-    recipes_successive_object *lz;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|n:successive", kwargs,
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|n:successive", kwlist,
                                      &iterable, &times)) {
         return NULL;
     }
@@ -32,8 +39,7 @@ recipes_successive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
-    /* create recipes_successive_object structure */
-    lz = (recipes_successive_object *)type->tp_alloc(type, 0);
+    lz = (PyIUObject_Successive *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         Py_DECREF(it);
         return NULL;
@@ -46,29 +52,34 @@ recipes_successive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)lz;
 }
 
+/******************************************************************************
+ *
+ * Destructor
+ *
+ *****************************************************************************/
 
-static void
-recipes_successive_dealloc(recipes_successive_object *lz)
-{
+static void successive_dealloc(PyIUObject_Successive *lz) {
     PyObject_GC_UnTrack(lz);
     Py_XDECREF(lz->it);
     Py_XDECREF(lz->result);
     Py_TYPE(lz)->tp_free(lz);
 }
 
+/******************************************************************************
+ *
+ * Traverse
+ *
+ *****************************************************************************/
 
-static int
-recipes_successive_traverse(recipes_successive_object *lz, visitproc visit, void *arg)
-{
+static int successive_traverse(PyIUObject_Successive *lz, visitproc visit,
+                               void *arg) {
     Py_VISIT(lz->it);
     Py_VISIT(lz->result);
     return 0;
 }
 
 
-static PyObject *
-recipes_successive_next(recipes_successive_object *lz)
-{
+static PyObject * successive_next(PyIUObject_Successive *lz) {
     Py_ssize_t times = lz->times;
     Py_ssize_t i;
 
@@ -151,10 +162,13 @@ recipes_successive_next(recipes_successive_object *lz)
     }
 }
 
+/******************************************************************************
+ *
+ * Reduce
+ *
+ *****************************************************************************/
 
-static PyObject *
-recipes_successive_reduce(recipes_successive_object *lz)
-{
+static PyObject * successive_reduce(PyIUObject_Successive *lz) {
     if (lz->result == NULL) {
         return Py_BuildValue("O(On)", Py_TYPE(lz),
                              lz->it, lz->times);
@@ -165,9 +179,14 @@ recipes_successive_reduce(recipes_successive_object *lz)
     }
 }
 
-static PyObject *
-recipes_successive_setstate(recipes_successive_object *lz, PyObject *state)
-{
+/******************************************************************************
+ *
+ * Setstate
+ *
+ *****************************************************************************/
+
+static PyObject * successive_setstate(PyIUObject_Successive *lz,
+                                      PyObject *state) {
     PyObject *result;
     if (!PyArg_ParseTuple(state, "O", &result)) {
         return NULL;
@@ -185,24 +204,25 @@ recipes_successive_setstate(recipes_successive_object *lz, PyObject *state)
     Py_RETURN_NONE;
 }
 
+/******************************************************************************
+ *
+ * Methods
+ *
+ *****************************************************************************/
 
-static PyMethodDef recipes_successive_methods[] = {
-    {"__reduce__",
-     (PyCFunction)recipes_successive_reduce,
-     METH_NOARGS,
-     ""},
-
-    {"__setstate__",
-     (PyCFunction)recipes_successive_setstate,
-     METH_O,
-     ""},
-
-    {NULL,           NULL}           /* sentinel */
+static PyMethodDef successive_methods[] = {
+    {"__reduce__", (PyCFunction)successive_reduce, METH_NOARGS, ""},
+    {"__setstate__", (PyCFunction)successive_setstate, METH_O, ""},
+    {NULL, NULL}
 };
 
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
 
-PyDoc_STRVAR(recipes_successive_doc,
-"successive(iterable, times)\n\
+PyDoc_STRVAR(successive_doc, "successive(iterable, times)\n\
 \n\
 Like the recipe for pairwise but allows to get an arbitary number\n\
 of successive elements.\n\
@@ -239,13 +259,19 @@ Varying the `times` can give you also 3 successive elements::\n\
     [('H', 'e'), ('e', 'l'), ('l', 'l'), ('l', 'o'), ('o', '!')]\n\
 ");
 
-PyTypeObject recipes_successive_type = {
+/******************************************************************************
+ *
+ * Type
+ *
+ *****************************************************************************/
+
+PyTypeObject PyIUType_Successive = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.successive",   /* tp_name */
-    sizeof(recipes_successive_object),  /* tp_basicsize */
+    sizeof(PyIUObject_Successive),  /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
-    (destructor)recipes_successive_dealloc, /* tp_dealloc */
+    (destructor)successive_dealloc, /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -262,14 +288,14 @@ PyTypeObject recipes_successive_type = {
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    recipes_successive_doc,             /* tp_doc */
-    (traverseproc)recipes_successive_traverse, /* tp_traverse */
+    successive_doc,             /* tp_doc */
+    (traverseproc)successive_traverse, /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
     PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)recipes_successive_next, /* tp_iternext */
-    recipes_successive_methods,         /* tp_methods */
+    (iternextfunc)successive_next, /* tp_iternext */
+    successive_methods,         /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
@@ -279,6 +305,6 @@ PyTypeObject recipes_successive_type = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     PyType_GenericAlloc,                /* tp_alloc */
-    recipes_successive_new,             /* tp_new */
+    successive_new,             /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };

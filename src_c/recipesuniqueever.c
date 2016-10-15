@@ -4,20 +4,26 @@ typedef struct {
     PyObject *it;
     PyObject *seen;
     PyObject *seenlist;
-} recipes_uniqueever_object;
+} PyIUObject_UniqueEver;
 
-static PyTypeObject recipes_uniqueever_type;
+static PyTypeObject PyIUType_UniqueEver;
 
-static PyObject *
-recipes_uniqueever_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    static char *kwargs[] = {"iterable", "key", NULL};
+/******************************************************************************
+ *
+ * New
+ *
+ *****************************************************************************/
+
+static PyObject * uniqueever_new(PyTypeObject *type, PyObject *args,
+                                 PyObject *kwargs) {
+    static char *kwlist[] = {"iterable", "key", NULL};
+    PyIUObject_UniqueEver *lz;
+
     PyObject *func=NULL, *iterable=NULL, *seen=NULL, *seenlist=NULL;
     PyObject *it;
-    recipes_uniqueever_object *lz;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|O:unique_everseen",
-                                     kwargs, &iterable, &func)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:unique_everseen", kwlist,
+                                     &iterable, &func)) {
         return NULL;
     }
 
@@ -33,8 +39,7 @@ recipes_uniqueever_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
-    /* create unique_everseen structure */
-    lz = (recipes_uniqueever_object *)type->tp_alloc(type, 0);
+    lz = (PyIUObject_UniqueEver *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         Py_DECREF(seen);
         Py_DECREF(it);
@@ -50,9 +55,13 @@ recipes_uniqueever_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)lz;
 }
 
-static void
-recipes_uniqueever_dealloc(recipes_uniqueever_object *lz)
-{
+/******************************************************************************
+ *
+ * Destructor
+ *
+ *****************************************************************************/
+
+static void uniqueever_dealloc(PyIUObject_UniqueEver *lz) {
     PyObject_GC_UnTrack(lz);
     Py_XDECREF(lz->func);
     Py_XDECREF(lz->it);
@@ -61,10 +70,14 @@ recipes_uniqueever_dealloc(recipes_uniqueever_object *lz)
     Py_TYPE(lz)->tp_free(lz);
 }
 
-static int
-recipes_uniqueever_traverse(recipes_uniqueever_object *lz, visitproc visit,
-                            void *arg)
-{
+/******************************************************************************
+ *
+ * Traverse
+ *
+ *****************************************************************************/
+
+static int uniqueever_traverse(PyIUObject_UniqueEver *lz, visitproc visit,
+                               void *arg) {
     Py_VISIT(lz->it);
     Py_VISIT(lz->func);
     Py_VISIT(lz->seen);
@@ -72,9 +85,7 @@ recipes_uniqueever_traverse(recipes_uniqueever_object *lz, visitproc visit,
     return 0;
 }
 
-static PyObject *
-recipes_uniqueever_next(recipes_uniqueever_object *lz)
-{
+static PyObject * uniqueever_next(PyIUObject_UniqueEver *lz) {
     PyObject *item;
     PyObject *func = lz->func;
     PyObject *it = lz->it;
@@ -161,8 +172,13 @@ Fail:
     return NULL;
 }
 
-static PyObject *
-recipes_uniqueever_reduce(recipes_uniqueever_object *lz) {
+/******************************************************************************
+ *
+ * Reduce
+ *
+ *****************************************************************************/
+
+static PyObject * uniqueever_reduce(PyIUObject_UniqueEver *lz) {
     PyObject *value;
     value = Py_BuildValue("O(OO)(OO)", Py_TYPE(lz),
                           lz->it,
@@ -172,9 +188,14 @@ recipes_uniqueever_reduce(recipes_uniqueever_object *lz) {
     return value;
 }
 
-static PyObject *
-recipes_uniqueever_setstate(recipes_uniqueever_object *lz, PyObject *state)
-{
+/******************************************************************************
+ *
+ * Setstate
+ *
+ *****************************************************************************/
+
+static PyObject * uniqueever_setstate(PyIUObject_UniqueEver *lz,
+                                      PyObject *state) {
     PyObject *seen, *seenlist;
     if (!PyArg_ParseTuple(state, "OO", &seen, &seenlist)) {
         return NULL;
@@ -190,22 +211,25 @@ recipes_uniqueever_setstate(recipes_uniqueever_object *lz, PyObject *state)
     Py_RETURN_NONE;
 }
 
-static PyMethodDef recipes_uniqueever_methods[] = {
-    {"__reduce__",
-     (PyCFunction)recipes_uniqueever_reduce,
-     METH_NOARGS,
-     ""},
+/******************************************************************************
+ *
+ * Methods
+ *
+ *****************************************************************************/
 
-    {"__setstate__",
-     (PyCFunction)recipes_uniqueever_setstate,
-     METH_O,
-     ""},
-
-    {NULL,              NULL}   /* sentinel */
+static PyMethodDef uniqueever_methods[] = {
+    {"__reduce__", (PyCFunction)uniqueever_reduce, METH_NOARGS, ""},
+    {"__setstate__", (PyCFunction)uniqueever_setstate, METH_O, ""},
+    {NULL, NULL}
 };
 
-PyDoc_STRVAR(recipes_uniqueever_doc,
-"unique_everseen(sequence)\n\
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
+
+PyDoc_STRVAR(uniqueever_doc, "unique_everseen(sequence)\n\
 \n\
 List unique elements, preserving their order. Remembers all elements ever seen.\n\
 \n\
@@ -239,15 +263,22 @@ Examples\n\
 ['A', 'B', 'C', 'D']\n\
 \n\
 >>> list(unique_everseen([[1, 2], [1, 1], [1, 2]]))\n\
-[[1, 2], [1, 1]]");
+[[1, 2], [1, 1]]\n\
+");
 
-static PyTypeObject recipes_uniqueever_type = {
+/******************************************************************************
+ *
+ * Type
+ *
+ *****************************************************************************/
+
+static PyTypeObject PyIUType_UniqueEver = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.unique_everseen", /* tp_name */
-    sizeof(recipes_uniqueever_object),  /* tp_basicsize */
+    sizeof(PyIUObject_UniqueEver),  /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
-    (destructor)recipes_uniqueever_dealloc, /* tp_dealloc */
+    (destructor)uniqueever_dealloc, /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -264,14 +295,14 @@ static PyTypeObject recipes_uniqueever_type = {
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    recipes_uniqueever_doc,             /* tp_doc */
-    (traverseproc)recipes_uniqueever_traverse, /* tp_traverse */
+    uniqueever_doc,             /* tp_doc */
+    (traverseproc)uniqueever_traverse, /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
     PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)recipes_uniqueever_next, /* tp_iternext */
-    recipes_uniqueever_methods,         /* tp_methods */
+    (iternextfunc)uniqueever_next, /* tp_iternext */
+    uniqueever_methods,         /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
@@ -281,6 +312,6 @@ static PyTypeObject recipes_uniqueever_type = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     0,                                  /* tp_alloc */
-    recipes_uniqueever_new,             /* tp_new */
+    uniqueever_new,             /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };

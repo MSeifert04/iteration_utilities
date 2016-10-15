@@ -3,47 +3,51 @@ typedef struct {
     PyObject *funcs;
     int reverse;
     int all;
-} functions_compose_object;
+} PyIUObject_Compose;
 
-static PyTypeObject functions_compose_type;
+static PyTypeObject PyIUType_Compose;
 
+/******************************************************************************
+ *
+ * New
+ *
+ *****************************************************************************/
 
-static PyObject *
-functions_compose_new(PyTypeObject *type, PyObject *funcs, PyObject *kwds)
-{
-    functions_compose_object *lz;
-    PyObject *reversekw;
-    int reverse = 0;
-    PyObject *allkw;
-    int all = 0;
-    Py_ssize_t nkwds = 0;
+static PyObject * compose_new(PyTypeObject *type, PyObject *funcs,
+                              PyObject *kwargs) {
+    PyIUObject_Compose *lz;
+
+    PyObject *reversekw, *allkw;
+    Py_ssize_t nkwargs = 0;
+    int reverse = 0, all = 0;
 
     if (funcs == NULL || !PyTuple_Check(funcs) || PyTuple_Size(funcs) <= 0) {
         PyErr_Format(PyExc_TypeError, "at least 1 function must be given.");
         return NULL;
     }
 
-    if (kwds != NULL && PyDict_Check(kwds) && PyDict_Size(kwds)) {
-        reversekw = PyDict_GetItemString(kwds, "reverse");
+    if (kwargs != NULL && PyDict_Check(kwargs) && PyDict_Size(kwargs)) {
+        reversekw = PyDict_GetItemString(kwargs, "reverse");
         if (reversekw != NULL) {
             reverse = PyLong_AsLong(reversekw);
-            nkwds++;
+            nkwargs++;
         }
-        allkw = PyDict_GetItemString(kwds, "all");
+        allkw = PyDict_GetItemString(kwargs, "all");
         if (allkw != NULL) {
             all = PyLong_AsLong(allkw);
-            nkwds++;
+            nkwargs++;
         }
-        if (PyDict_Size(kwds) - nkwds != 0) {
+        if (PyDict_Size(kwargs) - nkwargs != 0) {
             PyErr_Format(PyExc_TypeError,
                          "`compose` got an unexpected keyword argument");
             return NULL;
         }
     }
 
-    lz = (functions_compose_object *)type->tp_alloc(type, 0);
-    if (lz == NULL)
+    lz = (PyIUObject_Compose *)type->tp_alloc(type, 0);
+    if (lz == NULL) {
         return NULL;
+    }
 
     Py_INCREF(funcs);
     lz->funcs = funcs;
@@ -53,52 +57,63 @@ functions_compose_new(PyTypeObject *type, PyObject *funcs, PyObject *kwds)
     return (PyObject *)lz;
 }
 
+/******************************************************************************
+ *
+ * Destructor
+ *
+ *****************************************************************************/
 
-static void
-functions_compose_dealloc(functions_compose_object *lz)
-{
+static void compose_dealloc(PyIUObject_Compose *lz) {
     PyObject_GC_UnTrack(lz);
     Py_XDECREF(lz->funcs);
     Py_TYPE(lz)->tp_free(lz);
 }
 
+/******************************************************************************
+ *
+ * Traverse
+ *
+ *****************************************************************************/
 
-static int
-functions_compose_traverse(functions_compose_object *lz, visitproc visit, void *arg)
-{
+static int compose_traverse(PyIUObject_Compose *lz, visitproc visit,
+                            void *arg) {
     Py_VISIT(lz->funcs);
     return 0;
 }
 
+/******************************************************************************
+ *
+ * Call
+ *
+ *****************************************************************************/
 
-static PyObject *
-functions_compose_call(functions_compose_object *lz, PyObject *args, PyObject *kw)
-{
-    PyObject *funcs = lz->funcs;
-    int reverse = lz->reverse;
-    PyObject *func = NULL;
-    PyObject *temp = NULL;
-    PyObject *oldtemp = NULL;
-    PyObject *result = NULL;
-    Py_ssize_t i;
-    Py_ssize_t tuplesize = PyTuple_Size(funcs);
+static PyObject * compose_call(PyIUObject_Compose *lz, PyObject *args,
+                               PyObject *kwargs) {
+    PyObject *funcs;
+    PyObject *func = NULL, *temp = NULL, *oldtemp = NULL, *result = NULL;
+    Py_ssize_t tuplesize, idx;
+    int reverse;
+
+    funcs = lz->funcs;
+    tuplesize = PyTuple_Size(funcs);
+    reverse = lz->reverse;
 
     if (lz->all) {
         result = PyTuple_New(tuplesize);
     }
 
-    for (i=0 ; i<tuplesize ; i++) {
+    for (idx=0 ; idx<tuplesize ; idx++) {
 
         if (reverse) {
-            func = PyTuple_GET_ITEM(funcs, tuplesize-i-1);
+            func = PyTuple_GET_ITEM(funcs, tuplesize - idx - 1);
         } else {
-            func = PyTuple_GET_ITEM(funcs, i);
+            func = PyTuple_GET_ITEM(funcs, idx);
         }
 
         if (temp == NULL || lz->all) {
-            temp = PyObject_Call(func, args, kw);
+            temp = PyObject_Call(func, args, kwargs);
             if (lz->all) {
-                PyTuple_SET_ITEM(result, i, temp);
+                PyTuple_SET_ITEM(result, idx, temp);
             }
         } else {
             oldtemp = temp;
@@ -117,18 +132,25 @@ functions_compose_call(functions_compose_object *lz, PyObject *args, PyObject *k
     return temp;
 }
 
+/******************************************************************************
+ *
+ * Reduce
+ *
+ *****************************************************************************/
 
-static PyObject *
-functions_compose_reduce(functions_compose_object *lz, PyObject *unused)
-{
+static PyObject * compose_reduce(PyIUObject_Compose *lz, PyObject *unused) {
     return Py_BuildValue("OO(ii)", Py_TYPE(lz),
                          lz->funcs,
                          lz->reverse, lz->all);
 }
 
-static PyObject *
-functions_compose_setstate(functions_compose_object *lz, PyObject *state)
-{
+/******************************************************************************
+ *
+ * Setstate
+ *
+ *****************************************************************************/
+
+static PyObject * compose_setstate(PyIUObject_Compose *lz, PyObject *state) {
     int reverse, all;
 
     if (!PyArg_ParseTuple(state, "ii", &reverse, &all)) {
@@ -137,21 +159,28 @@ functions_compose_setstate(functions_compose_object *lz, PyObject *state)
 
     lz->reverse = reverse;
     lz->all = all;
-
     Py_RETURN_NONE;
 }
 
-static PyMethodDef functions_compose_methods[] = {
-    {"__reduce__", (PyCFunction)functions_compose_reduce, METH_NOARGS, ""},
-    {"__setstate__", (PyCFunction)functions_compose_setstate, METH_O, ""},
+/******************************************************************************
+ *
+ * Methods
+ *
+ *****************************************************************************/
 
-    {NULL,              NULL}
+static PyMethodDef compose_methods[] = {
+    {"__reduce__", (PyCFunction)compose_reduce, METH_NOARGS, ""},
+    {"__setstate__", (PyCFunction)compose_setstate, METH_O, ""},
+    {NULL, NULL}
 };
 
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
 
-
-PyDoc_STRVAR(functions_compose_doc,
-"compose(*funcs[, reverse, all])\n\
+PyDoc_STRVAR(compose_doc, "compose(*funcs[, reverse, all])\n\
 \n\
 Chains several function calls.\n\
 \n\
@@ -204,14 +233,19 @@ Or apply all of them on the input::\n\
     (20, 11)\n\
 ");
 
+/******************************************************************************
+ *
+ * Type
+ *
+ *****************************************************************************/
 
-static PyTypeObject functions_compose_type = {
+static PyTypeObject PyIUType_Compose = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.compose",      /* tp_name */
-    sizeof(functions_compose_object),   /* tp_basicsize */
+    sizeof(PyIUObject_Compose),   /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
-    (destructor)functions_compose_dealloc, /* tp_dealloc */
+    (destructor)compose_dealloc, /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -221,21 +255,21 @@ static PyTypeObject functions_compose_type = {
     0,                                  /* tp_as_sequence */
     0,                                  /* tp_as_mapping */
     0,                                  /* tp_hash */
-    (ternaryfunc)functions_compose_call, /* tp_call */
+    (ternaryfunc)compose_call, /* tp_call */
     0,                                  /* tp_str */
     PyObject_GenericGetAttr,            /* tp_getattro */
     0,                                  /* tp_setattro */
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    functions_compose_doc,              /* tp_doc */
-    (traverseproc)functions_compose_traverse, /* tp_traverse */
+    compose_doc,              /* tp_doc */
+    (traverseproc)compose_traverse, /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
     0,                                  /* tp_iter */
     0,                                  /* tp_iternext */
-    functions_compose_methods,          /* tp_methods */
+    compose_methods,          /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
@@ -245,6 +279,6 @@ static PyTypeObject functions_compose_type = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     0,                                  /* tp_alloc */
-    functions_compose_new,              /* tp_new */
+    compose_new,              /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };
