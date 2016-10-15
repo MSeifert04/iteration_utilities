@@ -30,8 +30,7 @@ reduce_allequal(PyObject *self, PyObject *iterable)
         }
     }
 
-    // Prevent to return a pending StopIteration exception from tp_iternext.
-    helper_ExceptionClearStopIter();
+    PYIU_CLEAR_STOPITERATION;;
 
     Py_XDECREF(it);
     Py_XDECREF(first);

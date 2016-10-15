@@ -109,8 +109,7 @@ reduce_argminmax(PyObject *self, PyObject *args, PyObject *kwds, int cmpop)
     Py_XDECREF(maxval);
     Py_XDECREF(keyfunc);
 
-    // Clear a potential pending StopIteration exception.
-    helper_ExceptionClearStopIter();
+    PYIU_CLEAR_STOPITERATION;
 
     if (PyErr_Occurred()) {
         goto Fail;

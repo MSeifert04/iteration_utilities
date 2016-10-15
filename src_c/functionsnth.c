@@ -145,7 +145,7 @@ functions_nth_call(functions_nth_object *lz, PyObject *args, PyObject *kwds)
 
     Py_DECREF(iterator);
 
-    helper_ExceptionClearStopIter();
+    PYIU_CLEAR_STOPITERATION;
 
     if (last != NULL) {
         if (retidx) {

@@ -85,7 +85,7 @@ reduce_minmax(PyObject *self, PyObject *args, PyObject *kwds)
         item2 = iternext(iterator);
 
         if (item2 == NULL) {
-            helper_ExceptionClearStopIter();
+            PYIU_CLEAR_STOPITERATION;
         }
 
         if (keyfunc != NULL) { /* get the value from the key function */
@@ -208,7 +208,7 @@ reduce_minmax(PyObject *self, PyObject *args, PyObject *kwds)
         }
     }
 
-    helper_ExceptionClearStopIter();
+    PYIU_CLEAR_STOPITERATION;
 
     if (PyErr_Occurred()) {
         goto Fail;

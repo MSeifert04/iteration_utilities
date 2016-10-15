@@ -150,8 +150,7 @@ recipes_split_next(recipes_split_object *lz)
         }
     }
 
-    // Prevent to return a pending StopIteration exception from tp_iternext.
-    helper_ExceptionClearStopIter();
+    PYIU_CLEAR_STOPITERATION;
 
     if (PyList_GET_SIZE(result) == 0) {
         Py_DECREF(result);

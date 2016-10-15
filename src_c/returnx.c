@@ -1,14 +1,50 @@
 /******************************************************************************
- * Functions always returning the same value.
+ * return_identity : equivalent to:
+ *
+ * lambda o: o
  *****************************************************************************/
 
-static PyObject*
-returnx_returnIt(PyObject *self, PyObject *it) {
-    Py_INCREF(it);
-    return it;
+static PyObject* PyIU_ReturnIdentity(PyObject *m, PyObject *o) {
+    Py_INCREF(o);
+    return o;
 }
 
-PyDoc_STRVAR(returnx_returnIt_doc,
+/******************************************************************************
+ * return_first_arg : _roughly_ equivalent to:
+ *
+ * lambda *args, **kwargs: args[0]
+ *****************************************************************************/
+
+static PyObject* PyIU_ReturnFirstArg(PyObject *m, PyObject *args, PyObject *kwds) {
+    PyObject *first;
+
+    if (PyTuple_Size(args) == 0) {
+        PyErr_Format(PyExc_TypeError, "Expected at least one positional argument.");
+        return NULL;
+    }
+
+    first = PyTuple_GET_ITEM(args, 0);
+    Py_INCREF(first);
+    return first;
+}
+
+/******************************************************************************
+ * return_called : equivalent to:
+ *
+ * lambda o: o()
+ *****************************************************************************/
+
+static PyObject* PyIU_ReturnCalled(PyObject *m, PyObject *o) {
+    return PyObject_CallFunctionObjArgs(o, NULL);
+}
+
+/******************************************************************************
+ *
+ * Documentation
+ *
+ *****************************************************************************/
+
+PyDoc_STRVAR(PyIU_ReturnIdentity_doc,
 "return_identity(obj)\n\
 \n\
 Always return the argument.\n\
@@ -34,26 +70,8 @@ This function is equivalent to ``lambda x: x`` but significantly faster::\n\
     'abc'\n\
 ");
 
-static PyObject*
-returnx_returnFirstPositionalArgument(PyObject *self, PyObject *args, PyObject *keywds) {
-    PyObject *first;
-    Py_ssize_t tuple_size = PyTuple_Size(args);
-
-    if (tuple_size == 0) {
-        PyErr_Format(PyExc_TypeError, "Expected at least one positional argument.");
-        return NULL;
-    }
-
-    first = PyTuple_GetItem(args, 0);
-    if (first == NULL)
-        return NULL;
-
-    Py_INCREF(first);
-    return first;
-}
-
-PyDoc_STRVAR(returnx_returnFirstPositionalArgument_doc,
-"return_first_positional_argument(*args, **kwargs)\n\
+PyDoc_STRVAR(PyIU_ReturnFirstArg_doc,
+"return_first_arg(*args, **kwargs)\n\
 \n\
 Always return the first positional argument given to the function.\n\
 \n\
@@ -72,17 +90,12 @@ Examples\n\
 This function is equivalent to ``lambda *args, **kwargs: args[0]`` but significantly\n\
 faster::\n\
 \n\
-    >>> from iteration_utilities import return_first_positional_argument\n\
-    >>> return_first_positional_argument(1, 2, 3, 4, a=100)\n\
+    >>> from iteration_utilities import return_first_arg\n\
+    >>> return_first_arg(1, 2, 3, 4, a=100)\n\
     1\n\
 ");
 
-static PyObject*
-returnx_returnCallResult(PyObject *self, PyObject *args) {
-    return PyObject_CallFunctionObjArgs(args, NULL);
-}
-
-PyDoc_STRVAR(returnx_returnCallResult_doc,
+PyDoc_STRVAR(PyIU_ReturnCalled_doc,
 "return_called(func)\n\
 \n\
 Return the result of ``func()``.\n\

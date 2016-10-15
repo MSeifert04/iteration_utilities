@@ -1,25 +1,118 @@
 /******************************************************************************
- * Functions comparing to a specific value.
+ * is_None : equivalent to:
+ *
+ * lambda value: value is None
  *****************************************************************************/
 
-static PyObject*
-isx_IsNone(PyObject *self, PyObject *args) {
-    if (args == Py_None)
+static PyObject* PyIU_IsNone(PyObject *m, PyObject *o) {
+    if (o == Py_None) {
         Py_RETURN_TRUE;
-
-    Py_RETURN_FALSE;
+    } else {
+        Py_RETURN_FALSE;
+    }
 }
 
+/******************************************************************************
+ * is_not_None : equivalent to:
+ *
+ * lambda value: value is not None
+ *****************************************************************************/
 
-static PyObject*
-isx_IsNotNone(PyObject *self, PyObject *args) {
-    if (args != Py_None)
+static PyObject* PyIU_IsNotNone(PyObject *m, PyObject *o) {
+    if (o != Py_None) {
         Py_RETURN_TRUE;
-
-    Py_RETURN_FALSE;
+    } else {
+        Py_RETURN_FALSE;
+    }
 }
 
-PyDoc_STRVAR(isx_IsNone_doc,
+/******************************************************************************
+ * is_even : equivalent to:
+ *
+ * lambda value: value % 2 == 0
+ *****************************************************************************/
+
+static PyObject* PyIU_IsEven(PyObject *m, PyObject *o) {
+    PyObject *remainder;
+    int res;
+
+    remainder = PyNumber_Remainder(o, PyIU_Long_2());
+    if (remainder == NULL) {
+        return NULL;
+    }
+
+    res = PyObject_IsTrue(remainder);
+    Py_DECREF(remainder);
+
+    if (res > 0) {
+        Py_RETURN_FALSE;
+    } else if (res == 0) {
+        Py_RETURN_TRUE;
+    } else {
+        return NULL;
+    }
+}
+
+/******************************************************************************
+ * is_odd : equivalent to:
+ *
+ * lambda value: value % 2 != 0
+ *****************************************************************************/
+
+static PyObject* PyIU_IsOdd(PyObject *m, PyObject *o) {
+    PyObject *remainder;
+    int res;
+
+    remainder = PyNumber_Remainder(o, PyIU_Long_2());
+    if (remainder == NULL) {
+        return NULL;
+    }
+
+    res = PyObject_IsTrue(remainder);
+    Py_DECREF(remainder);
+
+    if (res > 0) {
+        Py_RETURN_TRUE;
+    } else if (res == 0) {
+        Py_RETURN_FALSE;
+    } else {
+        return NULL;
+    }
+}
+
+/******************************************************************************
+ * is_iterable : equivalent to:
+ *
+ * try:
+ *     iter(value)
+ * except TypeError:
+ *     return False
+ * else:
+ *     return True
+ *****************************************************************************/
+
+static PyObject* PyIU_IsIterable(PyObject *m, PyObject *o) {
+    PyObject *it = PyObject_GetIter(o);
+    if (it == NULL) {
+        if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError)) {
+            PyErr_Clear();
+            Py_RETURN_FALSE;
+        } else {
+            return NULL;
+        }
+    } else {
+        Py_DECREF(it);
+        Py_RETURN_TRUE;
+    }
+}
+
+/******************************************************************************
+ *
+ * Documentation
+ *
+ *****************************************************************************/
+
+PyDoc_STRVAR(PyIU_IsNone_doc,
 "is_None(value)\n\
 \n\
 Returns ``True`` if `value` is ``None``, otherwise ``False``.\n\
@@ -54,7 +147,7 @@ This can be used for example to remove all ``None`` from an iterable::\n\
     [1, 3, 4, 5, 7]\n\
 ");
 
-PyDoc_STRVAR(isx_IsNotNone_doc,
+PyDoc_STRVAR(PyIU_IsNotNone_doc,
 "is_not_None(value)\n\
 \n\
 Returns ``False`` if `value` is ``None``, otherwise ``True``.\n\
@@ -82,50 +175,7 @@ faster::\n\
 \n\
 ");
 
-
-static PyObject *isx_long_2 = NULL;
-
-
-static PyObject* isx_get_2(void) {
-    if (isx_long_2 == NULL)
-        isx_long_2 = PyLong_FromLong((long)2);
-
-    return isx_long_2;
-}
-
-/******************************************************************************
- * Even/Odd
- *****************************************************************************/
-
-static PyObject*
-isx_IsEven(PyObject *self, PyObject *args) {
-    PyObject *val = PyNumber_Remainder(args, isx_get_2());
-    int res = PyObject_IsTrue(val);
-    Py_DECREF(val);
-    if (res > 0) {
-        Py_RETURN_FALSE;
-    } else if (res == 0) {
-        Py_RETURN_TRUE;
-    } else {
-        return NULL;
-    }
-}
-
-static PyObject*
-isx_IsOdd(PyObject *self, PyObject *args) {
-    PyObject *val = PyNumber_Remainder(args, isx_get_2());
-    int res = PyObject_IsTrue(val);
-    Py_DECREF(val);
-    if (res > 0) {
-        Py_RETURN_TRUE;
-    } else if (res == 0) {
-        Py_RETURN_FALSE;
-    } else {
-        return NULL;
-    }
-}
-
-PyDoc_STRVAR(isx_IsEven_doc,
+PyDoc_STRVAR(PyIU_IsEven_doc,
 "is_even(value)\n\
 \n\
 Returns ``True`` if `value` is even, otherwise ``False``.\n\
@@ -155,8 +205,7 @@ faster::\n\
 \n\
 ");
 
-
-PyDoc_STRVAR(isx_IsOdd_doc,
+PyDoc_STRVAR(PyIU_IsOdd_doc,
 "is_odd(value)\n\
 \n\
 Returns ``True`` if `value` is odd, otherwise ``False``.\n\
@@ -186,24 +235,7 @@ faster::\n\
 \n\
 ");
 
-
-/******************************************************************************
- * Iterable
- *****************************************************************************/
-
-static PyObject*
-isx_IsIterable(PyObject *self, PyObject *args) {
-    PyObject *it = PyObject_GetIter(args);
-    if (it == NULL) {
-        PyErr_Clear();
-        Py_RETURN_FALSE;
-    }
-    Py_DECREF(it);
-    Py_RETURN_TRUE;
-}
-
-
-PyDoc_STRVAR(isx_IsIterable_doc,
+PyDoc_STRVAR(PyIU_IsIterable_doc,
 "is_iterable(value)\n\
 \n\
 Returns ``True`` if `value` is iterable, otherwise ``False``.\n\

@@ -69,7 +69,7 @@ def test_quantify_normal4():
     assert quantify([], lambda x: x) == 0
 
     def test():
-        quantify([], iteration_utilities.return_first_positional_argument)
+        quantify([], iteration_utilities.return_first_arg)
     assert not memory_leak(test)
 
 
