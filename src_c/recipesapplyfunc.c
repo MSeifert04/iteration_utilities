@@ -17,18 +17,19 @@ static PyObject * applyfunc_new(PyTypeObject *type, PyObject *args,
     static char *kwlist[] = {"func", "initial", NULL};
     PyIUObject_Applyfunc *lz;
 
-    PyObject *func=NULL, *initial=NULL;
+    PyObject *func, *initial;
 
+    /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO:applyfunc", kwlist,
                                      &func, &initial)) {
         return NULL;
     }
 
+    /* Create and fill struct */
     lz = (PyIUObject_Applyfunc *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         return NULL;
     }
-
     Py_INCREF(func);
     Py_INCREF(initial);
     lz->func = func;
@@ -64,20 +65,19 @@ static int applyfunc_traverse(PyIUObject_Applyfunc *lz, visitproc visit,
 }
 
 static PyObject * applyfunc_next(PyIUObject_Applyfunc *lz) {
-    PyObject *value = lz->value;
-    PyObject *func = lz->func;
     PyObject *temp;
 
-    for (;;) {
-        temp = PyObject_CallFunctionObjArgs(func, value, NULL);
-        Py_DECREF(value);
-        if (temp == NULL) {
-            return NULL;
-        }
-        Py_INCREF(temp);
-        lz->value = temp;
-        return temp;
+    // Call the function with the current value as argument
+    temp = PyObject_CallFunctionObjArgs(lz->func, lz->value, NULL);
+    Py_DECREF(lz->value);
+    if (temp == NULL) {
+        return NULL;
     }
+
+    // Save the new value and also return it.
+    Py_INCREF(temp);
+    lz->value = temp;
+    return temp;
 }
 
 /******************************************************************************
@@ -150,11 +150,11 @@ the result of ``func(value)``, then ``func(func(value))``, ...::\n\
 
 static PyTypeObject PyIUType_Applyfunc = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.applyfunc", /* tp_name */
-    sizeof(PyIUObject_Applyfunc),  /* tp_basicsize */
+    "iteration_utilities.applyfunc",    /* tp_name */
+    sizeof(PyIUObject_Applyfunc),       /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
-    (destructor)applyfunc_dealloc, /* tp_dealloc */
+    (destructor)applyfunc_dealloc,      /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -171,14 +171,14 @@ static PyTypeObject PyIUType_Applyfunc = {
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    applyfunc_doc,             /* tp_doc */
-    (traverseproc)applyfunc_traverse, /* tp_traverse */
+    applyfunc_doc,                      /* tp_doc */
+    (traverseproc)applyfunc_traverse,   /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
     PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)applyfunc_next, /* tp_iternext */
-    applyfunc_methods,          /* tp_methods */
+    (iternextfunc)applyfunc_next,       /* tp_iternext */
+    applyfunc_methods,                  /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
@@ -188,6 +188,6 @@ static PyTypeObject PyIUType_Applyfunc = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     0,                                  /* tp_alloc */
-    applyfunc_new,             /* tp_new */
+    applyfunc_new,                      /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };

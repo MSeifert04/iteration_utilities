@@ -25,44 +25,35 @@ static PyObject * accumulate_new(PyTypeObject *type, PyObject *args,
     static char *kwlist[] = {"func", "iterable", "start", NULL};
     PyIUObject_Accumulate *lz;
 
-    PyObject *iterable=NULL, *binop=NULL, *start=NULL;
-    PyObject *iterator;
+    PyObject *iterator, *iterable, *binop=NULL, *start=NULL;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OO:accumulate", kwlist,
-                                     &binop, &iterable, &start)) {
+    /* Parse arguments */
+    // accumulate(iterable)
+    if (PyTuple_Check(args) && PyTuple_Size(args) == 1 && kwargs == NULL) {
+        if (!PyArg_UnpackTuple(args, "accumulate", 1, 1, &iterable)) {
+            return NULL;
+        }
+    // accumulate(binop, iterable[, start])
+    } else if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|O:accumulate", kwlist,
+                                            &binop, &iterable, &start)) {
         return NULL;
     }
 
-    /* If only one positional argument was given interpret this as iterable. */
-    if (kwargs == NULL && iterable == NULL && start == NULL) {
-        iterable = binop;
-        binop = NULL;
-    }
-
+    /* Create and fill struct */
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
         return NULL;
     }
-
     lz = (PyIUObject_Accumulate *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         Py_DECREF(iterator);
         return NULL;
     }
-
-    if (binop != Py_None) {
-        Py_XINCREF(binop);
-        lz->binop = binop;
-    }
-
-    if (start != NULL && start != Py_None) {
-        Py_INCREF(start);
-        lz->total = start;
-    } else {
-        lz->total = NULL;
-    }
-
+    Py_XINCREF(binop);
+    Py_XINCREF(start);
+    lz->binop = binop;
     lz->iterator = iterator;
+    lz->total = start;
     return (PyObject *)lz;
 }
 
@@ -96,34 +87,40 @@ static int accumulate_traverse(PyIUObject_Accumulate *lz, visitproc visit,
 
 
 static PyObject * accumulate_next(PyIUObject_Accumulate *lz) {
-    PyObject *val, *oldtotal, *newtotal;
+    PyObject *item, *oldtotal, *newtotal;
 
-    val = (*Py_TYPE(lz->iterator)->tp_iternext)(lz->iterator);
-    if (val == NULL) {
+    // Get next item from iterator
+    item = (*Py_TYPE(lz->iterator)->tp_iternext)(lz->iterator);
+    if (item == NULL) {
+        PYIU_CLEAR_STOPITERATION;
         return NULL;
     }
 
+    // If it's the first element the total is yet unset and we simply return
+    // the item.
     if (lz->total == NULL) {
-        Py_INCREF(val);
-        lz->total = val;
+        Py_INCREF(item);
+        lz->total = item;
         return lz->total;
     }
 
+    // Apply the binop to the old total and the item defaulting to add if the
+    // binop is not set or set to None.
     if (lz->binop == NULL || lz->binop == Py_None) {
-        newtotal = PyNumber_Add(lz->total, val);
+        newtotal = PyNumber_Add(lz->total, item);
     } else {
-        newtotal = PyObject_CallFunctionObjArgs(lz->binop, lz->total, val, NULL);
+        newtotal = PyObject_CallFunctionObjArgs(lz->binop, lz->total, item, NULL);
     }
-    Py_DECREF(val);
+    Py_DECREF(item);
     if (newtotal == NULL) {
         return NULL;
     }
 
+    // Update to the new state
     oldtotal = lz->total;
     lz->total = newtotal;
     Py_DECREF(oldtotal);
     Py_INCREF(newtotal);
-
     return newtotal;
 }
 
@@ -256,10 +253,10 @@ References\n\
 static PyTypeObject PyIUType_Accumulate = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.accumulate",   /* tp_name */
-    sizeof(PyIUObject_Accumulate),   /* tp_basicsize */
+    sizeof(PyIUObject_Accumulate),      /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
-    (destructor)accumulate_dealloc, /* tp_dealloc */
+    (destructor)accumulate_dealloc,     /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -276,14 +273,14 @@ static PyTypeObject PyIUType_Accumulate = {
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    accumulate_doc,             /* tp_doc */
-    (traverseproc)accumulate_traverse, /* tp_traverse */
+    accumulate_doc,                     /* tp_doc */
+    (traverseproc)accumulate_traverse,  /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
     PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)accumulate_next, /* tp_iternext */
-    accumulate_methods,         /* tp_methods */
+    (iternextfunc)accumulate_next,      /* tp_iternext */
+    accumulate_methods,                 /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
@@ -293,6 +290,6 @@ static PyTypeObject PyIUType_Accumulate = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     0,                                  /* tp_alloc */
-    accumulate_new,             /* tp_new */
+    accumulate_new,                     /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };
