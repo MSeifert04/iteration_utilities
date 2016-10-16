@@ -14,12 +14,12 @@ def memory_leak(func, specific_object=None, exclude_object=ref):
     func : callable
         The function that should be tested. Shouldn't return anything!
 
-    specific_object : type or None, optional
-        Test all tracked types (None) or only one specific type.
+    specific_object : type, tuple of types, None, optional
+        Test all tracked types (if it's ``None``) or only the specific type(s).
         Default is ``None``.
 
-    exclude_object : type or None, optional
-        Exclude specific types or use all (None).
+    exclude_object : type, tuple of types, None, optional
+        Exclude specific type(s) or use all (if it's ``None``).
         Default is ``weakref.ref``.
 
     Returns
@@ -53,12 +53,16 @@ def memory_leak(func, specific_object=None, exclude_object=ref):
     if specific_object is None:
         result = after - before
         if exclude_object is not None:
-            if exclude_object in result:
-                del result[exclude_object]
+            if not isinstance(exclude_object, tuple):
+                exclude_object = (exclude_object, )
+            for exclude in exclude_object:
+                if exclude in result:
+                    del result[exclude]
         return result
     else:
-        leftover = after[specific_object] - before[specific_object]
-        if leftover:
-            return Counter({specific_object: leftover})
-        else:
-            return Counter()
+        if not isinstance(specific_object, tuple):
+            specific_object = (specific_object, )
+
+        return Counter({specific: after[specific] - before[specific]
+                        for specific in specific_object
+                        if after[specific] - before[specific]})

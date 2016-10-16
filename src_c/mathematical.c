@@ -19,12 +19,12 @@ static PyObject* PyIU_MathDouble(PyObject *m, PyObject *o) {
 }
 
 /******************************************************************************
- * one_over : equivalent to:
+ * reciprocal : equivalent to:
  *
  * lambda value: 1 / value
  *****************************************************************************/
 
-static PyObject* PyIU_MathOneOver(PyObject *m, PyObject *o) {
+static PyObject* PyIU_MathReciprocal(PyObject *m, PyObject *o) {
     return PyNumber_TrueDivide(PyIU_Long_1(), o);
 }
 
@@ -161,9 +161,9 @@ a one-argument double function and is significantly faster than ``lambda x: x*2`
     4.0\n\
 ");
 
-PyDoc_STRVAR(PyIU_MathOneOver_doc, "one_over(value)\n\
+PyDoc_STRVAR(PyIU_MathReciprocal_doc, "reciprocal(value)\n\
 \n\
-Returns ``1/value``.\n\
+Returns ``1 / value``.\n\
 \n\
 Parameters\n\
 ----------\n\
@@ -172,21 +172,21 @@ value : any type\n\
 \n\
 Returns\n\
 -------\n\
-one_over : any type\n\
-    Returns ``1/value``.\n\
+reciprocal  : any type\n\
+    Returns ``1 / value``.\n\
 \n\
 Examples\n\
 --------\n\
 It is not possible to apply ``functools.partial`` to ``operator.true_divide``\n\
 so that one has a one-argument divide function and is significantly faster\n\
-than ``lambda x: 1/x``::\n\
+than ``lambda x: 1 / x``::\n\
 \n\
-    >>> from iteration_utilities import one_over\n\
-    >>> one_over(1)\n\
+    >>> from iteration_utilities import reciprocal \n\
+    >>> reciprocal(1)\n\
     1.0\n\
-    >>> one_over(2)\n\
+    >>> reciprocal(2)\n\
     0.5\n\
-    >>> one_over(4)\n\
+    >>> reciprocal(4)\n\
     0.25\n\
 ");
 

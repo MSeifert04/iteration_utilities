@@ -120,12 +120,11 @@ Additional recipes for iterations.
 - :py:func:`all_equal`
 - :py:func:`argmax`
 - :py:func:`argmin`
+- :py:func:`count`
 - :py:func:`groupby2`
-- :py:func:`ilen`
 - :py:func:`minmax`
 - :py:func:`one`
 - :py:func:`partition`
-- :py:func:`quantify`
 
 
 .. py:currentmodule:: iteration_utilities

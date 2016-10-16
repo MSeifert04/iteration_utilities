@@ -13,12 +13,11 @@
 #include "reduceargminmax.c"
 #include "reducealldistinct.c"
 #include "reduceallequal.c"
-#include "reduceminmax.c"
+#include "reducecount.c"
 #include "reducegroupby.c"
-#include "reduceilen.c"
+#include "reduceminmax.c"
 #include "reduceone.c"
 #include "reducepartition.c"
-#include "reducequantify.c"
 #include "recipesuniquejust.c"
 #include "recipesuniqueever.c"
 #include "recipesaccumulate.c"
@@ -49,7 +48,7 @@ static PyMethodDef PyIU_methods[] = {
 
     {"square", (PyCFunction)PyIU_MathSquare, METH_O, PyIU_MathSquare_doc},
     {"double", (PyCFunction)PyIU_MathDouble, METH_O, PyIU_MathDouble_doc},
-    {"one_over", (PyCFunction)PyIU_MathOneOver, METH_O, PyIU_MathOneOver_doc},
+    {"reciprocal", (PyCFunction)PyIU_MathReciprocal, METH_O, PyIU_MathReciprocal_doc},
     {"radd", (PyCFunction)PyIU_MathRadd, METH_VARARGS, PyIU_MathRadd_doc},
     {"rsub", (PyCFunction)PyIU_MathRsub, METH_VARARGS, PyIU_MathRsub_doc},
     {"rmul", (PyCFunction)PyIU_MathRmul, METH_VARARGS, PyIU_MathRmul_doc},
@@ -64,12 +63,11 @@ static PyMethodDef PyIU_methods[] = {
     {"argmax", (PyCFunction)PyIU_Argmax, METH_VARARGS | METH_KEYWORDS, PyIU_Argmax_doc},
     {"all_distinct", (PyCFunction)PyIU_AllDistinct, METH_O, PyIU_AllDistinct_doc},
     {"all_equal", (PyCFunction)PyIU_AllEqual, METH_O, PyIU_AllEqual_doc},
+    {"count", (PyCFunction)PyIU_Count, METH_VARARGS | METH_KEYWORDS, PyIU_Count_doc},
+    {"groupby2", (PyCFunction)PyIU_Groupby, METH_VARARGS | METH_KEYWORDS, PyIU_Groupby_doc},
     {"minmax", (PyCFunction)PyIU_MinMax, METH_VARARGS | METH_KEYWORDS, PyIU_MinMax_doc},
     {"one", (PyCFunction)PyIU_One, METH_O, PyIU_One_doc},
-    {"groupby2", (PyCFunction)PyIU_Groupby, METH_VARARGS | METH_KEYWORDS, PyIU_Groupby_doc},
-    {"quantify", (PyCFunction)PyIU_Quantify, METH_VARARGS | METH_KEYWORDS, PyIU_Quantify_doc},
     {"partition", (PyCFunction)PyIU_Partition, METH_VARARGS | METH_KEYWORDS, PyIU_Partition_doc},
-    {"ilen", (PyCFunction)PyIU_Ilen, METH_O, PyIU_Ilen_doc},
 
     {NULL, NULL}
 };
