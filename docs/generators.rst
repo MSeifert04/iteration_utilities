@@ -15,12 +15,16 @@ Generators can be created in very different contexts, in this section these are
 grouped into three categories: processing an iterable, processing a value and
 from a function
 
+.. note::
+   Several of the functions mentioned later do not return a generator in
+   **Python2**. But there are equivalents in the ``itertools`` module. For
+   example ``itertools.imap`` instead of ``map``.
+
 Processing an iterable
 ^^^^^^^^^^^^^^^^^^^^^^
 
-- :py:func:`itertools.accumulate` (Python3 only)
-- :py:func:`~iteration_utilities.accumulate`, similar to
-  :py:func:`itertools.accumulate` but also for Python2.
+- :py:func:`itertools.accumulate`
+- :py:func:`~iteration_utilities.accumulate`
 - :py:func:`~iteration_utilities._recipes._additional.append`
 - :py:meth:`itertools.chain.from_iterable`
 - :py:func:`itertools.combinations`
@@ -31,14 +35,15 @@ Processing an iterable
 - :py:func:`~iteration_utilities._recipes._additional.deepflatten`
 - :py:func:`itertools.dropwhile`
 - :py:func:`enumerate`
-- :py:func:`filter` (``itertools.ifilter`` in Python 2)
-- :py:func:`itertools.filterfalse` (or ``itertools.ifilterfalse`` in Python 2)
+- :py:func:`filter`
+- :py:func:`itertools.filterfalse`
 - :py:func:`~iteration_utilities._recipes._core.flatten`
 - :py:func:`itertools.groupby`
 - :py:func:`~iteration_utilities.grouper`
 - :py:func:`~iteration_utilities.intersperse`
 - :py:func:`~iteration_utilities._recipes._core.ipartition`
 - :py:func:`itertools.islice`
+- :py:func:`iter` (one argument)
 - :py:func:`~iteration_utilities._recipes._core.ncycles`
 - :py:func:`~iteration_utilities._recipes._core.padnone`
 - :py:func:`itertools.permutations`
@@ -60,12 +65,13 @@ Processing several iterables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - :py:func:`itertools.chain`
-- :py:func:`map` (``itertools.imap`` in Python 2)
+- :py:func:`map`
+- :py:func:`heapq.merge`
 - :py:func:`~iteration_utilities.merge`
 - :py:func:`itertools.product`
 - :py:func:`~iteration_utilities.roundrobin`
-- :py:func:`zip` (``itertools.izip`` in Python 2)
-- :py:func:`itertools.zip_longest` (or ``itertools.izip_longest`` in Python 2)
+- :py:func:`zip`
+- :py:func:`itertools.zip_longest`
 
 
 
@@ -81,6 +87,7 @@ From a function
 ^^^^^^^^^^^^^^^
 
 - :py:func:`~iteration_utilities.applyfunc`
+- :py:func:`iter` (two arguments)
 - :py:func:`~iteration_utilities.iter_except`
 - :py:func:`~iteration_utilities._recipes._core.repeatfunc`
 - :py:func:`~iteration_utilities._recipes._core.tabulate`
