@@ -9,8 +9,8 @@ Builtins
 
 There are several instances of fold functions Python library:
 
-- :py:func:`all`, reduces the iterable to the truthiness of all elements.
-- :py:func:`any`, reduces the iterable to the truthiness of all elements.
+- :py:func:`all`, reduces the iterable based on the truthiness of all elements.
+- :py:func:`any`, reduces the iterable based on the truthiness of all elements.
 - :py:func:`len`, reduces the iterable to the number of all elements. Does not
   work with generators!
 - :py:func:`max`, reduces the iterable to the maximum of all elements.

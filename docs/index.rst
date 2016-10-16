@@ -12,6 +12,8 @@ Contents:
    generators
    functools
    random
+   callbacks
+   operators
    recipes/core
    recipes/additional
    helpers/performance

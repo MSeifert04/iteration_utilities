@@ -8,5 +8,8 @@ Additional
 
 - :py:func:`complement`
 - :py:func:`compose`
-- :py:func:`constant`
 - :py:func:`flip`
+- :py:func:`functools.lru_cache`
+- :py:func:`functools.partial`
+- :py:class:`functools.partialmethod`
+- :py:func:`functools.singledispatch`
