@@ -89,9 +89,9 @@ Fail:
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(PyIU_Groupby_doc, "groupby2(iterable, key[, keepkey])\n\
+PyDoc_STRVAR(PyIU_Groupby_doc, "groupedby(iterable, key[, keepkey])\n\
 \n\
-Group values of `iterable` by a `key` function.\n\
+Group values of `iterable` by a `key` function as dictionary.\n\
 \n\
 Parameters\n\
 ----------\n\
@@ -120,9 +120,9 @@ Examples\n\
 --------\n\
 A simple example::\n\
 \n\
-    >>> from iteration_utilities import groupby2\n\
+    >>> from iteration_utilities import groupedby\n\
     >>> from operator import itemgetter\n\
-    >>> dct = groupby2(['a', 'bac', 'ba', 'ab', 'abc'], key=itemgetter(0))\n\
+    >>> dct = groupedby(['a', 'bac', 'ba', 'ab', 'abc'], key=itemgetter(0))\n\
     >>> dct['a']\n\
     ['a', 'ab', 'abc']\n\
     >>> dct['b']\n\
@@ -130,7 +130,7 @@ A simple example::\n\
 \n\
 One could also specify a `keepkey`::\n\
 \n\
-    >>> dct = groupby2(['a', 'bac', 'ba', 'ab', 'abc'], key=itemgetter(0), keepkey=len)\n\
+    >>> dct = groupedby(['a', 'bac', 'ba', 'ab', 'abc'], key=itemgetter(0), keepkey=len)\n\
     >>> dct['a']\n\
     [1, 2, 3]\n\
     >>> dct['b']\n\

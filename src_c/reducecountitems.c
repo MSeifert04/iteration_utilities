@@ -80,7 +80,7 @@ static PyObject * PyIU_Count(PyObject *m, PyObject *args,
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(PyIU_Count_doc, "count(iterable, pred)\n\
+PyDoc_STRVAR(PyIU_Count_doc, "count_items(iterable, pred)\n\
 \n\
 Count how many times the predicate is true.\n\
 \n\
@@ -114,24 +114,23 @@ Examples\n\
 --------\n\
 To count how many elements are within an `iterable`::\n\
 \n\
-    >>> from iteration_utilities import count\n\
-    >>> count([0, 0, '', {}, [], 2])\n\
+    >>> from iteration_utilities import count_items\n\
+    >>> count_items([0, 0, '', {}, [], 2])\n\
     6\n\
 \n\
 To count the number of truthy values::\n\
 \n\
-    >>> from iteration_utilities import count\n\
-    >>> count([0, 0, '', {}, [], 2], pred=bool)\n\
+    >>> count_items([0, 0, '', {}, [], 2], pred=bool)\n\
     1\n\
 \n\
 To count the number of values satisfying a condition::\n\
 \n\
     >>> def smaller5(val): return val < 5\n\
-    >>> count([1, 2, 3, 4, 5, 6, 6, 7], smaller5)\n\
+    >>> count_items([1, 2, 3, 4, 5, 6, 6, 7], smaller5)\n\
     4\n\
 \n\
 To count the number of values equal to another value::\n\
 \n\
-    >>> count([1, 2, 3, 4, 5, 6, 6, 7], 6, True)\n\
+    >>> count_items([1, 2, 3, 4, 5, 6, 6, 7], 6, True)\n\
     2\n\
 ");

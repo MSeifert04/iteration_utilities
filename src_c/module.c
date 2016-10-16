@@ -13,8 +13,8 @@
 #include "reduceargminmax.c"
 #include "reducealldistinct.c"
 #include "reduceallequal.c"
-#include "reducecount.c"
-#include "reducegroupby.c"
+#include "reducecountitems.c"
+#include "reducegroupedby.c"
 #include "reduceminmax.c"
 #include "reduceone.c"
 #include "reducepartition.c"
@@ -63,8 +63,8 @@ static PyMethodDef PyIU_methods[] = {
     {"argmax", (PyCFunction)PyIU_Argmax, METH_VARARGS | METH_KEYWORDS, PyIU_Argmax_doc},
     {"all_distinct", (PyCFunction)PyIU_AllDistinct, METH_O, PyIU_AllDistinct_doc},
     {"all_equal", (PyCFunction)PyIU_AllEqual, METH_O, PyIU_AllEqual_doc},
-    {"count", (PyCFunction)PyIU_Count, METH_VARARGS | METH_KEYWORDS, PyIU_Count_doc},
-    {"groupby2", (PyCFunction)PyIU_Groupby, METH_VARARGS | METH_KEYWORDS, PyIU_Groupby_doc},
+    {"count_items", (PyCFunction)PyIU_Count, METH_VARARGS | METH_KEYWORDS, PyIU_Count_doc},
+    {"groupedby", (PyCFunction)PyIU_Groupby, METH_VARARGS | METH_KEYWORDS, PyIU_Groupby_doc},
     {"minmax", (PyCFunction)PyIU_MinMax, METH_VARARGS | METH_KEYWORDS, PyIU_MinMax_doc},
     {"one", (PyCFunction)PyIU_One, METH_O, PyIU_One_doc},
     {"partition", (PyCFunction)PyIU_Partition, METH_VARARGS | METH_KEYWORDS, PyIU_Partition_doc},
@@ -83,7 +83,7 @@ PyDoc_STRVAR(PyIU_ReduceLast_name, "last");
 
 // Name and docstring of C-module
 PyDoc_STRVAR(PyIU_module_name, "_cfuncs");
-PyDoc_STRVAR(PyIU_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
+PyDoc_STRVAR(PyIU_module_doc, "API: C Functions\n----------------");
 
 #if PY_MAJOR_VERSION >= 3
   //Module definition

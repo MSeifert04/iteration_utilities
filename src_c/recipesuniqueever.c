@@ -231,7 +231,7 @@ static PyMethodDef uniqueever_methods[] = {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(uniqueever_doc, "unique_everseen(sequence)\n\
+PyDoc_STRVAR(uniqueever_doc, "unique_everseen(iterable)\n\
 \n\
 List unique elements, preserving their order. Remembers all elements ever seen.\n\
 \n\
