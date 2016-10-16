@@ -7,7 +7,6 @@ static PyObject * PyIU_Ilen(PyObject *m, PyObject *iterable) {
         return NULL;
     }
 
-    // Fast version with integer increment
     while ((item = (*Py_TYPE(iterator)->tp_iternext)(iterator))) {
         Py_DECREF(item);
         len_int++;
@@ -20,7 +19,6 @@ static PyObject * PyIU_Ilen(PyObject *m, PyObject *iterable) {
     }
 
     PYIU_CLEAR_STOPITERATION;
-
     Py_DECREF(iterator);
 
     return PyLong_FromSsize_t(len_int);

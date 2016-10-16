@@ -1,28 +1,21 @@
 static PyObject * PyIU_AllEqual(PyObject *m, PyObject *iterable) {
-    PyObject *it=NULL;
-    PyObject *(*iternext)(PyObject *);
-    PyObject *item=NULL;
-    PyObject *first=NULL;
+    PyObject *iterator, *item, *first=NULL;
     int ok;
 
-    it = PyObject_GetIter(iterable);
-    if (it == NULL) {
+    iterator = PyObject_GetIter(iterable);
+    if (iterator == NULL) {
         goto Fail;
     }
 
-    iternext = *Py_TYPE(it)->tp_iternext;
-    while ( (item = iternext(it)) ) {
+    while ( (item = (*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
         if (first == NULL) {
             first = item;
             continue;
         }
         ok = PyObject_RichCompareBool(first, item, Py_EQ);
-
         Py_DECREF(item);
-
         if (ok == 0) {
             goto Found;
-
         } else if (ok == -1) {
             goto Fail;
         }
@@ -30,18 +23,17 @@ static PyObject * PyIU_AllEqual(PyObject *m, PyObject *iterable) {
 
     PYIU_CLEAR_STOPITERATION;;
 
-    Py_XDECREF(it);
+    Py_XDECREF(iterator);
     Py_XDECREF(first);
-
     Py_RETURN_TRUE;
 
 Fail:
-    Py_XDECREF(it);
+    Py_XDECREF(iterator);
     Py_XDECREF(first);
     return NULL;
 
 Found:
-    Py_XDECREF(it);
+    Py_XDECREF(iterator);
     Py_XDECREF(first);
     Py_RETURN_FALSE;
 }

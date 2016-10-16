@@ -1,6 +1,7 @@
 static PyObject * PyIU_Quantify(PyObject *m, PyObject *args,
                                 PyObject *kwargs) {
     static char *kwlist[] = {"iterable", "pred", NULL};
+
     PyObject *iterable, *iterator, *item, *val, *pred=NULL;
     Py_ssize_t sum_int = 0;
     int ok;
@@ -10,13 +11,11 @@ static PyObject * PyIU_Quantify(PyObject *m, PyObject *args,
         return NULL;
     }
 
-    /* Get iterator. */
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
         return NULL;
     }
 
-    // Fast version with integer increment
     while ((item = (*Py_TYPE(iterator)->tp_iternext)(iterator))) {
         if (pred == NULL || pred == Py_None) {
             val = item;
@@ -44,7 +43,7 @@ static PyObject * PyIU_Quantify(PyObject *m, PyObject *args,
             Py_DECREF(item);
             Py_XDECREF(val);
             PyErr_Format(PyExc_TypeError,
-                         "`iterable` is too long to compute the sum.");
+                         "`iterable` is too long to quantify.");
             return NULL;
         }
         Py_DECREF(item);
@@ -52,7 +51,6 @@ static PyObject * PyIU_Quantify(PyObject *m, PyObject *args,
     }
 
     PYIU_CLEAR_STOPITERATION;
-
     Py_DECREF(iterator);
 
     return PyLong_FromSsize_t(sum_int);

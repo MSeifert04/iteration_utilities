@@ -29,17 +29,16 @@ static PyObject * PyIU_Partition(PyObject *m, PyObject *args,
         func = NULL;
     }
 
-    while ((item = PyIter_Next(iterator))) {
+    while ((item = (*Py_TYPE(iterator)->tp_iternext)(iterator))) {
 
-        if (func == NULL) {
+        if (func == NULL || func == (PyObject *)&PyBool_Type) {
             temp = item;
             Py_INCREF(item);
         } else {
             temp = PyObject_CallFunctionObjArgs(func, item, NULL);
-        }
-
-        if (temp == NULL) {
-            goto Fail;
+            if (temp == NULL) {
+                goto Fail;
+            }
         }
 
         ok = PyObject_IsTrue(temp);
@@ -58,6 +57,8 @@ static PyObject * PyIU_Partition(PyObject *m, PyObject *args,
         }
         Py_DECREF(item);
     }
+
+    PYIU_CLEAR_STOPITERATION;
     Py_DECREF(iterator);
 
     if (PyErr_Occurred()) {
@@ -67,10 +68,8 @@ static PyObject * PyIU_Partition(PyObject *m, PyObject *args,
     }
 
     result = PyTuple_Pack(2, result1, result2);
-
     Py_DECREF(result1);
     Py_DECREF(result2);
-
     if (result == NULL) {
         return NULL;
     }

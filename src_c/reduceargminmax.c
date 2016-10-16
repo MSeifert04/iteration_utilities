@@ -1,30 +1,24 @@
 static PyObject * argminmax(PyObject *m, PyObject *args, PyObject *kwargs,
                             int cmpop){
-    PyObject *sequence;
-    PyObject *keyfunc = NULL, *defaultvalue = NULL;
-    PyObject *iterator = NULL;
-    PyObject *(*iternext)(PyObject *);
-    PyObject *item = NULL, *val = NULL;
-    Py_ssize_t defaultitem = 0;
+    PyObject *sequence, *defaultvalue, *keyfunc=NULL, *iterator=NULL;
+    PyObject *item=NULL, *val=NULL, *maxval=NULL;
+    Py_ssize_t defaultitem=0, idx=-1, maxidx=-1, nkwargs=0;
     int defaultisset = 0;
-    Py_ssize_t idx = -1;
-    PyObject *maxval = NULL;
-    Py_ssize_t maxidx = -1;
     const int positional = PyTuple_Size(args) > 1;
-    Py_ssize_t nkwargs = 0;
 
     if (positional) {
         sequence = args;
     } else if (!PyArg_UnpackTuple(args, "argmin/argmax", 1, 1, &sequence)) {
         return NULL;
     }
-
     if (kwargs != NULL && PyDict_Check(kwargs) && PyDict_Size(kwargs)) {
+
         keyfunc = PyDict_GetItemString(kwargs, "key");
         if (keyfunc != NULL) {
             nkwargs++;
             Py_INCREF(keyfunc);
         }
+
         defaultvalue = PyDict_GetItemString(kwargs, "default");
         if (defaultvalue != NULL) {
             nkwargs++;
@@ -40,6 +34,7 @@ static PyObject * argminmax(PyObject *m, PyObject *args, PyObject *kwargs,
             }
             defaultisset = 1;
         }
+
         if (PyDict_Size(kwargs) - nkwargs != 0) {
             PyErr_Format(PyExc_TypeError,
                          "argmin/argmax got an unexpected keyword argument");
@@ -58,27 +53,29 @@ static PyObject * argminmax(PyObject *m, PyObject *args, PyObject *kwargs,
     if (iterator == NULL) {
         goto Fail;
     }
-    iternext = *Py_TYPE(iterator)->tp_iternext;
 
     // Iterate over the sequence
-    while (( item = iternext(iterator) )) {
+    while ( (item=(*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
         idx++;
+
+        // Use the item itself or keyfunc(item)
         if (keyfunc != NULL) {
-            /* get the value from the key function */
             val = PyObject_CallFunctionObjArgs(keyfunc, item, NULL);
             if (val == NULL) {
                 goto Fail;
             }
         } else {
-            /* no key function; the value is the item */
             val = item;
             Py_INCREF(val);
         }
 
-        if (maxval == NULL) { /* maximum value and item are unset; set them */
+        // maximum value and item are unset; set them
+        if (maxval == NULL) {
             maxval = val;
             maxidx = idx;
-        } else { /* maximum value and item are set; update them as necessary */
+
+        // maximum value and item are set; update them as necessary
+        } else {
             int cmpres = PyObject_RichCompareBool(val, maxval, cmpop);
             if (cmpres < 0) {
                 goto Fail;
@@ -93,11 +90,11 @@ static PyObject * argminmax(PyObject *m, PyObject *args, PyObject *kwargs,
         Py_DECREF(item);
     }
 
+    PYIU_CLEAR_STOPITERATION;
+
     Py_DECREF(iterator);
     Py_XDECREF(maxval);
     Py_XDECREF(keyfunc);
-
-    PYIU_CLEAR_STOPITERATION;
 
     if (PyErr_Occurred()) {
         goto Fail;

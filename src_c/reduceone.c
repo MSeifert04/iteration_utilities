@@ -1,6 +1,5 @@
 static PyObject * PyIU_One(PyObject *m, PyObject *iterable) {
-    PyObject *iterator;
-    PyObject *item1, *item2;
+    PyObject *iterator, *item1, *item2;
 
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {

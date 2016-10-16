@@ -1,29 +1,26 @@
 static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
     static char *kwlist[] = {"iterable", "key", "keepkey", NULL};
-    PyObject *iterable, *key1;
-    PyObject *key2=NULL;
-    PyObject *iterator, *item, *val, *lst, *keep;
-    int ok;
+
+    PyObject *iterable, *key1, *key2=NULL, *iterator, *item, *val, *lst, *keep;
     PyObject *resdict;
+    int ok;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|O:groupby", kwlist,
                                      &iterable, &key1, &key2)) {
         return NULL;
     }
 
-    /* Get iterator. */
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
         return NULL;
     }
-
     resdict = PyDict_New();
     if (resdict == NULL) {
         Py_DECREF(iterator);
         return NULL;
     }
 
-    while ( (item = PyIter_Next(iterator)) ) {
+    while ( (item = (*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
         // Key
         val = PyObject_CallFunctionObjArgs(key1, item, NULL);
         if (val == NULL) {
@@ -53,7 +50,6 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
                 Py_DECREF(lst);
                 goto Fail;
             }
-
             PyList_SET_ITEM(lst, 0, keep);
             ok = PyDict_SetItem(resdict, val, lst);
             Py_DECREF(lst);
@@ -61,7 +57,6 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
             if (ok < 0) {
                 goto Fail;
             }
-
         } else {
             Py_DECREF(val);
             ok = PyList_Append(lst, keep);
@@ -72,6 +67,7 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
         }
     }
 
+    PYIU_CLEAR_STOPITERATION;
     Py_DECREF(iterator);
 
     if (PyErr_Occurred()) {

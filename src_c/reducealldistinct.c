@@ -1,38 +1,27 @@
 static PyObject * PyIU_AllDistinct(PyObject *m, PyObject *iterable) {
-    PyObject *it=NULL;
-    PyObject *(*iternext)(PyObject *);
-    PyObject *item=NULL;
-    PyObject *seen=NULL;
-    PyObject *seenlist=NULL;
+    PyObject *iterator, *item, *seen, *seenlist=NULL;
     int ok;
 
-    it = PyObject_GetIter(iterable);
-    if (it == NULL) {
+    iterator = PyObject_GetIter(iterable);
+    if (iterator == NULL) {
         goto Fail;
     }
-
     seen = PySet_New(NULL);
     if (seen == NULL) {
         goto Fail;
     }
 
-    iternext = *Py_TYPE(it)->tp_iternext;
-    while ( (item = iternext(it)) ) {
-
+    // Almost identical to unique_everseen so no inline commments.
+    while ( (item = (*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
         ok = PySet_Contains(seen, item);
-
         if (ok == 0) {
             ok = PySet_Add(seen, item);
             if (ok < 0) {
                 goto Fail;
             }
-
         } else if (ok == 1) {
             goto Found;
-
         } else {
-            // TypeError when checking if the value is in the set.
-            // this means the value is not hashable
             if (PyErr_Occurred()) {
                 if (PyErr_ExceptionMatches(PyExc_TypeError)) {
                     PyErr_Clear();
@@ -40,52 +29,44 @@ static PyObject * PyIU_AllDistinct(PyObject *m, PyObject *iterable) {
                     goto Fail;
                 }
             }
-
-            // Create a list for the unhashable values
             if (seenlist == NULL) {
                 seenlist = PyList_New(0);
                 if (seenlist == NULL) {
                     goto Fail;
                 }
             }
-
             ok = seenlist->ob_type->tp_as_sequence->sq_contains(seenlist, item);
-
             if (ok == 0) {
                 ok = PyList_Append(seenlist, item);
                 if (ok != 0) {
                     goto Fail;
                 }
-
             } else if (ok == 1) {
                 goto Found;
-
             } else {
-                goto Fail;  // untested code path
+                goto Fail;
             }
-
         }
         Py_DECREF(item);
     }
 
     PYIU_CLEAR_STOPITERATION;
 
-    Py_XDECREF(it);
+    Py_XDECREF(iterator);
     Py_XDECREF(seen);
     Py_XDECREF(seenlist);
     Py_XDECREF(item);
-
     Py_RETURN_TRUE;
 
 Fail:
-    Py_XDECREF(it);
+    Py_XDECREF(iterator);
     Py_XDECREF(seen);
     Py_XDECREF(seenlist);
     Py_XDECREF(item);
     return NULL;
 
 Found:
-    Py_XDECREF(it);
+    Py_XDECREF(iterator);
     Py_XDECREF(seen);
     Py_XDECREF(seenlist);
     Py_XDECREF(item);
