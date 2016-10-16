@@ -1,6 +1,6 @@
 """
-Official recipes
-^^^^^^^^^^^^^^^^
+API: Official recipes
+---------------------
 """
 # Built-ins
 from __future__ import absolute_import, division, print_function
@@ -459,7 +459,7 @@ def random_combination(iterable, r, replacement=False):
 
     Returns
     -------
-    random_permutation : tuple
+    random_combination : tuple
         The randomly chosen combination.
 
     Examples
@@ -489,13 +489,13 @@ def random_combination(iterable, r, replacement=False):
     return tuple(pool[i] for i in indices)
 
 
-def tee_lookahead(t, i):
+def tee_lookahead(tee, i):
     """Inspect the `i`-th upcomping value from a tee object while leaving the
     tee object at its current position.
 
     Parameters
     ----------
-    t : :py:func:`itertools.tee`
+    tee : :py:func:`itertools.tee`
         The tee object in which to look ahead.
 
     i : :py:class:`int`
@@ -523,7 +523,7 @@ def tee_lookahead(t, i):
     >>> tee_lookahead(t1, 0)
     1
     """
-    for value in islice(copy(t), i, None):
+    for value in islice(copy(tee), i, None):
         return value
     raise IndexError(i)
 

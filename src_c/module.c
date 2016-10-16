@@ -83,7 +83,7 @@ PyDoc_STRVAR(PyIU_ReduceLast_name, "last");
 
 // Name and docstring of C-module
 PyDoc_STRVAR(PyIU_module_name, "_cfuncs");
-PyDoc_STRVAR(PyIU_module_doc, "C Functions\n^^^^^^^^^^^^^^^^");
+PyDoc_STRVAR(PyIU_module_doc, "API: C Functions\n----------------");
 
 #if PY_MAJOR_VERSION >= 3
   //Module definition
