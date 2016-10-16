@@ -17,7 +17,7 @@ from a function
 
 .. note::
    Several of the functions mentioned later do not return a generator in
-   **Python2**. But there are equivalents in the ``itertools`` module. For
+   **Python2**. But there are equivalents in the ``itertools`` [0]_ module. For
    example ``itertools.imap`` instead of ``map``.
 
 Processing an iterable
@@ -91,3 +91,9 @@ From a function
 - :py:func:`~iteration_utilities.iter_except`
 - :py:func:`~iteration_utilities._recipes._core.repeatfunc`
 - :py:func:`~iteration_utilities._recipes._core.tabulate`
+
+
+References
+~~~~~~~~~~
+
+.. [0] https://docs.python.org/library/itertools.html

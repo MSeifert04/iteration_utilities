@@ -13,7 +13,7 @@
 #include "reduceargminmax.c"
 #include "reducealldistinct.c"
 #include "reduceallequal.c"
-#include "reducecount.c"
+#include "reducecountitems.c"
 #include "reducegroupedby.c"
 #include "reduceminmax.c"
 #include "reduceone.c"
