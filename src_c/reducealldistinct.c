@@ -1,5 +1,5 @@
 static PyObject * PyIU_AllDistinct(PyObject *m, PyObject *iterable) {
-    PyObject *iterator, *item, *seen, *seenlist=NULL;
+    PyObject *iterator=NULL, *item=NULL, *seen=NULL, *seenlist=NULL;
     int ok;
 
     iterator = PyObject_GetIter(iterable);

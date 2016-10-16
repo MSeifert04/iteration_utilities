@@ -1,31 +1,31 @@
 static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
-    PyObject *sequence, *iterator;
-    PyObject *(*iternext)(PyObject *);
-    PyObject *defaultitem = NULL, *keyfunc = NULL;
+    PyObject *sequence, *iterator, *defaultitem = NULL, *keyfunc = NULL;
     PyObject *item1 = NULL, *item2 = NULL, *val1 = NULL, *val2 = NULL;
     PyObject *maxitem = NULL, *maxval = NULL, *minitem = NULL, *minval = NULL;
     PyObject *temp = NULL, *resulttuple = NULL;
-    const int positional = PyTuple_Size(args) > 1;
     Py_ssize_t nkwargs = 0;
     int cmp;
+    const int positional = PyTuple_Size(args) > 1;
 
     if (positional) {
         sequence = args;
     } else if (!PyArg_UnpackTuple(args, "minmax", 1, 1, &sequence)) {
         return NULL;
     }
-
     if (kwargs != NULL && PyDict_Check(kwargs) && PyDict_Size(kwargs)) {
+
         keyfunc = PyDict_GetItemString(kwargs, "key");
         if (keyfunc != NULL) {
             nkwargs++;
             Py_INCREF(keyfunc);
         }
+
         defaultitem = PyDict_GetItemString(kwargs, "default");
         if (defaultitem != NULL) {
             nkwargs++;
             Py_INCREF(defaultitem);
         }
+
         if (PyDict_Size(kwargs) - nkwargs != 0) {
             PyErr_Format(PyExc_TypeError,
                          "minmax got an unexpected keyword argument");
@@ -34,7 +34,6 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
             return NULL;
         }
     }
-
     if (positional && defaultitem != NULL) {
         PyErr_Format(PyExc_TypeError,
                      "Cannot specify a default for minmax with multiple "
@@ -51,19 +50,16 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
         return NULL;
     }
 
-    iternext = *Py_TYPE(iterator)->tp_iternext;
-
-    // Iterate over the sequence
-    while (( item1 = iternext(iterator) )) {
+    while ( (item1=(*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
 
         // It could be NULL (end of sequence) but don't care .. yet.
-        item2 = iternext(iterator);
-
+        item2 = (*Py_TYPE(iterator)->tp_iternext)(iterator);
         if (item2 == NULL) {
             PYIU_CLEAR_STOPITERATION;
         }
 
-        if (keyfunc != NULL) { /* get the value from the key function */
+        // get the value from the key function
+        if (keyfunc != NULL) {
             val1 = PyObject_CallFunctionObjArgs(keyfunc, item1, NULL);
             if (val1 == NULL) {
                 goto Fail;
@@ -74,7 +70,9 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
                     goto Fail;
                 }
             }
-        } else { /* no key function; the value is the item */
+
+        // no key function; the value is the item
+        } else {
             val1 = item1;
             Py_INCREF(val1);
             if (item2 != NULL) {
@@ -83,7 +81,7 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
             }
         }
 
-        /* maximum value and item are unset; set them */
+        // maximum value and item are unset; set them
         if (minval == NULL) {
             if (item2 != NULL) {
                 // If both 1 and 2 are set do one compare and set min and max
@@ -184,12 +182,9 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
     }
 
     PYIU_CLEAR_STOPITERATION;
-
     if (PyErr_Occurred()) {
         goto Fail;
     }
-
-    Py_XDECREF(keyfunc);
 
     if (minval == NULL) {
         if (maxval != NULL || minitem != NULL || maxitem != NULL) {
@@ -209,15 +204,14 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
         Py_DECREF(minval);
         Py_DECREF(maxval);
     }
-    Py_XDECREF(defaultitem);
 
     Py_DECREF(iterator);
+    Py_XDECREF(keyfunc);
+    Py_XDECREF(defaultitem);
 
     resulttuple = PyTuple_Pack(2, minitem, maxitem);
-
     Py_DECREF(minitem);
     Py_DECREF(maxitem);
-
     if (resulttuple == NULL) {
         goto Fail;
     }
