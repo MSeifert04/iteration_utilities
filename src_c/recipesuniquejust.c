@@ -1,6 +1,6 @@
 typedef struct {
     PyObject_HEAD
-    PyObject *it;
+    PyObject *iterator;
     PyObject *keyfunc;
     PyObject *lastitem;
 } PyIUObject_UniqueJust;
@@ -18,38 +18,32 @@ static PyObject * uniquejust_new(PyTypeObject *type, PyObject *args,
     static char *kwlist[] = {"iterable", "key", NULL};
     PyIUObject_UniqueJust *lz;
 
-    PyObject *iterable, *keyfunc=NULL;
-    PyObject *it;
+    PyObject *iterable, *iterator, *keyfunc=NULL;
 
+    /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:unique_justseen", kwlist,
                                      &iterable, &keyfunc)) {
         return NULL;
     }
 
-    it = PyObject_GetIter(iterable);
-    if (it == NULL) {
+    /* Create and fill struct */
+    if (keyfunc == Py_None) {
+        keyfunc = NULL;
+    }
+    iterator = PyObject_GetIter(iterable);
+    if (iterator == NULL) {
         return NULL;
     }
-
-    if (keyfunc != NULL) {
-        if (keyfunc == Py_None) {
-            keyfunc = NULL;
-        } else {
-            Py_INCREF(keyfunc);
-        }
-    }
-
     lz = (PyIUObject_UniqueJust *)type->tp_alloc(type, 0);
     if (lz == NULL) {
-        Py_DECREF(it);
+        Py_DECREF(iterator);
         Py_XDECREF(keyfunc);
         return NULL;
     }
-
-    lz->it = it;
+    Py_XINCREF(keyfunc);
+    lz->iterator = iterator;
     lz->keyfunc = keyfunc;
     lz->lastitem = NULL;
-
     return (PyObject *)lz;
 }
 
@@ -61,7 +55,7 @@ static PyObject * uniquejust_new(PyTypeObject *type, PyObject *args,
 
 static void uniquejust_dealloc(PyIUObject_UniqueJust *lz) {
     PyObject_GC_UnTrack(lz);
-    Py_XDECREF(lz->it);
+    Py_XDECREF(lz->iterator);
     Py_XDECREF(lz->keyfunc);
     Py_XDECREF(lz->lastitem);
     Py_TYPE(lz)->tp_free(lz);
@@ -75,7 +69,7 @@ static void uniquejust_dealloc(PyIUObject_UniqueJust *lz) {
 
 static int uniquejust_traverse(PyIUObject_UniqueJust *lz, visitproc visit,
                                void *arg) {
-    Py_VISIT(lz->it);
+    Py_VISIT(lz->iterator);
     Py_VISIT(lz->keyfunc);
     Py_VISIT(lz->lastitem);
     return 0;
@@ -88,48 +82,53 @@ static int uniquejust_traverse(PyIUObject_UniqueJust *lz, visitproc visit,
  *****************************************************************************/
 
 static PyObject * uniquejust_next(PyIUObject_UniqueJust *lz) {
-    PyObject *it = lz->it;
-    PyObject *keyfunc = lz->keyfunc;
-
+    PyObject *item, *old, *val=NULL;
     int ok;
 
-    PyObject *item, *val, *old;
+    while ( (item = (*Py_TYPE(lz->iterator)->tp_iternext)(lz->iterator)) ) {
 
-    while ( (item = PyIter_Next(it)) ) {
-        if (keyfunc == NULL) {
+        // Apply keyfunc or use the original
+        if (lz->keyfunc == NULL) {
             Py_INCREF(item);
             val = item;
         } else {
-            val = PyObject_CallFunctionObjArgs(keyfunc, item, NULL);
+            val = PyObject_CallFunctionObjArgs(lz->keyfunc, item, NULL);
             if (val == NULL) {
-                Py_DECREF(item);
-                return NULL;
+                goto Fail;
             }
         }
 
+        // If no lastitem set it to the current and simply return the item.
         if (lz->lastitem == NULL) {
             lz->lastitem = val;
             return item;
         }
 
+        // Otherwise compare it with the last item and only return it if it
+        // differs
         ok = PyObject_RichCompareBool(val, lz->lastitem, Py_EQ);
 
-        if (ok < 0) {
-            Py_DECREF(val);
-            Py_DECREF(item);
-            return NULL;
-        }
-
+        // Not equal
         if (ok == 0) {
             old = lz->lastitem;
-            Py_DECREF(old);
             lz->lastitem = val;
+            Py_DECREF(old);
             return item;
+
+        // Failure
+        } else if (ok < 0) {
+            goto Fail;
         }
 
         Py_DECREF(val);
         Py_DECREF(item);
     }
+    PYIU_CLEAR_STOPITERATION;
+    return NULL;
+
+Fail:
+    Py_DECREF(item);
+    Py_XDECREF(val);
     return NULL;
 }
 
@@ -144,12 +143,12 @@ static PyObject * uniquejust_reduce(PyIUObject_UniqueJust *lz) {
 
     if (lz->lastitem != NULL) {
         value = Py_BuildValue("O(OO)(O)", Py_TYPE(lz),
-                             lz->it,
+                             lz->iterator,
                              lz->keyfunc ? lz->keyfunc : Py_None,
                              lz->lastitem ? lz->lastitem : Py_None);
     } else {
         value = Py_BuildValue("O(OO)", Py_TYPE(lz),
-                             lz->it,
+                             lz->iterator,
                              lz->keyfunc ? lz->keyfunc : Py_None);
     }
 
@@ -233,10 +232,10 @@ Examples\n\
 static PyTypeObject PyIUType_UniqueJust = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.unique_justseen", /* tp_name */
-    sizeof(PyIUObject_UniqueJust),  /* tp_basicsize */
+    sizeof(PyIUObject_UniqueJust),      /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
-    (destructor)uniquejust_dealloc, /* tp_dealloc */
+    (destructor)uniquejust_dealloc,     /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -253,14 +252,14 @@ static PyTypeObject PyIUType_UniqueJust = {
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    uniquejust_doc,             /* tp_doc */
-    (traverseproc)uniquejust_traverse, /* tp_traverse */
+    uniquejust_doc,                     /* tp_doc */
+    (traverseproc)uniquejust_traverse,  /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
     PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)uniquejust_next, /* tp_iternext */
-    uniquejust_methods,         /* tp_methods */
+    (iternextfunc)uniquejust_next,      /* tp_iternext */
+    uniquejust_methods,                 /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
@@ -270,6 +269,6 @@ static PyTypeObject PyIUType_UniqueJust = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     0,                                  /* tp_alloc */
-    uniquejust_new,             /* tp_new */
+    uniquejust_new,                     /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };

@@ -1,6 +1,6 @@
 typedef struct {
     PyObject_HEAD
-    PyObject *ittuple;
+    PyObject *iteratortuple;
     Py_ssize_t numactive;
     Py_ssize_t active;
 } PyIUObject_Roundrobin;
@@ -17,43 +17,34 @@ static PyObject * roundrobin_new(PyTypeObject *type, PyObject *args,
                                  PyObject *kwargs) {
     PyIUObject_Roundrobin *lz;
 
-    PyObject *ittuple;
-    Py_ssize_t numactive;
-    PyObject *item, *iterator;
-    Py_ssize_t i;
+    PyObject *iteratortuple, *item, *iterator;
+    Py_ssize_t numactive, idx;
 
-    if (!PyTuple_Check(args)) {
-        PyErr_Format(PyExc_TypeError,
-                     "`iterables` must be a tuple.");
-        return NULL;
-    }
-
+    /* Parse arguments */
     numactive = PyTuple_Size(args);
-    ittuple = PyTuple_New(numactive); //REFCNT(ittuple) = 1
-    if (ittuple == NULL) {
+
+    /* Create and fill struct */
+    iteratortuple = PyTuple_New(numactive);
+    if (iteratortuple == NULL) {
         return NULL;
     }
-
-    for (i = 0 ; i < numactive ; i++) {
-        item = PyTuple_GET_ITEM(args, i); //REFCNT(item) = 0
-        iterator = PyObject_GetIter(item); //REFCNT(iterator) = 1
+    for (idx = 0 ; idx<numactive ; idx++) {
+        item = PyTuple_GET_ITEM(args, idx);
+        iterator = PyObject_GetIter(item);
         if (iterator == NULL) {
-            Py_DECREF(ittuple);
+            Py_DECREF(iteratortuple);
             return NULL;
         }
-        PyTuple_SET_ITEM(ittuple, i, iterator); //REFCNT(iterator) = 0
+        PyTuple_SET_ITEM(iteratortuple, idx, iterator);
     }
-
     lz = (PyIUObject_Roundrobin *)type->tp_alloc(type, 0);
     if (lz == NULL) {
-        Py_DECREF(ittuple);
+        Py_DECREF(iteratortuple);
         return NULL;
     }
-
-    lz->ittuple = ittuple;
+    lz->iteratortuple = iteratortuple;
     lz->numactive = numactive;
     lz->active = 0;
-
     return (PyObject *)lz;
 }
 
@@ -65,7 +56,7 @@ static PyObject * roundrobin_new(PyTypeObject *type, PyObject *args,
 
 static void roundrobin_dealloc(PyIUObject_Roundrobin *lz) {
     PyObject_GC_UnTrack(lz);
-    Py_XDECREF(lz->ittuple);
+    Py_XDECREF(lz->iteratortuple);
     Py_TYPE(lz)->tp_free(lz);
 }
 
@@ -77,7 +68,7 @@ static void roundrobin_dealloc(PyIUObject_Roundrobin *lz) {
 
 static int roundrobin_traverse(PyIUObject_Roundrobin *lz, visitproc visit,
                                void *arg) {
-    Py_VISIT(lz->ittuple);
+    Py_VISIT(lz->iteratortuple);
     return 0;
 }
 
@@ -88,38 +79,43 @@ static int roundrobin_traverse(PyIUObject_Roundrobin *lz, visitproc visit,
  *****************************************************************************/
 
 static PyObject * roundrobin_next(PyIUObject_Roundrobin *lz) {
-    PyObject *ittuple = lz->ittuple;
-    Py_ssize_t active = lz->active;
-    Py_ssize_t i;
+    PyObject *iterator, *item;
 
-    PyObject *iterator, *item, *temp;
-
+    // Stop if there is no active iterator left
     if (lz->numactive == 0) {
         return NULL;
     }
 
-    iterator = PyTuple_GET_ITEM(ittuple, active);
-    while ((item = PyIter_Next(iterator)) == NULL) {
-        if (active == lz->numactive -1) {
-            PyTuple_SET_ITEM(ittuple, active, NULL);
-            active = 0;
+    iterator = PyTuple_GET_ITEM(lz->iteratortuple, lz->active);
+    while ((item = (*Py_TYPE(iterator)->tp_iternext)(iterator)) == NULL) {
+        PYIU_CLEAR_STOPITERATION;
+        // If the last iterable in the iteratortuple is empty simply set it to
+        // NULL and reset the active pointer to 0.
+        if (lz->active == lz->numactive-1) {
+            PyTuple_SET_ITEM(lz->iteratortuple, lz->active, NULL);
+            lz->active = 0;
+        // Otherwise move each item in the tuple (after the empty iterator) one
+        // to the left.
         } else {
-            for (i = active + 1 ; i < lz->numactive ; i++) {
-                temp = PyTuple_GET_ITEM(ittuple, i);
-                PyTuple_SET_ITEM(ittuple, i - 1, temp);
-            }
-            PyTuple_SET_ITEM(ittuple, lz->numactive - 1, NULL);
+            PYUI_TupleRemove(lz->iteratortuple, lz->active, lz->numactive);
         }
         lz->numactive--;
         Py_DECREF(iterator);
+
+        // End the loop as soon as no active iterators are avaiable or use the
+        // next iterator.
         if (lz->numactive == 0) {
             break;
+        } else {
+            iterator = PyTuple_GET_ITEM(lz->iteratortuple, lz->active);
         }
-        iterator = PyTuple_GET_ITEM(ittuple, active);
     }
+
     if (lz->numactive == 0) {
         return NULL;
     }
+
+    // Increment the active pointer (potentially wrapping it around to 0).
     lz->active = (lz->active + 1) % (lz->numactive);
     return item;
 }
@@ -131,27 +127,27 @@ static PyObject * roundrobin_next(PyIUObject_Roundrobin *lz) {
  *****************************************************************************/
 
 static PyObject * roundrobin_reduce(PyIUObject_Roundrobin *lz) {
-    PyObject *ittuple, *temp, *res;
-    Py_ssize_t i;
+    PyObject *iteratortuple, *temp, *res;
+    Py_ssize_t idx;
 
-    if (PyTuple_Size(lz->ittuple) != lz->numactive) {
-        ittuple = PyTuple_New(lz->numactive);
-        if (ittuple == NULL) {
+    if (PyTuple_Size(lz->iteratortuple) != lz->numactive) {
+        iteratortuple = PyTuple_New(lz->numactive);
+        if (iteratortuple == NULL) {
             return NULL;
         }
-        for (i=0 ; i<lz->numactive ; i++) {
-            temp = PyTuple_GET_ITEM(lz->ittuple, i);
+        for (idx=0 ; idx<lz->numactive ; idx++) {
+            temp = PyTuple_GET_ITEM(lz->iteratortuple, idx);
             Py_INCREF(temp);
-            PyTuple_SET_ITEM(ittuple, i, temp);
+            PyTuple_SET_ITEM(iteratortuple, idx, temp);
         }
     } else {
-        ittuple = lz->ittuple;
-        Py_INCREF(ittuple);
+        iteratortuple = lz->iteratortuple;
+        Py_INCREF(iteratortuple);
     }
     res = Py_BuildValue("OO(nn)", Py_TYPE(lz),
-                        ittuple,
+                        iteratortuple,
                         lz->numactive, lz->active);
-    Py_DECREF(ittuple);
+    Py_DECREF(iteratortuple);
     return res;
 }
 
@@ -164,13 +160,13 @@ static PyObject * roundrobin_reduce(PyIUObject_Roundrobin *lz) {
 static PyObject * roundrobin_setstate(PyIUObject_Roundrobin *lz,
                                       PyObject *state) {
     Py_ssize_t numactive, active;
+
     if (!PyArg_ParseTuple(state, "nn", &numactive, &active)) {
         return NULL;
     }
 
     lz->numactive = numactive;
     lz->active = active;
-
     Py_RETURN_NONE;
 }
 
@@ -227,10 +223,10 @@ References\n\
 static PyTypeObject PyIUType_Roundrobin = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.roundrobin",   /* tp_name */
-    sizeof(PyIUObject_Roundrobin),  /* tp_basicsize */
+    sizeof(PyIUObject_Roundrobin),      /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
-    (destructor)roundrobin_dealloc, /* tp_dealloc */
+    (destructor)roundrobin_dealloc,     /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -247,14 +243,14 @@ static PyTypeObject PyIUType_Roundrobin = {
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    roundrobin_doc,             /* tp_doc */
-    (traverseproc)roundrobin_traverse, /* tp_traverse */
+    roundrobin_doc,                     /* tp_doc */
+    (traverseproc)roundrobin_traverse,  /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
     PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)roundrobin_next, /* tp_iternext */
-    roundrobin_methods,         /* tp_methods */
+    (iternextfunc)roundrobin_next,      /* tp_iternext */
+    roundrobin_methods,                 /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
@@ -264,6 +260,6 @@ static PyTypeObject PyIUType_Roundrobin = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     PyType_GenericAlloc,                /* tp_alloc */
-    roundrobin_new,             /* tp_new */
+    roundrobin_new,                     /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };

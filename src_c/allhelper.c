@@ -58,8 +58,8 @@ static PyObject * PyUI_TupleReverse(PyObject *tuple) {
  * Insert a value in a Tuple by moving all items at or above this index one to
  * the right.
  *
- * WARNING: The last item of the Tuple mustn't be a PyObject because this would
- * leave a dangling reference!
+ * WARNING: The last item of the Tuple mustn't be a PyObject or the caller must
+ * have a reference to it - because this would leave a dangling reference!
  *
  * tuple : Tuple where the value should be inserted.
  * where : index to insert the value
@@ -81,6 +81,37 @@ static void PYUI_TupleInsert(PyObject *tuple, Py_ssize_t where, PyObject *v,
     }
     PyTuple_SET_ITEM(tuple, where, v);
 }
+
+/******************************************************************************
+ *
+ * Remove a value from a Tuple and move every successive element one to the
+ * left.
+ *
+ * WARNING: The value that is to be removed is not DECREF'd so the caller must
+ * ensure that he DECREFs the removed item afterwards, otherwise this will
+ * create a memory leak!
+ *
+ * tuple : Tuple where the value should be removed.
+ * where : index where to remove the value
+ * num   : Move items to up to this index. I.e. if num=10 then the item at pos
+ *         10 is moved to 9 (and 10 is set to NULL), ... until where+1 which is
+ *         moved to "where".
+ *
+ *****************************************************************************/
+
+static void PYUI_TupleRemove(PyObject *tuple, Py_ssize_t where,
+                             Py_ssize_t num) {
+    PyObject *temp;
+    Py_ssize_t idx;
+
+    for (idx = where + 1 ; idx < num ; idx++) {
+        temp = PyTuple_GET_ITEM(tuple, idx);
+        PyTuple_SET_ITEM(tuple, idx-1, temp);
+    }
+    PyTuple_SET_ITEM(tuple, num-1, NULL);
+}
+
+
 
 /******************************************************************************
  *
