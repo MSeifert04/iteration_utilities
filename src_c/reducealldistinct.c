@@ -1,40 +1,27 @@
-static PyObject *
-reduce_alldistinct(PyObject *self, PyObject *iterable)
-{
-    PyObject *it=NULL;
-    PyObject *(*iternext)(PyObject *);
-    PyObject *item=NULL;
-    PyObject *seen=NULL;
-    PyObject *seenlist=NULL;
+static PyObject * PyIU_AllDistinct(PyObject *m, PyObject *iterable) {
+    PyObject *iterator=NULL, *item=NULL, *seen=NULL, *seenlist=NULL;
     int ok;
 
-    it = PyObject_GetIter(iterable);
-    if (it == NULL) {
+    iterator = PyObject_GetIter(iterable);
+    if (iterator == NULL) {
         goto Fail;
     }
-
     seen = PySet_New(NULL);
     if (seen == NULL) {
         goto Fail;
     }
 
-    iternext = *Py_TYPE(it)->tp_iternext;
-    while ( (item = iternext(it)) ) {
-
+    // Almost identical to unique_everseen so no inline commments.
+    while ( (item = (*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
         ok = PySet_Contains(seen, item);
-
         if (ok == 0) {
             ok = PySet_Add(seen, item);
             if (ok < 0) {
                 goto Fail;
             }
-
         } else if (ok == 1) {
             goto Found;
-
         } else {
-            // TypeError when checking if the value is in the set.
-            // this means the value is not hashable
             if (PyErr_Occurred()) {
                 if (PyErr_ExceptionMatches(PyExc_TypeError)) {
                     PyErr_Clear();
@@ -42,62 +29,57 @@ reduce_alldistinct(PyObject *self, PyObject *iterable)
                     goto Fail;
                 }
             }
-
-            // Create a list for the unhashable values
             if (seenlist == NULL) {
                 seenlist = PyList_New(0);
                 if (seenlist == NULL) {
                     goto Fail;
                 }
             }
-
             ok = seenlist->ob_type->tp_as_sequence->sq_contains(seenlist, item);
-
             if (ok == 0) {
                 ok = PyList_Append(seenlist, item);
                 if (ok != 0) {
                     goto Fail;
                 }
-
             } else if (ok == 1) {
                 goto Found;
-
             } else {
-                goto Fail;  // untested code path
+                goto Fail;
             }
-
         }
         Py_DECREF(item);
     }
 
-    // Prevent to return a pending StopIteration exception from tp_iternext.
-    helper_ExceptionClearStopIter();
+    PYIU_CLEAR_STOPITERATION;
 
-    Py_XDECREF(it);
+    Py_XDECREF(iterator);
     Py_XDECREF(seen);
     Py_XDECREF(seenlist);
     Py_XDECREF(item);
-
     Py_RETURN_TRUE;
 
 Fail:
-    Py_XDECREF(it);
+    Py_XDECREF(iterator);
     Py_XDECREF(seen);
     Py_XDECREF(seenlist);
     Py_XDECREF(item);
     return NULL;
 
 Found:
-    Py_XDECREF(it);
+    Py_XDECREF(iterator);
     Py_XDECREF(seen);
     Py_XDECREF(seenlist);
     Py_XDECREF(item);
     Py_RETURN_FALSE;
 }
 
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
 
-PyDoc_STRVAR(reduce_alldistinct_doc,
-"all_distinct(iterable)\n\
+PyDoc_STRVAR(PyIU_AllDistinct_doc, "all_distinct(iterable)\n\
 \n\
 Checks if all items in the `iterable` are distinct.\n\
 \n\

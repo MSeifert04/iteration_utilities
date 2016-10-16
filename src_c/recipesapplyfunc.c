@@ -2,28 +2,34 @@ typedef struct {
     PyObject_HEAD
     PyObject *func;
     PyObject *value;
-} recipes_applyfunc_object;
+} PyIUObject_Applyfunc;
 
-static PyTypeObject recipes_applyfunc_type;
+static PyTypeObject PyIUType_Applyfunc;
 
-static PyObject *
-recipes_applyfunc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    static char *kwargs[] = {"func", "initial", NULL};
-    PyObject *func=NULL, *initial=NULL;
-    recipes_applyfunc_object *lz;
+/******************************************************************************
+ *
+ * New
+ *
+ *****************************************************************************/
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO:applyfunc", kwargs,
+static PyObject * applyfunc_new(PyTypeObject *type, PyObject *args,
+                                PyObject *kwargs) {
+    static char *kwlist[] = {"func", "initial", NULL};
+    PyIUObject_Applyfunc *lz;
+
+    PyObject *func, *initial;
+
+    /* Parse arguments */
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO:applyfunc", kwlist,
                                      &func, &initial)) {
         return NULL;
     }
 
-    /* create applyfunc structure */
-    lz = (recipes_applyfunc_object *)type->tp_alloc(type, 0);
+    /* Create and fill struct */
+    lz = (PyIUObject_Applyfunc *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         return NULL;
     }
-
     Py_INCREF(func);
     Py_INCREF(initial);
     lz->func = func;
@@ -32,63 +38,85 @@ recipes_applyfunc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)lz;
 }
 
-static void
-recipes_applyfunc_dealloc(recipes_applyfunc_object *lz)
-{
+/******************************************************************************
+ *
+ * Destructor
+ *
+ *****************************************************************************/
+
+static void applyfunc_dealloc(PyIUObject_Applyfunc *lz) {
     PyObject_GC_UnTrack(lz);
     Py_XDECREF(lz->func);
     Py_XDECREF(lz->value);
     Py_TYPE(lz)->tp_free(lz);
 }
 
-static int
-recipes_applyfunc_traverse(recipes_applyfunc_object *lz, visitproc visit,
-                            void *arg)
-{
+/******************************************************************************
+ *
+ * Traverse
+ *
+ *****************************************************************************/
+
+static int applyfunc_traverse(PyIUObject_Applyfunc *lz, visitproc visit,
+                              void *arg) {
     Py_VISIT(lz->value);
     Py_VISIT(lz->func);
     return 0;
 }
 
-static PyObject *
-recipes_applyfunc_next(recipes_applyfunc_object *lz)
-{
-    PyObject *value = lz->value;
-    PyObject *func = lz->func;
+/******************************************************************************
+ *
+ * Next
+ *
+ *****************************************************************************/
+
+static PyObject * applyfunc_next(PyIUObject_Applyfunc *lz) {
     PyObject *temp;
 
-    for (;;) {
-        temp = PyObject_CallFunctionObjArgs(func, value, NULL);
-        Py_DECREF(value);
-        if (temp == NULL) {
-            return NULL;
-        }
-        Py_INCREF(temp);
-        lz->value = temp;
-        return temp;
+    // Call the function with the current value as argument
+    temp = PyObject_CallFunctionObjArgs(lz->func, lz->value, NULL);
+    Py_DECREF(lz->value);
+    if (temp == NULL) {
+        return NULL;
     }
+
+    // Save the new value and also return it.
+    Py_INCREF(temp);
+    lz->value = temp;
+    return temp;
 }
 
-static PyObject *
-recipes_applyfunc_reduce(recipes_applyfunc_object *lz)
-{
+/******************************************************************************
+ *
+ * Reduce
+ *
+ *****************************************************************************/
+
+static PyObject * applyfunc_reduce(PyIUObject_Applyfunc *lz) {
     return Py_BuildValue("O(OO)",
                          Py_TYPE(lz),
                          lz->func,
                          lz->value);
 }
 
-static PyMethodDef recipes_applyfunc_methods[] = {
-    {"__reduce__",
-     (PyCFunction)recipes_applyfunc_reduce,
-     METH_NOARGS,
-     ""},
+/******************************************************************************
+ *
+ * Methods
+ *
+ *****************************************************************************/
 
-    {NULL,              NULL}   /* sentinel */
+static PyMethodDef applyfunc_methods[] = {
+    {"__reduce__", (PyCFunction)applyfunc_reduce, METH_NOARGS, ""},
+    {NULL, NULL}
 };
 
-PyDoc_STRVAR(recipes_applyfunc_doc,
-"applyfunc(func, initial)\n\
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
+
+PyDoc_STRVAR(applyfunc_doc, "applyfunc(func, initial)\n\
 \n\
 Successivly apply `func` on `value`.\n\
 \n\
@@ -120,13 +148,19 @@ the result of ``func(value)``, then ``func(func(value))``, ...::\n\
     something like ``list(applyfunc())``!\n\
 ");
 
-static PyTypeObject recipes_applyfunc_type = {
+/******************************************************************************
+ *
+ * Type
+ *
+ *****************************************************************************/
+
+static PyTypeObject PyIUType_Applyfunc = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.applyfunc", /* tp_name */
-    sizeof(recipes_applyfunc_object),  /* tp_basicsize */
+    "iteration_utilities.applyfunc",    /* tp_name */
+    sizeof(PyIUObject_Applyfunc),       /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
-    (destructor)recipes_applyfunc_dealloc, /* tp_dealloc */
+    (destructor)applyfunc_dealloc,      /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -143,14 +177,14 @@ static PyTypeObject recipes_applyfunc_type = {
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    recipes_applyfunc_doc,             /* tp_doc */
-    (traverseproc)recipes_applyfunc_traverse, /* tp_traverse */
+    applyfunc_doc,                      /* tp_doc */
+    (traverseproc)applyfunc_traverse,   /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
     PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)recipes_applyfunc_next, /* tp_iternext */
-    recipes_applyfunc_methods,          /* tp_methods */
+    (iternextfunc)applyfunc_next,       /* tp_iternext */
+    applyfunc_methods,                  /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
@@ -160,6 +194,6 @@ static PyTypeObject recipes_applyfunc_type = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     0,                                  /* tp_alloc */
-    recipes_applyfunc_new,             /* tp_new */
+    applyfunc_new,                      /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };

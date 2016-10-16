@@ -1,8 +1,5 @@
-static PyObject *
-reduce_one(PyObject *self, PyObject *iterable)
-{
-    PyObject *iterator;
-    PyObject *item1, *item2;
+static PyObject * PyIU_One(PyObject *m, PyObject *iterable) {
+    PyObject *iterator, *item1, *item2;
 
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
@@ -11,7 +8,7 @@ reduce_one(PyObject *self, PyObject *iterable)
 
     item1 = (*Py_TYPE(iterator)->tp_iternext)(iterator);
     if (item1 == NULL) {
-        helper_ExceptionClearStopIter();
+        PYIU_CLEAR_STOPITERATION;
         Py_DECREF(iterator);
         PyErr_Format(PyExc_ValueError, "not enough values to unpack (expected 1, got 0)");
         return NULL;
@@ -19,7 +16,7 @@ reduce_one(PyObject *self, PyObject *iterable)
 
     item2 = (*Py_TYPE(iterator)->tp_iternext)(iterator);
     if (item2 != NULL) {
-        helper_ExceptionClearStopIter();
+        PYIU_CLEAR_STOPITERATION;
         Py_DECREF(iterator);
         Py_DECREF(item1);
         Py_DECREF(item2);
@@ -32,8 +29,13 @@ reduce_one(PyObject *self, PyObject *iterable)
     return item1;
 }
 
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
 
-PyDoc_STRVAR(reduce_one_doc, "one(iterable)\n\
+PyDoc_STRVAR(PyIU_One_doc, "one(iterable)\n\
 \n\
 Return the first value in the `iterable` and expects it only contains one element.\n\
 \n\

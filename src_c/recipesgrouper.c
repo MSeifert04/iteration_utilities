@@ -1,197 +1,205 @@
 typedef struct {
     PyObject_HEAD
-    PyObject *it;
-    Py_ssize_t times;
+    PyObject *iterator;
     PyObject *fillvalue;
-    int truncate;
-
     PyObject *result;
-} recipes_grouper_object;
-
-
-static PyObject *
-recipes_grouper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    static char *kwargs[] = {"iterable", "n", "fillvalue", "truncate", NULL};
-    PyObject *iterable;
     Py_ssize_t times;
-    PyObject *fillvalue = NULL;
+    int truncate;
+} PyIUObject_Grouper;
+
+static PyTypeObject PyIUType_Grouper;
+
+/******************************************************************************
+ *
+ * New
+ *
+ *****************************************************************************/
+
+static PyObject * grouper_new(PyTypeObject *type, PyObject *args,
+                              PyObject *kwargs) {
+    static char *kwlist[] = {"iterable", "n", "fillvalue", "truncate", NULL};
+    PyIUObject_Grouper *lz;
+
+    PyObject *iterable, *iterator, *fillvalue = NULL, *result = NULL;
+    Py_ssize_t times;
     int truncate = 0;
 
-    PyObject *it;
-    PyObject *result = NULL;
-
-    recipes_grouper_object *lz;
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "On|Oi:grouper", kwargs,
-                                     &iterable, &times, &fillvalue, &truncate)) {
+    /* Parse arguments */
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "On|Oi:grouper", kwlist,
+                                     &iterable, &times,
+                                     &fillvalue, &truncate)) {
         return NULL;
     }
-
     if (fillvalue != NULL && truncate != 0) {
         PyErr_Format(PyExc_TypeError,
-                     "wither `truncate` or `fillvalue` can be set.");
+                     "cannot specify both `truncate` and `fillvalue`.");
         return NULL;
     }
-
     if (times <= 0) {
-        PyErr_Format(PyExc_ValueError,
-                     "`n` must be greater than 0.");
+        PyErr_Format(PyExc_ValueError, "`n` must be greater than 0.");
         return NULL;
     }
 
-    it = PyObject_GetIter(iterable);
-    if (it == NULL) {
+    /* Create and fill struct */
+    iterator = PyObject_GetIter(iterable);
+    if (iterator == NULL) {
         return NULL;
     }
-
-    /* create recipes_grouper_object structure */
-    lz = (recipes_grouper_object *)type->tp_alloc(type, 0);
+    lz = (PyIUObject_Grouper *)type->tp_alloc(type, 0);
     if (lz == NULL) {
-        Py_DECREF(it);
+        Py_DECREF(iterator);
         return NULL;
     }
-
-    lz->it = it;
-    lz->times = times;
     Py_XINCREF(fillvalue);
+    lz->iterator = iterator;
+    lz->times = times;
     lz->fillvalue = fillvalue;
     lz->truncate = truncate;
     lz->result = result;
-
     return (PyObject *)lz;
 }
 
+/******************************************************************************
+ *
+ * Destructor
+ *
+ *****************************************************************************/
 
-static void
-recipes_grouper_dealloc(recipes_grouper_object *lz)
-{
+static void grouper_dealloc(PyIUObject_Grouper *lz) {
     PyObject_GC_UnTrack(lz);
-    Py_XDECREF(lz->it);
+    Py_XDECREF(lz->iterator);
     Py_XDECREF(lz->fillvalue);
     Py_XDECREF(lz->result);
     Py_TYPE(lz)->tp_free(lz);
 }
 
+/******************************************************************************
+ *
+ * Traverse
+ *
+ *****************************************************************************/
 
-static int
-recipes_grouper_traverse(recipes_grouper_object *lz, visitproc visit, void *arg)
-{
-    Py_VISIT(lz->it);
+static int grouper_traverse(PyIUObject_Grouper *lz, visitproc visit,
+                            void *arg) {
+    Py_VISIT(lz->iterator);
     Py_VISIT(lz->fillvalue);
     Py_VISIT(lz->result);
     return 0;
 }
 
+/******************************************************************************
+ *
+ * Next
+ *
+ *****************************************************************************/
 
-static PyObject *
-recipes_grouper_next(recipes_grouper_object *lz)
-{
-    PyObject *it = lz->it;
-    Py_ssize_t times = lz->times;
-    PyObject *fillvalue = lz->fillvalue;
-    int truncate = lz->truncate;
+static PyObject * grouper_next(PyIUObject_Grouper *lz) {
     PyObject *result = lz->result;
+    PyObject *(*iternext)(PyObject *);
 
-    PyObject *newresult, *lastresult;
-    PyObject *item, *olditem;
-
-    Py_ssize_t i, j;
+    PyObject *newresult, *lastresult, *item, *olditem;
+    Py_ssize_t idx1, idx2;
+    int recycle;
 
     // First call needs to create a tuple for the result.
     if (result == NULL) {
-        result = PyTuple_New(times);
+        result = PyTuple_New(lz->times);
         lz->result = result;
     }
 
-    // Recycle old tuple
-    if (Py_REFCNT(result) == 1) {
+    iternext = *Py_TYPE(lz->iterator)->tp_iternext;
 
-        for (i=0 ; i < times ; i++) {
-            item = PyIter_Next(it);
-            if (item == NULL) {
-                if (i == 0 || truncate != 0) {
-                    return NULL;
-                } else if (fillvalue != NULL) {
-                    Py_INCREF(fillvalue);
-                    item = fillvalue;
-                } else {
-                    // Create a new tuple
-                    lastresult = PyTuple_New(i);
-                    if (lastresult == NULL) {
-                        return NULL;
-                    }
-                    // Fill already found values. (Incref them is save because)
-                    // they will be decref'd when dealloced.
-                    for (j=0 ; j<i ; j++) {
-                        olditem = PyTuple_GET_ITEM(result, j);
-                        Py_INCREF(olditem);
-                        PyTuple_SET_ITEM(lastresult, j, olditem);
-                    }
-                    // Return the new tuple.
-                    return lastresult;
-                }
-            }
-            olditem = PyTuple_GET_ITEM(result, i);
-            PyTuple_SET_ITEM(result, i, item);
-            Py_XDECREF(olditem);
-        }
-        Py_INCREF(result);
-        return result;
-
+    // Recycle old result if the instance is the only one holding a reference,
+    // otherwise create a new tuple.
+    recycle = (Py_REFCNT(result) == 1);
+    if (recycle) {
+        newresult = result;
     } else {
-        newresult = PyTuple_New(times);
+        newresult = PyTuple_New(lz->times);
         if (newresult == NULL) {
             return NULL;
         }
+    }
 
-        for (i=0 ; i < times ; i++) {
-            item = PyIter_Next(it);
-            if (item == NULL) {
-                if (i == 0 || truncate != 0) {
+    // Take the next lz->times elements from the iterator
+    for (idx1=0 ; idx1<lz->times ; idx1++) {
+        item = iternext(lz->iterator);
+
+        if (item == NULL) {
+            PYIU_CLEAR_STOPITERATION;
+            // In case it would be the first element of a new tuple or we
+            // truncate the iterator we stop here.
+            if (idx1 == 0 || lz->truncate != 0) {
+                Py_DECREF(newresult);
+                return NULL;
+
+            // If we want to fill the last group just proceed but use the
+            // fillvalue as item.
+            } else if (lz->fillvalue != NULL) {
+                Py_INCREF(lz->fillvalue);
+                item = lz->fillvalue;
+
+            // Otherwise we need a return just the last idx1 items. Because
+            // idx1 is by definition smaller than lz->times we need a new tuple
+            // to hold the result.
+            } else {
+                lastresult = PyTuple_New(idx1);
+                if (lastresult == NULL) {
                     Py_DECREF(newresult);
                     return NULL;
-                } else if (fillvalue != NULL) {
-                    Py_INCREF(fillvalue);
-                    item = fillvalue;
-                } else {
-                    // Create a new tuple
-                    lastresult = PyTuple_New(i);
-                    if (lastresult == NULL) {
-                        Py_DECREF(newresult);
-                        return NULL;
-                    }
-                    // Fill already found values. (Incref them is save because)
-                    // they will be decref'd when dealloced.
-                    for (j=0 ; j<i ; j++) {
-                        olditem = PyTuple_GET_ITEM(newresult, j);
-                        Py_INCREF(olditem);
-                        PyTuple_SET_ITEM(lastresult, j, olditem);
-                    }
-                    Py_DECREF(newresult);
-                    // Return the new tuple.
-                    return lastresult;
                 }
+                // Fill in already found values. The Incref them is save
+                // because the old references will be destroyed when the old
+                // tuple is destroyed.
+                // -> Maybe use _PyTuple_Resize but the warning in the docs
+                // that one shouldn't assume that the tuple is the same made
+                // me hesitate.
+                for (idx2=0 ; idx2<idx1 ; idx2++) {
+                    olditem = PyTuple_GET_ITEM(newresult, idx2);
+                    Py_INCREF(olditem);
+                    PyTuple_SET_ITEM(lastresult, idx2, olditem);
+                }
+                Py_DECREF(newresult);
+                return lastresult;
             }
-            PyTuple_SET_ITEM(newresult, i, item);
         }
-        return newresult;
+
+        // If we recycle we need to decref the old results before replacing
+        // them.
+        if (recycle) {
+            olditem = PyTuple_GET_ITEM(newresult, idx1);
+            PyTuple_SET_ITEM(newresult, idx1, item);
+            // May be insecure because deleting elements might have
+            // consequences for the sequence. A better way would be to keep
+            // all of them until the tuple elements are replaced and then to
+            // delete them.
+            Py_XDECREF(olditem);
+        } else {
+            PyTuple_SET_ITEM(newresult, idx1, item);
+        }
     }
+    if (recycle) {
+        Py_INCREF(newresult);
+    }
+    return newresult;
 }
 
+/******************************************************************************
+ *
+ * Reduce
+ *
+ *****************************************************************************/
 
-static PyObject *
-recipes_grouper_reduce(recipes_grouper_object *lz)
-{
+static PyObject * grouper_reduce(PyIUObject_Grouper *lz) {
     if (lz->fillvalue == NULL) {
         return Py_BuildValue("O(On)(Oi)", Py_TYPE(lz),
-                             lz->it,
+                             lz->iterator,
                              lz->times,
                              lz->result ? lz->result : Py_None,
                              lz->truncate);
     } else {
         return Py_BuildValue("O(OnO)(Oi)", Py_TYPE(lz),
-                             lz->it,
+                             lz->iterator,
                              lz->times,
                              lz->fillvalue,
                              lz->result ? lz->result : Py_None,
@@ -199,48 +207,49 @@ recipes_grouper_reduce(recipes_grouper_object *lz)
     }
 }
 
-static PyObject *
-recipes_grouper_setstate(recipes_grouper_object *lz, PyObject *state)
-{
+/******************************************************************************
+ *
+ * Setstate
+ *
+ *****************************************************************************/
+
+static PyObject * grouper_setstate(PyIUObject_Grouper *lz, PyObject *state) {
     PyObject *result;
     int truncate;
 
     if (!PyArg_ParseTuple(state, "Oi", &result, &truncate)) {
         return NULL;
     }
-
-    Py_CLEAR(lz->result);
-
     if (result == Py_None) {
-        lz->result = NULL;
-    } else {
-        Py_INCREF(result);
-        lz->result = result;
+        result = NULL;
     }
 
+    Py_CLEAR(lz->result);
+    Py_XINCREF(result);
+    lz->result = result;
     lz->truncate = truncate;
-
     Py_RETURN_NONE;
 }
 
+/******************************************************************************
+ *
+ * Methods
+ *
+ *****************************************************************************/
 
-static PyMethodDef recipes_grouper_methods[] = {
-    {"__reduce__",
-     (PyCFunction)recipes_grouper_reduce,
-     METH_NOARGS,
-     ""},
-
-    {"__setstate__",
-     (PyCFunction)recipes_grouper_setstate,
-     METH_O,
-     ""},
-
-    {NULL,           NULL}           /* sentinel */
+static PyMethodDef grouper_methods[] = {
+    {"__reduce__", (PyCFunction)grouper_reduce, METH_NOARGS, ""},
+    {"__setstate__", (PyCFunction)grouper_setstate, METH_O, ""},
+    {NULL, NULL}
 };
 
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
 
-PyDoc_STRVAR(recipes_grouper_doc,
-"grouper(iterable, times[, fillvalue, truncate])\n\
+PyDoc_STRVAR(grouper_doc, "grouper(iterable, times[, fillvalue, truncate])\n\
 \n\
 Collect data into fixed-length chunks or blocks.\n\
 \n\
@@ -286,13 +295,19 @@ Examples\n\
 [('A', 'B', 'C'), ('D', 'E', 'F')]\n\
 ");
 
-PyTypeObject recipes_grouper_type = {
+/******************************************************************************
+ *
+ * Type
+ *
+ *****************************************************************************/
+
+static PyTypeObject PyIUType_Grouper = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.grouper",      /* tp_name */
-    sizeof(recipes_grouper_object),     /* tp_basicsize */
+    sizeof(PyIUObject_Grouper),         /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
-    (destructor)recipes_grouper_dealloc, /* tp_dealloc */
+    (destructor)grouper_dealloc,        /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -309,14 +324,14 @@ PyTypeObject recipes_grouper_type = {
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    recipes_grouper_doc,                /* tp_doc */
-    (traverseproc)recipes_grouper_traverse, /* tp_traverse */
+    grouper_doc,                        /* tp_doc */
+    (traverseproc)grouper_traverse,     /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
     PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)recipes_grouper_next, /* tp_iternext */
-    recipes_grouper_methods,            /* tp_methods */
+    (iternextfunc)grouper_next,         /* tp_iternext */
+    grouper_methods,                    /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
@@ -326,6 +341,6 @@ PyTypeObject recipes_grouper_type = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     PyType_GenericAlloc,                /* tp_alloc */
-    recipes_grouper_new,                /* tp_new */
+    grouper_new,                        /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };

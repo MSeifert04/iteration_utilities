@@ -1,14 +1,12 @@
-static PyObject *
-recipes_partition(PyObject *self, PyObject *args, PyObject *kwds)
-{
-    static char *kwargs[] = {"iterable", "func", NULL};
+static PyObject * PyIU_Partition(PyObject *m, PyObject *args,
+                                 PyObject *kwargs) {
+    static char *kwlist[] = {"iterable", "func", NULL};
     PyObject *iterable=NULL, *func=Py_None;
     PyObject *iterator, *item, *result1, *result2, *result, *temp;
-
     long ok;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|O:partition",
-                                     kwargs, &iterable, &func)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:partition", kwlist,
+                                     &iterable, &func)) {
         return NULL;
     }
 
@@ -31,17 +29,16 @@ recipes_partition(PyObject *self, PyObject *args, PyObject *kwds)
         func = NULL;
     }
 
-    while ((item = PyIter_Next(iterator))) {
+    while ((item = (*Py_TYPE(iterator)->tp_iternext)(iterator))) {
 
-        if (func == NULL) {
+        if (func == NULL || func == (PyObject *)&PyBool_Type) {
             temp = item;
             Py_INCREF(item);
         } else {
             temp = PyObject_CallFunctionObjArgs(func, item, NULL);
-        }
-
-        if (temp == NULL) {
-            goto Fail;
+            if (temp == NULL) {
+                goto Fail;
+            }
         }
 
         ok = PyObject_IsTrue(temp);
@@ -60,6 +57,8 @@ recipes_partition(PyObject *self, PyObject *args, PyObject *kwds)
         }
         Py_DECREF(item);
     }
+
+    PYIU_CLEAR_STOPITERATION;
     Py_DECREF(iterator);
 
     if (PyErr_Occurred()) {
@@ -69,10 +68,8 @@ recipes_partition(PyObject *self, PyObject *args, PyObject *kwds)
     }
 
     result = PyTuple_Pack(2, result1, result2);
-
     Py_DECREF(result1);
     Py_DECREF(result2);
-
     if (result == NULL) {
         return NULL;
     }
@@ -88,8 +85,13 @@ Fail:
     return NULL;
 }
 
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
 
-PyDoc_STRVAR(recipes_partition_doc, "partition(iterable[, func])\n\
+PyDoc_STRVAR(PyIU_Partition_doc, "partition(iterable[, func])\n\
 \n\
 Use a predicate to partition entries into ``False`` entries and ``True``\n\
 entries.\n\

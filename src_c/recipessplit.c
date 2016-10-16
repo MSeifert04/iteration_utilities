@@ -1,106 +1,109 @@
 typedef struct {
     PyObject_HEAD
-    PyObject *it;
+    PyObject *iterator;
     PyObject *delimiter;
     Py_ssize_t maxsplit;
     int keep_delimiter;
     int cmp;
-
     PyObject *next;
+} PyIUObject_Split;
 
-} recipes_split_object;
+static PyTypeObject PyIUType_Split;
 
+/******************************************************************************
+ *
+ * New
+ *
+ *****************************************************************************/
 
-static PyObject *
-recipes_split_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    recipes_split_object *lz;
-    static char *kwargs[] = {"iterable", "key", "maxsplit", "keep", "eq", NULL};
+static PyObject * split_new(PyTypeObject *type, PyObject *args,
+                            PyObject *kwargs) {
+    static char *kwlist[] = {"iterable", "key", "maxsplit", "keep", "eq", NULL};
+    PyIUObject_Split *lz;
 
-    // mandatory arguments
-    PyObject *iterable, *delimiter;
-
-    // optional arguments
+    PyObject *iterable, *iterator, *delimiter;
     Py_ssize_t maxsplit = -1;  // -1 means no maxsplit!
-    int keep_delimiter = 0;
-    int cmp = 0;
+    int keep_delimiter = 0, cmp = 0;
 
-    PyObject *it;
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|nii:split", kwargs,
+    /* Parse arguments */
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|nii:split", kwlist,
                                      &iterable, &delimiter,
                                      &maxsplit, &keep_delimiter, &cmp)) {
         return NULL;
     }
-
     if (maxsplit <= -2) {
         PyErr_Format(PyExc_ValueError,
                      "`maxsplit` must be -1 or greater.");
         return NULL;
     }
 
-    it = PyObject_GetIter(iterable);
-    if (it == NULL) {
+    /* Create and fill struct */
+    iterator = PyObject_GetIter(iterable);
+    if (iterator == NULL) {
         return NULL;
     }
-
-    /* create recipes_split_object structure */
-    lz = (recipes_split_object *)type->tp_alloc(type, 0);
+    lz = (PyIUObject_Split *)type->tp_alloc(type, 0);
     if (lz == NULL) {
-        Py_DECREF(it);
+        Py_DECREF(iterator);
         return NULL;
     }
-
-    lz->it = it;
     Py_INCREF(delimiter);
+    lz->iterator = iterator;
     lz->delimiter = delimiter;
     lz->maxsplit = maxsplit;
     lz->keep_delimiter = keep_delimiter;
     lz->cmp = cmp;
-
     lz->next = NULL;
-
     return (PyObject *)lz;
 }
 
+/******************************************************************************
+ *
+ * Destructor
+ *
+ *****************************************************************************/
 
-static void
-recipes_split_dealloc(recipes_split_object *lz)
-{
+static void split_dealloc(PyIUObject_Split *lz) {
     PyObject_GC_UnTrack(lz);
-    Py_XDECREF(lz->it);
+    Py_XDECREF(lz->iterator);
     Py_XDECREF(lz->delimiter);
     Py_XDECREF(lz->next);
     Py_TYPE(lz)->tp_free(lz);
 }
 
+/******************************************************************************
+ *
+ * Traverse
+ *
+ *****************************************************************************/
 
-static int
-recipes_split_traverse(recipes_split_object *lz, visitproc visit, void *arg)
-{
-    Py_VISIT(lz->it);
+static int split_traverse(PyIUObject_Split *lz, visitproc visit, void *arg) {
+    Py_VISIT(lz->iterator);
     Py_VISIT(lz->delimiter);
     Py_VISIT(lz->next);
     return 0;
 }
 
+/******************************************************************************
+ *
+ * Next
+ *
+ *****************************************************************************/
 
-static PyObject *
-recipes_split_next(recipes_split_object *lz)
-{
-    PyObject *(*iternext)(PyObject *);
-    PyObject *result, *item=NULL, *val=NULL;
-    PyObject *it = lz->it;
-    PyObject *next = lz->next;
+static PyObject * split_next(PyIUObject_Split *lz) {
+    PyObject *result, *item, *val=NULL;
     int ok;
 
+    // Create a list to hold the result.
     result = PyList_New(0);
     if (result == NULL) {
         goto Fail;
     }
 
-    if (next != NULL) {
-        ok = PyList_Append(result, next);
+    // If there was already a value saved as next just append it and return it.
+    // This case happenes if someone wants to keep the delimiter.
+    if (lz->next != NULL) {
+        ok = PyList_Append(result, lz->next);
         Py_DECREF(lz->next);
         lz->next = NULL;
         if (ok == 0) {
@@ -110,8 +113,9 @@ recipes_split_next(recipes_split_object *lz)
         }
     }
 
-    iternext = *Py_TYPE(it)->tp_iternext;
-    while ( (item = iternext(it)) ) {
+    while ( (item = (*Py_TYPE(lz->iterator)->tp_iternext)(lz->iterator)) ) {
+        // Compare the value to the delimiter or call the delimiter function on
+        // it to determine if we should split here.
         if (lz->cmp) {
             ok = PyObject_RichCompareBool(lz->delimiter, item, Py_EQ);
 
@@ -120,14 +124,11 @@ recipes_split_next(recipes_split_object *lz)
             if (val == NULL) {
                 goto Fail;
             }
-
             ok = PyObject_IsTrue(val);
         }
 
-        if (ok == -1) {
-            goto Fail;
-
-        } else if (ok == 0 || lz->maxsplit == 0) {
+        // Value is not delimiter or we already used up the maxsplit splittings.
+        if (ok == 0 || lz->maxsplit == 0) {
             ok = PyList_Append(result, item);
             if (ok != 0) {
                 goto Fail;
@@ -135,11 +136,14 @@ recipes_split_next(recipes_split_object *lz)
             Py_DECREF(item);
             Py_XDECREF(val);
 
+        // Split here.
         } else if (ok == 1) {
+            Py_XDECREF(val);
+            // Decrement maxsplit
             if (lz->maxsplit != -1) {
                 lz->maxsplit--;
             }
-            Py_XDECREF(val);
+            // Keep the delimiter (if requested) as next item.
             if (lz->keep_delimiter) {
                 lz->next = item;
             } else {
@@ -147,12 +151,14 @@ recipes_split_next(recipes_split_object *lz)
             }
             return result;
 
+        } else {
+            goto Fail;
         }
     }
 
-    // Prevent to return a pending StopIteration exception from tp_iternext.
-    helper_ExceptionClearStopIter();
+    PYIU_CLEAR_STOPITERATION;
 
+    // Only return the last result if there is something in it.
     if (PyList_GET_SIZE(result) == 0) {
         Py_DECREF(result);
         return NULL;
@@ -168,20 +174,23 @@ Fail:
     return NULL;
 }
 
+/******************************************************************************
+ *
+ * Reduce
+ *
+ *****************************************************************************/
 
-static PyObject *
-recipes_split_reduce(recipes_split_object *lz)
-{
+static PyObject * split_reduce(PyIUObject_Split *lz) {
     if (lz->next == NULL) {
         return Py_BuildValue("O(OOnii)", Py_TYPE(lz),
-                             lz->it,
+                             lz->iterator,
                              lz->delimiter,
                              lz->maxsplit,
                              lz->keep_delimiter,
                              lz->cmp);
     } else {
         return Py_BuildValue("O(OOnii)(O)", Py_TYPE(lz),
-                             lz->it,
+                             lz->iterator,
                              lz->delimiter,
                              lz->maxsplit,
                              lz->keep_delimiter,
@@ -190,9 +199,13 @@ recipes_split_reduce(recipes_split_object *lz)
     }
 }
 
-static PyObject *
-recipes_split_setstate(recipes_split_object *lz, PyObject *state)
-{
+/******************************************************************************
+ *
+ * Setstate
+ *
+ *****************************************************************************/
+
+static PyObject * split_setstate(PyIUObject_Split *lz, PyObject *state) {
     PyObject *next;
 
     if (!PyArg_ParseTuple(state, "O", &next)) {
@@ -202,28 +215,28 @@ recipes_split_setstate(recipes_split_object *lz, PyObject *state)
     Py_CLEAR(lz->next);
     Py_INCREF(next);
     lz->next = next;
-
     Py_RETURN_NONE;
 }
 
+/******************************************************************************
+ *
+ * Methods
+ *
+ *****************************************************************************/
 
-static PyMethodDef recipes_split_methods[] = {
-    {"__reduce__",
-     (PyCFunction)recipes_split_reduce,
-     METH_NOARGS,
-     ""},
-
-    {"__setstate__",
-     (PyCFunction)recipes_split_setstate,
-     METH_O,
-     ""},
-
-    {NULL,           NULL}           /* sentinel */
+static PyMethodDef split_methods[] = {
+    {"__reduce__", (PyCFunction)split_reduce, METH_NOARGS, ""},
+    {"__setstate__", (PyCFunction)split_setstate, METH_O, ""},
+    {NULL, NULL}
 };
 
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
 
-PyDoc_STRVAR(recipes_split_doc,
-"split(iterable, key[, maxsplit, keep, eq])\n\
+PyDoc_STRVAR(split_doc, "split(iterable, key[, maxsplit, keep, eq])\n\
 \n\
 Splits an `iterable` by a `key`.\n\
 \n\
@@ -271,13 +284,19 @@ Examples\n\
 [[1, 2], [4, 5], [7, 8]]\n\
 ");
 
-PyTypeObject recipes_split_type = {
+/******************************************************************************
+ *
+ * Type
+ *
+ *****************************************************************************/
+
+static PyTypeObject PyIUType_Split = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.split",      /* tp_name */
-    sizeof(recipes_split_object),     /* tp_basicsize */
+    "iteration_utilities.split",        /* tp_name */
+    sizeof(PyIUObject_Split),           /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
-    (destructor)recipes_split_dealloc, /* tp_dealloc */
+    (destructor)split_dealloc,          /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -294,14 +313,14 @@ PyTypeObject recipes_split_type = {
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    recipes_split_doc,                /* tp_doc */
-    (traverseproc)recipes_split_traverse, /* tp_traverse */
+    split_doc,                          /* tp_doc */
+    (traverseproc)split_traverse,       /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
     PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)recipes_split_next, /* tp_iternext */
-    recipes_split_methods,            /* tp_methods */
+    (iternextfunc)split_next,           /* tp_iternext */
+    split_methods,                      /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
@@ -311,6 +330,6 @@ PyTypeObject recipes_split_type = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     PyType_GenericAlloc,                /* tp_alloc */
-    recipes_split_new,                /* tp_new */
+    split_new,                          /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };

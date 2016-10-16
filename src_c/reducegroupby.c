@@ -1,34 +1,26 @@
-static PyObject *
-reduce_groupby(PyObject *self, PyObject *args, PyObject *kwds)
-{
-    static char *kwargs[] = {"iterable", "key", "keepkey", NULL};
+static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
+    static char *kwlist[] = {"iterable", "key", "keepkey", NULL};
 
-    PyObject *iterable, *key1;  // mandatory arguments
-    PyObject *key2=NULL;        // optional arguments
-
-    PyObject *iterator, *item, *val, *lst, *keep;
+    PyObject *iterable, *key1, *key2=NULL, *iterator, *item, *val, *lst, *keep;
+    PyObject *resdict;
     int ok;
 
-    PyObject *resdict;
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|O:groupby",
-                                     kwargs, &iterable, &key1, &key2)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|O:groupby", kwlist,
+                                     &iterable, &key1, &key2)) {
         return NULL;
     }
 
-    /* Get iterator. */
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
         return NULL;
     }
-
     resdict = PyDict_New();
     if (resdict == NULL) {
         Py_DECREF(iterator);
         return NULL;
     }
 
-    while ( (item = PyIter_Next(iterator)) ) {
+    while ( (item = (*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
         // Key
         val = PyObject_CallFunctionObjArgs(key1, item, NULL);
         if (val == NULL) {
@@ -58,7 +50,6 @@ reduce_groupby(PyObject *self, PyObject *args, PyObject *kwds)
                 Py_DECREF(lst);
                 goto Fail;
             }
-
             PyList_SET_ITEM(lst, 0, keep);
             ok = PyDict_SetItem(resdict, val, lst);
             Py_DECREF(lst);
@@ -66,7 +57,6 @@ reduce_groupby(PyObject *self, PyObject *args, PyObject *kwds)
             if (ok < 0) {
                 goto Fail;
             }
-
         } else {
             Py_DECREF(val);
             ok = PyList_Append(lst, keep);
@@ -77,6 +67,7 @@ reduce_groupby(PyObject *self, PyObject *args, PyObject *kwds)
         }
     }
 
+    PYIU_CLEAR_STOPITERATION;
     Py_DECREF(iterator);
 
     if (PyErr_Occurred()) {
@@ -92,8 +83,13 @@ Fail:
     return NULL;
 }
 
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
 
-PyDoc_STRVAR(reduce_groupby_doc, "groupby2(iterable, key[, keepkey])\n\
+PyDoc_STRVAR(PyIU_Groupby_doc, "groupby2(iterable, key[, keepkey])\n\
 \n\
 Group values of `iterable` by a `key` function.\n\
 \n\

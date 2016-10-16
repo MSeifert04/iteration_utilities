@@ -1,24 +1,21 @@
-static PyObject *
-reduce_quantify(PyObject *self, PyObject *args, PyObject *kwds)
-{
-    static char *kwargs[] = {"iterable", "pred", NULL};
+static PyObject * PyIU_Quantify(PyObject *m, PyObject *args,
+                                PyObject *kwargs) {
+    static char *kwlist[] = {"iterable", "pred", NULL};
 
     PyObject *iterable, *iterator, *item, *val, *pred=NULL;
     Py_ssize_t sum_int = 0;
     int ok;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|O:quantify", kwargs,
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:quantify", kwlist,
                                      &iterable, &pred)) {
         return NULL;
     }
 
-    /* Get iterator. */
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
         return NULL;
     }
 
-    // Fast version with integer increment
     while ((item = (*Py_TYPE(iterator)->tp_iternext)(iterator))) {
         if (pred == NULL || pred == Py_None) {
             val = item;
@@ -46,22 +43,26 @@ reduce_quantify(PyObject *self, PyObject *args, PyObject *kwds)
             Py_DECREF(item);
             Py_XDECREF(val);
             PyErr_Format(PyExc_TypeError,
-                         "`iterable` is too long to compute the sum.");
+                         "`iterable` is too long to quantify.");
             return NULL;
         }
         Py_DECREF(item);
         Py_XDECREF(val);
     }
 
-    helper_ExceptionClearStopIter();
-
+    PYIU_CLEAR_STOPITERATION;
     Py_DECREF(iterator);
 
     return PyLong_FromSsize_t(sum_int);
 }
 
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
 
-PyDoc_STRVAR(reduce_quantify_doc, "quantify(iterable, pred)\n\
+PyDoc_STRVAR(PyIU_Quantify_doc, "quantify(iterable, pred)\n\
 \n\
 Count how many times the predicate is true.\n\
 \n\
