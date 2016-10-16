@@ -81,6 +81,12 @@ static int uniquejust_traverse(PyIUObject_UniqueJust *lz, visitproc visit,
     return 0;
 }
 
+/******************************************************************************
+ *
+ * Next
+ *
+ *****************************************************************************/
+
 static PyObject * uniquejust_next(PyIUObject_UniqueJust *lz) {
     PyObject *it = lz->it;
     PyObject *keyfunc = lz->keyfunc;

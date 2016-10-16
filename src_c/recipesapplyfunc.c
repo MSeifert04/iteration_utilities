@@ -64,6 +64,12 @@ static int applyfunc_traverse(PyIUObject_Applyfunc *lz, visitproc visit,
     return 0;
 }
 
+/******************************************************************************
+ *
+ * Next
+ *
+ *****************************************************************************/
+
 static PyObject * applyfunc_next(PyIUObject_Applyfunc *lz) {
     PyObject *temp;
 

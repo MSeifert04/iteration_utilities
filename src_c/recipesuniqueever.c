@@ -85,6 +85,12 @@ static int uniqueever_traverse(PyIUObject_UniqueEver *lz, visitproc visit,
     return 0;
 }
 
+/******************************************************************************
+ *
+ * Next
+ *
+ *****************************************************************************/
+
 static PyObject * uniqueever_next(PyIUObject_UniqueEver *lz) {
     PyObject *item;
     PyObject *func = lz->func;

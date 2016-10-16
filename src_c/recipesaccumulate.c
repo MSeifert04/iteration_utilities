@@ -22,7 +22,7 @@ static PyTypeObject PyIUType_Accumulate;
 
 static PyObject * accumulate_new(PyTypeObject *type, PyObject *args,
                                  PyObject *kwargs) {
-    static char *kwlist[] = {"func", "iterable", "start", NULL};
+    static char *kwlist[] = {"iterable", "func", "start", NULL};
     PyIUObject_Accumulate *lz;
 
     PyObject *iterator, *iterable, *binop=NULL, *start=NULL;
@@ -35,7 +35,7 @@ static PyObject * accumulate_new(PyTypeObject *type, PyObject *args,
         }
     // accumulate(binop, iterable[, start])
     } else if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|O:accumulate", kwlist,
-                                            &binop, &iterable, &start)) {
+                                            &iterable, &binop, &start)) {
         return NULL;
     }
 
@@ -85,6 +85,11 @@ static int accumulate_traverse(PyIUObject_Accumulate *lz, visitproc visit,
     return 0;
 }
 
+/******************************************************************************
+ *
+ * Next
+ *
+ *****************************************************************************/
 
 static PyObject * accumulate_next(PyIUObject_Accumulate *lz) {
     PyObject *item, *oldtotal, *newtotal;
@@ -134,14 +139,14 @@ static PyObject * accumulate_reduce(PyIUObject_Accumulate *lz) {
     if (lz->total != NULL) {
         return Py_BuildValue("O(OOO)",
                              Py_TYPE(lz),
-                             lz->binop ? lz->binop : Py_None,
                              lz->iterator,
+                             lz->binop ? lz->binop : Py_None,
                              lz->total);
     } else {
         return Py_BuildValue("O(OO)",
                              Py_TYPE(lz),
-                             lz->binop ? lz->binop : Py_None,
-                             lz->iterator);
+                             lz->iterator,
+                             lz->binop ? lz->binop : Py_None);
     }
 
 }
@@ -163,8 +168,7 @@ static PyMethodDef accumulate_methods[] = {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(accumulate_doc, "accumulate(iterable, *)\n\
-accumulate(func, iterable[, start])\n\
+PyDoc_STRVAR(accumulate_doc, "accumulate(iterable[, func, start])\n\
 \n\
 Make an iterator that returns accumulated sums, or accumulated\n\
 results of other binary functions (specified via the optional `func`\n\
@@ -213,17 +217,17 @@ initial value in the `iterable` and using only the accumulated total in\n\
     >>> data = [3, 4, 6, 2, 1, 9, 0, 7, 5, 8]\n\
     >>> list(accumulate(data))                   # running sum\n\
     [3, 7, 13, 15, 16, 25, 25, 32, 37, 45]\n\
-    >>> list(accumulate(operator.add, data))     # running sum (explicit)\n\
+    >>> list(accumulate(data, operator.add))     # running sum (explicit)\n\
     [3, 7, 13, 15, 16, 25, 25, 32, 37, 45]\n\
-    >>> list(accumulate(operator.mul, data))     # running product\n\
+    >>> list(accumulate(data, operator.mul))     # running product\n\
     [3, 12, 72, 144, 144, 1296, 0, 0, 0, 0]\n\
-    >>> list(accumulate(max, data))              # running maximum\n\
+    >>> list(accumulate(data, max))              # running maximum\n\
     [3, 4, 6, 6, 6, 9, 9, 9, 9, 9]\n\
 \n\
 Amortize a 5% loan of 1000 (start value) with 4 annual payments of 90::\n\
 \n\
     >>> cashflows = [-90, -90, -90, -90]\n\
-    >>> list(accumulate(lambda bal, pmt: bal*1.05 + pmt, cashflows, 1000))\n\
+    >>> list(accumulate(cashflows, lambda bal, pmt: bal*1.05 + pmt, 1000))\n\
     [960.0, 918.0, 873.9000000000001, 827.5950000000001]\n\
 \n\
 Chaotic recurrence relation [1]_::\n\
@@ -232,7 +236,7 @@ Chaotic recurrence relation [1]_::\n\
     >>> r = 3.8\n\
     >>> x0 = 0.4\n\
     >>> inputs = repeat(x0, 36)     # only the initial value is used\n\
-    >>> [format(x, '.2f') for x in accumulate(logistic_map, inputs)]\n\
+    >>> [format(x, '.2f') for x in accumulate(inputs, logistic_map)]\n\
     ['0.40', '0.91', '0.30', '0.81', '0.60', '0.92', '0.29', '0.79', \
 '0.63', '0.88', '0.39', '0.90', '0.33', '0.84', '0.52', '0.95', '0.18', \
 '0.57', '0.93', '0.25', '0.71', '0.79', '0.63', '0.88', '0.39', '0.91', \

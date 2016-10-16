@@ -78,6 +78,11 @@ static int successive_traverse(PyIUObject_Successive *lz, visitproc visit,
     return 0;
 }
 
+/******************************************************************************
+ *
+ * Next
+ *
+ *****************************************************************************/
 
 static PyObject * successive_next(PyIUObject_Successive *lz) {
     Py_ssize_t times = lz->times;

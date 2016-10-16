@@ -81,6 +81,11 @@ static int roundrobin_traverse(PyIUObject_Roundrobin *lz, visitproc visit,
     return 0;
 }
 
+/******************************************************************************
+ *
+ * Next
+ *
+ *****************************************************************************/
 
 static PyObject * roundrobin_next(PyIUObject_Roundrobin *lz) {
     PyObject *ittuple = lz->ittuple;

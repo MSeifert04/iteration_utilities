@@ -87,6 +87,11 @@ static int grouper_traverse(PyIUObject_Grouper *lz, visitproc visit,
     return 0;
 }
 
+/******************************************************************************
+ *
+ * Next
+ *
+ *****************************************************************************/
 
 static PyObject * grouper_next(PyIUObject_Grouper *lz) {
     PyObject *result = lz->result;
@@ -220,7 +225,6 @@ static PyObject * grouper_setstate(PyIUObject_Grouper *lz, PyObject *state) {
     }
 
     Py_CLEAR(lz->result);
-    Py_CLEAR(lz->truncate);
     Py_XINCREF(result);
     lz->result = result;
     lz->truncate = truncate;

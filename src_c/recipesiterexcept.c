@@ -20,28 +20,26 @@ static PyObject * iterexcept_new(PyTypeObject *type, PyObject *args,
 
     PyObject *func, *except, *first=NULL;
 
+    /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|O:iter_except", kwlist,
-                                     &func, &except,
-                                     &first)) {
+                                     &func, &except, &first)) {
         return NULL;
     }
-
     if (first == Py_None) {
         first = NULL;
     }
 
+    /* Create and fill struct */
     lz = (PyIUObject_Iterexcept *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         return NULL;
     }
-
     Py_INCREF(func);
-    lz->func = func;
     Py_INCREF(except);
-    lz->except = except;
     Py_XINCREF(first);
+    lz->func = func;
+    lz->except = except;
     lz->first = first;
-
     return (PyObject *)lz;
 }
 
@@ -73,9 +71,16 @@ static int iterexcept_traverse(PyIUObject_Iterexcept *lz, visitproc visit,
     return 0;
 }
 
+/******************************************************************************
+ *
+ * Next
+ *
+ *****************************************************************************/
+
 static PyObject * iterexcept_next(PyIUObject_Iterexcept *lz) {
     PyObject *result;
 
+    // Call the first if it's set (nulling it thereafter) or the func if not.
     if (lz->first == NULL) {
         result = PyObject_CallObject(lz->func, NULL);
     } else {
@@ -83,13 +88,16 @@ static PyObject * iterexcept_next(PyIUObject_Iterexcept *lz) {
         Py_DECREF(lz->first);
         lz->first = NULL;
     }
-    if (result == NULL &&
-        PyErr_Occurred() && PyErr_ExceptionMatches(lz->except)) {
+
+    // Stop if the result is NULL but only clear the exception if the expected
+    // exception happened otherwise just return the result (thereby bubbling
+    // up other exceptions).
+    if (result == NULL && PyErr_Occurred() && PyErr_ExceptionMatches(lz->except)) {
         PyErr_Clear();
         return NULL;
+    } else {
+        return result;
     }
-
-    return result;
 }
 
 /******************************************************************************
@@ -196,10 +204,10 @@ Further examples:\n\
 static PyTypeObject PyIUType_Iterexcept = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.iter_except",  /* tp_name */
-    sizeof(PyIUObject_Iterexcept),  /* tp_basicsize */
+    sizeof(PyIUObject_Iterexcept),      /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
-    (destructor)iterexcept_dealloc, /* tp_dealloc */
+    (destructor)iterexcept_dealloc,     /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -216,14 +224,14 @@ static PyTypeObject PyIUType_Iterexcept = {
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    iterexcept_doc,             /* tp_doc */
-    (traverseproc)iterexcept_traverse, /* tp_traverse */
+    iterexcept_doc,                     /* tp_doc */
+    (traverseproc)iterexcept_traverse,  /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
     PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)iterexcept_next, /* tp_iternext */
-    iterexcept_methods,         /* tp_methods */
+    (iternextfunc)iterexcept_next,      /* tp_iternext */
+    iterexcept_methods,                 /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
@@ -233,6 +241,6 @@ static PyTypeObject PyIUType_Iterexcept = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     PyType_GenericAlloc,                /* tp_alloc */
-    iterexcept_new,             /* tp_new */
+    iterexcept_new,                     /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };

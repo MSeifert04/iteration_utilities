@@ -89,6 +89,11 @@ static int split_traverse(PyIUObject_Split *lz, visitproc visit, void *arg) {
     return 0;
 }
 
+/******************************************************************************
+ *
+ * Next
+ *
+ *****************************************************************************/
 
 static PyObject * split_next(PyIUObject_Split *lz) {
     PyObject *(*iternext)(PyObject *);

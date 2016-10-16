@@ -45,66 +45,62 @@ def test_accumulate_normal1():
 
 
 def test_accumulate_normal2():
-    assert list(accumulate(None, [])) == []
+    assert list(accumulate([], None)) == []
 
     def test():
-        list(accumulate(None, []))
+        list(accumulate([], None))
     assert not memory_leak(test)
 
 
 def test_accumulate_normal3():
-    assert list(accumulate(None, [1, 2, 3, 4])) == [1, 3, 6, 10]
+    assert list(accumulate([1, 2, 3, 4], None)) == [1, 3, 6, 10]
 
     def test():
-        list(accumulate(None, [T(1), T(2), T(3)]))
+        list(accumulate([T(1), T(2), T(3)], None))
     assert not memory_leak(test)
 
 
 def test_accumulate_binop1():
-    assert list(accumulate(operator.add, [1, 2, 3, 4])) == [1, 3, 6, 10]
+    assert list(accumulate([1, 2, 3, 4], operator.add)) == [1, 3, 6, 10]
 
     def test():
-        list(accumulate(operator.add, [T(1), T(2), T(3)]))
+        list(accumulate([T(1), T(2), T(3)], operator.add))
     assert not memory_leak(test)
 
 
 def test_accumulate_binop2():
-    assert list(accumulate(operator.mul, [1, 2, 3, 4])) == [1, 2, 6, 24]
+    assert list(accumulate([1, 2, 3, 4], operator.mul)) == [1, 2, 6, 24]
 
     def test():
-        list(accumulate(operator.mul, [T(1), T(2), T(3)]))
+        list(accumulate([T(1), T(2), T(3)], operator.mul))
     assert not memory_leak(test)
 
 
 def test_accumulate_initial1():
-    assert list(accumulate(None, [1, 2, 3], 10)) == [11, 13, 16]
+    assert list(accumulate([1, 2, 3], None, 10)) == [11, 13, 16]
 
     def test():
-        list(accumulate(operator.add, [T(1), T(2), T(3)], T(10)))
+        list(accumulate([T(1), T(2), T(3)], None, T(10)))
     assert not memory_leak(test)
 
 
 def test_accumulate_failure1():
     with pytest.raises(TypeError):
-        list(accumulate(None, [1, 2, 3], 'a'))
+        list(accumulate([1, 2, 3], None, 'a'))
 
     def test():
         with pytest_raises(TypeError):
-            list(accumulate(operator.add,
-                            [T(1), T(2), T(3)],
-                            T('a')))
+            list(accumulate([T(1), T(2), T(3)], None, T('a')))
     assert not memory_leak(test)
 
 
 def test_accumulate_failure2():
     with pytest.raises(TypeError):
-        list(accumulate(operator.add, [1, 2, 3], 'a'))
+        list(accumulate([1, 2, 3], operator.add, 'a'))
 
     def test():
         with pytest_raises(TypeError):
-            list(accumulate(None,
-                            [T(1), T(2), T(3)],
-                            T('a')))
+            list(accumulate([T(1), T(2), T(3)], operator.add, T('a')))
     assert not memory_leak(test)
 
 
@@ -144,6 +140,37 @@ def test_accumulate_pickle2():
 
     def test():
         acc = accumulate([T(1), T(2), T(3), T(4)])
+        x = pickle.dumps(acc)
+        list(pickle.loads(x))
+    assert not memory_leak(test)
+
+
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
+def test_accumulate_pickle3():
+    acc = accumulate([1, 2, 3, 4], operator.mul)
+    assert next(acc) == 1
+    x = pickle.dumps(acc)
+    assert list(pickle.loads(x)) == [2, 6, 24]
+
+    def test():
+        acc = accumulate([T(1), T(2), T(3), T(4)], operator.mul)
+        next(acc)
+        x = pickle.dumps(acc)
+        list(pickle.loads(x))
+    memory_leak(test)
+    assert not memory_leak(test)
+
+
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
+def test_accumulate_pickle4():
+    acc = accumulate([1, 2, 3, 4], None, 4)
+    x = pickle.dumps(acc)
+    assert list(pickle.loads(x)) == [5, 7, 10, 14]
+
+    def test():
+        acc = accumulate([T(1), T(2), T(3), T(4)], None, T(4))
         x = pickle.dumps(acc)
         list(pickle.loads(x))
     assert not memory_leak(test)
