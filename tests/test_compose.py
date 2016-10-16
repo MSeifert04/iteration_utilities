@@ -109,13 +109,14 @@ def test_compose_failure4():
 @pytest.mark.xfail(iteration_utilities.PY2,
                    reason='pickle does not work on Python 2')
 def test_compose_pickle1():
-    cmp = compose(iteration_utilities.square, iteration_utilities.one_over)
+    cmp = compose(iteration_utilities.square, iteration_utilities.reciprocal)
     x = pickle.dumps(cmp)
     assert pickle.loads(x)(10) == 1/100
     assert pickle.loads(x)(2) == 1/4
 
     def test():
-        cmp = compose(iteration_utilities.square, iteration_utilities.one_over)
+        cmp = compose(iteration_utilities.square,
+                      iteration_utilities.reciprocal)
         x = pickle.dumps(cmp)
         pickle.loads(x)(T(10))
         pickle.loads(x)(T(2))
