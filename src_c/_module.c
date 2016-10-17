@@ -1,7 +1,7 @@
 #include <Python.h>
 #include <structmember.h>
 
-#include "allhelper.c"
+#include "_helper.c"
 #include "isx.c"
 #include "returnx.c"
 #include "mathematical.c"
@@ -40,34 +40,34 @@
 //ml_doc:  Contents of this method's docstring
 static PyMethodDef PyIU_methods[] = {
 
-    {"is_None", (PyCFunction)PyIU_IsNone, METH_O, PyIU_IsNone_doc},
-    {"is_not_None", (PyCFunction)PyIU_IsNotNone, METH_O, PyIU_IsNotNone_doc},
-    {"is_even", (PyCFunction)PyIU_IsEven, METH_O, PyIU_IsEven_doc},
-    {"is_odd", (PyCFunction)PyIU_IsOdd, METH_O, PyIU_IsOdd_doc},
-    {"is_iterable", (PyCFunction)PyIU_IsIterable, METH_O, PyIU_IsIterable_doc},
+    {"is_None",     (PyCFunction)PyIU_IsNone,     METH_O,  PyIU_IsNone_doc},
+    {"is_not_None", (PyCFunction)PyIU_IsNotNone,  METH_O,  PyIU_IsNotNone_doc},
+    {"is_even",     (PyCFunction)PyIU_IsEven,     METH_O,  PyIU_IsEven_doc},
+    {"is_odd",      (PyCFunction)PyIU_IsOdd,      METH_O,  PyIU_IsOdd_doc},
+    {"is_iterable", (PyCFunction)PyIU_IsIterable, METH_O,  PyIU_IsIterable_doc},
 
-    {"square", (PyCFunction)PyIU_MathSquare, METH_O, PyIU_MathSquare_doc},
-    {"double", (PyCFunction)PyIU_MathDouble, METH_O, PyIU_MathDouble_doc},
-    {"reciprocal", (PyCFunction)PyIU_MathReciprocal, METH_O, PyIU_MathReciprocal_doc},
-    {"radd", (PyCFunction)PyIU_MathRadd, METH_VARARGS, PyIU_MathRadd_doc},
-    {"rsub", (PyCFunction)PyIU_MathRsub, METH_VARARGS, PyIU_MathRsub_doc},
-    {"rmul", (PyCFunction)PyIU_MathRmul, METH_VARARGS, PyIU_MathRmul_doc},
-    {"rdiv", (PyCFunction)PyIU_MathRdiv, METH_VARARGS, PyIU_MathRdiv_doc},
-    {"rpow", (PyCFunction)PyIU_MathRpow, METH_VARARGS, PyIU_MathRpow_doc},
+    {"square",     (PyCFunction)PyIU_MathSquare,     METH_O,       PyIU_MathSquare_doc},
+    {"double",     (PyCFunction)PyIU_MathDouble,     METH_O,       PyIU_MathDouble_doc},
+    {"reciprocal", (PyCFunction)PyIU_MathReciprocal, METH_O,       PyIU_MathReciprocal_doc},
+    {"radd",       (PyCFunction)PyIU_MathRadd,       METH_VARARGS, PyIU_MathRadd_doc},
+    {"rsub",       (PyCFunction)PyIU_MathRsub,       METH_VARARGS, PyIU_MathRsub_doc},
+    {"rmul",       (PyCFunction)PyIU_MathRmul,       METH_VARARGS, PyIU_MathRmul_doc},
+    {"rdiv",       (PyCFunction)PyIU_MathRdiv,       METH_VARARGS, PyIU_MathRdiv_doc},
+    {"rpow",       (PyCFunction)PyIU_MathRpow,       METH_VARARGS, PyIU_MathRpow_doc},
 
-    {"return_identity", (PyCFunction)PyIU_ReturnIdentity, METH_O, PyIU_ReturnIdentity_doc},
+    {"return_identity",  (PyCFunction)PyIU_ReturnIdentity, METH_O,                       PyIU_ReturnIdentity_doc},
     {"return_first_arg", (PyCFunction)PyIU_ReturnFirstArg, METH_VARARGS | METH_KEYWORDS, PyIU_ReturnFirstArg_doc},
-    {"return_called", (PyCFunction)PyIU_ReturnCalled, METH_O, PyIU_ReturnCalled_doc},
+    {"return_called",   (PyCFunction)PyIU_ReturnCalled,    METH_O,                       PyIU_ReturnCalled_doc},
 
-    {"argmin", (PyCFunction)PyIU_Argmin, METH_VARARGS | METH_KEYWORDS, PyIU_Argmin_doc},
-    {"argmax", (PyCFunction)PyIU_Argmax, METH_VARARGS | METH_KEYWORDS, PyIU_Argmax_doc},
-    {"all_distinct", (PyCFunction)PyIU_AllDistinct, METH_O, PyIU_AllDistinct_doc},
-    {"all_equal", (PyCFunction)PyIU_AllEqual, METH_O, PyIU_AllEqual_doc},
-    {"count_items", (PyCFunction)PyIU_Count, METH_VARARGS | METH_KEYWORDS, PyIU_Count_doc},
-    {"groupedby", (PyCFunction)PyIU_Groupby, METH_VARARGS | METH_KEYWORDS, PyIU_Groupby_doc},
-    {"minmax", (PyCFunction)PyIU_MinMax, METH_VARARGS | METH_KEYWORDS, PyIU_MinMax_doc},
-    {"one", (PyCFunction)PyIU_One, METH_O, PyIU_One_doc},
-    {"partition", (PyCFunction)PyIU_Partition, METH_VARARGS | METH_KEYWORDS, PyIU_Partition_doc},
+    {"argmin",       (PyCFunction)PyIU_Argmin,      METH_VARARGS | METH_KEYWORDS, PyIU_Argmin_doc},
+    {"argmax",       (PyCFunction)PyIU_Argmax,      METH_VARARGS | METH_KEYWORDS, PyIU_Argmax_doc},
+    {"all_distinct", (PyCFunction)PyIU_AllDistinct, METH_O,                       PyIU_AllDistinct_doc},
+    {"all_equal",    (PyCFunction)PyIU_AllEqual,    METH_O,                       PyIU_AllEqual_doc},
+    {"count_items",  (PyCFunction)PyIU_Count,       METH_VARARGS | METH_KEYWORDS, PyIU_Count_doc},
+    {"groupedby",    (PyCFunction)PyIU_Groupby,     METH_VARARGS | METH_KEYWORDS, PyIU_Groupby_doc},
+    {"minmax",       (PyCFunction)PyIU_MinMax,      METH_VARARGS | METH_KEYWORDS, PyIU_MinMax_doc},
+    {"one",          (PyCFunction)PyIU_One,         METH_O,                       PyIU_One_doc},
+    {"partition",    (PyCFunction)PyIU_Partition,   METH_VARARGS | METH_KEYWORDS, PyIU_Partition_doc},
 
     {NULL, NULL}
 };

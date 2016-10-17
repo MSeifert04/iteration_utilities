@@ -1,10 +1,13 @@
 from setuptools import setup, Extension
 
+from os import path
+from glob import glob
 
-cfuncs_module = Extension(
-        'iteration_utilities._cfuncs',
-        sources=['src_c/module.c']
-    )
+
+cfuncs_module = Extension('iteration_utilities._cfuncs',
+                          sources=[path.join('src_c', '_module.c')],
+                          depends=glob(path.join('src_c', '*.c'))
+                          )
 
 
 def readme():
