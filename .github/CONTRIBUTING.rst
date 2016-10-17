@@ -3,6 +3,32 @@ Hello potential contributor
 
 .. contents:: Table of Contents
 
+Questions
+---------
+
+- If it's about ``iteration_utilities``: Open a new issue and ask.
+- If it's not then look for another place to ask. :-)
+
+
+Bug reports
+-----------
+
+- Make sure it's a Bug and it's a Bug in ``iteration_utilities``.
+- Open a new issue.
+- Always include a _minimal_ and _standalone_ example that shows the Bug.
+- Include a description why you think this is a Bug.
+
+
+Feature requests
+----------------
+
+- Open a new issue.
+- Explain what you need.
+- Explain why you want this and if this could be relevant for other packages.
+- Explain why ``iteration_utilities`` is the right package for this feature.
+
+
+
 Implementing a new functions
 ----------------------------
 
