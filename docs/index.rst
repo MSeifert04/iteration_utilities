@@ -24,6 +24,7 @@ Contents:
    :maxdepth: 2
 
    installation
+   CHANGES
    shortcircuit
    reduce
    generators
@@ -31,10 +32,11 @@ Contents:
    random
    callbacks
    operators
-   recipes/core
-   recipes/additional
-   helpers/performance
-   cfuncs/cfuncs
+   api/core
+   api/additional
+   api/helper
+   api/cfuncs
+   AUTHORS
 
 .. [0] https://docs.python.org/library/itertools.html
 .. [1] https://toolz.readthedocs.io
