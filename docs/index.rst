@@ -16,8 +16,7 @@ specialized libraries like ``NumPy``, ``pandas`` or ``SciPy``.
    builtin modules and functions.
 
 .. warning::
-   This library is under ongoing development and should not be considered
-   stable!
+   This library is under ongoing development and may **not** be stable!
 
 Contents:
 
