@@ -1,7 +1,7 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
 from collections import Counter
-from gc import get_objects
+from gc import get_objects, collect
 from weakref import ref
 
 
@@ -45,6 +45,7 @@ def memory_leak(func, specific_object=None, exclude_object=ref):
     before.update(map(type, get_objects()))
 
     func()
+    collect()
 
     # Tracked objects after the function call
     after.update(map(type, get_objects()))
