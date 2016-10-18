@@ -147,6 +147,15 @@ key : callable\n\
 keep : callable, optional\n\
     If given append only the result of ``keep(item)`` instead of ``item``.\n\
 \n\
+reduce : callable, optional\n\
+    If given then instead of returning a list of all ``items`` reduce them\n\
+    using the binary `reduce` function. This works like the `func` parameter\n\
+    in :py:func:`functools.reduce`.\n\
+\n\
+reducestart : any type, optional\n\
+    Can only be specified if `reduce` is given. This parameter is equivalent\n\
+    to the `start` parameter of :py:func:`functools.reduce`.\n\
+\n\
 Returns\n\
 -------\n\
 grouped : dict\n\
@@ -164,7 +173,7 @@ Examples\n\
 A simple example::\n\
 \n\
     >>> from iteration_utilities import groupedby\n\
-    >>> from operator import itemgetter\n\
+    >>> from operator import itemgetter, add\n\
     >>> dct = groupedby(['a', 'bac', 'ba', 'ab', 'abc'], key=itemgetter(0))\n\
     >>> dct['a']\n\
     ['a', 'ab', 'abc']\n\
@@ -178,5 +187,22 @@ One could also specify a `keep` function::\n\
     [1, 2, 3]\n\
     >>> dct['b']\n\
     [3, 2]\n\
+\n\
+Or reduce all values for one key::\n\
+\n\
+    >>> from iteration_utilities import is_even\n\
+    >>> dct = groupedby([1, 2, 3, 4, 5], key=is_even, reduce=add)\n\
+    >>> dct[True]  # 2 + 4\n\
+    6\n\
+    >>> dct[False]  # 1 + 3 + 5\n\
+    9\n\
+\n\
+using `reduce` also allows to specify a startvalue::\n\
+\n\
+    >>> dct = groupedby([1, 2, 3, 4, 5], key=is_even, reduce=add, reducestart=7)\n\
+    >>> dct[True]  # 7 + 2 + 4\n\
+    13\n\
+    >>> dct[False]  # 7 + 1 + 3 + 5\n\
+    16\n\
 \n\
 ");
