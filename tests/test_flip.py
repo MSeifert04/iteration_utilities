@@ -87,9 +87,7 @@ def test_flip_failure1():
     assert not memory_leak(test)
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
-                   reason='pickle does not work on Python 2')
-def test_complement_pickle1():
+def test_flip_pickle1():
     x = pickle.dumps(flip(isinstance))
     assert pickle.loads(x)(float, 10.)
     assert pickle.loads(x)(int, 10)

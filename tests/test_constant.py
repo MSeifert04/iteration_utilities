@@ -21,7 +21,7 @@ class T(object):
         self.value = value
 
 
-def test_complement_normal1():
+def test_constant_normal1():
     one = const(1)
     assert one() == 1
 
@@ -30,7 +30,7 @@ def test_complement_normal1():
     assert not memory_leak(test)
 
 
-def test_complement_normal2():
+def test_constant_normal2():
     one = const(1)
     assert one(10, a=2) == 1
 
@@ -39,9 +39,7 @@ def test_complement_normal2():
     assert not memory_leak(test)
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
-                   reason='pickle does not work on Python 2')
-def test_complement_pickle1():
+def test_constant_pickle1():
     x = pickle.dumps(const(10))
     assert pickle.loads(x)() == 10
 
