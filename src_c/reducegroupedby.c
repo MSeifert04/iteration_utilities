@@ -1,12 +1,18 @@
 static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
-    static char *kwlist[] = {"iterable", "key", "keepkey", NULL};
+    static char *kwlist[] = {"iterable", "key", "keep", "reduce", "reducestart", NULL};
 
     PyObject *iterable, *key1, *key2=NULL, *iterator, *item, *val, *lst, *keep;
-    PyObject *resdict;
+    PyObject *reduce=NULL, *reducestart=NULL, *reducetmp=NULL, *resdict;
     int ok;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|O:groupby", kwlist,
-                                     &iterable, &key1, &key2)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|OOO:groupby", kwlist,
+                                     &iterable, &key1, &key2, &reduce,
+                                     &reducestart)) {
+        return NULL;
+    }
+    if (reduce == NULL && reducestart != NULL) {
+        PyErr_Format(PyExc_TypeError,
+                     "cannot specify `reducestart` if no `reduce` is given.");
         return NULL;
     }
 
@@ -21,14 +27,14 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
     }
 
     while ( (item = (*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
-        // Key
+        // Calculate the key for the dictionary (val)
         val = PyObject_CallFunctionObjArgs(key1, item, NULL);
         if (val == NULL) {
             Py_DECREF(item);
             goto Fail;
         }
 
-        // Value
+        // Calculate the value for the dictionary (keep)
         if (key2 == NULL || key2 == Py_None) {
             keep = item;
         } else {
@@ -40,29 +46,66 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
             }
         }
 
-        // Append or create new one
-        lst = PyDict_GetItem(resdict, val);  // ignores any exception!!!
-        if (lst == NULL) {
-            lst = PyList_New(1);
+        // Keep all values as list
+        if (reduce == NULL) {
+            lst = PyDict_GetItem(resdict, val);
             if (lst == NULL) {
-                Py_DECREF(keep);
-                Py_DECREF(val);
+                lst = PyList_New(1);
+                if (lst == NULL) {
+                    Py_DECREF(keep);
+                    Py_DECREF(val);
+                    Py_DECREF(lst);
+                    goto Fail;
+                }
+                PyList_SET_ITEM(lst, 0, keep);
+                ok = PyDict_SetItem(resdict, val, lst);
                 Py_DECREF(lst);
-                goto Fail;
+                Py_DECREF(val);
+                if (ok < 0) {
+                    goto Fail;
+                }
+            } else {
+                Py_DECREF(val);
+                ok = PyList_Append(lst, keep);
+                Py_DECREF(keep);
+                if (ok < 0) {
+                    goto Fail;
+                }
             }
-            PyList_SET_ITEM(lst, 0, keep);
-            ok = PyDict_SetItem(resdict, val, lst);
-            Py_DECREF(lst);
-            Py_DECREF(val);
-            if (ok < 0) {
-                goto Fail;
-            }
+
+        // Reduce the values with a binary operation
         } else {
-            Py_DECREF(val);
-            ok = PyList_Append(lst, keep);
-            Py_DECREF(keep);
-            if (ok < 0) {
-                goto Fail;
+            lst = PyDict_GetItem(resdict, val);
+
+            // No item yet and no starting value given: Keep the "keep".
+            if (lst == NULL && reducestart == NULL) {
+                ok = PyDict_SetItem(resdict, val, keep);
+                Py_DECREF(val);
+                Py_DECREF(keep);
+                if (ok < 0) {
+                    goto Fail;
+                }
+
+            // Already an item present so use the binary operation.
+            } else {
+                if (lst == NULL) {
+                    reducetmp = PyObject_CallFunctionObjArgs(reduce, reducestart, keep, NULL);
+                } else {
+                    reducetmp = PyObject_CallFunctionObjArgs(reduce, lst, keep, NULL);
+                    Py_DECREF(lst);
+                }
+                if (reducetmp == NULL) {
+                    Py_DECREF(val);
+                    Py_DECREF(keep);
+                    goto Fail;
+                }
+                ok = PyDict_SetItem(resdict, val, reducetmp);
+                Py_DECREF(val);
+                Py_DECREF(keep);
+                Py_DECREF(reducetmp);
+                if (ok < 0) {
+                    goto Fail;
+                }
             }
         }
     }
@@ -89,7 +132,7 @@ Fail:
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(PyIU_Groupby_doc, "groupedby(iterable, key[, keepkey])\n\
+PyDoc_STRVAR(PyIU_Groupby_doc, "groupedby(iterable, key[, keep, reduce, reducestart])\n\
 \n\
 Group values of `iterable` by a `key` function as dictionary.\n\
 \n\
@@ -101,8 +144,17 @@ iterable : iterable\n\
 key : callable\n\
     The items of the `iterable` are grouped by the ``key(item)``.\n\
 \n\
-keepkey : callable, optional\n\
-    If given append only the result of ``keepkey(item)`` instead of ``item``.\n\
+keep : callable, optional\n\
+    If given append only the result of ``keep(item)`` instead of ``item``.\n\
+\n\
+reduce : callable, optional\n\
+    If given then instead of returning a list of all ``items`` reduce them\n\
+    using the binary `reduce` function. This works like the `func` parameter\n\
+    in :py:func:`functools.reduce`.\n\
+\n\
+reducestart : any type, optional\n\
+    Can only be specified if `reduce` is given. This parameter is equivalent\n\
+    to the `start` parameter of :py:func:`functools.reduce`.\n\
 \n\
 Returns\n\
 -------\n\
@@ -121,19 +173,36 @@ Examples\n\
 A simple example::\n\
 \n\
     >>> from iteration_utilities import groupedby\n\
-    >>> from operator import itemgetter\n\
+    >>> from operator import itemgetter, add\n\
     >>> dct = groupedby(['a', 'bac', 'ba', 'ab', 'abc'], key=itemgetter(0))\n\
     >>> dct['a']\n\
     ['a', 'ab', 'abc']\n\
     >>> dct['b']\n\
     ['bac', 'ba']\n\
 \n\
-One could also specify a `keepkey`::\n\
+One could also specify a `keep` function::\n\
 \n\
-    >>> dct = groupedby(['a', 'bac', 'ba', 'ab', 'abc'], key=itemgetter(0), keepkey=len)\n\
+    >>> dct = groupedby(['a', 'bac', 'ba', 'ab', 'abc'], key=itemgetter(0), keep=len)\n\
     >>> dct['a']\n\
     [1, 2, 3]\n\
     >>> dct['b']\n\
     [3, 2]\n\
+\n\
+Or reduce all values for one key::\n\
+\n\
+    >>> from iteration_utilities import is_even\n\
+    >>> dct = groupedby([1, 2, 3, 4, 5], key=is_even, reduce=add)\n\
+    >>> dct[True]  # 2 + 4\n\
+    6\n\
+    >>> dct[False]  # 1 + 3 + 5\n\
+    9\n\
+\n\
+using `reduce` also allows to specify a startvalue::\n\
+\n\
+    >>> dct = groupedby([1, 2, 3, 4, 5], key=is_even, reduce=add, reducestart=7)\n\
+    >>> dct[True]  # 7 + 2 + 4\n\
+    13\n\
+    >>> dct[False]  # 7 + 1 + 3 + 5\n\
+    16\n\
 \n\
 ");
