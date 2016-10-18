@@ -106,8 +106,6 @@ def test_compose_failure4():
     assert not memory_leak(test)
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
-                   reason='pickle does not work on Python 2')
 def test_compose_pickle1():
     cmp = compose(iteration_utilities.square, iteration_utilities.reciprocal)
     x = pickle.dumps(cmp)
@@ -123,8 +121,6 @@ def test_compose_pickle1():
     assert not memory_leak(test)
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
-                   reason='pickle does not work on Python 2')
 def test_compose_pickle2():
     cmp = compose(iteration_utilities.square, iteration_utilities.double,
                   reverse=True)
@@ -141,8 +137,6 @@ def test_compose_pickle2():
     assert not memory_leak(test)
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
-                   reason='pickle does not work on Python 2')
 def test_compose_pickle3():
     cmp = compose(iteration_utilities.square, iteration_utilities.double,
                   all=True)

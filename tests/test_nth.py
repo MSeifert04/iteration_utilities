@@ -215,8 +215,6 @@ def test_nth_failures5():
     assert not memory_leak(test)
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
-                   reason='pickle does not work on Python 2')
 def test_complement_pickle1():
     x = pickle.dumps(nth(2))
     assert pickle.loads(x)([1, 2, 3, 4]) == 3

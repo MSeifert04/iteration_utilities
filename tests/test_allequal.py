@@ -61,7 +61,6 @@ def test_all_equal_failure1():
     assert not memory_leak(test)
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='cmp works on Python 2')
 def test_all_equal_failure2():
     # comparison fail
     with pytest.raises(TypeError):

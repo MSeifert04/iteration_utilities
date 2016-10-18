@@ -4,15 +4,15 @@ from os import path
 from glob import glob
 
 
+def readme():
+    with open('README.rst') as f:
+        return f.read()
+
+
 cfuncs_module = Extension('iteration_utilities._cfuncs',
                           sources=[path.join('src_c', '_module.c')],
                           depends=glob(path.join('src_c', '*.c'))
                           )
-
-
-def readme():
-    with open('README.rst') as f:
-        return f.read()
 
 # Must be a seperate variable because conf.py reads the version from here.
 version = "0.1.0"
@@ -21,9 +21,11 @@ version = "0.1.0"
 setup(name='iteration_utilities',
       version=version,
 
-      description='some utilities for iterations.',
+      description='Functional programming utilities for Python.',
       long_description=readme(),
-      keywords=['itertools', 'performance', 'iteration'],
+      keywords=['functional', 'functools', 'generator',
+                'itertools', 'iteration', 'iterator',
+                'operators', 'performance', 'reduce', 'utility'],
 
       classifiers=[
         'Development Status :: 4 - Beta',
