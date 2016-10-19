@@ -46,6 +46,9 @@ def filterkwargs(**kwargs):
 
 
 class _Base(object):
+    """Base class for method definitions that are shared by `Iterable` and
+    `InfiniteIterable`.
+    """
     __slots__ = ('_iterable')
 
     def __init__(self, iterable):
@@ -55,7 +58,7 @@ class _Base(object):
         return iter(self._iterable)
 
     def __repr__(self):
-        return '<{0.__class__.__name__} - {0._iterable!r}>'.format(self)
+        return '<{0.__class__.__name__}: {0._iterable!r}>'.format(self)
 
     def _call(self, *args, **kwargs):
         fn = args[0]
@@ -99,6 +102,9 @@ class _Base(object):
 
         >>> Iterable.from_count(start=4, step=3).islice(10).as_list()
         [4, 7, 10, 13, 16, 19, 22, 25, 28, 31]
+
+        .. warning::
+           This returns an `InfiniteIterable`.
         """
         return InfiniteIterable(count(**filterkwargs(start=start, step=step)))
 
@@ -117,6 +123,9 @@ class _Base(object):
 
         >>> Iterable.from_repeat(object=5, times=5).as_list()
         [5, 5, 5, 5, 5]
+
+        .. warning::
+           This returns an `InfiniteIterable` if `times` is not given.
         """
         if times is not _default:
             return Iterable(repeat(object, times))
@@ -160,6 +169,9 @@ class _Base(object):
         >>> Iterable.from_applyfunc(func=lambda x: x*2,
         ...                         initial=10).islice(5).as_list()
         [20, 40, 80, 160, 320]
+
+        .. warning::
+           This returns an `InfiniteIterable`.
         """
         return InfiniteIterable(applyfunc(func, initial))
 
@@ -225,6 +237,9 @@ class _Base(object):
         >>> Iterable.from_repeatfunc(random.randint, 0, 5,
         ...                          times=10).as_list()  # doctest: +SKIP
         [1, 3, 1, 3, 5, 2, 4, 1, 0, 1]
+
+        .. warning::
+           This returns an `InfiniteIterable` if `times` is not given.
         """
         if times:
             return Iterable(repeatfunc(func, *args, **times))
@@ -248,6 +263,9 @@ class _Base(object):
 
         >>> Iterable.from_tabulate(func=gamma, start=2).islice(7).as_tuple()
         (1.0, 2.0, 6.0, 24.0, 120.0, 720.0, 5040.0)
+
+        .. warning::
+           This returns an `InfiniteIterable`.
         """
         return InfiniteIterable(tabulate(func, **filterkwargs(start=start)))
 
@@ -709,6 +727,101 @@ class _Base(object):
 
 
 class Iterable(_Base):
+    """A convenience class that allows chaining the `iteration_utilities`
+    functions.
+
+    Parameters
+    ----------
+    iterable : iterable
+        Any kind of `iterable`.
+
+    Notes
+    -----
+
+    .. warning::
+       If the `iterable` is infinite (for example created with
+       `itertools.count`), you should not create the `Iterable` instance
+       directly. You could use the :py:func:`Iterable.from_count` or create an
+       :py:class:`InfiniteIterable`.
+
+    Examples
+    --------
+    You can create an instance from any object that implements the iteration
+    protocol. For example the Python types `list`, `tuple`, `set`,
+    `frozenset`, `str`, `dict`, `dict.values()`, `dict.items()`, `range` just
+    to name a few::
+
+        >>> from iteration_utilities import Iterable
+        >>> Iterable([1,2,3,4])
+        <Iterable: [1, 2, 3, 4]>
+
+        >>> Iterable('abcdefghijklmnopqrstuvwxyz')
+        <Iterable: 'abcdefghijklmnopqrstuvwxyz'>
+
+    The primary use of `Iterable` is because it allows easy chaining of
+    several functional programming functions implemented in Python (`map`,
+    `filter`, ...), `itertools` and `iteration_utilities`::
+
+        >>> Iterable([1,2,3,4]).islice(1,3).map(float).as_list()
+        [2.0, 3.0]
+
+    The methods `islice` and `map` are only evaluated when `as_list` is called.
+    The class can also be used in `for` loops::
+
+        >>> from iteration_utilities import is_even
+        >>> for item in Iterable(range(100, 120)).filter(is_even).accumulate():
+        ...     print(item)
+        100
+        202
+        306
+        412
+        520
+        630
+        742
+        856
+        972
+        1090
+
+    Using some methods ( :py:meth:`Iterable.padnone` and
+    :py:meth:`Iterable.cycle`) create an :py:class:`InfiniteIterable`::
+
+        >>> Iterable(range(10)).padnone()  # doctest: +ELLIPSIS
+        <InfiniteIterable: <itertools.chain object at ...>>
+
+    Also some of the staticmethods (``from_x``)::
+
+        >>> Iterable.from_count()
+        <InfiniteIterable: count(0)>
+
+        >>> Iterable.from_repeat(10)
+        <InfiniteIterable: repeat(10)>
+
+        >>> Iterable.from_repeat(10, times=2)  # but not always!
+        <Iterable: repeat(10, 2)>
+
+    This logic allows to be aware if the iterable is infinitly long or not.
+    Some methods can also convert an :py:class:`InfiniteIterable` to a normal
+    :py:class:`Iterable` again::
+
+        >>> Iterable.from_count().islice(2, 5)  # doctest: +ELLIPSIS
+        <Iterable: <itertools.islice object at ...>>
+
+        >>> Iterable.from_count().takewhile(lambda x: x < 100)  # doctest: +ELLIPSIS
+        <Iterable: <itertools.takewhile object at ...>>
+
+    :py:class:`Iterable` implements some constructors for Python types as
+    methods::
+
+        >>> Iterable(range(10)).as_list()
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+        >>> # But also some less common ones, like OrderedDict
+        >>> Iterable(range(6)).enumerate(4).as_ordered_dict()
+        OrderedDict([(4, 0), (5, 1), (6, 2), (7, 3), (8, 4), (9, 5)])
+
+    .. warning::
+       These methods are (obviously) not avaiable for `InfiniteIterable`!
+    """
     __slots__ = ('_iterable')
 
     # TODO: Needs class documentation
@@ -805,9 +918,9 @@ class Iterable(_Base):
         """See :py:func:`python:reversed`.
 
         .. warning::
-           This method requires that the `Iterable` is a `Sequence` or
-           implements the `__reversed__` method. Generally this does not work
-           with generators!
+           This method requires that the wrapped iterable is a `Sequence` or
+           implements the `reversed` iterator protocol. Generally this does not
+           work with generators!
 
         Examples
         --------
@@ -819,7 +932,20 @@ class Iterable(_Base):
 
 
 class InfiniteIterable(_Base):
-    __slots__ = ('_iterable')
+    """Like :py:class:`Iterable` but indicates that the wrapped iterable is
+    infinitly long.
 
-    # TODO: Needs class documentation
-    pass
+    .. warning::
+       The ``Iterable.as_*`` methods are not avaiable for `InfiniteIterable`
+       because it would be impossible to create these types. Use
+       :py:meth:`Iterable.islice` or :py:meth:`Iterable.takewhile` to convert
+       an infinite iterable to a finite iterable. It is still possible to
+       iterate over the iterable with ``for item in ...`` or using the Python
+       constructors like ``list`` directly. This may fail fatally!
+
+    Mostly it is not necessary to use `InfiniteIterable` directly because the
+    corresponding methods on `Iterable` return an `InfiniteIterable` when
+    appropriate. However using ``isinstance(some_iterable, InfiniteIterable)``
+    could be used to determine if the :py:class:`Iterable` is infinite!
+    """
+    __slots__ = ('_iterable')
