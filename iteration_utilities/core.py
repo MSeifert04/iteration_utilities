@@ -74,7 +74,14 @@ class _Base(object):
     def _call_infinite(self, *args, **kwargs):
         res = self._call(*args, **kwargs)
         if isinstance(res, InfiniteIterable):
-            return res
+            # There is no use-case to wrap an already infinite iterable with
+            # something that newly creates an infinite iterable.
+            # For example cycle(count()) makes no sense because we never end
+            # with count so cycle never triggers.
+            # That may change but I found no useful combination so there is
+            # this Exception.
+            raise TypeError('impossible to wrap an infinite iterable with '
+                            'another infinite iterable.')
         return InfiniteIterable(self._call(*args, **kwargs)._iterable)
 
     @staticmethod
@@ -195,6 +202,9 @@ class _Base(object):
         --------
         >>> from iteration_utilities import Iterable
         >>> Iterable.from_repeatfunc(int).islice(10).as_list()
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+        >>> Iterable.from_repeatfunc(int, times=10).as_list()
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
         >>> import random  # doctest: +SKIP
@@ -517,6 +527,8 @@ class _Base(object):
         Examples
         --------
         >>> from iteration_utilities import Iterable
+        >>> Iterable([2]).padnone().islice(10).as_list()
+        [2, None, None, None, None, None, None, None, None, None]
         """
         return self._call_infinite(padnone, 0)
 
