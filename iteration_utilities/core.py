@@ -131,6 +131,19 @@ class _Base(object):
         Examples
         --------
         >>> from iteration_utilities import Iterable
+
+        >>> class A(object): pass
+        >>> class B(A): pass
+        >>> class C(A): pass
+        >>> class D(C): pass
+
+        >>> Iterable.from_itersubclasses(A).as_list()
+        [<class 'iteration_utilities.core.B'>, \
+<class 'iteration_utilities.core.C'>, \
+<class 'iteration_utilities.core.D'>]
+
+        >>> Iterable.from_itersubclasses(C).as_list()
+        [<class 'iteration_utilities.core.D'>]
         """
         return Iterable(itersubclasses(object))
 
@@ -465,6 +478,10 @@ class _Base(object):
 
         >>> Iterable(range(1, 10)).islice(2, 6, 2).as_list()
         [3, 5]
+
+        .. note::
+           This method converts an `InfiniteIterable` to a normal `Iterable` if
+           a `stop` is given.
         """
         nargs = len(args)
         meth = self._call
@@ -646,8 +663,11 @@ class _Base(object):
         >>> Iterable(range(1, 10)).takewhile(
         ...     predicate=lambda x: x < 5).as_list()
         [1, 2, 3, 4]
+
+        .. warning::
+           This method converts an `InfiniteIterable` to a normal `Iterable`.
         """
-        return self._call(takewhile, 1, predicate)
+        return self._call_finite(takewhile, 1, predicate)
 
     def unique_everseen(self, key=_default):
         """See :py:func:`~iteration_utilities.unique_everseen`.
