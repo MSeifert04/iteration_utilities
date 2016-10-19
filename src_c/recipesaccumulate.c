@@ -34,7 +34,7 @@ static PyObject * accumulate_new(PyTypeObject *type, PyObject *args,
             return NULL;
         }
     // accumulate(binop, iterable[, start])
-    } else if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|O:accumulate", kwlist,
+    } else if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OO:accumulate", kwlist,
                                             &iterable, &binop, &start)) {
         return NULL;
     }
