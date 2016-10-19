@@ -79,12 +79,38 @@ class _Base(object):
 
     @staticmethod
     def from_count(start=_default, step=_default):
-        """See :py:func:`itertools.count`."""
+        """See :py:func:`itertools.count`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable.from_count().islice(10).as_list()
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+        >>> Iterable.from_count(4, 3).islice(10).as_list()
+        [4, 7, 10, 13, 16, 19, 22, 25, 28, 31]
+
+        >>> Iterable.from_count(start=4, step=3).islice(10).as_list()
+        [4, 7, 10, 13, 16, 19, 22, 25, 28, 31]
+        """
         return InfiniteIterable(count(**filterkwargs(start=start, step=step)))
 
     @staticmethod
     def from_repeat(object, times=_default):
-        """See :py:func:`itertools.repeat`."""
+        """See :py:func:`itertools.repeat`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable.from_repeat(5).islice(10).as_list()
+        [5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
+
+        >>> Iterable.from_repeat(5, 5).as_list()
+        [5, 5, 5, 5, 5]
+
+        >>> Iterable.from_repeat(object=5, times=5).as_list()
+        [5, 5, 5, 5, 5]
+        """
         if times is not _default:
             return Iterable(repeat(object, times))
         else:
@@ -93,28 +119,90 @@ class _Base(object):
     @staticmethod
     def from_itersubclasses(object):
         """See
-        :py:func:`~iteration_utilities._recipes._additional.itersubclasses`."""
+        :py:func:`~iteration_utilities._recipes._additional.itersubclasses`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        """
         return Iterable(itersubclasses(object))
 
     @staticmethod
     def from_applyfunc(func, initial):
-        """See :py:func:`~iteration_utilities.applyfunc`."""
+        """See :py:func:`~iteration_utilities.applyfunc`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable.from_applyfunc(lambda x: x*2, 10).islice(5).as_list()
+        [20, 40, 80, 160, 320]
+
+        >>> Iterable.from_applyfunc(func=lambda x: x*2,
+        ...                         initial=10).islice(5).as_list()
+        [20, 40, 80, 160, 320]
+        """
         return InfiniteIterable(applyfunc(func, initial))
 
     @staticmethod
     def from_iterfunc_sentinel(func, sentinel):
-        """See :py:func:`python:iter`."""
+        """See :py:func:`python:iter`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+
+        >>> class Func:
+        ...     def __init__(self):
+        ...         self.val = 0
+        ...     def __call__(self):
+        ...         self.val += 1
+        ...         return 4 if self.val < 8 else 10
+
+        >>> Iterable.from_iterfunc_sentinel(Func(), 10).as_list()
+        [4, 4, 4, 4, 4, 4, 4]
+        """
+        # TODO: Update example to something useful
         return Iterable(iter(func, sentinel))
 
     @staticmethod
     def from_iterfunc_exception(func, exception, first=_default):
-        """See :py:func:`~iteration_utilities.iter_except`."""
+        """See :py:func:`~iteration_utilities.iter_except`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+
+        >>> class Func:
+        ...     def __init__(self):
+        ...         self.val = 0
+        ...     def __call__(self):
+        ...         self.val += 1
+        ...         if self.val < 8:
+        ...             return 3
+        ...         raise ValueError()
+
+        >>> Iterable.from_iterfunc_exception(Func(), ValueError).as_list()
+        [3, 3, 3, 3, 3, 3, 3]
+        """
         return Iterable(iter_except(func, exception,
                                     **filterkwargs(first=first)))
 
     @staticmethod
     def from_repeatfunc(func, *args, **times):
-        """See :py:func:`~iteration_utilities._recipes._core.repeatfunc`."""
+        """See :py:func:`~iteration_utilities._recipes._core.repeatfunc`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable.from_repeatfunc(int).islice(10).as_list()
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+        >>> import random  # doctest +SKIP
+        >>> # Something more useful: Creating 10 random integer
+        >>> Iterable.from_repeatfunc(random.randint, 0, 5,
+        ...                          times=10).as_list()  # doctest +SKIP
+        [1, 3, 1, 3, 5, 2, 4, 1, 0, 1]
+        """
         if times:
             return Iterable(repeatfunc(func, *args, **times))
         else:
@@ -122,7 +210,22 @@ class _Base(object):
 
     @staticmethod
     def from_tabulate(func, start=_default):
-        """See :py:func:`~iteration_utilities._recipes._core.tabulate`."""
+        """See :py:func:`~iteration_utilities._recipes._core.tabulate`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> import operator
+        >>> Iterable.from_tabulate(operator.neg).islice(8).as_list()
+        [0, -1, -2, -3, -4, -5, -6, -7]
+
+        >>> from math import gamma
+        >>> Iterable.from_tabulate(gamma, 1).islice(8).as_tuple()
+        (1.0, 1.0, 2.0, 6.0, 24.0, 120.0, 720.0, 5040.0)
+
+        >>> Iterable.from_tabulate(func=gamma, start=2).islice(7).as_tuple()
+        (1.0, 2.0, 6.0, 24.0, 120.0, 720.0, 5040.0)
+        """
         return InfiniteIterable(tabulate(func, **filterkwargs(start=start)))
 
     def accumulate(self, func=_default, start=_default):
