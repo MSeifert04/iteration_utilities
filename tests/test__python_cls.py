@@ -18,6 +18,13 @@ def test_doctests():
 Iterable = iteration_utilities.Iterable
 
 
+def test_sentinelfactory():
+    as_str = str(iteration_utilities._default)
+    as_repr = repr(iteration_utilities._default)
+    assert as_str == as_repr
+    assert as_str == "<default>"
+
+
 def test_cls_exception():
     with pytest.raises(TypeError):
         Iterable.from_count().padnone()
