@@ -197,10 +197,10 @@ class _Base(object):
         >>> Iterable.from_repeatfunc(int).islice(10).as_list()
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-        >>> import random  # doctest +SKIP
+        >>> import random  # doctest: +SKIP
         >>> # Something more useful: Creating 10 random integer
         >>> Iterable.from_repeatfunc(random.randint, 0, 5,
-        ...                          times=10).as_list()  # doctest +SKIP
+        ...                          times=10).as_list()  # doctest: +SKIP
         [1, 3, 1, 3, 5, 2, 4, 1, 0, 1]
         """
         if times:
