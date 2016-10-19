@@ -25,9 +25,8 @@ Contents:
 
    installation
    CHANGES
-   shortcircuit
-   reduce
    generators
+   reduce
    functools
    random
    callbacks
