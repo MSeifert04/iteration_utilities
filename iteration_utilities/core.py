@@ -31,7 +31,7 @@ from iteration_utilities import (accumulate, append, applyfunc,
 
 # Conditional imports
 if PY2:
-    from itertools import (ifiliter as filter,
+    from itertools import (ifilter as filter,
                            imap as map,
                            ifilterfalse as filterfalse)
 else:
@@ -81,7 +81,8 @@ class _Base(object):
 
     @staticmethod
     def from_itersubclasses(object):
-        """See :py:func:`~iteration_utilities._recipes._additional.itersubclasses`."""
+        """See
+        :py:func:`~iteration_utilities._recipes._additional.itersubclasses`."""
         return Iterable(itersubclasses(object))
 
     @staticmethod
@@ -138,7 +139,8 @@ class _Base(object):
         return self._call_infinite(cycle, 0)
 
     def deepflatten(self, depth=_default, types=_default, ignore=_default):
-        """See :py:func:`~iteration_utilities._recipes._additional.deepflatten`."""
+        """See
+        :py:func:`~iteration_utilities._recipes._additional.deepflatten`."""
         return self._call(deepflatten, 0, depth=depth, types=types,
                           ignore=ignore)
 
@@ -169,6 +171,8 @@ class _Base(object):
 
     def islice(self, *args, **kwargs):
         """See :py:func:`itertools.islice`."""
+        # TODO: If stop is given this could transform an infinite to finite
+        #       iterable.
         return self._call(islice, 0, *args, **kwargs)
 
     def intersperse(self, e):
@@ -229,7 +233,7 @@ class _Base(object):
 
 
 class Iterable(_Base):
-    """blub"""
+    # TODO: Needs class documentation
     def as_(self, cls):
         """Convert `Iterable` to other class.
 
@@ -292,4 +296,5 @@ class Iterable(_Base):
 
 
 class InfiniteIterable(_Base):
+    # TODO: Needs class documentation
     pass
