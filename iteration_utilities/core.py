@@ -46,6 +46,8 @@ def filterkwargs(**kwargs):
 
 
 class _Base(object):
+    __slots__ = ('_iterable')
+
     def __init__(self, iterable):
         self._iterable = iterable
 
@@ -63,7 +65,16 @@ class _Base(object):
         kwargs = filterkwargs(**kwargs)
         return self.__class__(fn(*args, **kwargs))
 
+    def _call_finite(self, *args, **kwargs):
+        res = self._call(*args, **kwargs)
+        if isinstance(res, Iterable):
+            return res
+        return Iterable(self._call(*args, **kwargs)._iterable)
+
     def _call_infinite(self, *args, **kwargs):
+        res = self._call(*args, **kwargs)
+        if isinstance(res, InfiniteIterable):
+            return res
         return InfiniteIterable(self._call(*args, **kwargs)._iterable)
 
     @staticmethod
@@ -236,7 +247,8 @@ class _Base(object):
         >>> Iterable(range(1, 10)).dropwhile(lambda x: x < 5).as_list()
         [5, 6, 7, 8, 9]
 
-        >>> Iterable(range(1, 10)).dropwhile(predicate=lambda x: x < 3).as_list()
+        >>> Iterable(range(1, 10)).dropwhile(
+        ...     predicate=lambda x: x < 3).as_list()
         [3, 4, 5, 6, 7, 8, 9]
         """
         return self._call(dropwhile, 1, predicate)
@@ -341,9 +353,15 @@ class _Base(object):
         >>> Iterable(range(1, 10)).islice(2, 6, 2).as_list()
         [3, 5]
         """
-        # TODO: If stop is given this could transform an infinite to finite
-        #       iterable.
-        return self._call(islice, 0, *args)
+        nargs = len(args)
+        meth = self._call
+        if nargs == 1:
+            if args[0] is not None:
+                meth = self._call_finite
+        else:
+            if args[1] is not None:
+                meth = self._call_finite
+        return meth(islice, 0, *args)
 
     def intersperse(self, e):
         """See :py:func:`~iteration_utilities.intersperse`.
@@ -510,7 +528,8 @@ class _Base(object):
         >>> Iterable(range(1, 10)).takewhile(lambda x: x < 4).as_list()
         [1, 2, 3]
 
-        >>> Iterable(range(1, 10)).takewhile(predicate=lambda x: x < 5).as_list()
+        >>> Iterable(range(1, 10)).takewhile(
+        ...     predicate=lambda x: x < 5).as_list()
         [1, 2, 3, 4]
         """
         return self._call(takewhile, 1, predicate)
@@ -555,6 +574,8 @@ class _Base(object):
 
 
 class Iterable(_Base):
+    __slots__ = ('_iterable')
+
     # TODO: Needs class documentation
     def as_(self, cls):
         """Convert `Iterable` to other class.
@@ -663,5 +684,7 @@ class Iterable(_Base):
 
 
 class InfiniteIterable(_Base):
+    __slots__ = ('_iterable')
+
     # TODO: Needs class documentation
     pass
