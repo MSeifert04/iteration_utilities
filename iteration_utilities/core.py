@@ -60,7 +60,7 @@ class _Base(object):
         pos = args[1]
         args = list(islice(args, 2, None))
         args.insert(pos, self)
-        kwargs = filterkwargs(kwargs)
+        kwargs = filterkwargs(**kwargs)
         return self.__class__(fn(*args, **kwargs))
 
     def _call_infinite(self, *args, **kwargs):
