@@ -1,0 +1,3 @@
+[run]
+source = iteration_utilities/*
+omit =  iteration_utilities/_cfuncs*
