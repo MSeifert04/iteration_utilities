@@ -14,8 +14,7 @@ from itertools import (chain, combinations, combinations_with_replacement,
                        permutations, product,
                        repeat,
                        starmap,
-                       takewhile,
-                       zip_longest)
+                       takewhile)
 from math import fsum
 
 # This module
@@ -47,9 +46,11 @@ from iteration_utilities import all_isinstance, any_isinstance
 if PY2:
     from itertools import (ifilter as filter,
                            imap as map,
-                           ifilterfalse as filterfalse)
+                           ifilterfalse as filterfalse,
+                           izip as zip,
+                           izip_longest as zip_longest)
 else:
-    from itertools import filterfalse
+    from itertools import filterfalse, zip_longest
 
 if PY34:
     import statistics
