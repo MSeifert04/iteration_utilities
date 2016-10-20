@@ -18,17 +18,18 @@
 #include "reduceminmax.c"
 #include "reduceone.c"
 #include "reducepartition.c"
-#include "recipesuniquejust.c"
-#include "recipesuniqueever.c"
 #include "recipesaccumulate.c"
 #include "recipesapplyfunc.c"
+#include "recipesclamp.c"
 #include "recipesgrouper.c"
 #include "recipesintersperse.c"
 #include "recipesiterexcept.c"
+#include "recipesmerge.c"
+#include "recipesroundrobin.c"
 #include "recipessplit.c"
 #include "recipessuccessive.c"
-#include "recipesroundrobin.c"
-#include "recipesmerge.c"
+#include "recipesuniqueever.c"
+#include "recipesuniquejust.c"
 
 
 //Method definition object for this extension, these argumens mean:
@@ -126,6 +127,7 @@ PyDoc_STRVAR(PyIU_module_doc, "API: C Functions\n----------------");
         &PyIUType_Nth,
         &PyIUType_Accumulate,
         &PyIUType_Applyfunc,
+        &PyIUType_Clamp,
         &PyIUType_Grouper,
         &PyIUType_Intersperse,
         &PyIUType_Iterexcept,
