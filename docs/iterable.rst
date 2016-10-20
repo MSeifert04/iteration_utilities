@@ -44,6 +44,7 @@ sum the numbers below 3::
     23
 
     >>> # Example with Iterable
+    >>> from iteration_utilities import Iterable
     >>> sum(Iterable(inp).flatten().map(int).filter(less_than_three))
     23
 
