@@ -211,8 +211,7 @@ Examples\n\
 \n\
 References\n\
 ----------\n\
-.. [0] https://en.wikipedia.org/wiki/Round-robin_scheduling\n\
-");
+.. [0] https://en.wikipedia.org/wiki/Round-robin_scheduling");
 
 /******************************************************************************
  *

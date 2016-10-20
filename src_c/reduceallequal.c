@@ -69,5 +69,4 @@ Examples\n\
 True\n\
 \n\
 >>> all_equal([1,1,1,1,1,1,1,2,1])\n\
-False\n\
-");
+False");

@@ -68,8 +68,7 @@ This function is equivalent to ``lambda x: x`` but significantly faster::\n\
     >>> return_identity(1)\n\
     1\n\
     >>> return_identity('abc')\n\
-    'abc'\n\
-");
+    'abc'");
 
 PyDoc_STRVAR(PyIU_ReturnFirstArg_doc, "return_first_arg(*args, **kwargs)\n\
 \n\
@@ -92,8 +91,7 @@ significantly faster::\n\
 \n\
     >>> from iteration_utilities import return_first_arg\n\
     >>> return_first_arg(1, 2, 3, 4, a=100)\n\
-    1\n\
-");
+    1");
 
 PyDoc_STRVAR(PyIU_ReturnCalled_doc, "return_called(func)\n\
 \n\
@@ -116,5 +114,4 @@ faster::\n\
 \n\
     >>> from iteration_utilities import return_called\n\
     >>> return_called(int)\n\
-    0\n\
-");
+    0");

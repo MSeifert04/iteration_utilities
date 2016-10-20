@@ -140,8 +140,7 @@ Examples\n\
 \n\
 References\n\
 ----------\n\
-.. [0] https://toolz.readthedocs.io/en/latest/index.html\n\
-");
+.. [0] https://toolz.readthedocs.io/en/latest/index.html");
 
 /******************************************************************************
  *

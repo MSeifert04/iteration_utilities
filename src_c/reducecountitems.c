@@ -132,5 +132,4 @@ To count the number of values satisfying a condition::\n\
 To count the number of values equal to another value::\n\
 \n\
     >>> count_items([1, 2, 3, 4, 5, 6, 6, 7], 6, True)\n\
-    2\n\
-");
+    2");

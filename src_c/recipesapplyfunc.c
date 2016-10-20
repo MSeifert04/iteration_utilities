@@ -145,8 +145,7 @@ the result of ``func(value)``, then ``func(func(value))``, ...::\n\
 \n\
 .. warning::\n\
     This will return an infinitly long generator so do **not** try to do\n\
-    something like ``list(applyfunc())``!\n\
-");
+    something like ``list(applyfunc())``!");
 
 /******************************************************************************
  *

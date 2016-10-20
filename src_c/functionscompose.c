@@ -237,8 +237,7 @@ Or apply all of them on the input::\n\
 \n\
     >>> double_and_increment = compose(double, increment, all=True)\n\
     >>> double_and_increment(10)\n\
-    (20, 11)\n\
-");
+    (20, 11)");
 
 /******************************************************************************
  *
