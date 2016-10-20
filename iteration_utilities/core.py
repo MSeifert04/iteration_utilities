@@ -739,10 +739,10 @@ class Iterable(_Base):
     -----
 
     .. warning::
-       If the `iterable` is infinite (for example created with
-       `itertools.count`), you should not create the `Iterable` instance
-       directly. You could use the :py:func:`Iterable.from_count` or create an
-       :py:class:`InfiniteIterable`.
+       If the `iterable` is infinite you should **not** create the `Iterable`
+       instance directly (i.e. ``Iterable(count())``. You could use the
+       ``Iterable.from_count()`` or create an :py:class:`InfiniteIterable`:
+       ``InfiniteIterable(count())``.
 
     Examples
     --------
