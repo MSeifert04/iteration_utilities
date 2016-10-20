@@ -18,7 +18,7 @@ from itertools import (combinations, combinations_with_replacement,
 from math import fsum
 
 # This module
-from iteration_utilities import PY2, PY3, PY34, _default
+from iteration_utilities import PY2, PY34, _default
 from iteration_utilities import (accumulate, append, applyfunc,
                                  deepflatten,
                                  flatten,
@@ -816,7 +816,8 @@ class Iterable(_Base):
         >>> Iterable.from_count().islice(2, 5)  # doctest: +ELLIPSIS
         <Iterable: <itertools.islice object at ...>>
 
-        >>> Iterable.from_count().takewhile(lambda x: x < 100)  # doctest: +ELLIPSIS
+        >>> Iterable.from_count().takewhile(lambda x: x < 100)  \
+# doctest: +ELLIPSIS
         <Iterable: <itertools.takewhile object at ...>>
 
     :py:class:`Iterable` implements some constructors for Python types as
@@ -929,7 +930,8 @@ class Iterable(_Base):
         Examples
         --------
         >>> from iteration_utilities import Iterable
-        >>> Iterable('supercalifragilisticexpialidocious').as_counter()  # doctest: +SKIP
+        >>> Iterable('supercalifragilisticexpialidocious').as_counter()  \
+# doctest: +SKIP
         Counter({'i': 7, 's': 3, 'l': 3, 'c': 3, 'a': 3, 'e': 2, 'o': 2, \
 'p': 2, 'r': 2, 'u': 2, 'd': 1, 'g': 1, 'f': 1, 'x': 1, 't': 1})
 
@@ -1084,7 +1086,8 @@ class Iterable(_Base):
         2{0}
         """
         return self._get(count_items, 0, pred=pred, eq=eq)
-    get_count_items.__doc__ = get_count_items.__doc__.format('L' if PY2 else '')
+    get_count_items.__doc__ = get_count_items.__doc__.format(
+        'L' if PY2 else '')
 
     def get_first(self, default=_default, pred=_default, truthy=_default,
                   retpred=_default, retidx=_default):
@@ -1507,7 +1510,8 @@ class Iterable(_Base):
             Examples
             --------
             >>> from iteration_utilities import Iterable
-            >>> Iterable([1,1,1,2,2,3,4,5,6,7,7,8,8]).get_pvariance()  # doctest: +ELLIPSIS
+            >>> Iterable([1,1,1,2,2,3,4,5,6,7,7,8,8]).get_pvariance()  \
+# doctest: +ELLIPSIS
             6.94674556...
             """
             return self._get_iter(statistics.pvariance, 0, mu=mu)

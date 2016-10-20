@@ -66,5 +66,4 @@ Some basic examples::\n\
 \n\
 .. warning::\n\
     `one` will access the first two values of the `iterable` so it should\n\
-    only be used if the `iterable` must only contain one item!\n\
-");
+    only be used if the `iterable` must only contain one item!");
