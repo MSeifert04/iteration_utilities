@@ -62,12 +62,13 @@ convert them to the desired class. These are prefixed with ``as_``.
 
 .. warning::
    However `InfiniteIterables` also implement the iteration protocol and could
-   be passed to `list`, with severe consequences. So use the ``as_*`` methods
-   which will still throw an ``AttributeError`` but at least they won't create
-   an ``MemoryError``! You have been warned.
+   be passed to `list`, with severe consequences. So use the ``as_*`` and
+   ``get_*`` methods which will still throw an ``AttributeError`` but at least
+   they won't create an ``MemoryError`` or freeze your computer! You have been
+   warned!
 
-Currently folding methods like ``sum()`` are not implemented.
-
+Currently folding methods like ``sum()`` are implemented with the prefix
+``get_``.
 
 .. note::
    See the documentation of :py:class:`~iteration_utilities.core.Iterable`
