@@ -86,6 +86,7 @@ def test_applyfunc_normal5():
     assert not memory_leak(test)
 
 
+@pytest.mark.xfail(iteration_utilities.PY2, reason='cmp works on Python 2')
 def test_applyfunc_failure1():
     with pytest.raises(TypeError):
         list(clamp(range(10), 'a', 3))
@@ -96,6 +97,7 @@ def test_applyfunc_failure1():
     assert not memory_leak(test)
 
 
+@pytest.mark.xfail(iteration_utilities.PY2, reason='cmp works on Python 2')
 def test_applyfunc_failure2():
     with pytest.raises(TypeError):
         list(clamp(range(10), 3, 'a'))
@@ -106,6 +108,8 @@ def test_applyfunc_failure2():
     assert not memory_leak(test)
 
 
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 def test_applyfunc_pickle1():
     clmp = clamp(range(10), 2, 7)
     assert next(clmp) == 2
@@ -121,6 +125,8 @@ def test_applyfunc_pickle1():
     assert not memory_leak(test)
 
 
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 def test_applyfunc_pickle2():
     # inclusive
     clmp = clamp(range(10), 2, 7, inclusive=True)
@@ -136,6 +142,8 @@ def test_applyfunc_pickle2():
     assert not memory_leak(test)
 
 
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 def test_applyfunc_pickle3():
     # only low
     clmp = clamp(range(10), 2)
@@ -152,6 +160,8 @@ def test_applyfunc_pickle3():
     assert not memory_leak(test)
 
 
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 def test_applyfunc_pickle4():
     # only high
     clmp = clamp(range(10), high=7)
@@ -168,6 +178,8 @@ def test_applyfunc_pickle4():
     assert not memory_leak(test)
 
 
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 def test_applyfunc_pickle5():
     # only high, with inclusive
     clmp = clamp(range(10), high=7, inclusive=True)
@@ -184,6 +196,8 @@ def test_applyfunc_pickle5():
     assert not memory_leak(test)
 
 
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 def test_applyfunc_pickle6():
     # only low, with inclusive
     clmp = clamp(range(10), 2, inclusive=True)
@@ -200,6 +214,8 @@ def test_applyfunc_pickle6():
     assert not memory_leak(test)
 
 
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 def test_applyfunc_pickle7():
     # no low no high
     clmp = clamp(range(10))
