@@ -8,10 +8,10 @@ environment:
     # isn't covered by this document) at the time of writing.
 
     - PYTHON: "C:\\Python27"
+    - PYTHON: "C:\\Python27-x64"
     - PYTHON: "C:\\Python33"
     - PYTHON: "C:\\Python34"
     - PYTHON: "C:\\Python35"
-    - PYTHON: "C:\\Python27-x64"
     - PYTHON: "C:\\Python35-x64"
 
 install:
@@ -27,7 +27,7 @@ test_script:
   # only needed to support those cases.
   # Note that you must use the environment variable %PYTHON% to refer to
   # the interpreter you're using - Appveyor does not do anything special
-  # to put the Python evrsion you want to use on PATH.
+  # to put the Python version you want to use on PATH.
   - "%PYTHON%\\python.exe setup.py test"
 
 #on_success:

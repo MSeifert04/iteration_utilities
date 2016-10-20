@@ -12,6 +12,18 @@ python:
   - "3.6-dev"
   - "nightly"
 
+matrix:
+  # osx is very slow at the moment.
+  #include:
+    #- python: "2.7"
+    #  os: osx
+    #- python: "3.5"
+    #  os: osx
+
+  allow_failures:
+    - python: "3.6-dev"
+    - python: "nightly"
+
 install:
   - pip install coveralls
   - python setup.py install
