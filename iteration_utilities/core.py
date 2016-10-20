@@ -5,6 +5,8 @@ API: Chainable iteration_utilities
 # Built-ins
 from __future__ import absolute_import, division, print_function
 from collections import OrderedDict
+from functools import reduce
+from heapq import nlargest, nsmallest
 from itertools import (combinations, combinations_with_replacement,
                        compress, count, cycle,
                        dropwhile,
@@ -13,9 +15,10 @@ from itertools import (combinations, combinations_with_replacement,
                        repeat,
                        starmap,
                        takewhile)
+from math import fsum
 
 # This module
-from iteration_utilities import PY2, _default
+from iteration_utilities import PY2, PY34, _default
 from iteration_utilities import (accumulate, append, applyfunc,
                                  deepflatten,
                                  flatten,
@@ -27,6 +30,11 @@ from iteration_utilities import (accumulate, append, applyfunc,
                                  split, successive,
                                  tabulate, tail,
                                  unique_everseen, unique_justseen)
+from iteration_utilities import (all_distinct, all_equal, all_isinstance,
+                                 any_isinstance, argmax, argmin,
+                                 count_items, first, groupedby, last,
+                                 minmax, nth, one, partition, second,
+                                 take, third)
 
 
 # Conditional imports
@@ -36,6 +44,9 @@ if PY2:
                            ifilterfalse as filterfalse)
 else:
     from itertools import filterfalse
+
+if PY34:
+    import statistics
 
 
 __all__ = ['Iterable', 'InfiniteIterable']
@@ -824,7 +835,6 @@ class Iterable(_Base):
     """
     __slots__ = ('_iterable')
 
-    # TODO: Needs class documentation
     def as_(self, cls):
         """Convert `Iterable` to other class.
 
@@ -929,6 +939,139 @@ class Iterable(_Base):
         [3, 2, 1]
         """
         return self.__class__(reversed(self._iterable))
+
+    def _get(self, *args, **kwargs):
+        fn = args[0]
+        pos = args[1]
+        args = list(islice(args, 2, None))
+        args.insert(pos, self)
+        kwargs = filterkwargs(**kwargs)
+        return fn(*args, **kwargs)
+
+    def get_all(self):
+        return self._get(all, 0)
+
+    def get_all_distinct(self):
+        return self._get(all_distinct, 0)
+
+    def get_all_equal(self):
+        return self._get(all_equal, 0)
+
+    def get_all_isinstance(self, types):
+        return self._get(all_isinstance, 0, types)
+
+    def get_any(self):
+        return self._get(any, 0)
+
+    def get_any_isinstance(self, types):
+        return self._get(any_isinstance, 0, types)
+
+    def get_argmax(self, key=_default, default=_default):
+        return self._get(argmax, 0, key=key, default=default)
+
+    def get_argmin(self, key=_default, default=_default):
+        return self._get(argmin, 0, key=key, default=default)
+
+    def get_count_items(self, pred=_default, eq=_default):
+        return self._get(count_items, 0, pred=pred, eq=eq)
+
+    def get_first(self, default=_default, pred=_default, truthy=_default,
+                  retpred=_default, retidx=_default):
+        return self._get(first, 0, default=default, pred=pred, truthy=truthy,
+                         retpred=retpred, retidx=retidx)
+
+    def get_fsum(self):
+        return self._get(fsum)
+
+    def get_groupedby(self, key, keep=_default, reduce=_default,
+                      reducestart=_default):
+        return self._get(groupedby, 0, key, keep=keep, reduce=reduce,
+                         reducestart=reducestart)
+
+    def get_last(self, default=_default, pred=_default, truthy=_default,
+                 retpred=_default, retidx=_default):
+        return self._get(last, 0, default=default, pred=pred, truthy=truthy,
+                         retpred=retpred, retidx=retidx)
+
+    def get_max(self, key=_default, default=_default):
+        return self._get(max, 0, key=key, default=default)
+
+    def get_min(self, key=_default, default=_default):
+        return self._get(min, 0, key=key, default=default)
+
+    def get_minmax(self, key=_default, default=_default):
+        return self._get(minmax, 0, key=key, default=default)
+
+    def get_nth(self, n, default=_default, pred=_default, truthy=_default,
+                retpred=_default, retidx=_default):
+        return self._get(nth(n), 0, default=default, pred=pred, truthy=truthy,
+                         retpred=retpred, retidx=retidx)
+
+    def get_nlargest(self, n, key=_default):
+        return self._get(nlargest, 1, n, key=key)
+
+    def get_nsmallest(self, n, key=_default):
+        return self._get(nsmallest, 1, n, key=key)
+
+    def get_one(self):
+        return self._get(one, 0)
+
+    def get_partition(self, func=_default):
+        return self._get(partition, 0, func=func)
+
+    def get_reduce(self, *args):
+        return self._get(reduce, 1, *args)
+
+    def get_second(self, default=_default, pred=_default, truthy=_default,
+                   retpred=_default, retidx=_default):
+        return self._get(second, 0, default=default, pred=pred, truthy=truthy,
+                         retpred=retpred, retidx=retidx)
+
+    def get_sorted(self, key=_default, reverse=_default):
+        return self._get(sorted, 0, key=key, reverse=reverse)
+
+    def get_sum(self, start=_default):
+        return self._get(sum, 0, start=start)
+
+    def get_take(self, n):
+        return self._get(take, 0, n)
+
+    def get_third(self, default=_default, pred=_default, truthy=_default,
+                  retpred=_default, retidx=_default):
+        return self._get(third, 0, default=default, pred=pred, truthy=truthy,
+                         retpred0retpred, retidx=retidx)
+
+    # Statistics module is only avaiable since Python 3.4
+    if PY34:
+        def get_mean(self, data):
+            return self._get(statistics.mean, 0)
+
+        def get_median(self, data):
+            return self._get(statistics.median, 0)
+
+        def get_median_low(self, data):
+            return self._get(statistics.median_low, 0)
+
+        def get_median_high(self, data):
+            return self._get(statistics.median_high, 0)
+
+        def get_median_grouped(self, data, interval=_default):
+            return self._get(statistics.median_grouped, 0, interval=interval)
+
+        def get_mode(self, data):
+            return self._get(statistics.mode, 0)
+
+        def get_pstdev(self, data, mu=_default):
+            return self._get(statistics.pstdev, 0, mu=mu)
+
+        def get_pvariance(self, data, mu=_default):
+            return self._get(statistics.pvariance, 0, mu=mu)
+
+        def get_stdev(self, data, xbar=_default):
+            return self._get(statistics.stdev, 0, xbar=xbar)
+
+        def get_variance(self, data, mu=_default):
+            return self._get(statistics.variance, 0, mu=mu)
 
 
 class InfiniteIterable(_Base):

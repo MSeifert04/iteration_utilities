@@ -80,7 +80,7 @@ static PyObject * PyIU_Count(PyObject *m, PyObject *args,
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(PyIU_Count_doc, "count_items(iterable, pred)\n\
+PyDoc_STRVAR(PyIU_Count_doc, "count_items(iterable[, pred, eq])\n\
 \n\
 Count how many times the predicate is true.\n\
 \n\
