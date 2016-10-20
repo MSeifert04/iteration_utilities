@@ -4,7 +4,7 @@ API: Chainable iteration_utilities
 """
 # Built-ins
 from __future__ import absolute_import, division, print_function
-from collections import OrderedDict
+from collections import Counter, OrderedDict
 from functools import reduce
 from heapq import nlargest, nsmallest
 from itertools import (combinations, combinations_with_replacement,
@@ -30,8 +30,7 @@ from iteration_utilities import (accumulate, append, applyfunc,
                                  split, successive,
                                  tabulate, tail,
                                  unique_everseen, unique_justseen)
-from iteration_utilities import (all_distinct, all_equal, all_isinstance,
-                                 any_isinstance, argmax, argmin,
+from iteration_utilities import (all_distinct, all_equal, argmax, argmin,
                                  count_items, first, groupedby, last,
                                  minmax, nth, one, partition, second,
                                  take, third)
@@ -924,6 +923,21 @@ class Iterable(_Base):
         """
         return self.as_(OrderedDict)
 
+    def as_counter(self):
+        """See :py:meth:`as_`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable('supercalifragilisticexpialidocious').as_counter()  # doctest: +SKIP
+        Counter({'i': 7, 's': 3, 'l': 3, 'c': 3, 'a': 3, 'e': 2, 'o': 2, \
+'p': 2, 'r': 2, 'u': 2, 'd': 1, 'g': 1, 'f': 1, 'x': 1, 't': 1})
+
+        >>> Iterable([1, 1, 1]).as_counter()
+        Counter({1: 3})
+        """
+        return self.as_(Counter)
+
     def reversed(self):
         """See :py:func:`python:reversed`.
 
@@ -948,130 +962,532 @@ class Iterable(_Base):
         kwargs = filterkwargs(**kwargs)
         return fn(*args, **kwargs)
 
+    def _get_iter(self, *args, **kwargs):
+        fn = args[0]
+        pos = args[1]
+        args = list(islice(args, 2, None))
+        args.insert(pos, iter(self))
+        kwargs = filterkwargs(**kwargs)
+        return fn(*args, **kwargs)
+
     def get_all(self):
+        """See :py:func:`all`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable(range(10)).map(lambda x: x > 2).get_all()
+        False
+
+        >>> Iterable(range(10)).map(lambda x: x >= 0).get_all()
+        True
+        """
         return self._get(all, 0)
 
     def get_all_distinct(self):
+        """See :py:func:`~iteration_utilities._cfuncs.all_distinct`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable(range(10)).get_all_distinct()
+        True
+
+        >>> Iterable([1, 2, 3, 4, 5, 6, 7, 1]).get_all_distinct()
+        False
+        """
         return self._get(all_distinct, 0)
 
     def get_all_equal(self):
+        """See :py:func:`~iteration_utilities._cfuncs.all_equal`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable(range(10)).get_all_equal()
+        False
+
+        >>> Iterable([1]*100).get_all_equal()
+        True
+        """
         return self._get(all_equal, 0)
 
-    def get_all_isinstance(self, types):
-        return self._get(all_isinstance, 0, types)
-
     def get_any(self):
+        """See :py:func:`any`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable(range(10)).map(lambda x: x > 2).get_any()
+        True
+
+        >>> Iterable(range(10)).map(lambda x: x >= 10).get_any()
+        False
+        """
         return self._get(any, 0)
 
-    def get_any_isinstance(self, types):
-        return self._get(any_isinstance, 0, types)
-
     def get_argmax(self, key=_default, default=_default):
+        """See :py:func:`~iteration_utilities._cfuncs.argmax`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable([1, 2, -5, 3, 4]).get_argmax()
+        4
+
+        >>> Iterable([1, 2, -5, 3, 4]).get_argmax(abs)
+        2
+
+        >>> Iterable([1, 2, -5, 3, 4]).get_argmax(key=abs)
+        2
+
+        >>> Iterable([]).get_argmax(key=abs, default=-1)
+        -1
+        """
         return self._get(argmax, 0, key=key, default=default)
 
     def get_argmin(self, key=_default, default=_default):
+        """See :py:func:`~iteration_utilities._cfuncs.argmin`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable([1, 2, -5, 3, 4]).get_argmin()
+        2
+
+        >>> Iterable([1, 2, -5, 3, 4]).get_argmin(abs)
+        0
+
+        >>> Iterable([1, 2, -5, 3, 4]).get_argmin(key=abs)
+        0
+
+        >>> Iterable([]).get_argmin(key=abs, default=-1)
+        -1
+        """
         return self._get(argmin, 0, key=key, default=default)
 
     def get_count_items(self, pred=_default, eq=_default):
+        """See :py:func:`~iteration_utilities._cfuncs.count_items`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable((i for i in range(10))).get_count_items()
+        10
+
+        >>> Iterable([1, 2, 3, 2, 1]).get_count_items(2, True)
+        2
+
+        >>> Iterable([1, 2, 3, 2, 1]).get_count_items(pred=2, eq=True)
+        2
+        """
         return self._get(count_items, 0, pred=pred, eq=eq)
 
     def get_first(self, default=_default, pred=_default, truthy=_default,
                   retpred=_default, retidx=_default):
+        """See :py:func:`~iteration_utilities.nth`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable(range(10)).get_first()
+        0
+
+        >>> Iterable(range(1, 10, 2)).get_first(pred=lambda x: x > 5)
+        7
+        """
         return self._get(first, 0, default=default, pred=pred, truthy=truthy,
                          retpred=retpred, retidx=retidx)
 
     def get_fsum(self):
-        return self._get(fsum)
+        """See :py:func:`math.fsum`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable(range(10)).get_fsum()
+        45.0
+        """
+        return self._get(fsum, 0)
 
     def get_groupedby(self, key, keep=_default, reduce=_default,
                       reducestart=_default):
+        """See :py:func:`~iteration_utilities._cfuncs.groupedby`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable, is_even
+        >>> grp = Iterable(range(10)).get_groupedby(is_even)
+        >>> grp[True]
+        [0, 2, 4, 6, 8]
+        >>> grp[False]
+        [1, 3, 5, 7, 9]
+        """
         return self._get(groupedby, 0, key, keep=keep, reduce=reduce,
                          reducestart=reducestart)
 
     def get_last(self, default=_default, pred=_default, truthy=_default,
                  retpred=_default, retidx=_default):
+        """See :py:func:`~iteration_utilities.nth`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable(range(10)).get_last()
+        9
+
+        >>> Iterable(range(1, 10, 2)).get_last(pred=lambda x: x > 5)
+        9
+        """
         return self._get(last, 0, default=default, pred=pred, truthy=truthy,
                          retpred=retpred, retidx=retidx)
 
     def get_max(self, key=_default, default=_default):
+        """See :py:func:`max`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable([1, 2, -5, 3, 4]).get_max()
+        4
+
+        >>> Iterable([1, 2, -5, 3, 4]).get_max(abs)
+        -5
+
+        >>> Iterable([1, 2, -5, 3, 4]).get_max(key=abs)
+        -5
+
+        >>> Iterable([]).get_max(key=abs, default=-1)
+        -1
+        """
         return self._get(max, 0, key=key, default=default)
 
     def get_min(self, key=_default, default=_default):
+        """See :py:func:`min`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable([1, 2, -5, 3, 4]).get_min()
+        -5
+
+        >>> Iterable([1, 2, -5, 3, 4]).get_min(abs)
+        1
+
+        >>> Iterable([1, 2, -5, 3, 4]).get_min(key=abs)
+        1
+
+        >>> Iterable([]).get_min(key=abs, default=-1)
+        -1
+        """
         return self._get(min, 0, key=key, default=default)
 
     def get_minmax(self, key=_default, default=_default):
+        """See :py:func:`~iteration_utilities._cfuncs.minmax`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable([1, 2, -5, 3, 4]).get_minmax()
+        (-5, 4)
+
+        >>> Iterable([1, 2, -5, 3, 4]).get_minmax(abs)
+        (1, -5)
+
+        >>> Iterable([1, 2, -5, 3, 4]).get_minmax(key=abs)
+        (1, -5)
+
+        >>> Iterable([]).get_minmax(key=abs, default=-1)
+        (-1, -1)
+        """
         return self._get(minmax, 0, key=key, default=default)
 
     def get_nth(self, n, default=_default, pred=_default, truthy=_default,
                 retpred=_default, retidx=_default):
+        """See :py:func:`~iteration_utilities.nth`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable(range(10)).get_nth(6)
+        6
+
+        >>> Iterable(range(1, 10, 2)).get_nth(0, pred=lambda x: x > 5)
+        7
+        """
         return self._get(nth(n), 0, default=default, pred=pred, truthy=truthy,
                          retpred=retpred, retidx=retidx)
 
     def get_nlargest(self, n, key=_default):
+        """See :py:func:`heapq.nlargest`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable([4,1,2,3,1,5,8,2,-10]).get_nlargest(3)
+        [8, 5, 4]
+
+        >>> Iterable([4,1,2,3,1,5,8,2,-10]).get_nlargest(3, key=abs)
+        [-10, 8, 5]
+        """
         return self._get(nlargest, 1, n, key=key)
 
     def get_nsmallest(self, n, key=_default):
+        """See :py:func:`heapq.nsmallest`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable([4,1,2,3,1,5,8,2]).get_nsmallest(3)
+        [1, 1, 2]
+        """
         return self._get(nsmallest, 1, n, key=key)
 
     def get_one(self):
+        """See :py:func:`~iteration_utilities._cfuncs.one`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable([1]).get_one()
+        1
+        """
         return self._get(one, 0)
 
     def get_partition(self, func=_default):
+        """See :py:func:`~iteration_utilities._cfuncs.partition`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable, is_even
+        >>> Iterable(range(5)).get_partition(is_even)
+        ([1, 3], [0, 2, 4])
+        """
         return self._get(partition, 0, func=func)
 
     def get_reduce(self, *args):
+        """See :py:func:`functools.reduce`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> from operator import add
+        >>> Iterable(range(5)).get_reduce(add)
+        10
+        """
         return self._get(reduce, 1, *args)
 
     def get_second(self, default=_default, pred=_default, truthy=_default,
                    retpred=_default, retidx=_default):
+        """See :py:func:`~iteration_utilities.nth`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable(range(10)).get_second()
+        1
+
+        >>> Iterable(range(1, 10, 2)).get_second(pred=lambda x: x > 5)
+        9
+        """
         return self._get(second, 0, default=default, pred=pred, truthy=truthy,
                          retpred=retpred, retidx=retidx)
 
     def get_sorted(self, key=_default, reverse=_default):
+        """See :py:func:`sorted`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable([3, 1, 5, 12, 7]).get_sorted()
+        [1, 3, 5, 7, 12]
+        """
         return self._get(sorted, 0, key=key, reverse=reverse)
 
     def get_sum(self, start=_default):
-        return self._get(sum, 0, start=start)
+        """See :py:func:`sum`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable([3, 1, 5, 12, 7]).get_sum()
+        28
+
+        >>> Iterable([3, 1, 5, 12, 7]).get_sum(10)
+        38
+        """
+        if start is _default:
+            return self._get(sum, 0)
+        return self._get(sum, 0, start)
 
     def get_take(self, n):
+        """See :py:func:`~iteration_utilities._recipes._core.take`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable(range(10000)).get_take(3)
+        [0, 1, 2]
+        """
         return self._get(take, 0, n)
 
     def get_third(self, default=_default, pred=_default, truthy=_default,
                   retpred=_default, retidx=_default):
+        """See :py:func:`~iteration_utilities.nth`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable(range(10)).get_third()
+        2
+
+        >>> Iterable(range(1, 10, 2)).get_third(default=-1,
+        ...                                     pred=lambda x: x > 5)
+        -1
+        """
         return self._get(third, 0, default=default, pred=pred, truthy=truthy,
-                         retpred0retpred, retidx=retidx)
+                         retpred=retpred, retidx=retidx)
 
     # Statistics module is only avaiable since Python 3.4
     if PY34:
-        def get_mean(self, data):
-            return self._get(statistics.mean, 0)
+        def get_mean(self):
+            """See :py:func:`statistics.mean`.
 
-        def get_median(self, data):
-            return self._get(statistics.median, 0)
+            .. note::
+               Python >= 3.4 is required for this function.
 
-        def get_median_low(self, data):
-            return self._get(statistics.median_low, 0)
+            Examples
+            --------
+            >>> from iteration_utilities import Iterable
+            >>> Iterable(range(10)).get_mean()
+            4.5
+            """
+            return self._get_iter(statistics.mean, 0)
 
-        def get_median_high(self, data):
-            return self._get(statistics.median_high, 0)
+        def get_median(self):
+            """See :py:func:`statistics.median`.
 
-        def get_median_grouped(self, data, interval=_default):
-            return self._get(statistics.median_grouped, 0, interval=interval)
+            .. note::
+               Python >= 3.4 is required for this function.
 
-        def get_mode(self, data):
-            return self._get(statistics.mode, 0)
+            Examples
+            --------
+            >>> from iteration_utilities import Iterable
+            >>> Iterable(range(11)).get_median()
+            5
+            """
+            return self._get_iter(statistics.median, 0)
 
-        def get_pstdev(self, data, mu=_default):
-            return self._get(statistics.pstdev, 0, mu=mu)
+        def get_median_low(self):
+            """See :py:func:`statistics.median_low`.
 
-        def get_pvariance(self, data, mu=_default):
-            return self._get(statistics.pvariance, 0, mu=mu)
+            .. note::
+               Python >= 3.4 is required for this function.
 
-        def get_stdev(self, data, xbar=_default):
-            return self._get(statistics.stdev, 0, xbar=xbar)
+            Examples
+            --------
+            >>> from iteration_utilities import Iterable
+            >>> Iterable(range(10)).get_median_low()
+            4
+            """
+            return self._get_iter(statistics.median_low, 0)
 
-        def get_variance(self, data, mu=_default):
-            return self._get(statistics.variance, 0, mu=mu)
+        def get_median_high(self):
+            """See :py:func:`statistics.median_high`.
+
+            .. note::
+               Python >= 3.4 is required for this function.
+
+            Examples
+            --------
+            >>> from iteration_utilities import Iterable
+            >>> Iterable(range(10)).get_median_high()
+            5
+            """
+            return self._get_iter(statistics.median_high, 0)
+
+        def get_median_grouped(self, interval=_default):
+            """See :py:func:`statistics.median_grouped`.
+
+            .. note::
+               Python >= 3.4 is required for this function.
+
+            Examples
+            --------
+            >>> from iteration_utilities import Iterable
+            >>> Iterable(range(10)).get_median_grouped(interval=4)
+            3.0
+            """
+            return self._get_iter(statistics.median_grouped, 0,
+                                  interval=interval)
+
+        def get_mode(self):
+            """See :py:func:`statistics.mode`.
+
+            .. note::
+               Python >= 3.4 is required for this function.
+
+            Examples
+            --------
+            >>> from iteration_utilities import Iterable
+            >>> Iterable([1,1,1,2,2,3,4,5,6,7,7,8,8]).get_mode()
+            1
+            """
+            return self._get_iter(statistics.mode, 0)
+
+        def get_pstdev(self, mu=_default):
+            """See :py:func:`statistics.pstdev`.
+
+            .. note::
+               Python >= 3.4 is required for this function.
+
+            Examples
+            --------
+            >>> from iteration_utilities import Iterable
+            >>> Iterable([1,1,1,2,2,3,4,5,6,7,7,8,8]).get_pstdev()
+            2.635667953694125
+            """
+            return self._get_iter(statistics.pstdev, 0, mu=mu)
+
+        def get_pvariance(self, mu=_default):
+            """See :py:func:`statistics.pvariance`.
+
+            .. note::
+               Python >= 3.4 is required for this function.
+
+            Examples
+            --------
+            >>> from iteration_utilities import Iterable
+            >>> Iterable([1,1,1,2,2,3,4,5,6,7,7,8,8]).get_pvariance()
+            6.946745562130178
+            """
+            return self._get_iter(statistics.pvariance, 0, mu=mu)
+
+        def get_stdev(self, xbar=_default):
+            """See :py:func:`statistics.stdev`.
+
+            Examples
+            --------
+            >>> from iteration_utilities import Iterable
+            >>> Iterable([1,1,1,2,2,3,4,5,6,7,7,8,8]).get_stdev()
+            2.743290182543769
+            """
+            return self._get_iter(statistics.stdev, 0, xbar=xbar)
+
+        def get_variance(self, mu=_default):
+            """See :py:func:`statistics.variance`.
+
+            Examples
+            --------
+            >>> from iteration_utilities import Iterable
+            >>> Iterable([1,1,1,2,2,3,4,5,6,7,7,8,8]).get_variance()
+            7.5256410256410255
+            """
+            return self._get_iter(statistics.variance, 0, mu=mu)
 
 
 class InfiniteIterable(_Base):
