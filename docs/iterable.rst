@@ -1,17 +1,18 @@
-Iterable and InfiniteIterable
------------------------------
+Iterable, InfiniteIterable and ManyIterables
+--------------------------------------------
 
 .. warning::
-   :py:class:`~iteration_utilities.core.Iterable` and
-   :py:class:`~iteration_utilities.core.InfiniteIterable` are currently
-   experimental.
+   :py:class:`~iteration_utilities.core.Iterable`,
+   :py:class:`~iteration_utilities.core.InfiniteIterable` and
+   :py:class:`~iteration_utilities.core.ManyIterables`
+   are currently experimental.
 
-``iteration_utilities`` introduces these two classes that can be used as
+``iteration_utilities`` introduces these three classes that can be used as
 wrapper for Python iterables. These classes implement the generators present
 in the Python builtins, the ``itertools``-module and ``iteration_utilities``
 as methods.
 
-These can be broadly classified in 3 categories:
+These can be broadly classified in 4 categories:
 
 Creating an Iterable
 ^^^^^^^^^^^^^^^^^^^^
@@ -74,3 +75,14 @@ Currently folding methods like ``sum()`` are implemented with the prefix
    See the documentation of :py:class:`~iteration_utilities.core.Iterable`
    to see which methods are possible or read the next chapters for more
    background information.
+
+Operating on several iterables
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The `ManyIterables` class implements the methods that operate on several
+iterables and return a single `Iterable` or `InfiniteIterable`.
+
+However it is very important that the `iterables` given to `ManyIterables`
+clearly indicate if they are infinite, otherwise the methods won't know if
+the result should be finite or infinite. These infinite iterables should be
+wrapped in `InfiniteIterable` or created by the ``Iterable.from_*`` methods.

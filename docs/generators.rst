@@ -65,7 +65,7 @@ Processing several iterables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. note::
-   These functions are not implemented as methods for `Iterable`.
+   These functions are implemented as methods for `ManyIterables`.
 
 - :py:func:`itertools.chain`
 - :py:func:`map`

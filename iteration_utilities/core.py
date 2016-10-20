@@ -7,18 +7,20 @@ from __future__ import absolute_import, division, print_function
 from collections import Counter, OrderedDict
 from functools import reduce
 from heapq import nlargest, nsmallest
-from itertools import (combinations, combinations_with_replacement,
+from itertools import (chain, combinations, combinations_with_replacement,
                        compress, count, cycle,
                        dropwhile,
                        islice,
-                       permutations,
+                       permutations, product,
                        repeat,
                        starmap,
-                       takewhile)
+                       takewhile,
+                       zip_longest)
 from math import fsum
 
 # This module
 from iteration_utilities import PY2, PY34, _default
+# - generators
 from iteration_utilities import (accumulate, append, applyfunc,
                                  deepflatten,
                                  flatten,
@@ -30,10 +32,15 @@ from iteration_utilities import (accumulate, append, applyfunc,
                                  split, successive,
                                  tabulate, tail,
                                  unique_everseen, unique_justseen)
+# - folds
 from iteration_utilities import (all_distinct, all_equal, argmax, argmin,
                                  count_items, first, groupedby, last,
                                  minmax, nth, one, partition, second,
                                  take, third)
+# - multiple_iterables
+from iteration_utilities import merge, roundrobin
+# - helper
+from iteration_utilities import all_isinstance, any_isinstance
 
 
 # Conditional imports
@@ -48,7 +55,7 @@ if PY34:
     import statistics
 
 
-__all__ = ['Iterable', 'InfiniteIterable']
+__all__ = ['Iterable', 'InfiniteIterable', 'ManyIterables']
 
 
 def filterkwargs(**kwargs):
@@ -973,7 +980,7 @@ class Iterable(_Base):
         return fn(*args, **kwargs)
 
     def get_all(self):
-        """See :py:func:`all`.
+        """See :py:func:`python:all`.
 
         Examples
         --------
@@ -1015,7 +1022,7 @@ class Iterable(_Base):
         return self._get(all_equal, 0)
 
     def get_any(self):
-        """See :py:func:`any`.
+        """See :py:func:`python:any`.
 
         Examples
         --------
@@ -1185,7 +1192,7 @@ class Iterable(_Base):
             return self._get(min, 0, key=key)
     else:
         def get_max(self, key=_default, default=_default):
-            """See :py:func:`max`.
+            """See :py:func:`python:max`.
 
             .. note::
                The `default`-parameter is not avaiable at Python 3.3
@@ -1208,7 +1215,7 @@ class Iterable(_Base):
             return self._get(max, 0, key=key, default=default)
 
         def get_min(self, key=_default, default=_default):
-            """See :py:func:`min`.
+            """See :py:func:`python:min`.
 
             .. note::
                The `default`-parameter is not avaiable at Python 3.3
@@ -1342,7 +1349,7 @@ class Iterable(_Base):
                          retpred=retpred, retidx=retidx)
 
     def get_sorted(self, key=_default, reverse=_default):
-        """See :py:func:`sorted`.
+        """See :py:func:`python:sorted`.
 
         Examples
         --------
@@ -1353,7 +1360,7 @@ class Iterable(_Base):
         return self._get(sorted, 0, key=key, reverse=reverse)
 
     def get_sum(self, start=_default):
-        """See :py:func:`sum`.
+        """See :py:func:`python:sum`.
 
         Examples
         --------
@@ -1557,3 +1564,193 @@ class InfiniteIterable(_Base):
     could be used to determine if the :py:class:`Iterable` is infinite!
     """
     __slots__ = ('_iterable')
+
+
+class ManyIterables(object):
+    """`ManyIterables` stores several `Iterables` and implements methods to
+    convert these to one `Iterable`.
+
+    .. warning::
+       `ManyIterables` itself does not implement iteration!
+
+    Parameters
+    ----------
+    *iterables : any amount of iterables
+        The `iterables` to store.
+
+    Notes
+    -----
+    This is just a convenience class to seperate the expressions dealing with
+    multiple iterables from those applying on one.
+
+    Examples
+    --------
+    Depending on the function and the types of the `iterables` the returned
+    class may be different. For example :py:meth:`map` returns an infinite
+    iterable if **all** `iterables` are infinite::
+
+        >>> from iteration_utilities import ManyIterables
+        >>> ManyIterables(Iterable.from_count(10), range(10)).map(pow)  \
+# doctest: +ELLIPSIS
+        <Iterable: <map object at ...>>
+
+        >>> ManyIterables(Iterable.from_count(10),
+        ...               Iterable.from_count(10)).map(pow)  \
+# doctest: +ELLIPSIS
+        <InfiniteIterable: <map object at ...>>
+
+    While other methods also return an infinite iterable if **any** of the
+    `iterables` is infinite::
+
+        >>> ManyIterables(range(10), Iterable.from_count(10)).merge()  \
+# doctest: +ELLIPSIS
+        <InfiniteIterable: <iteration_utilities.merge object at ...>>
+
+        >>> ManyIterables(range(10), range(10)).merge()  # doctest: +ELLIPSIS
+        <Iterable: <iteration_utilities.merge object at ...>>
+
+    Each method has a note explicitly stating to which of these categories it
+    belongs.
+    """
+    __slots__ = ('_iterables')
+
+    def __init__(self, *iterables):
+        self._iterables = iterables
+
+    def _call(self, fn, infinitecheck, *args, **kwargs):
+        iterables = self._iterables
+        if infinitecheck and any_isinstance(iterables, InfiniteIterable):
+            cls = InfiniteIterable
+        elif not infinitecheck and all_isinstance(iterables, InfiniteIterable):
+            cls = InfiniteIterable
+        else:
+            cls = Iterable
+        if args:
+            iterables = args + iterables
+        return cls(fn(*iterables, **filterkwargs(**kwargs)))
+
+    def chain(self):
+        """See :py:func:`itertools.chain`.
+
+        .. note::
+           If any of the `Iterables` is infinite then this will also return
+           an `InfiniteIterable`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import ManyIterables
+        >>> ManyIterables([1,3,5,7,9], [0,2,4,6,8]).chain().as_list()
+        [1, 3, 5, 7, 9, 0, 2, 4, 6, 8]
+        """
+        return self._call(chain, True)
+
+    def map(self, function):
+        """See :py:func:`python:map`.
+
+        .. note::
+           If **all** of the `Iterables` is infinite then this will also return
+           an `InfiniteIterable`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import ManyIterables
+        >>> ManyIterables([1,3,5,7,9], [0,2,4,6,8]).map(pow).as_list()
+        [1, 9, 625, 117649, 43046721]
+        """
+        return self._call(map, False, function)
+
+    def merge(self, key=_default, reverse=_default):
+        """See :py:func:`~iteration_utilities.merge`.
+
+        .. note::
+           If any of the `Iterables` is infinite then this will also return
+           an `InfiniteIterable`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import ManyIterables
+        >>> ManyIterables([1,3,5,7,9], [0,2,4,6,8]).merge().as_list()
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+        >>> from operator import neg
+        >>> ManyIterables([1,3,5,7,9], [0,2,4,6,8]).merge(neg, True).as_list()
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+        >>> ManyIterables([1,3,5,7,9], [0,2,4,6,8]).merge(
+        ...     key=neg, reverse=True).as_list()
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        """
+        return self._call(merge, True, key=key, reverse=reverse)
+
+    def product(self, repeat=_default):
+        """See :py:func:`itertools.product`.
+
+        .. note::
+           If any of the `Iterables` is infinite then this will also return
+           an `InfiniteIterable`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import ManyIterables
+        >>> ManyIterables([1,2], [10, 11, 12]).product().as_list()
+        [(1, 10), (1, 11), (1, 12), (2, 10), (2, 11), (2, 12)]
+
+        >>> ManyIterables([1], [10, 11]).product(2).as_list()
+        [(1, 10, 1, 10), (1, 10, 1, 11), (1, 11, 1, 10), (1, 11, 1, 11)]
+
+        >>> ManyIterables([1], [10, 11]).product(repeat=2).as_list()
+        [(1, 10, 1, 10), (1, 10, 1, 11), (1, 11, 1, 10), (1, 11, 1, 11)]
+        """
+        return self._call(product, True, repeat=repeat)
+
+    def roundrobin(self):
+        """See :py:func:`~iteration_utilities.roundrobin`.
+
+        .. note::
+           If any of the `Iterables` is infinite then this will also return
+           an `InfiniteIterable`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import ManyIterables
+        >>> ManyIterables([1,2,3,4], [10, 11, 12]).roundrobin().as_list()
+        [1, 10, 2, 11, 3, 12, 4]
+        """
+        return self._call(roundrobin, True)
+
+    def zip(self):
+        """See :py:func:`python:zip`.
+
+        .. note::
+           If **all** of the `Iterables` is infinite then this will also return
+           an `InfiniteIterable`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import ManyIterables
+        >>> ManyIterables([1,2,3,4], [2,3,4,5]).zip().as_list()
+        [(1, 2), (2, 3), (3, 4), (4, 5)]
+        """
+        return self._call(zip, False)
+
+    def zip_longest(self, fillvalue=_default):
+        """See :py:func:`itertools.zip_longest`.
+
+        .. note::
+           If any of the `Iterables` is infinite then this will also return
+           an `InfiniteIterable`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import ManyIterables
+        >>> ManyIterables([1,2,3,4], [2,3,4]).zip_longest().as_list()
+        [(1, 2), (2, 3), (3, 4), (4, None)]
+
+        >>> ManyIterables([1,2,3,4], [2,3,4]).zip_longest('x').as_list()
+        [(1, 2), (2, 3), (3, 4), (4, 'x')]
+
+        >>> ManyIterables([1,2,3,4], [2,3,4]).zip_longest(
+        ...     fillvalue='x').as_list()
+        [(1, 2), (2, 3), (3, 4), (4, 'x')]
+        """
+        return self._call(zip_longest, True, fillvalue=fillvalue)
