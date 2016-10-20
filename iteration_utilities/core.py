@@ -1568,55 +1568,59 @@ class InfiniteIterable(_Base):
 
 
 class ManyIterables(object):
-    """`ManyIterables` stores several `Iterables` and implements methods to
-    convert these to one `Iterable`.
-
-    .. warning::
-       `ManyIterables` itself does not implement iteration!
-
-    Parameters
-    ----------
-    *iterables : any amount of iterables
-        The `iterables` to store.
-
-    Notes
-    -----
-    This is just a convenience class to seperate the expressions dealing with
-    multiple iterables from those applying on one.
-
-    Examples
-    --------
-    Depending on the function and the types of the `iterables` the returned
-    class may be different. For example :py:meth:`map` returns an infinite
-    iterable if **all** `iterables` are infinite::
-
-        >>> from iteration_utilities import ManyIterables
-        >>> ManyIterables(Iterable.from_count(10), range(10)).map(pow)  \
-# doctest: +ELLIPSIS
-        <Iterable: <map object at ...>>
-
-        >>> ManyIterables(Iterable.from_count(10),
-        ...               Iterable.from_count(10)).map(pow)  \
-# doctest: +ELLIPSIS
-        <InfiniteIterable: <map object at ...>>
-
-    While other methods also return an infinite iterable if **any** of the
-    `iterables` is infinite::
-
-        >>> ManyIterables(range(10), Iterable.from_count(10)).merge()  \
-# doctest: +ELLIPSIS
-        <InfiniteIterable: <iteration_utilities.merge object at ...>>
-
-        >>> ManyIterables(range(10), range(10)).merge()  # doctest: +ELLIPSIS
-        <Iterable: <iteration_utilities.merge object at ...>>
-
-    Each method has a note explicitly stating to which of these categories it
-    belongs.
-    """
     __slots__ = ('_iterables')
 
     def __init__(self, *iterables):
+        """`ManyIterables` stores several `Iterables` and implements methods to
+        convert these to one `Iterable`.
+
+        .. warning::
+           `ManyIterables` itself does not implement iteration!
+
+        Parameters
+        ----------
+        *iterables : any amount of iterables
+            The `iterables` to store.
+
+        Notes
+        -----
+        This is just a convenience class to seperate the expressions dealing
+        with multiple iterables from those applying on one.
+
+        Examples
+        --------
+        Depending on the function and the types of the `iterables` the returned
+        class may be different. For example :py:meth:`map` returns an infinite
+        iterable if **all** `iterables` are infinite::
+
+            >>> from iteration_utilities import ManyIterables
+            >>> ManyIterables(Iterable.from_count(10), range(10)).map(pow)  \
+# doctest: +ELLIPSIS
+            <Iterable: <{0} object at ...>>
+
+            >>> ManyIterables(Iterable.from_count(10),
+            ...               Iterable.from_count(10)).map(pow)  \
+# doctest: +ELLIPSIS
+            <InfiniteIterable: <{0} object at ...>>
+
+        While other methods also return an infinite iterable if **any** of the
+        `iterables` is infinite::
+
+            >>> ManyIterables(range(10), Iterable.from_count(10)).merge()  \
+# doctest: +ELLIPSIS
+            <InfiniteIterable: <iteration_utilities.merge object at ...>>
+
+            >>> ManyIterables(range(10), range(10)).merge()  \
+# doctest: +ELLIPSIS
+            <Iterable: <iteration_utilities.merge object at ...>>
+
+        Each method has a note explicitly stating to which of these categories
+        it belongs.
+        """
         self._iterables = iterables
+
+    __init__.__doc__ = __init__.__doc__.format('itertools.imap' if PY2
+                                               else 'map')
 
     def _call(self, fn, infinitecheck, *args, **kwargs):
         iterables = self._iterables

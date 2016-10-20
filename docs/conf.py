@@ -149,6 +149,9 @@ nitpicky = True
 # ('envvar', 'LD_LIBRARY_PATH').
 #nitpick_ignore = [()]
 
+# Use __init__ and/or class docstring as class docstring.
+autoclass_content = 'both'
+
 
 # -- Options for HTML output ----------------------------------------------
 
