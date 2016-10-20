@@ -149,6 +149,9 @@ nitpicky = True
 # ('envvar', 'LD_LIBRARY_PATH').
 #nitpick_ignore = [()]
 
+# Use __init__ and/or class docstring as class docstring.
+autoclass_content = 'both'
+
 
 # -- Options for HTML output ----------------------------------------------
 
@@ -404,4 +407,4 @@ epub_exclude_files = ['search.html']
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/3.6/': None}
+intersphinx_mapping = {'python': ('https://docs.python.org/3.6/', None)}

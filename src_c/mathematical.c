@@ -132,8 +132,7 @@ a one-argument square function and is significantly faster than ``lambda x: x**2
     >>> square(1)\n\
     1\n\
     >>> square(2.0)\n\
-    4.0\n\
-");
+    4.0");
 
 PyDoc_STRVAR(PyIU_MathDouble_doc, "double(value)\n\
 \n\
@@ -158,8 +157,7 @@ a one-argument double function and is significantly faster than ``lambda x: x*2`
     >>> double(1)\n\
     2\n\
     >>> double(2.0)\n\
-    4.0\n\
-");
+    4.0");
 
 PyDoc_STRVAR(PyIU_MathReciprocal_doc, "reciprocal(value)\n\
 \n\
@@ -187,8 +185,7 @@ than ``lambda x: 1 / x``::\n\
     >>> reciprocal(2)\n\
     0.5\n\
     >>> reciprocal(4)\n\
-    0.25\n\
-");
+    0.25");
 
 PyDoc_STRVAR(PyIU_MathRadd_doc, "radd(op1, op2)\n\
 \n\
@@ -210,8 +207,7 @@ Equivalent to ``lambda x, y: y + x``::\n\
 \n\
     >>> from iteration_utilities import radd\n\
     >>> radd(2, 2)\n\
-    4\n\
-");
+    4");
 
 PyDoc_STRVAR(PyIU_MathRsub_doc, "rsub(op1, op2)\n\
 \n\
@@ -233,8 +229,7 @@ Equivalent to ``lambda x, y: y - x``::\n\
 \n\
     >>> from iteration_utilities import rsub\n\
     >>> rsub(2, 5)\n\
-    3\n\
-");
+    3");
 
 PyDoc_STRVAR(PyIU_MathRmul_doc, "rmul(op1, op2)\n\
 \n\
@@ -256,8 +251,7 @@ Equivalent to ``lambda x, y: y * x``::\n\
 \n\
     >>> from iteration_utilities import rmul\n\
     >>> rmul(2, 2)\n\
-    4\n\
-");
+    4");
 
 PyDoc_STRVAR(PyIU_MathRdiv_doc, "rdiv(op1, op2)\n\
 \n\
@@ -279,8 +273,7 @@ Equivalent to ``lambda x, y: y / x``::\n\
 \n\
     >>> from iteration_utilities import rdiv\n\
     >>> rdiv(10, 1)\n\
-    0.1\n\
-");
+    0.1");
 
 PyDoc_STRVAR(PyIU_MathRpow_doc, "rpow(op1, op2)\n\
 \n\
@@ -302,5 +295,4 @@ Equivalent to ``lambda x, y: y ** x``::\n\
 \n\
     >>> from iteration_utilities import rpow\n\
     >>> rpow(3, 2)\n\
-    8\n\
-");
+    8");

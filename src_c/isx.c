@@ -143,8 +143,7 @@ This can be used for example to remove all ``None`` from an iterable::\n\
     >>> import itertools\n\
     >>> filterfalse = itertools.ifilterfalse if sys.version_info.major == 2 else itertools.filterfalse\n\
     >>> list(filterfalse(is_None, [1, None, 3, 4, 5, None, 7]))\n\
-    [1, 3, 4, 5, 7]\n\
-");
+    [1, 3, 4, 5, 7]");
 
 PyDoc_STRVAR(PyIU_IsNotNone_doc, "is_not_None(value)\n\
 \n\
@@ -169,9 +168,7 @@ faster::\n\
     >>> is_not_None(None)\n\
     False\n\
     >>> is_not_None(False)\n\
-    True\n\
-\n\
-");
+    True");
 
 PyDoc_STRVAR(PyIU_IsEven_doc, "is_even(value)\n\
 \n\
@@ -198,9 +195,7 @@ faster::\n\
     >>> is_even(1)\n\
     False\n\
     >>> is_even(2)\n\
-    True\n\
-\n\
-");
+    True");
 
 PyDoc_STRVAR(PyIU_IsOdd_doc, "is_odd(value)\n\
 \n\
@@ -227,9 +222,7 @@ faster::\n\
     >>> is_odd(1)\n\
     True\n\
     >>> is_odd(2)\n\
-    False\n\
-\n\
-");
+    False");
 
 PyDoc_STRVAR(PyIU_IsIterable_doc, "is_iterable(value)\n\
 \n\
@@ -255,6 +248,4 @@ A few simple examples::\n\
     >>> is_iterable('abc')\n\
     True\n\
     >>> is_iterable([1,2,3])\n\
-    True\n\
-\n\
-");
+    True");

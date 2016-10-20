@@ -101,5 +101,4 @@ Examples\n\
 False\n\
 \n\
 >>> all_distinct('abcd')\n\
-True\n\
-");
+True");

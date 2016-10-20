@@ -242,8 +242,7 @@ Varying the `times` can give you also 3 successive elements::\n\
     >>> list(successive(range(5), times=3))\n\
     [(0, 1, 2), (1, 2, 3), (2, 3, 4)]\n\
     >>> list(successive('Hello!', times=2))\n\
-    [('H', 'e'), ('e', 'l'), ('l', 'l'), ('l', 'o'), ('o', '!')]\n\
-");
+    [('H', 'e'), ('e', 'l'), ('l', 'l'), ('l', 'o'), ('o', '!')]");
 
 /******************************************************************************
  *

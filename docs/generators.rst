@@ -26,11 +26,11 @@ Processing an iterable
 - :py:func:`itertools.accumulate`
 - :py:func:`~iteration_utilities.accumulate`
 - :py:func:`~iteration_utilities._recipes._additional.append`
-- :py:meth:`itertools.chain.from_iterable`
+- :py:meth:`itertools.chain.from_iterable` (implemented as `flatten` in `Iterable`)
 - :py:func:`itertools.combinations`
 - :py:func:`itertools.combinations_with_replacement`
 - :py:func:`itertools.compress`
-- :py:func:`~iteration_utilities._recipes._core.consume`
+- :py:func:`~iteration_utilities._recipes._core.consume` (not implemented in `Iterable`)
 - :py:func:`itertools.cycle`
 - :py:func:`~iteration_utilities._recipes._additional.deepflatten`
 - :py:func:`itertools.dropwhile`
@@ -38,12 +38,12 @@ Processing an iterable
 - :py:func:`filter`
 - :py:func:`itertools.filterfalse`
 - :py:func:`~iteration_utilities._recipes._core.flatten`
-- :py:func:`itertools.groupby`
+- :py:func:`itertools.groupby` (not implemented in `Iterable`)
 - :py:func:`~iteration_utilities.grouper`
 - :py:func:`~iteration_utilities.intersperse`
-- :py:func:`~iteration_utilities._recipes._core.ipartition`
+- :py:func:`~iteration_utilities._recipes._core.ipartition` (not implemented in `Iterable`)
 - :py:func:`itertools.islice`
-- :py:func:`iter` (one argument)
+- :py:func:`iter` (one argument) (not implemented in `Iterable`)
 - :py:func:`~iteration_utilities._recipes._core.ncycles`
 - :py:func:`~iteration_utilities._recipes._core.padnone`
 - :py:func:`itertools.permutations`
@@ -55,14 +55,17 @@ Processing an iterable
 - :py:func:`~iteration_utilities.successive`
 - :py:func:`~iteration_utilities._recipes._core.tail`
 - :py:func:`itertools.takewhile`
-- :py:func:`itertools.tee`
-- :py:func:`~iteration_utilities._recipes._core.tee_lookahead`
+- :py:func:`itertools.tee` (not implemented in `Iterable`)
+- :py:func:`~iteration_utilities._recipes._core.tee_lookahead` (not implemented in `Iterable`)
 - :py:func:`~iteration_utilities.unique_everseen`
 - :py:func:`~iteration_utilities.unique_justseen`
 
 
 Processing several iterables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. note::
+   These functions are implemented as methods for `ManyIterables`.
 
 - :py:func:`itertools.chain`
 - :py:func:`map`
@@ -87,8 +90,8 @@ From a function
 ^^^^^^^^^^^^^^^
 
 - :py:func:`~iteration_utilities.applyfunc`
-- :py:func:`iter` (two arguments)
-- :py:func:`~iteration_utilities.iter_except`
+- :py:func:`iter` (two arguments) (implemented as `from_iterfunc_sentinel` in `Iterable`)
+- :py:func:`~iteration_utilities.iter_except` (implemented as `from_iterfunc_exception` in `Iterable`)
 - :py:func:`~iteration_utilities._recipes._core.repeatfunc`
 - :py:func:`~iteration_utilities._recipes._core.tabulate`
 

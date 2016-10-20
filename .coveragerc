@@ -1,0 +1,5 @@
+[run]
+source = iteration_utilities/*
+omit =
+    iteration_utilities/_cfuncs*
+    iteration_utilities/*__init__.py

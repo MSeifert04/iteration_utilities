@@ -130,8 +130,7 @@ This can be used to alter the call to a function::\n\
     >>> isfloat(10)\n\
     False\n\
     >>> isfloat(11.25)\n\
-    True\n\
-");
+    True");
 
 /******************************************************************************
  *

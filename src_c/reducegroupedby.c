@@ -203,6 +203,4 @@ using `reduce` also allows to specify a startvalue::\n\
     >>> dct[True]  # 7 + 2 + 4\n\
     13\n\
     >>> dct[False]  # 7 + 1 + 3 + 5\n\
-    16\n\
-\n\
-");
+    16");

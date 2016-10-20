@@ -330,8 +330,7 @@ There are already three predefined instances:\n\
 - ``first`` : equivalent to ``nth(0)``.\n\
 - ``second`` : equivalent to ``nth(1)``.\n\
 - ``third`` : equivalent to ``nth(2)``.\n\
-- ``last`` : equivalent to ``nth(-1)``.\n\
-");
+- ``last`` : equivalent to ``nth(-1)``.");
 
 /******************************************************************************
  *

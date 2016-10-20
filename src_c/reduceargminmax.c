@@ -229,5 +229,4 @@ It allows a `key` function::\n\
 And a `default`::\n\
 \n\
     >>> argmax([], default=10)\n\
-    10\n\
-");
+    10");

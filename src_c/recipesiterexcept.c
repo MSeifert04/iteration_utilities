@@ -192,8 +192,7 @@ Further examples:\n\
 - ``dict_iter = iter_except(d.popitem, KeyError)``\n\
 - ``deque_iter = iter_except(d.popleft, IndexError)``\n\
 - ``queue_iter = iter_except(q.get_nowait, Queue.Empty)``\n\
-- ``set_iter = iter_except(s.pop, KeyError)``\n\
-");
+- ``set_iter = iter_except(s.pop, KeyError)``");
 
 /******************************************************************************
  *

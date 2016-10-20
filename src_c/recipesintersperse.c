@@ -215,8 +215,7 @@ A few simple examples::\n\
 \n\
 References\n\
 ----------\n\
-.. [0] https://github.com/erikrose/more-itertools\n\
-");
+.. [0] https://github.com/erikrose/more-itertools");
 
 /******************************************************************************
  *

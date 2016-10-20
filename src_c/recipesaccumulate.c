@@ -245,8 +245,7 @@ Chaotic recurrence relation [1]_::\n\
 References\n\
 ----------\n\
 .. [0] https://docs.python.org/3/library/itertools.html#itertools.accumulate\n\
-.. [1] https://en.wikipedia.org/wiki/Logistic_map\n\
-");
+.. [1] https://en.wikipedia.org/wiki/Logistic_map");
 
 /******************************************************************************
  *
