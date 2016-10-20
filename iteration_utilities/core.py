@@ -18,7 +18,7 @@ from itertools import (combinations, combinations_with_replacement,
 from math import fsum
 
 # This module
-from iteration_utilities import PY2, PY34, _default
+from iteration_utilities import PY2, PY3, PY34, _default
 from iteration_utilities import (accumulate, append, applyfunc,
                                  deepflatten,
                                  flatten,
@@ -1033,18 +1033,19 @@ class Iterable(_Base):
         --------
         >>> from iteration_utilities import Iterable
         >>> Iterable([1, 2, -5, 3, 4]).get_argmax()
-        4
+        4{0}
 
         >>> Iterable([1, 2, -5, 3, 4]).get_argmax(abs)
-        2
+        2{0}
 
         >>> Iterable([1, 2, -5, 3, 4]).get_argmax(key=abs)
-        2
+        2{0}
 
         >>> Iterable([]).get_argmax(key=abs, default=-1)
-        -1
+        -1{0}
         """
         return self._get(argmax, 0, key=key, default=default)
+    get_argmax.__doc__ = get_argmax.__doc__.format('L' if PY2 else '')
 
     def get_argmin(self, key=_default, default=_default):
         """See :py:func:`~iteration_utilities._cfuncs.argmin`.
@@ -1053,18 +1054,19 @@ class Iterable(_Base):
         --------
         >>> from iteration_utilities import Iterable
         >>> Iterable([1, 2, -5, 3, 4]).get_argmin()
-        2
+        2{0}
 
         >>> Iterable([1, 2, -5, 3, 4]).get_argmin(abs)
-        0
+        0{0}
 
         >>> Iterable([1, 2, -5, 3, 4]).get_argmin(key=abs)
-        0
+        0{0}
 
         >>> Iterable([]).get_argmin(key=abs, default=-1)
-        -1
+        -1{0}
         """
         return self._get(argmin, 0, key=key, default=default)
+    get_argmin.__doc__ = get_argmin.__doc__.format('L' if PY2 else '')
 
     def get_count_items(self, pred=_default, eq=_default):
         """See :py:func:`~iteration_utilities._cfuncs.count_items`.
@@ -1073,15 +1075,16 @@ class Iterable(_Base):
         --------
         >>> from iteration_utilities import Iterable
         >>> Iterable((i for i in range(10))).get_count_items()
-        10
+        10{0}
 
         >>> Iterable([1, 2, 3, 2, 1]).get_count_items(2, True)
-        2
+        2{0}
 
         >>> Iterable([1, 2, 3, 2, 1]).get_count_items(pred=2, eq=True)
-        2
+        2{0}
         """
         return self._get(count_items, 0, pred=pred, eq=eq)
+    get_count_items.__doc__ = get_count_items.__doc__.format('L' if PY2 else '')
 
     def get_first(self, default=_default, pred=_default, truthy=_default,
                   retpred=_default, retidx=_default):
@@ -1142,45 +1145,87 @@ class Iterable(_Base):
         return self._get(last, 0, default=default, pred=pred, truthy=truthy,
                          retpred=retpred, retidx=retidx)
 
-    def get_max(self, key=_default, default=_default):
-        """See :py:func:`max`.
+    # min and max had no default parameter before python 3.4
+    if PY2 or not PY34:
+        def get_max(self, key=_default):
+            """See :py:func:`max`.
 
-        Examples
-        --------
-        >>> from iteration_utilities import Iterable
-        >>> Iterable([1, 2, -5, 3, 4]).get_max()
-        4
+            Examples
+            --------
+            >>> from iteration_utilities import Iterable
+            >>> Iterable([1, 2, -5, 3, 4]).get_max()
+            4
 
-        >>> Iterable([1, 2, -5, 3, 4]).get_max(abs)
-        -5
+            >>> Iterable([1, 2, -5, 3, 4]).get_max(abs)
+            -5
 
-        >>> Iterable([1, 2, -5, 3, 4]).get_max(key=abs)
-        -5
+            >>> Iterable([1, 2, -5, 3, 4]).get_max(key=abs)
+            -5
+            """
+            return self._get(max, 0, key=key)
 
-        >>> Iterable([]).get_max(key=abs, default=-1)
-        -1
-        """
-        return self._get(max, 0, key=key, default=default)
+        def get_min(self, key=_default):
+            """See :py:func:`min`.
 
-    def get_min(self, key=_default, default=_default):
-        """See :py:func:`min`.
+            Examples
+            --------
+            >>> from iteration_utilities import Iterable
+            >>> Iterable([1, 2, -5, 3, 4]).get_min()
+            -5
 
-        Examples
-        --------
-        >>> from iteration_utilities import Iterable
-        >>> Iterable([1, 2, -5, 3, 4]).get_min()
-        -5
+            >>> Iterable([1, 2, -5, 3, 4]).get_min(abs)
+            1
 
-        >>> Iterable([1, 2, -5, 3, 4]).get_min(abs)
-        1
+            >>> Iterable([1, 2, -5, 3, 4]).get_min(key=abs)
+            1
+            """
+            return self._get(min, 0, key=key)
+    else:
+        def get_max(self, key=_default, default=_default):
+            """See :py:func:`max`.
 
-        >>> Iterable([1, 2, -5, 3, 4]).get_min(key=abs)
-        1
+            .. note::
+               The `default`-parameter is not avaiable at Python 3.3
 
-        >>> Iterable([]).get_min(key=abs, default=-1)
-        -1
-        """
-        return self._get(min, 0, key=key, default=default)
+            Examples
+            --------
+            >>> from iteration_utilities import Iterable
+            >>> Iterable([1, 2, -5, 3, 4]).get_max()
+            4
+
+            >>> Iterable([1, 2, -5, 3, 4]).get_max(abs)
+            -5
+
+            >>> Iterable([1, 2, -5, 3, 4]).get_max(key=abs)
+            -5
+
+            >>> Iterable([]).get_max(key=abs, default=-1)
+            -1
+            """
+            return self._get(max, 0, key=key, default=default)
+
+        def get_min(self, key=_default, default=_default):
+            """See :py:func:`min`.
+
+            .. note::
+               The `default`-parameter is not avaiable at Python 3.3
+
+            Examples
+            --------
+            >>> from iteration_utilities import Iterable
+            >>> Iterable([1, 2, -5, 3, 4]).get_min()
+            -5
+
+            >>> Iterable([1, 2, -5, 3, 4]).get_min(abs)
+            1
+
+            >>> Iterable([1, 2, -5, 3, 4]).get_min(key=abs)
+            1
+
+            >>> Iterable([]).get_min(key=abs, default=-1)
+            -1
+            """
+            return self._get(min, 0, key=key, default=default)
 
     def get_minmax(self, key=_default, default=_default):
         """See :py:func:`~iteration_utilities._cfuncs.minmax`.
@@ -1462,8 +1507,8 @@ class Iterable(_Base):
             Examples
             --------
             >>> from iteration_utilities import Iterable
-            >>> Iterable([1,1,1,2,2,3,4,5,6,7,7,8,8]).get_pvariance()
-            6.946745562130178
+            >>> Iterable([1,1,1,2,2,3,4,5,6,7,7,8,8]).get_pvariance()  # doctest: +ELLIPSIS
+            6.94674556...
             """
             return self._get_iter(statistics.pvariance, 0, mu=mu)
 
