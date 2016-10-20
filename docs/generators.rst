@@ -27,6 +27,7 @@ Processing an iterable
 - :py:func:`~iteration_utilities.accumulate`
 - :py:func:`~iteration_utilities._recipes._additional.append`
 - :py:meth:`itertools.chain.from_iterable` (implemented as `flatten` in `Iterable`)
+- :py:func:`~iteration_utilities.clamp`
 - :py:func:`itertools.combinations`
 - :py:func:`itertools.combinations_with_replacement`
 - :py:func:`itertools.compress`

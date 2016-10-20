@@ -185,7 +185,47 @@ static PyMethodDef clamp_methods[] = {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(clamp_doc, "clamp(iterable, [low, high, inclusive])");
+PyDoc_STRVAR(clamp_doc, "clamp(iterable, [low, high, inclusive])\n\
+\n\
+Remove values which are not between `low` and `high`.\n\
+\n\
+Parameters\n\
+----------\n\
+iterable : iterable\n\
+    Clamp the values from this `iterable`.\n\
+\n\
+low : any type, optional\n\
+    The lower bound for clamp.\n\
+\n\
+high : any type, optional\n\
+    The upper bound for clamp.\n\
+\n\
+inclusive : bool, optional\n\
+    If ``True`` also remove values that are equal to `low` and `high`.\n\
+    Default is ``False``.\n\
+\n\
+Returns\n\
+-------\n\
+clamped : generator\n\
+    A generator containing the values of `iterable` which are between `low`\n\
+    and `high`.\n\
+\n\
+Examples\n\
+--------\n\
+This function is equivalent to a generator expression like:\n\
+``(item for item in iterable if low <= item <= high)`` or\n\
+``(item for item in iterable if low < item < high)`` if `inclusive=True`.\n\
+Or a similar `filter`: ``filter(lambda item: low <= item <= high, iterable)``\n\
+But it also allows for either ``low`` or ``high`` to be ignored and is faster.\n\
+Some simple examples::\n\
+\n\
+    >>> from iteration_utilities import clamp\n\
+    >>> list(clamp(range(5), low=2))\n\
+    [2, 3, 4]\n\
+    >>> list(clamp(range(5), high=2))\n\
+    [0, 1, 2]\n\
+    >>> list(clamp(range(1000), low=2, high=8, inclusive=True))\n\
+    [3, 4, 5, 6, 7]");
 
 /******************************************************************************
  *

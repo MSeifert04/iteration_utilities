@@ -21,6 +21,7 @@ from math import fsum
 from iteration_utilities import PY2, PY34, _default
 # - generators
 from iteration_utilities import (accumulate, append, applyfunc,
+                                 clamp,
                                  deepflatten,
                                  flatten,
                                  grouper,
@@ -318,6 +319,20 @@ class _Base(object):
         [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         """
         return self._call(append, 1, element)
+
+    def clamp(self, low=_default, high=_default, inclusive=_default):
+        """See :py:func:`~iteration_utilities.clamp`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable(range(10)).clamp(2, 7, True).as_list()
+        [3, 4, 5, 6]
+
+        >>> Iterable(range(10)).clamp(low=2, high=7, inclusive=True).as_list()
+        [3, 4, 5, 6]
+        """
+        return self._call(clamp, 0, low=low, high=high, inclusive=inclusive)
 
     def combinations(self, r):
         """See :py:func:`itertools.combinations`.
