@@ -325,7 +325,7 @@ def replicate(iterable, times):
     >>> list(replicate(range(3), 5))
     [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2]
     """
-    return chain.from_iterable(repeat(item, times) for item in iterable)
+    return chain.from_iterable(map(repeat, iterable, repeat(times)))
 
 
 def cutout(iterable, start, stop):
@@ -361,7 +361,7 @@ def cutout(iterable, start, stop):
     This is the equivalent to the removing by slicing::
 
         >>> lst = list(range(10))
-        >>> lst[2:5] = []
+        >>> del lst[2:5]
         >>> lst
         [0, 1, 5, 6, 7, 8, 9]
     """
