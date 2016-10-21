@@ -1,3 +1,7 @@
 include README.rst
 include LICENSE.rst
 recursive-include src_c *.c
+recursive-include docs *
+recursive-include tests *
+include pytest.ini
+include .coveragerc

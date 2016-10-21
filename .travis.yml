@@ -13,16 +13,18 @@ python:
   - "nightly"
 
 matrix:
-  # osx is very slow at the moment.
-  #include:
-    #- python: "2.7"
-    #  os: osx
-    #- python: "3.5"
-    #  os: osx
+  include:
+    - python: "2.7"
+      os: osx
+    - python: "3.5"
+      os: osx
 
   allow_failures:
-    - python: "3.6-dev"
     - python: "nightly"
+    - python: "2.7"
+      os: osx
+    - python: "3.5"
+      os: osx
 
 install:
   - pip install coveralls
