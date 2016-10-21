@@ -410,7 +410,7 @@ class _Base(object):
 
     def deepflatten(self, depth=_default, types=_default, ignore=_default):
         """See
-        :py:func:`~iteration_utilities._recipes._additional.deepflatten`.
+        :py:func:`~iteration_utilities.deepflatten`.
 
         Examples
         --------
