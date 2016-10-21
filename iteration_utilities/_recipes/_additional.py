@@ -7,6 +7,13 @@ from __future__ import absolute_import, division, print_function
 from collections import Iterable
 from itertools import chain, islice, repeat
 
+# This module
+from .. import PY2
+
+
+if PY2:
+    from itertools import imap as map
+
 
 __all__ = ['append', 'cutout', 'deepflatten', 'itersubclasses', 'pad',
            'prepend', 'replicate', 'unpack']

@@ -884,6 +884,10 @@ class Iterable(_Base):
         >>> Iterable(range(10)).cycle()  # doctest: +ELLIPSIS
         <InfiniteIterable: <itertools.cycle object at ...>>
 
+        >>> Iterable(range(10)).unpack(Iterable.from_count(), idx=3)  \
+# doctest: +ELLIPSIS
+        <InfiniteIterable: <itertools.chain object at ...>>
+
     Also some of the staticmethods (``from_x``)::
 
         >>> Iterable.from_count()
