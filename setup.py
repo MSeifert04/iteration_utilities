@@ -28,7 +28,7 @@ setup(name='iteration_utilities',
       keywords=['functional', 'functools', 'generator',
                 'itertools', 'iteration', 'iterator',
                 'operators', 'performance', 'reduce', 'utility'],
-      platforms=["Windows", "Linux", "Mac OS-X", "Unix"],
+      platforms=["Windows", "Linux"],  # maybe sometime also "Mac OS-X", "Unix"
 
       classifiers=[
         'Development Status :: 4 - Beta',
@@ -53,7 +53,7 @@ setup(name='iteration_utilities',
           ],
 
       install_requires=[
-          'setuptools',
+          'setuptools',  # actually unnecessary because it's already imported at this point.
           ],
 
       setup_requires=[
