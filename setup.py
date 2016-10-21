@@ -26,6 +26,7 @@ setup(name='iteration_utilities',
       keywords=['functional', 'functools', 'generator',
                 'itertools', 'iteration', 'iterator',
                 'operators', 'performance', 'reduce', 'utility'],
+      platforms=["Windows", "Linux", "Unix"],
 
       classifiers=[
         'Development Status :: 4 - Beta',
