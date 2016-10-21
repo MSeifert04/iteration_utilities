@@ -5,10 +5,11 @@ API: Additional recipes
 # Built-ins
 from __future__ import absolute_import, division, print_function
 from collections import Iterable
-from itertools import chain
+from itertools import chain, islice, repeat
 
 
-__all__ = ['append', 'deepflatten', 'itersubclasses', 'prepend']
+__all__ = ['append', 'cutout', 'deepflatten', 'itersubclasses', 'pad',
+           'prepend', 'replicate', 'unpack']
 
 
 def itersubclasses(cls, seen=None):
@@ -244,3 +245,164 @@ def prepend(element, iterable):
         [0]
     """
     return chain([element], iterable)
+
+
+def pad(iterable, fillvalue=None, nlead=0, ntail=0):
+    """Pad the `iterable` with `fillvalue` in front and behind.
+
+    Parameters
+    ----------
+    iterable : iterable
+        The `iterable` to pad.
+
+    fillvalue : any type, optional
+        The padding value.
+        Default is ``None``.
+
+    nlead, ntail : int or None, optional
+        The number of times to pad in front (`nlead`) and after (`ntail`) the
+        `iterable. If `ntail` is ``None`` pad indefinitly (not possible for
+        `nlead`).
+        Default is ``0``.
+
+    Returns
+    -------
+    padded_iterable : generator
+        The padded `iterable`.
+
+    Examples
+    --------
+    >>> from iteration_utilities import pad, take
+    >>> list(pad([1,2,3], 0, 5))
+    [0, 0, 0, 0, 0, 1, 2, 3]
+
+    >>> list(pad([1,2,3], 0, ntail=5))
+    [1, 2, 3, 0, 0, 0, 0, 0]
+
+    >>> list(pad([1,2,3], 0, nlead=5, ntail=5))
+    [0, 0, 0, 0, 0, 1, 2, 3, 0, 0, 0, 0, 0]
+
+    >>> take(pad([1,2,3], 0, ntail=None), 10)
+    [1, 2, 3, 0, 0, 0, 0, 0, 0, 0]
+
+    .. warning::
+        This will return an infinitly long generator if either ``before`` or
+        ``after`` are ``None``, so do not try to do something like
+        ``list(pad([], before=None))``!
+    """
+    prepend = repeat(fillvalue, nlead)
+
+    if ntail is None:
+        append = repeat(fillvalue)
+    else:
+        append = repeat(fillvalue, ntail)
+
+    return chain(prepend, iterable, append)
+
+
+def replicate(iterable, times):
+    """Replicates each item in the `iterable` for `times` times.
+
+    Parameters
+    ----------
+    iterable : iterable
+        The iterable which contains the elements to be replicated.
+
+    times : positive integer
+        The number of `times` each element is replicated.
+
+    Returns
+    -------
+    repeated_iterable : generator
+        A generator containing the replicated items from `iterable`.
+
+    Examples
+    --------
+    >>> from iteration_utilities import replicate
+    >>> ''.join(replicate('abc', 3))
+    'aaabbbccc'
+
+    >>> list(replicate(range(3), 5))
+    [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2]
+    """
+    return chain.from_iterable(repeat(item, times) for item in iterable)
+
+
+def cutout(iterable, start, stop):
+    """Removes the items from start (inclusive) to stop (exclusive) from the
+    `iterable`.
+
+    Parameters
+    ----------
+    iterable : iterable
+        The iterable from which to remove the items.
+
+    start : positive integer
+        The index from which to remove the elements.
+
+    stop : positive integer
+        Remove the items till this index. The item at the stop index is **not**
+        removed.
+
+    Returns
+    -------
+    residuals : generator
+        The values from `iterable` except those starting at index `start` to
+        `stop`.
+
+    Examples
+    --------
+    A simple example::
+
+        >>> from iteration_utilities import cutout
+        >>> list(cutout(range(10), 2, 5))
+        [0, 1, 5, 6, 7, 8, 9]
+
+    This is the equivalent to the removing by slicing::
+
+        >>> lst = list(range(10))
+        >>> lst[2:5] = []
+        >>> lst
+        [0, 1, 5, 6, 7, 8, 9]
+    """
+    iterable = iter(iterable)
+    return chain(islice(iterable, 0, start),
+                 islice(iterable, stop-start, None))
+
+
+def unpack(iterable, into, idx):
+    """Insert an `iterable` `into` another at the given `idx`.
+
+    Parameters
+    ----------
+    iterable : iterable
+        The iterable to insert.
+
+    into : iterable
+        The iterable in which `iterable` is inserted.
+
+    idx : positive integer
+        The index before which the `iterable` is inserted.
+
+    Returns
+    -------
+    inserted : generator
+        The iterable with `iterable` inserted into `into`.
+
+    Examples
+    --------
+    A simple example::
+
+        >>> from iteration_utilities import unpack
+        >>> list(unpack(range(3), range(10), 3))
+        [0, 1, 2, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+    This is the equivalent to inserting an iterable with slicing into a list::
+
+        >>> lst = list(range(10))
+        >>> lst[3:3] = range(3)
+        >>> lst
+        [0, 1, 2, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    """
+    into = iter(into)
+    return chain(islice(into, idx), iterable, into)
