@@ -250,7 +250,7 @@ static PyMethodDef deepflatten_methods[] = {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(deepflatten_doc, "deepflatten(iterable[, depth=-1, types, ignore])\n\
+PyDoc_STRVAR(deepflatten_doc, "deepflatten(iterable[, depth=-1, types=None, ignore=None])\n\
 Flatten an `iterable` with given `depth`.\n\
 \n\
 Parameters\n\
@@ -262,9 +262,16 @@ depth : int or None, optional\n\
     Flatten `depth` levels of nesting or all if ``depth=-1``.\n\
     Default is ``-1``.\n\
 \n\
+    .. note::\n\
+       If the `depth` is known this significantly speeds up the function!\n\
+\n\
 types : type, tuple of types, optional\n\
     Which types should be flattened. If not given it flattens all items if\n\
     ``iter(item)`` does not throw a ``TypeError``.\n\
+\n\
+    .. note::\n\
+       If the `types` are known this significantly speeds up the function\n\
+       but only *if* the `depth` is unknown.\n\
 \n\
 ignore : type, iterable of types or None, optional\n\
     The types which should not be flattened. If not given all `types` are\n\
@@ -315,7 +322,8 @@ See for example::\n\
     [1, 2, 1, 2, 'abc']\n\
 \n\
 For Python2 you should ignore ``basestring`` instead of ``str``.\n\
-This is roughly equivalent to this python function:\n\
+\n\
+This function is roughly equivalent to this python function:\n\
 \n\
 .. code::\n\
 \n\
