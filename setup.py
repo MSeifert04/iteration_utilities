@@ -9,17 +9,19 @@ def readme():
         return f.read()
 
 
+def version():
+    with open('VERSION.rst') as f:
+        return f.read().strip()
+
+
 cfuncs_module = Extension('iteration_utilities._cfuncs',
                           sources=[path.join('src_c', '_module.c')],
                           depends=glob(path.join('src_c', '*.c'))
                           )
 
-# Must be a seperate variable because conf.py reads the version from here.
-version = "0.1.0"
-
 
 setup(name='iteration_utilities',
-      version=version,
+      version=version(),
 
       description='Functional programming utilities for Python.',
       long_description=readme(),
