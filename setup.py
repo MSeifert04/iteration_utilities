@@ -53,6 +53,7 @@ setup(name='iteration_utilities',
           ],
 
       install_requires=[
+          'setuptools',
           ],
 
       setup_requires=[
