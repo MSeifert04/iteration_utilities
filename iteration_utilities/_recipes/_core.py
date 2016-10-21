@@ -29,7 +29,7 @@ __all__ = ['consume',
            'flatten',
            'ipartition',
            'ncycles',
-           'padnone', 'powerset',
+           'powerset',
            'random_combination', 'random_product', 'random_permutation',
            'repeatfunc',
            'tabulate', 'take', 'tail', 'tee_lookahead']
@@ -156,35 +156,6 @@ def consume(iterator, n):
     else:
         # advance to the empty slice starting at position n
         next(islice(iterator, n, n), None)
-
-
-def padnone(iterable):
-    """Returns the sequence elements and then returns None indefinitely.
-
-    Useful for emulating the behavior of the :func:`map` function.
-
-    Parameters
-    ----------
-    iterable : iterable
-        Any `iterable` to pad.
-
-    Returns
-    -------
-    generator : generator
-        A generator containing the `iterable` followed by infinitely many
-        ``None``.
-
-    Examples
-    --------
-    >>> from iteration_utilities import padnone
-    >>> take(padnone([1,2,3]), 5)
-    [1, 2, 3, None, None]
-
-    .. warning::
-        This will return an infinitly long generator so do **not** try to do
-        something like ``list(padnone())``!
-    """
-    return chain(iterable, repeat(None))
 
 
 def ncycles(iterable, n):

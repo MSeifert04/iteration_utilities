@@ -21,17 +21,17 @@ from math import fsum
 from iteration_utilities import PY2, PY34, _default
 # - generators
 from iteration_utilities import (accumulate, append, applyfunc,
-                                 clamp,
+                                 clamp, cutout,
                                  deepflatten,
                                  flatten,
                                  grouper,
                                  intersperse, itersubclasses, iter_except,
                                  ncycles,
-                                 padnone, powerset, prepend,
-                                 repeatfunc,
+                                 pad, powerset, prepend,
+                                 repeatfunc, replicate,
                                  split, successive,
                                  tabulate, tail,
-                                 unique_everseen, unique_justseen)
+                                 unique_everseen, unique_justseen, unpack)
 # - folds
 from iteration_utilities import (all_distinct, all_equal, argmax, argmin,
                                  count_items, first, groupedby, last,
@@ -192,7 +192,7 @@ class _Base(object):
         .. warning::
            This returns an `InfiniteIterable`.
         """
-        return InfiniteIterable(applyfunc(func, initial))
+        return InfiniteIterable(applyfunc(func=func, initial=initial))
 
     @staticmethod
     def from_iterfunc_sentinel(func, sentinel):
@@ -346,7 +346,7 @@ class _Base(object):
         >>> Iterable(range(1, 4)).combinations(r=2).as_list()
         [(1, 2), (1, 3), (2, 3)]
         """
-        return self._call(combinations, 0, r)
+        return self._call(combinations, 0, r=r)
 
     def combinations_with_replacement(self, r):
         """See :py:func:`itertools.combinations_with_replacement`.
@@ -360,7 +360,7 @@ class _Base(object):
         >>> Iterable(range(1, 4)).combinations_with_replacement(r=2).as_list()
         [(1, 1), (1, 2), (1, 3), (2, 2), (2, 3), (3, 3)]
         """
-        return self._call(combinations_with_replacement, 0, r)
+        return self._call(combinations_with_replacement, 0, r=r)
 
     def compress(self, selectors):
         """See :py:func:`itertools.compress`.
@@ -375,7 +375,21 @@ class _Base(object):
         >>> Iterable(range(1, 10)).compress(selectors=sel).as_list()
         [2, 4, 6, 7, 8]
         """
-        return self._call(compress, 0, selectors)
+        return self._call(compress, 0, selectors=selectors)
+
+    def cutout(self, start, stop):
+        """See :py:func:`iteration_utilities._recipes._additional.cutout`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable(range(10)).cutout(2, 5).as_list()
+        [0, 1, 5, 6, 7, 8, 9]
+
+        >>> Iterable(range(10)).cutout(start=2, stop=5).as_list()
+        [0, 1, 5, 6, 7, 8, 9]
+        """
+        return self._call(cutout, 0, start=start, stop=stop)
 
     def cycle(self):
         """See :py:func:`itertools.cycle`.
@@ -512,7 +526,7 @@ class _Base(object):
         >>> Iterable(range(1, 10)).grouper(n=2, truncate=True).as_list()
         [(1, 2), (3, 4), (5, 6), (7, 8)]
         """
-        return self._call(grouper, 0, n, fillvalue=fillvalue,
+        return self._call(grouper, 0, n=n, fillvalue=fillvalue,
                           truncate=truncate)
 
     def islice(self, *args):
@@ -556,7 +570,7 @@ class _Base(object):
         >>> Iterable(range(1, 10)).intersperse(e=0).as_list()
         [1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9]
         """
-        return self._call(intersperse, 0, e)
+        return self._call(intersperse, 0, e=e)
 
     def map(self, function):
         """See :py:func:`python:map`.
@@ -587,18 +601,34 @@ class _Base(object):
         >>> Iterable(range(1, 4)).ncycles(n=3).as_list()
         [1, 2, 3, 1, 2, 3, 1, 2, 3]
         """
-        return self._call(ncycles, 0, n)
+        return self._call(ncycles, 0, n=n)
 
-    def padnone(self):
-        """See :py:func:`~iteration_utilities._recipes._core.padnone`.
+    def pad(self, fillvalue=_default, nlead=_default, ntail=_default):
+        """See :py:func:`~iteration_utilities._recipes._additional.pad`.
 
         Examples
         --------
         >>> from iteration_utilities import Iterable
-        >>> Iterable([2]).padnone().islice(10).as_list()
+        >>> Iterable([2]).pad(None, ntail=None).islice(10).as_list()
         [2, None, None, None, None, None, None, None, None, None]
+
+        >>> Iterable([2]).pad(nlead=9).as_list()
+        [None, None, None, None, None, None, None, None, None, 2]
+
+        >>> Iterable([2]).pad(0, ntail=9).as_list()
+        [2, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+        >>> Iterable([2]).pad(0, 1, 2).as_list()
+        [0, 2, 0, 0]
+
+        .. warning::
+           This returns an `InfiniteIterable` if ``ntail=None``.
         """
-        return self._call_infinite(padnone, 0)
+        if ntail is None:
+            meth = self._call_infinite
+        else:
+            meth = self._call
+        return meth(pad, 0, fillvalue=fillvalue, nlead=nlead, ntail=ntail)
 
     def permutations(self, r=_default):
         """See :py:func:`itertools.permutations`.
@@ -642,6 +672,20 @@ class _Base(object):
         """
         return self._call(prepend, 1, element)
 
+    def replicate(self, times):
+        """See :py:func:`~iteration_utilities._recipes._additional.replicate`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable(range(1, 4)).replicate(3).as_list()
+        [1, 1, 1, 2, 2, 2, 3, 3, 3]
+
+        >>> Iterable(range(1, 4)).replicate(times=4).as_list()
+        [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3]
+        """
+        return self._call(replicate, 0, times=times)
+
     def split(self, key, maxsplit=_default, keep=_default, eq=_default):
         """See :py:func:`~iteration_utilities.split`.
 
@@ -661,7 +705,8 @@ class _Base(object):
         ...                              keep=True, eq=True).as_list()
         [[1], [2], [3, 4, 5, 6, 7, 8, 9]]
         """
-        return self._call(split, 0, key, maxsplit=maxsplit, keep=keep, eq=eq)
+        return self._call(split, 0, key=key, maxsplit=maxsplit, keep=keep,
+                          eq=eq)
 
     def starmap(self, function):
         """See :py:func:`itertools.starmap`.
@@ -686,7 +731,7 @@ class _Base(object):
         >>> Iterable(range(1, 10)).successive(times=2).as_list()
         [(1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9)]
         """
-        return self._call(successive, 0, times)
+        return self._call(successive, 0, times=times)
 
     def tail(self, n):
         """See :py:func:`~iteration_utilities._recipes._core.tail`.
@@ -700,7 +745,7 @@ class _Base(object):
         >>> Iterable(range(1, 10)).tail(n=3).as_list()
         [7, 8, 9]
         """
-        return self._call(tail, 0, n)
+        return self._call(tail, 0, n=n)
 
     def takewhile(self, predicate):
         """See :py:func:`itertools.takewhile`.
@@ -757,6 +802,24 @@ class _Base(object):
         ['a', 'b', 'c', 'd', 'E']
         """
         return self._call(unique_justseen, 0, key=key)
+
+    def unpack(self, iterable, idx):
+        """See :py:func:`iteration_utilities._recipes._additional.unpack`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable(range(10)).unpack(range(3), 3).as_list()
+        [0, 1, 2, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+        >>> Iterable(range(10)).unpack(iterable=range(3), idx=3).as_list()
+        [0, 1, 2, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        """
+        if isinstance(iterable, InfiniteIterable):
+            meth = self._call_infinite
+        else:
+            meth = self._call
+        return meth(unpack, 1, iterable, idx=idx)
 
 
 class Iterable(_Base):
@@ -815,10 +878,14 @@ class Iterable(_Base):
         972
         1090
 
-    Using some methods ( :py:meth:`Iterable.padnone` and
-    :py:meth:`Iterable.cycle`) create an :py:class:`InfiniteIterable`::
+    Using some methods (:py:meth:`Iterable.cycle`) create an
+    :py:class:`InfiniteIterable`::
 
-        >>> Iterable(range(10)).padnone()  # doctest: +ELLIPSIS
+        >>> Iterable(range(10)).cycle()  # doctest: +ELLIPSIS
+        <InfiniteIterable: <itertools.cycle object at ...>>
+
+        >>> Iterable(range(10)).unpack(Iterable.from_count(), idx=3)  \
+# doctest: +ELLIPSIS
         <InfiniteIterable: <itertools.chain object at ...>>
 
     Also some of the staticmethods (``from_x``)::
@@ -1397,7 +1464,7 @@ class Iterable(_Base):
         Examples
         --------
         >>> from iteration_utilities import Iterable
-        >>> Iterable(range(10000)).get_take(3)
+        >>> Iterable(range(100)).get_take(3)
         [0, 1, 2]
         """
         return self._get(take, 0, n)

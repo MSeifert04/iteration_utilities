@@ -32,6 +32,7 @@ Processing an iterable
 - :py:func:`itertools.combinations_with_replacement`
 - :py:func:`itertools.compress`
 - :py:func:`~iteration_utilities._recipes._core.consume` (not implemented in `Iterable`)
+- :py:func:`~iteration_utilities._recipes._additional.cutout`
 - :py:func:`itertools.cycle`
 - :py:func:`~iteration_utilities._recipes._additional.deepflatten`
 - :py:func:`itertools.dropwhile`
@@ -46,10 +47,11 @@ Processing an iterable
 - :py:func:`itertools.islice`
 - :py:func:`iter` (one argument) (not implemented in `Iterable`)
 - :py:func:`~iteration_utilities._recipes._core.ncycles`
-- :py:func:`~iteration_utilities._recipes._core.padnone`
+- :py:func:`~iteration_utilities._recipes._additional.pad`
 - :py:func:`itertools.permutations`
 - :py:func:`~iteration_utilities._recipes._core.powerset`
 - :py:func:`~iteration_utilities._recipes._additional.prepend`
+- :py:func:`~iteration_utilities._recipes._additional.replicate`
 - :py:func:`reversed`
 - :py:func:`~iteration_utilities.split`
 - :py:func:`itertools.starmap`
@@ -60,6 +62,7 @@ Processing an iterable
 - :py:func:`~iteration_utilities._recipes._core.tee_lookahead` (not implemented in `Iterable`)
 - :py:func:`~iteration_utilities.unique_everseen`
 - :py:func:`~iteration_utilities.unique_justseen`
+- :py:func:`~iteration_utilities._recipes._additional.unpack`
 
 
 Processing several iterables

@@ -27,4 +27,4 @@ def test_sentinelfactory():
 
 def test_cls_exception():
     with pytest.raises(TypeError):
-        Iterable.from_count().padnone()
+        Iterable.from_count().pad(ntail=None)
