@@ -34,7 +34,7 @@ Processing an iterable
 - :py:func:`~iteration_utilities._recipes._core.consume` (not implemented in `Iterable`)
 - :py:func:`~iteration_utilities._recipes._additional.cutout`
 - :py:func:`itertools.cycle`
-- :py:func:`~iteration_utilities._recipes._additional.deepflatten`
+- :py:func:`~iteration_utilities.deepflatten`
 - :py:func:`itertools.dropwhile`
 - :py:func:`enumerate`
 - :py:func:`filter`
