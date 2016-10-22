@@ -28,7 +28,7 @@ def itersubclasses(cls, seen=None):
     cls : class
         The class for which to iterate over the subclasses.
 
-    seen : set or None, optional
+    seen : set, None, optional
         Classes to exclude from iteration or ``None`` if all subclasses should
         be returned.
         Default is ``None``.
@@ -129,7 +129,7 @@ def pad(iterable, fillvalue=None, nlead=0, ntail=0):
 
     Examples
     --------
-    >>> from iteration_utilities import pad, take
+    >>> from iteration_utilities import pad, getitem
     >>> list(pad([1,2,3], 0, 5))
     [0, 0, 0, 0, 0, 1, 2, 3]
 
@@ -139,7 +139,7 @@ def pad(iterable, fillvalue=None, nlead=0, ntail=0):
     >>> list(pad([1,2,3], 0, nlead=5, ntail=5))
     [0, 0, 0, 0, 0, 1, 2, 3, 0, 0, 0, 0, 0]
 
-    >>> take(pad([1,2,3], 0, ntail=None), 10)
+    >>> list(getitem(pad([1,2,3], 0, ntail=None), stop=10))
     [1, 2, 3, 0, 0, 0, 0, 0, 0, 0]
 
     .. warning::

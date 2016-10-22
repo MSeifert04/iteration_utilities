@@ -97,6 +97,4 @@ def test_empty_input():
 
     assert list(iteration_utilities.tail(empty, 2)) == []
 
-    assert iteration_utilities.take(empty, 2) == []
-
     # no need to test tee_lookahead here

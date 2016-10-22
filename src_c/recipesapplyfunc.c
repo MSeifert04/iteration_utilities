@@ -138,9 +138,9 @@ Examples\n\
 The first element is the initial `value` and the next elements are\n\
 the result of ``func(value)``, then ``func(func(value))``, ...::\n\
 \n\
-    >>> from iteration_utilities import take, applyfunc\n\
+    >>> from iteration_utilities import applyfunc, getitem\n\
     >>> import math\n\
-    >>> take(applyfunc(math.sqrt, 10), 4)\n\
+    >>> list(getitem(applyfunc(math.sqrt, 10), stop=4))\n\
     [3.1622776601683795, 1.7782794100389228, 1.333521432163324, 1.1547819846894583]\n\
 \n\
 .. warning::\n\

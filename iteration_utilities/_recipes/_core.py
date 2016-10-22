@@ -32,32 +32,7 @@ __all__ = ['consume',
            'powerset',
            'random_combination', 'random_product', 'random_permutation',
            'repeatfunc',
-           'tabulate', 'take', 'tail', 'tee_lookahead']
-
-
-def take(iterable, n):
-    """Return first `n` items of the `iterable` as a list.
-
-    Parameters
-    ----------
-    iterable : iterable
-        Any `iterable` from which to take the items.
-
-    n : :py:class:`int`
-        Number of items to take from the `iterable`.
-
-    Returns
-    -------
-    items : :py:class:`list`
-        The first `n` items of the `iterable`.
-
-    Examples
-    --------
-    >>> from iteration_utilities import take
-    >>> take(range(10, 20), 5)
-    [10, 11, 12, 13, 14]
-    """
-    return list(islice(iterable, n))
+           'tabulate', 'tail', 'tee_lookahead']
 
 
 def tabulate(function, start=0):
@@ -68,9 +43,9 @@ def tabulate(function, start=0):
     function : callable
         The `function` to apply.
 
-    start : :py:class:`int`, optional
-        The starting value to apply the `function` on. For each :py:func:`next`
-        call it will be incremented by one.
+    start : int, optional
+        The starting value to apply the `function` on. Each time `tabulate` is
+        called this value will be incremented by one.
         Default is ``0``.
 
     Returns
@@ -82,12 +57,13 @@ def tabulate(function, start=0):
     Examples
     --------
     Since the return is an infinite generator you need some other function
-    to extract only the needed values. For example :py:func:`take`::
+    to extract only the needed values. For example
+    :py:func:`~iteration_utilities._recipes._additional.getitem`::
 
-        >>> from iteration_utilities import tabulate, take
+        >>> from iteration_utilities import tabulate, getitem
         >>> from math import sqrt
         >>> t = tabulate(sqrt, 0)
-        >>> take(t, 3)
+        >>> list(getitem(t, stop=3))
         [0.0, 1.0, 1.4142135623730951]
 
     .. warning::
@@ -105,7 +81,7 @@ def tail(iterable, n):
     iterable : iterable
         The `iterable` from which to take the last items.
 
-    n : :py:class:`int`
+    n : int
         How many elements.
 
     Returns
@@ -132,7 +108,7 @@ def consume(iterator, n):
     iterator : iterator
         Any `iterator` from which to consume the items.
 
-    n : :py:class:`int` or `None`
+    n : int, None
         Number of items to consume from the `iterator`. If ``None`` consume it
         entirely.
 
@@ -166,7 +142,7 @@ def ncycles(iterable, n):
     iterable : iterable
         Any `iterable` to repeat.
 
-    n : :py:class:`int`
+    n : int
         Number of repeatitions.
 
     Returns
@@ -238,7 +214,7 @@ def repeatfunc(func, *args, **times):
     args :
         optional arguments for the `func`.
 
-    times : :py:class:`int`, `None`, optional
+    times : int, None, optional
         The number of `times` the function is called. If ``None`` there will be
         no limit.
         Default is ``None``.
@@ -250,11 +226,11 @@ def repeatfunc(func, *args, **times):
 
     Examples
     --------
-    >>> from iteration_utilities import repeatfunc
+    >>> from iteration_utilities import repeatfunc, getitem
     >>> import random
 
     >>> random.seed(5)
-    >>> take(repeatfunc(random.random), 5)
+    >>> list(getitem(repeatfunc(random.random), stop=5))
     {0}
 
     >>> random.seed(2)
@@ -315,7 +291,7 @@ def powerset(iterable):
     Returns
     -------
     powerset : generator
-        An iterable containing all powersets as ``tuple``.
+        An iterable containing all powersets as tuple.
 
     Examples
     --------
@@ -328,15 +304,15 @@ def powerset(iterable):
 
 
 def random_product(*iterables, **repeat):
-    """Random selection from ``itertools.product(*args, **kwds)``.
+    """Random selection from :py:func:`itertools.product`.
 
     Parameters
     ----------
     iterables : iterable
-        Any amount of `iterables` from which to form the
+        Any amount of `iterables` from to pass to
         :py:func:`itertools.product`.
 
-    repeat : :py:class:`int`, optional
+    repeat : int, optional
         The number of random samples.
         Default is ``1``.
 
@@ -373,14 +349,14 @@ def random_product(*iterables, **repeat):
 
 
 def random_permutation(iterable, r=None):
-    """Random selection from ``itertools.permutations(iterable, r)``.
+    """Random selection from :py:func:`itertools.permutations`.
 
     Parameters
     ----------
     iterable : iterable
         The `iterable` to permutate with :py:func:`itertools.permutations`.
 
-    r : :py:class:`int` or None, optional
+    r : int, None, optional
         The number of elements to permutate. If ``None`` use all elements from
         the iterable.
         Default is ``None``.
@@ -400,7 +376,7 @@ def random_permutation(iterable, r=None):
         >>> random_permutation([1,2,3,4,5,6])
         {0}
 
-    One random permutation using a subset of the iterable (here 3 elements)::
+    One random permutation using a subset of the `iterable` (here 3 elements)::
 
         >>> random.seed(5)
         >>> random_permutation([1,2,3,4,5,6], r=3)
@@ -413,19 +389,19 @@ def random_permutation(iterable, r=None):
 
 
 def random_combination(iterable, r, replacement=False):
-    """Random selection from ``itertools.combinations(iterable, r)``.
+    """Random selection from :py:func:`itertools.combinations`.
 
     Parameters
     ----------
     iterable : iterable
         The `iterable` to combine with :py:func:`itertools.combinations`.
 
-    r : :py:class:`int`
+    r : int
         The number of elements to combine.
 
     replacement : bool
-        If ``True`` then replace already included values, like
-        ``itertools.combinations_with_replacement(iterable, r)``.
+        If ``True`` then replace already included values (uses
+        :py:func:``itertools.combinations_with_replacement`).
         Default is ``False``.
 
     Returns
@@ -469,7 +445,7 @@ def tee_lookahead(tee, i):
     tee : :py:func:`itertools.tee`
         The tee object in which to look ahead.
 
-    i : :py:class:`int`
+    i : int
         The index counting from the current position which should be peeked.
 
     Returns

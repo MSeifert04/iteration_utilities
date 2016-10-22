@@ -111,8 +111,6 @@ only a few:
   the items which do not fulfill some predicate and one containing the items
   that do.
 - :py:func:`sorted`, create a sorted list from an iterable.
-- :py:func:`~iteration_utilities._recipes._core.take`, take several items from
-  the iterable as list.
 
 This list contains some builtin Python functions for completeness.
 
