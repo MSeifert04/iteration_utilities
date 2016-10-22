@@ -36,6 +36,17 @@ def test_exceptions():
     with pytest.raises(IndexError):
         iteration_utilities.tee_lookahead(t1, 10)
 
+    # Missing idx or start/stop in replace/remove
+    with pytest.raises(TypeError):
+        iteration_utilities.replace([1, 2, 3], 5)
+    with pytest.raises(TypeError):
+        iteration_utilities.remove([1, 2, 3])
+    # Stop smaller than start in replace/remove
+    with pytest.raises(ValueError):
+        iteration_utilities.replace(range(10), 5, start=7, stop=5)
+    with pytest.raises(ValueError):
+        iteration_utilities.remove(range(10), start=7, stop=5)
+
 
 def test_empty_input():
     empty = []

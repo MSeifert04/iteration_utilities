@@ -122,20 +122,24 @@ class _Base(object):
             # reversed can be applied. But I won't go down that road!
             elif step_lt_0:
                 raise ValueError('negative "step" is not possible.')
-            # - start < 0, stop < 0, step None or > 0 = tail then islice.
-            elif start_lt_0 and stop_lt_0 and step_gt_0:
-                it = tail(self._iterable, -start)
-                it = islice(it, 0, stop-start, step)
-                return Iterable(it)
-            # - start < 0, stop None, step None = tail
-            elif start_lt_0 and stop is None and step is None:
-                it = tail(self._iterable, -start)
-                return Iterable(it)
-            # - start < 0, stop None, step > 0 = tail and islice
-            elif start_lt_0 and stop is None and step > 0:
-                it = tail(self._iterable, -start)
-                it = islice(it, 0, None, step)
-                return Iterable(it)
+
+            # Any other combination requires the start to be not None and
+            # negative.
+            elif start_lt_0:
+                # - start < 0, stop < 0, step None or > 0 = tail then islice.
+                if stop_lt_0 and step_gt_0:
+                    it = tail(self._iterable, -start)
+                    it = islice(it, 0, stop-start, step)
+                    return Iterable(it)
+                # - start < 0, stop None, step None = tail
+                elif stop is None and step is None:
+                    it = tail(self._iterable, -start)
+                    return Iterable(it)
+                # - start < 0, stop None, step > 0 = tail and islice
+                elif stop is None and step > 0:
+                    it = tail(self._iterable, -start)
+                    it = islice(it, 0, None, step)
+                    return Iterable(it)
             else:
                 raise ValueError('{0} cannot be subscripted with any '
                                  'combination of negative "start", "stop" or '
@@ -143,13 +147,13 @@ class _Base(object):
         raise TypeError('can only subscript {0} with integers and slices.'
                         ''.format(self.__class__.__name__))
 
-    def get(self, item):
+    def get(self, item, range_=None):
         """Get one item from the Iterable or slices of it. This method is
         equivalent to using normal slicing syntax.
 
         Parameters
         ----------
-        item : integer or slice
+        item : integer, slice
             The item or items to retrieve
 
         Returns
@@ -198,6 +202,15 @@ class _Base(object):
             >>> # start negative, stop None, step positive
             >>> it[-6::2].as_list()
             [4, 6, 8]
+
+        It's also possible to use ``get``, you have to pass in the appropriate
+        value or :py:func:`slice`::
+
+            >>> Iterable(range(10)).get(3)
+            3
+
+            >>> Iterable(range(10)).get(slice(5, 8)).as_tuple()
+            (5, 6, 7)
         """
         return self[item]
 
