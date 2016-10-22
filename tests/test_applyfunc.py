@@ -14,7 +14,7 @@ from helper_pytest_monkeypatch import pytest_raises
 
 
 applyfunc = iteration_utilities.applyfunc
-take = iteration_utilities.take
+getitem = iteration_utilities.getitem
 
 
 class T(object):
@@ -29,28 +29,28 @@ class T(object):
 
 
 def test_applyfunc_normal1():
-    assert take(applyfunc(lambda x: x**2, 2), 3) == [4, 16, 256]
+    assert list(getitem(applyfunc(lambda x: x**2, 2), stop=3)) == [4, 16, 256]
 
     def test():
-        take(applyfunc(lambda x: x**T(2), T(2)), 3)
+        list(getitem(applyfunc(lambda x: x**T(2), T(2)), stop=3))
     assert not memory_leak(test)
 
 
 def test_applyfunc_normal2():
-    assert take(applyfunc(lambda x: x, 2), 3) == [2, 2, 2]
+    assert list(getitem(applyfunc(lambda x: x, 2), stop=3)) == [2, 2, 2]
 
     def test():
-        take(applyfunc(lambda x: x, T(2)), 3)
+        list(getitem(applyfunc(lambda x: x, T(2)), stop=3))
     assert not memory_leak(test)
 
 
 def test_applyfunc_failure1():
     with pytest.raises(TypeError):
-        take(applyfunc(lambda x: x**2, 'a'), 3)
+        list(getitem(applyfunc(lambda x: x**2, 'a'), stop=3))
 
     def test():
         with pytest_raises(TypeError):
-            take(applyfunc(lambda x: x**T(2), T('a')), 3)
+            list(getitem(applyfunc(lambda x: x**T(2), T('a')), stop=3))
     assert not memory_leak(test)
 
 

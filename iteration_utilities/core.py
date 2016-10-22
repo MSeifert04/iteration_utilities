@@ -37,7 +37,7 @@ from iteration_utilities import (accumulate, applyfunc,
 from iteration_utilities import (all_distinct, all_equal, argmax, argmin,
                                  count_items, first, groupedby, last,
                                  minmax, nth, one, partition, second,
-                                 take, third)
+                                 third)
 # - multiple_iterables
 from iteration_utilities import merge, roundrobin
 # - helper
@@ -1590,17 +1590,6 @@ class Iterable(_Base):
         if start is _default:
             return self._get(sum, 0)
         return self._get(sum, 0, start)
-
-    def get_take(self, n):
-        """See :py:func:`~iteration_utilities._recipes._core.take`.
-
-        Examples
-        --------
-        >>> from iteration_utilities import Iterable
-        >>> Iterable(range(100)).get_take(3)
-        [0, 1, 2]
-        """
-        return self._get(take, 0, n)
 
     def get_third(self, default=_default, pred=_default, truthy=_default,
                   retpred=_default, retidx=_default):
