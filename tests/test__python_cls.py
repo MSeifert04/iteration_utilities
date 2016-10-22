@@ -44,3 +44,7 @@ def test_cls_exception():
     # __getitem__ : negative start/stop with infinite iterable.
     with pytest.raises(TypeError):
         Iterable.from_count()[-5:-3]
+
+    # __getitem__ : not int, not slice
+    with pytest.raises(TypeError):
+        Iterable.from_count()[1, ::2]

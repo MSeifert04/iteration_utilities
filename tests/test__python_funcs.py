@@ -41,6 +41,8 @@ def test_exceptions():
         iteration_utilities.replace([1, 2, 3], 5)
     with pytest.raises(TypeError):
         iteration_utilities.remove([1, 2, 3])
+    with pytest.raises(TypeError):
+        iteration_utilities.getitem([1, 2, 3])
     # Stop smaller than start in replace/remove
     with pytest.raises(ValueError):
         iteration_utilities.replace(range(10), 5, start=7, stop=5)

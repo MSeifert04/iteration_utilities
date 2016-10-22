@@ -269,11 +269,13 @@ def getitem(iterable, idx=None, start=None, stop=None, step=None):
     # Several possibilities:
 
     # - start None, stop None, step None = self
-    if start is None and stop is None and step is None:
-        return iterable
+    # if start is None and stop is None and step is None:
+    #     return iterable
+
     # - start None or > 0, stop None, step None or > 0 = islice
-    elif start_gt_0 and stop is None and step_gt_0:
+    if start_gt_0 and stop is None and step_gt_0:
         return islice(iterable, start, stop, step)
+
     # - start None or > 0, stop > 0, step None or > 0 = finite islice
     elif start_gt_0 and stop is not None and stop > 0 and step_gt_0:
         return islice(iterable, start, stop, step)

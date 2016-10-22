@@ -38,6 +38,7 @@ Processing an iterable
 - :py:func:`filter`
 - :py:func:`itertools.filterfalse`
 - :py:func:`~iteration_utilities._recipes._core.flatten`
+- :py:func:`~iteration_utilities._recipes._additional.getitem`
 - :py:func:`itertools.groupby` (not implemented in `Iterable`)
 - :py:func:`~iteration_utilities.grouper`
 - :py:func:`~iteration_utilities._recipes._additional.insert`
