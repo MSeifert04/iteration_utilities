@@ -40,6 +40,7 @@ Dependencies
 Installation:
 
 - Python2 2.7 or Python3 3.3+
+- setuptools
 - C Compiler
 
 
