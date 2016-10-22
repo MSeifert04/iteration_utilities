@@ -68,6 +68,9 @@ def test_empty_input():
 
     assert list(iteration_utilities.flatten(empty)) == []
 
+    assert list(iteration_utilities.getitem(
+        range(10), empty)) == []
+
     x, y = iteration_utilities.ipartition(empty, lambda x: x)
     assert list(x) == [] and list(y) == []
 
@@ -81,6 +84,12 @@ def test_empty_input():
     assert iteration_utilities.random_combination(empty, 0, True) == ()
 
     assert iteration_utilities.random_permutation(empty, 0) == ()
+
+    assert list(iteration_utilities.remove(
+        range(10), empty)) == list(range(10))
+
+    assert list(iteration_utilities.replace(
+        range(10), 20, empty)) == list(range(10))
 
     # no need to test repeatfunc here
 

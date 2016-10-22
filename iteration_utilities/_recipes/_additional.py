@@ -261,6 +261,8 @@ def getitem(iterable, idx=None, start=None, stop=None, step=None):
             if idx < -1:
                 raise ValueError('index must be -1 or bigger.')
             return nth(idx)(iterable)
+        elif not idx:
+            return []
         else:
             # A list of indices, we sort it (insert -1 at the end because it's
             # the last one) and then extract all the values.

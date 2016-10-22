@@ -47,4 +47,4 @@ def test_cls_exception():
 
     # __getitem__ : not int, not slice
     with pytest.raises(TypeError):
-        Iterable.from_count()[1, ::2]
+        Iterable.from_count()['bad']
