@@ -79,7 +79,7 @@ class _Base(object):
 
     def __getitem__(self, idx):
         """see `get`."""
-        if isinstance(idx, int):
+        if isinstance(idx, (int, tuple, list)):
             return getitem(self._iterable, idx=idx)
         elif isinstance(idx, slice):
             if (isinstance(self, InfiniteIterable) and
@@ -528,6 +528,14 @@ class _Base(object):
 
             >>> it[-1]  # -1 is the **only** allowed negative integer.
             9
+
+        With a tuple of integer (they will be sorted internally!)::
+
+            >>> Iterable(range(100))[-1, 8, 3, 10, 46]  # -1 indicates last
+            [3, 8, 10, 46, 99]
+
+            >>> Iterable(range(100))[3, 8, 10, 46]
+            [3, 8, 10, 46]
 
         With slices::
 

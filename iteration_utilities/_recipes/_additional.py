@@ -7,7 +7,7 @@ from __future__ import absolute_import, division, print_function
 from itertools import chain, islice, repeat
 
 # This module
-from .. import PY2, nth
+from .. import PY2, nth, unique_justseen
 from ._core import tail
 
 
@@ -205,8 +205,10 @@ def getitem(iterable, idx=None, start=None, stop=None, step=None):
     iterable : iterable
         The iterable from which to extract the items.
 
-    idx : positive integer or None, optional
-        If not ``None``, get the item at `idx`.
+    idx : positive integer, -1, tuple/list thereof, None, optional
+        If not ``None``, get the item at `idx`. If it's a tuple or list get
+        all the items specified in the tuple (they will be sorted so the
+        specified indices are retrieved).
         Default is ``None``.
 
         .. note::
@@ -255,9 +257,22 @@ def getitem(iterable, idx=None, start=None, stop=None, step=None):
     it = iter(iterable)
 
     if idx is not None:
-        if idx < -1:
-            raise ValueError('index must be -1 or bigger.')
-        return nth(idx)(iterable)
+        if not isinstance(idx, (tuple, list)):
+            if idx < -1:
+                raise ValueError('index must be -1 or bigger.')
+            return nth(idx)(iterable)
+        else:
+            # A list of indices, we sort it (insert -1 at the end because it's
+            # the last one) and then extract all the values.
+            idx = sorted(idx, key=lambda x: x if x != -1 else float('inf'))
+            if idx[0] < -1:
+                raise ValueError('index must be -1 or bigger.')
+            current = 0
+            ret = []
+            for i in unique_justseen(idx):
+                ret.append(nth(i-current)(it))
+                current = i+1
+            return ret
 
     start_gt_0 = start is None or start > 0
     step_gt_0 = step is None or step > 0
@@ -368,6 +383,9 @@ def insert(iterable, element, idx, unpack=False):
 
     it = iter(iterable)
 
+    # TODO: Implement multiple indices at which to insert the item, this is
+    #       quite nontrivial while supporting "start" and "end"...
+
     if idx == 'start':
         return chain(element, it)
     elif idx == 'end':
@@ -388,8 +406,11 @@ def replace(iterable, element, idx=None, start=None, stop=None, unpack=False):
     element : any type
         The element to insert after removing.
 
-    idx : positive integer or None, optional
+    idx : positive integer, list/tuple thereof, None, optional
         If not ``None``, remove the item at `idx` and insert `element` there.
+        If it's a tuple or list the `element` is inserted at each of the
+        indices in the `idx` (the values are sorted before, so the element is
+        always inserted at the given indices).
         Default is ``None``.
 
         .. note::
@@ -433,6 +454,11 @@ def replace(iterable, element, idx=None, start=None, stop=None, unpack=False):
 
     To replace multiple items::
 
+        >>> list(replace(range(10), 100, (3, 5, 1)))
+        [0, 100, 2, 100, 4, 100, 6, 7, 8, 9]
+
+    To replace slices::
+
         >>> list(replace(range(10), 100, start=2))
         [0, 1, 100]
 
@@ -451,7 +477,23 @@ def replace(iterable, element, idx=None, start=None, stop=None, unpack=False):
     it = iter(iterable)
 
     if idx is not None:
-        return chain(islice(it, idx), element, islice(it, 1, None))
+        if not isinstance(idx, (list, tuple)):
+            return chain(islice(it, idx), element, islice(it, 1, None))
+        elif not idx:
+            return iterable
+        else:
+            idx = sorted(idx)
+            ret = []
+            current = 0
+            for num, i in enumerate(unique_justseen(idx)):
+                if not num:
+                    ret.append(islice(it, i))
+                else:
+                    ret.append(islice(it, 1, i-current))
+                ret.append(element)
+                current = i
+            ret.append(islice(it, 1, None))
+            return chain.from_iterable(ret)
 
     if start is not None and stop is not None:
         range_ = stop - start
@@ -473,8 +515,10 @@ def remove(iterable, idx=None, start=None, stop=None):
     iterable : iterable
         The iterable in which to remove the item(s).
 
-    idx : positive integer or None, optional
-        If not ``None``, remove the item at `idx`.
+    idx : positive integer, list/tuple thereof, None, optional
+        If not ``None``, remove the item at `idx`. If it's a tuple or list then
+        replace all the present indices (they will be sorted so only the
+        specified indices are removed).
         Default is ``None``.
 
         .. note::
@@ -500,18 +544,23 @@ def remove(iterable, idx=None, start=None, stop=None):
     Returns
     -------
     replaced : generator
-        The `iterable` with the specified items removed and `element` inserted
-        in their place.
+        The `iterable` with the specified items removed.
 
     Examples
     --------
-    To replace one item::
+    To remove one item::
 
         >>> from iteration_utilities import remove
         >>> list(remove(range(10), idx=2))
         [0, 1, 3, 4, 5, 6, 7, 8, 9]
 
-    To replace multiple items::
+    To remove several items just provide a tuple as idx (the values are sorted,
+    so exactly the specified elements are removed)::
+
+        >>> list(remove(range(10), (4, 6, 8, 5, 1)))
+        [0, 2, 3, 7, 9]
+
+    To remove a slice::
 
         >>> list(remove(range(10), start=2))
         [0, 1]
@@ -528,7 +577,22 @@ def remove(iterable, idx=None, start=None, stop=None):
     it = iter(iterable)
 
     if idx is not None:
-        return chain(islice(it, idx), islice(it, 1, None))
+        if not isinstance(idx, (list, tuple)):
+            return chain(islice(it, idx), islice(it, 1, None))
+        elif not idx:
+            return iterable
+        else:
+            idx = sorted(idx)
+            ret = []
+            current = 0
+            for num, i in enumerate(unique_justseen(idx)):
+                if not num:
+                    ret.append(islice(it, i))
+                else:
+                    ret.append(islice(it, 1, i-current))
+                current = i
+            ret.append(islice(it, 1, None))
+            return chain.from_iterable(ret)
 
     if start is not None and stop is not None:
         range_ = stop - start
