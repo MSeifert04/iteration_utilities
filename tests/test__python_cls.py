@@ -28,3 +28,23 @@ def test_sentinelfactory():
 def test_cls_exception():
     with pytest.raises(TypeError):
         Iterable.from_count().pad(ntail=None)
+
+    # __getitem__ : negative idx
+    with pytest.raises(ValueError):
+        Iterable(range(10))[-2]
+
+    # __getitem__ : negative step
+    with pytest.raises(ValueError):
+        Iterable(range(10))[::-2]
+
+    # __getitem__ : positive start with negative stop
+    with pytest.raises(ValueError):
+        Iterable(range(10))[2:-1]
+
+    # __getitem__ : negative start/stop with infinite iterable.
+    with pytest.raises(TypeError):
+        Iterable.from_count()[-5:-3]
+
+    # __getitem__ : not int, not slice
+    with pytest.raises(TypeError):
+        Iterable.from_count()['bad']

@@ -20,18 +20,19 @@ from math import fsum
 # This module
 from iteration_utilities import PY2, PY34, _default
 # - generators
-from iteration_utilities import (accumulate, append, applyfunc,
-                                 clamp, cutout,
+from iteration_utilities import (accumulate, applyfunc,
+                                 clamp,
                                  deepflatten,
                                  flatten,
-                                 grouper,
-                                 intersperse, itersubclasses, iter_except,
+                                 getitem, grouper,
+                                 insert, intersperse, itersubclasses,
+                                 iter_except,
                                  ncycles,
-                                 pad, powerset, prepend,
-                                 repeatfunc, replicate,
+                                 pad, powerset,
+                                 remove, repeatfunc, replace, replicate,
                                  split, successive,
                                  tabulate, tail,
-                                 unique_everseen, unique_justseen, unpack)
+                                 unique_everseen, unique_justseen)
 # - folds
 from iteration_utilities import (all_distinct, all_equal, argmax, argmin,
                                  count_items, first, groupedby, last,
@@ -75,6 +76,27 @@ class _Base(object):
 
     def __iter__(self):
         return iter(self._iterable)
+
+    def __getitem__(self, idx):
+        """see `get`."""
+        if isinstance(idx, (int, tuple, list)):
+            return getitem(self._iterable, idx=idx)
+        elif isinstance(idx, slice):
+            if (isinstance(self, InfiniteIterable) and
+                    any(x is not None and x < 0
+                        for x in [idx.start, idx.stop, idx.step])):
+                raise TypeError('subscripting InfiniteIterables requires '
+                                '"start", "stop" and "step" to be positive '
+                                'integers or None.')
+
+            if idx.stop is not None and idx.stop > 0:
+                meth = self._call_finite
+            else:
+                meth = self._call
+            return meth(getitem, 0, start=idx.start, stop=idx.stop,
+                        step=idx.step)
+        raise TypeError('can only subscript {0} with integers and slices.'
+                        ''.format(self.__class__.__name__))
 
     def __repr__(self):
         return '<{0.__class__.__name__}: {0._iterable!r}>'.format(self)
@@ -306,20 +328,6 @@ class _Base(object):
         """
         return self._call(accumulate, 0, func=func, start=start)
 
-    def append(self, element):
-        """See :py:func:`~iteration_utilities._recipes._additional.append`.
-
-        Examples
-        --------
-        >>> from iteration_utilities import Iterable
-        >>> Iterable(range(1, 10)).append(10).as_list()
-        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-
-        >>> Iterable(range(1, 10)).append(element=10).as_list()
-        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        """
-        return self._call(append, 1, element)
-
     def clamp(self, low=_default, high=_default, inclusive=_default):
         """See :py:func:`~iteration_utilities.clamp`.
 
@@ -376,20 +384,6 @@ class _Base(object):
         [2, 4, 6, 7, 8]
         """
         return self._call(compress, 0, selectors=selectors)
-
-    def cutout(self, start, stop):
-        """See :py:func:`iteration_utilities._recipes._additional.cutout`.
-
-        Examples
-        --------
-        >>> from iteration_utilities import Iterable
-        >>> Iterable(range(10)).cutout(2, 5).as_list()
-        [0, 1, 5, 6, 7, 8, 9]
-
-        >>> Iterable(range(10)).cutout(start=2, stop=5).as_list()
-        [0, 1, 5, 6, 7, 8, 9]
-        """
-        return self._call(cutout, 0, start=start, stop=stop)
 
     def cycle(self):
         """See :py:func:`itertools.cycle`.
@@ -508,6 +502,85 @@ class _Base(object):
         """
         return self._call(flatten, 0)
 
+    def get(self, item):
+        """"See also
+        :py:func:`~iteration_utilities._recipes._additional.getitem`
+
+        Parameters
+        ----------
+        item : integer, slice
+            The item or items to retrieve
+
+        Returns
+        -------
+        parts : any type or generator
+            If `item` was an integer the return is a singly item otherwise it
+            returns a generator of the items.
+
+        Examples
+        --------
+        With integers::
+
+            >>> from iteration_utilities import Iterable
+            >>> it = Iterable(range(10))
+            >>> it[2]
+            2
+
+            >>> it[-1]  # -1 is the **only** allowed negative integer.
+            9
+
+        With a tuple of integer (they will be sorted internally!)::
+
+            >>> Iterable(range(100))[-1, 8, 3, 10, 46]  # -1 indicates last
+            [3, 8, 10, 46, 99]
+
+            >>> Iterable(range(100))[3, 8, 10, 46]
+            [3, 8, 10, 46]
+
+        With slices::
+
+            >>> it[1:].as_list()
+            [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+            >>> it[1:8:2].as_list()
+            [1, 3, 5, 7]
+
+        Slices with negative values (only these cases are possible!)::
+
+            >>> # start and stop negative; step None
+            >>> it[-5:-2].as_list()
+            [5, 6, 7]
+
+            >>> # start and stop negative; step positive
+            >>> it[-6:-1:2].as_list()
+            [4, 6, 8]
+
+            >>> # start negative, stop and step None
+            >>> it[-6:].as_list()
+            [4, 5, 6, 7, 8, 9]
+
+            >>> # start negative, stop None, step positive
+            >>> it[-6::2].as_list()
+            [4, 6, 8]
+
+        It's also possible to use ``get``, you have to pass in the appropriate
+        value or :py:class:`slice`::
+
+            >>> Iterable(range(10)).get(3)
+            3
+
+            >>> Iterable(range(10)).get(slice(5, 8)).as_tuple()
+            (5, 6, 7)
+
+        .. note::
+           This function might also turn an `InfiniteIterable` into an
+           `Iterable` if the slice has a positive stop.
+
+           >>> Iterable.from_count()[:4]  # doctest: +ELLIPSIS
+           <Iterable: <itertools.islice object at ...>>
+        """
+        return self[item]
+
     def grouper(self, n, fillvalue=_default, truncate=_default):
         """See :py:func:`~iteration_utilities.grouper`.
 
@@ -557,6 +630,29 @@ class _Base(object):
             if args[1] is not None:
                 meth = self._call_finite
         return meth(islice, 0, *args)
+
+    def insert(self, element, idx, unpack=_default):
+        """See also :py:func:`~iteration_utilities._recipes._additional.insert`
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable(range(10)).insert(100, 2).as_list()
+        [0, 1, 100, 2, 3, 4, 5, 6, 7, 8, 9]
+
+        .. warning::
+           This returns an `InfiniteIterable` if ``unpack=True`` and the
+           `element` is an `InfiniteIterable`.
+
+        >>> Iterable(range(10)).insert(Iterable.from_count(), 3, unpack=True) \
+# doctest: +ELLIPSIS
+        <InfiniteIterable: <itertools.chain object at ...>>
+        """
+        if unpack and isinstance(element, InfiniteIterable):
+            meth = self._call_infinite
+        else:
+            meth = self._call
+        return meth(insert, 0, element=element, idx=idx, unpack=unpack)
 
     def intersperse(self, e):
         """See :py:func:`~iteration_utilities.intersperse`.
@@ -658,19 +754,63 @@ class _Base(object):
         """
         return self._call(powerset, 0)
 
-    def prepend(self, element):
-        """See :py:func:`~iteration_utilities._recipes._additional.prepend`.
+    def remove(self, idx=_default, start=_default, stop=_default):
+        """See :py:func:`~iteration_utilities._recipes._additional.remove`.
 
         Examples
         --------
         >>> from iteration_utilities import Iterable
-        >>> Iterable(range(1, 10)).prepend(100).as_list()
-        [100, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        >>> Iterable(range(10)).remove(idx=2).as_list()
+        [0, 1, 3, 4, 5, 6, 7, 8, 9]
 
-        >>> Iterable(range(1, 10)).prepend(element=100).as_list()
-        [100, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        .. note::
+           This function might also turn an `InfiniteIterable` into an
+           `Iterable` if `idx` and `stop` are ``None``.
+
+        >>> Iterable.from_count().remove(start=4)  # doctest: +ELLIPSIS
+        <Iterable: <itertools.islice object at ...>>
         """
-        return self._call(prepend, 1, element)
+        if ((idx is _default or idx is None) and
+                (stop is None or stop is _default)):
+            meth = self._call_finite
+        else:
+            meth = self._call
+        return meth(remove, 0, idx=idx, start=start, stop=stop)
+
+    def replace(self, element, idx=_default, start=_default, stop=_default,
+                unpack=_default):
+        """See :py:func:`~iteration_utilities._recipes._additional.replace`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable(range(10)).replace(10, idx=2).as_list()
+        [0, 1, 10, 3, 4, 5, 6, 7, 8, 9]
+
+        .. warning::
+           This returns an `InfiniteIterable` if ``unpack=True`` and the
+           `element` is an `InfiniteIterable`.
+
+        >>> Iterable(range(10)).replace(Iterable.from_count(), 4, unpack=True)\
+# doctest: +ELLIPSIS
+        <InfiniteIterable: <itertools.chain object at ...>>
+
+        .. note::
+           But this function might also turn an `InfiniteIterable` into an
+           `Iterable` if `idx` and `stop` are ``None``.
+
+        >>> Iterable.from_count().replace(10, start=4)  # doctest: +ELLIPSIS
+        <Iterable: <itertools.chain object at ...>>
+        """
+        if unpack and isinstance(element, InfiniteIterable):
+            meth = self._call_infinite
+        elif ((idx is _default or idx is None) and
+              (stop is None or stop is _default)):
+            meth = self._call_finite
+        else:
+            meth = self._call
+        return meth(replace, 0, element=element, idx=idx, start=start,
+                    stop=stop, unpack=unpack)
 
     def replicate(self, times):
         """See :py:func:`~iteration_utilities._recipes._additional.replicate`.
@@ -803,24 +943,6 @@ class _Base(object):
         """
         return self._call(unique_justseen, 0, key=key)
 
-    def unpack(self, iterable, idx):
-        """See :py:func:`iteration_utilities._recipes._additional.unpack`.
-
-        Examples
-        --------
-        >>> from iteration_utilities import Iterable
-        >>> Iterable(range(10)).unpack(range(3), 3).as_list()
-        [0, 1, 2, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-
-        >>> Iterable(range(10)).unpack(iterable=range(3), idx=3).as_list()
-        [0, 1, 2, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-        """
-        if isinstance(iterable, InfiniteIterable):
-            meth = self._call_infinite
-        else:
-            meth = self._call
-        return meth(unpack, 1, iterable, idx=idx)
-
 
 class Iterable(_Base):
     """A convenience class that allows chaining the `iteration_utilities`
@@ -883,10 +1005,6 @@ class Iterable(_Base):
 
         >>> Iterable(range(10)).cycle()  # doctest: +ELLIPSIS
         <InfiniteIterable: <itertools.cycle object at ...>>
-
-        >>> Iterable(range(10)).unpack(Iterable.from_count(), idx=3)  \
-# doctest: +ELLIPSIS
-        <InfiniteIterable: <itertools.chain object at ...>>
 
     Also some of the staticmethods (``from_x``)::
 
@@ -966,6 +1084,21 @@ class Iterable(_Base):
         (0, 1, 2, 3, 4)
         """
         return self.as_(tuple)
+
+    def as_string(self):
+        """Get the iterable as string.
+
+        .. warning::
+           This method **does not** use :py:meth:`as_`. and differs from
+           ``str(Iterable(sth))``!
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable(range(5)).as_string()
+        '01234'
+        """
+        return ''.join(map(str, self._iterable))
 
     def as_set(self):
         """See :py:meth:`as_`.

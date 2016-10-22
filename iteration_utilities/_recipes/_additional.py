@@ -4,19 +4,19 @@ API: Additional recipes
 """
 # Built-ins
 from __future__ import absolute_import, division, print_function
-from collections import Iterable
 from itertools import chain, islice, repeat
 
 # This module
-from .. import PY2
+from .. import PY2, nth, unique_justseen
+from ._core import tail
 
 
 if PY2:
     from itertools import imap as map
 
 
-__all__ = ['append', 'cutout', 'itersubclasses', 'pad', 'prepend', 'replicate',
-           'unpack']
+__all__ = ['getitem', 'insert', 'itersubclasses', 'pad', 'remove', 'replace',
+           'replicate']
 
 
 def itersubclasses(cls, seen=None):
@@ -104,66 +104,6 @@ def itersubclasses(cls, seen=None):
                 yield sub
 
 
-def append(element, iterable):
-    """Append one `element` on `iterable`.
-
-    Parameters
-    ----------
-    element : any type
-        The `element` to append to the `iterable`.
-
-    iterable : iterable
-        The `iterable`.
-
-    Returns
-    -------
-    appended : generator
-        The `iterable` followed by `element` as generator.
-
-    Examples
-    --------
-    Some simple examples::
-
-        >>> from iteration_utilities import append
-        >>> list(append(10, range(3)))
-        [0, 1, 2, 10]
-
-        >>> list(append(0, []))
-        [0]
-    """
-    return chain(iterable, [element])
-
-
-def prepend(element, iterable):
-    """Prepend one `element` on `iterable`.
-
-    Parameters
-    ----------
-    element : any type
-        The `element` to prepend to the `iterable`.
-
-    iterable : iterable
-        The `iterable`.
-
-    Returns
-    -------
-    prepended : generator
-        The `element` followed by `iterable` as generator.
-
-    Examples
-    --------
-    Some simple examples::
-
-        >>> from iteration_utilities import prepend
-        >>> list(prepend(10, range(3)))
-        [10, 0, 1, 2]
-
-        >>> list(prepend(0, []))
-        [0]
-    """
-    return chain([element], iterable)
-
-
 def pad(iterable, fillvalue=None, nlead=0, ntail=0):
     """Pad the `iterable` with `fillvalue` in front and behind.
 
@@ -245,81 +185,424 @@ def replicate(iterable, times):
     return chain.from_iterable(map(repeat, iterable, repeat(times)))
 
 
-def cutout(iterable, start, stop):
-    """Removes the items from start (inclusive) to stop (exclusive) from the
-    `iterable`.
+# =============================================================================
+# List-like interface methods
+#
+# getitem: list[x]
+# insert: list[x:x] = item
+# replace: list[x:y] = item
+# remove: del list[x:y]
+#
+# =============================================================================
+
+
+def getitem(iterable, idx=None, start=None, stop=None, step=None):
+    """Get the item at `idx` or the items specified by `start`, `stop` and
+    `step`.
 
     Parameters
     ----------
     iterable : iterable
-        The iterable from which to remove the items.
+        The iterable from which to extract the items.
 
-    start : positive integer
-        The index from which to remove the elements.
+    idx : positive integer, -1, tuple/list thereof, None, optional
+        If not ``None``, get the item at `idx`. If it's a tuple or list get
+        all the items specified in the tuple (they will be sorted so the
+        specified indices are retrieved).
+        Default is ``None``.
 
-    stop : positive integer
-        Remove the items till this index. The item at the stop index is **not**
-        removed.
+        .. note::
+           This parameter must not be ``None`` if also `start`, `stop` and
+           `step` are ``None``.
+
+    start : integer or None, optional
+        If ``None`` then take all items before `stop`, otherwise take only
+        the items starting by `start`.
+        Default is ``None``.
+
+        .. note::
+           This parameter is ignored if `idx` is not ``None``.
+
+    stop : integer or None, optional
+        If ``None`` then take all items starting by `start`, otherwise only
+        take the items before `stop`.
+        Default is ``None``.
+
+        .. note::
+           This parameter is ignored if `idx` is not ``None``.
+
+    step : positive integer or None, optional
+        If ``None`` then take all items seperated by `step`, otherwise take
+        successive items.
+        Default is ``None``.
+
+        .. note::
+           This parameter is ignored if `idx` is not ``None``.
 
     Returns
     -------
-    residuals : generator
-        The values from `iterable` except those starting at index `start` to
-        `stop`.
+    items : any type or generator
+        If `idx` was not ``None`` then it returns the item, otherwise it
+        returns the items specified by `start`, `stop` and `step`.
 
     Examples
     --------
-    A simple example::
-
-        >>> from iteration_utilities import cutout
-        >>> list(cutout(range(10), 2, 5))
-        [0, 1, 5, 6, 7, 8, 9]
-
-    This is the equivalent to the removing by slicing::
-
-        >>> lst = list(range(10))
-        >>> del lst[2:5]
-        >>> lst
-        [0, 1, 5, 6, 7, 8, 9]
+    The main bulk of examples is in
+    :py:meth:`~iteration_utilities.core.Iterable.get` because that's where this
+    function was needed.
     """
-    iterable = iter(iterable)
-    return chain(islice(iterable, 0, start),
-                 islice(iterable, stop-start, None))
+    if idx is None and start is None and stop is None and step is None:
+        raise TypeError('one of "idx", "start" or "stop" must be given.')
+
+    it = iter(iterable)
+
+    if idx is not None:
+        if not isinstance(idx, (tuple, list)):
+            if idx < -1:
+                raise ValueError('index must be -1 or bigger.')
+            return nth(idx)(iterable)
+        elif not idx:
+            return []
+        else:
+            # A list of indices, we sort it (insert -1 at the end because it's
+            # the last one) and then extract all the values.
+            idx = sorted(idx, key=lambda x: x if x != -1 else float('inf'))
+            if idx[0] < -1:
+                raise ValueError('index must be -1 or bigger.')
+            current = 0
+            ret = []
+            for i in unique_justseen(idx):
+                ret.append(nth(i-current)(it))
+                current = i+1
+            return ret
+
+    start_gt_0 = start is None or start > 0
+    step_gt_0 = step is None or step > 0
+
+    start_lt_0 = start is not None and start < 0
+    stop_lt_0 = stop is not None and stop < 0
+    step_lt_0 = step is not None and step < 0
+
+    # Several possibilities:
+
+    # - start None, stop None, step None = self
+    # if start is None and stop is None and step is None:
+    #     return iterable
+
+    # - start None or > 0, stop None, step None or > 0 = islice
+    if start_gt_0 and stop is None and step_gt_0:
+        return islice(iterable, start, stop, step)
+
+    # - start None or > 0, stop > 0, step None or > 0 = finite islice
+    elif start_gt_0 and stop is not None and stop > 0 and step_gt_0:
+        return islice(iterable, start, stop, step)
+
+    # There could be valid cases with negative steps, for example if
+    # reversed can be applied. But I won't go down that road!
+    elif step_lt_0:
+        raise ValueError('negative "step" is not possible.')
+
+    # Any other combination requires the start to be not None and
+    # negative.
+    elif start_lt_0:
+        # - start < 0, stop < 0, step None or > 0 = tail then islice.
+        if stop_lt_0 and step_gt_0:
+            it = tail(iterable, -start)
+            it = islice(it, 0, stop-start, step)
+            return it
+        # - start < 0, stop None, step None = tail
+        elif stop is None and step is None:
+            it = tail(iterable, -start)
+            return it
+        # - start < 0, stop None, step > 0 = tail and islice
+        elif stop is None and step > 0:
+            it = tail(iterable, -start)
+            it = islice(it, 0, None, step)
+            return it
+    else:
+        raise ValueError('{0} cannot be subscripted with any '
+                         'combination of negative "start", "stop" or '
+                         '"step". This combination wasn\'t allowed.')
 
 
-def unpack(iterable, into, idx):
-    """Insert an `iterable` `into` another at the given `idx`.
+def insert(iterable, element, idx, unpack=False):
+    """Insert one `element` into `iterable`.
 
     Parameters
     ----------
     iterable : iterable
-        The iterable to insert.
+        The `iterable` in which to insert the `element`.
 
-    into : iterable
-        The iterable in which `iterable` is inserted.
+    element : any type
+        The `element` to insert to the `iterable`.
 
-    idx : positive integer
-        The index before which the `iterable` is inserted.
+    idx : positive integer or str
+        The index at which to insert the `element`. If it's a string it must be
+        ``'start'`` if the `element` should be prepended to `iterable` or
+        ``'end'`` if it should be appended.
+
+    unpack : bool, optional
+        If ``False`` the `element` is inserted as it is. If ``True`` then the
+        `element` must be an iterable and it is unpacked into the `iterable`.
+        Default is ``False``.
 
     Returns
     -------
     inserted : generator
-        The iterable with `iterable` inserted into `into`.
+        The `element` inserted into `iterable` at `idx` as generator.
 
     Examples
     --------
-    A simple example::
+    To prepend a value::
 
-        >>> from iteration_utilities import unpack
-        >>> list(unpack(range(3), range(10), 3))
-        [0, 1, 2, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        >>> from iteration_utilities import insert
+        >>> list(insert(range(10), 100, 'start'))  # 'start' is equivalent to 0
+        [100, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-    This is the equivalent to inserting an iterable with slicing into a list::
+    To append a value::
 
-        >>> lst = list(range(10))
-        >>> lst[3:3] = range(3)
-        >>> lst
-        [0, 1, 2, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        >>> list(insert(range(10), 100, 'end'))
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100]
+
+    Or to insert it at a given index::
+
+        >>> list(insert(range(10), 100, 2))
+        [0, 1, 100, 2, 3, 4, 5, 6, 7, 8, 9]
+
+    It is also possible to unpack another iterable into another one with the
+    `unpack` argument::
+
+        >>> list(insert(range(10), [1, 2, 3], 0, unpack=True))
+        [1, 2, 3, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+    If the `unpack` argument is not given the iterable is inserted as it is::
+
+        >>> list(insert(range(10), [1, 2, 3], 0))
+        [[1, 2, 3], 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     """
-    into = iter(into)
-    return chain(islice(into, idx), iterable, into)
+    if not unpack:
+        element = [element]
+
+    it = iter(iterable)
+
+    # TODO: Implement multiple indices at which to insert the item, this is
+    #       quite nontrivial while supporting "start" and "end"...
+
+    if idx == 'start':
+        return chain(element, it)
+    elif idx == 'end':
+        return chain(it, element)
+    else:
+        return chain(islice(it, idx), element, it)
+
+
+def replace(iterable, element, idx=None, start=None, stop=None, unpack=False):
+    """Removes the item at `idx` or from `start` (inclusive) to `stop`
+    (exclusive) and then inserts the `element` there.
+
+    Parameters
+    ----------
+    iterable : iterable
+        The iterable in which to replace the item(s).
+
+    element : any type
+        The element to insert after removing.
+
+    idx : positive integer, list/tuple thereof, None, optional
+        If not ``None``, remove the item at `idx` and insert `element` there.
+        If it's a tuple or list the `element` is inserted at each of the
+        indices in the `idx` (the values are sorted before, so the element is
+        always inserted at the given indices).
+        Default is ``None``.
+
+        .. note::
+           This parameter must not be ``None`` if also `start` and `stop` are
+           ``None``.
+
+    start : positive integer or None, optional
+        If ``None`` then remove all items before `stop`, otherwise remove only
+        the items starting by `start`.
+        Default is ``None``.
+
+        .. note::
+           This parameter is ignored if `idx` is not ``None``.
+
+    stop : positive integer or None, optional
+        If ``None`` then remove all items starting by `start`, otherwise only
+        remove the items before `stop`.
+        Default is ``None``.
+
+        .. note::
+           This parameter is ignored if `idx` is not ``None``.
+
+    unpack : bool, optional
+        If ``False`` the `element` is inserted as it is. If ``True`` then the
+        `element` must be an iterable and it is unpacked into the `iterable`.
+        Default is ``False``.
+
+    Returns
+    -------
+    replaced : generator
+        The `iterable` with the specified items removed and `element` inserted
+        in their place.
+
+    Examples
+    --------
+    To replace one item::
+
+        >>> from iteration_utilities import replace
+        >>> list(replace(range(10), 100, idx=2))
+        [0, 1, 100, 3, 4, 5, 6, 7, 8, 9]
+
+    To replace multiple items::
+
+        >>> list(replace(range(10), 100, (3, 5, 1)))
+        [0, 100, 2, 100, 4, 100, 6, 7, 8, 9]
+
+    To replace slices::
+
+        >>> list(replace(range(10), 100, start=2))
+        [0, 1, 100]
+
+        >>> list(replace(range(10), 100, stop=2))
+        [100, 2, 3, 4, 5, 6, 7, 8, 9]
+
+        >>> list(replace(range(10), 100, start=2, stop=5))
+        [0, 1, 100, 5, 6, 7, 8, 9]
+    """
+    if idx is None and start is None and stop is None:
+        raise TypeError('one of "idx", "start" or "stop" must be given.')
+
+    if not unpack:
+        element = [element]
+
+    it = iter(iterable)
+
+    if idx is not None:
+        if not isinstance(idx, (list, tuple)):
+            return chain(islice(it, idx), element, islice(it, 1, None))
+        elif not idx:
+            return iterable
+        else:
+            idx = sorted(idx)
+            ret = []
+            current = 0
+            for num, i in enumerate(unique_justseen(idx)):
+                if not num:
+                    ret.append(islice(it, i))
+                else:
+                    ret.append(islice(it, 1, i-current))
+                ret.append(element)
+                current = i
+            ret.append(islice(it, 1, None))
+            return chain.from_iterable(ret)
+
+    if start is not None and stop is not None:
+        range_ = stop - start
+        if range_ <= 0:
+            raise ValueError('"stop" must be greater than "start".')
+        return chain(islice(it, start), element, islice(it, range_, None))
+    elif start is not None:
+        return chain(islice(it, start), element)
+    else:  # elif stop is not None!
+        return chain(element, islice(it, stop, None))
+
+
+def remove(iterable, idx=None, start=None, stop=None):
+    """Removes the item at `idx` or from `start` (inclusive) to `stop`
+    (exclusive).
+
+    Parameters
+    ----------
+    iterable : iterable
+        The iterable in which to remove the item(s).
+
+    idx : positive integer, list/tuple thereof, None, optional
+        If not ``None``, remove the item at `idx`. If it's a tuple or list then
+        replace all the present indices (they will be sorted so only the
+        specified indices are removed).
+        Default is ``None``.
+
+        .. note::
+           This parameter must not be ``None`` if also `start` and `stop` are
+           ``None``.
+
+    start : positive integer or None, optional
+        If ``None`` then remove all items before `stop`, otherwise remove only
+        the items starting by `start`.
+        Default is ``None``.
+
+        .. note::
+           This parameter is ignored if `idx` is not ``None``.
+
+    stop : positive integer or None, optional
+        If ``None`` then remove all items starting by `start`, otherwise only
+        remove the items before `stop`.
+        Default is ``None``.
+
+        .. note::
+           This parameter is ignored if `idx` is not ``None``.
+
+    Returns
+    -------
+    replaced : generator
+        The `iterable` with the specified items removed.
+
+    Examples
+    --------
+    To remove one item::
+
+        >>> from iteration_utilities import remove
+        >>> list(remove(range(10), idx=2))
+        [0, 1, 3, 4, 5, 6, 7, 8, 9]
+
+    To remove several items just provide a tuple as idx (the values are sorted,
+    so exactly the specified elements are removed)::
+
+        >>> list(remove(range(10), (4, 6, 8, 5, 1)))
+        [0, 2, 3, 7, 9]
+
+    To remove a slice::
+
+        >>> list(remove(range(10), start=2))
+        [0, 1]
+
+        >>> list(remove(range(10), stop=2))
+        [2, 3, 4, 5, 6, 7, 8, 9]
+
+        >>> list(remove(range(10), start=2, stop=5))
+        [0, 1, 5, 6, 7, 8, 9]
+    """
+    if idx is None and start is None and stop is None:
+        raise TypeError('one of "idx", "start" or "stop" must be given.')
+
+    it = iter(iterable)
+
+    if idx is not None:
+        if not isinstance(idx, (list, tuple)):
+            return chain(islice(it, idx), islice(it, 1, None))
+        elif not idx:
+            return iterable
+        else:
+            idx = sorted(idx)
+            ret = []
+            current = 0
+            for num, i in enumerate(unique_justseen(idx)):
+                if not num:
+                    ret.append(islice(it, i))
+                else:
+                    ret.append(islice(it, 1, i-current))
+                current = i
+            ret.append(islice(it, 1, None))
+            return chain.from_iterable(ret)
+
+    if start is not None and stop is not None:
+        range_ = stop - start
+        if range_ < 0:
+            raise ValueError('"stop" must be greater than or equal to '
+                             '"start".')
+        return chain(islice(it, start), islice(it, range_, None))
+    elif start is not None:
+        return islice(it, start)
+    else:
+        return islice(it, stop, None)
