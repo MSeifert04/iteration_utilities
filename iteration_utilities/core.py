@@ -1087,21 +1087,6 @@ class Iterable(_Base):
         """
         return self.as_(tuple)
 
-    def as_string(self):
-        """Get the iterable as string.
-
-        .. warning::
-           This method **does not** use :py:meth:`as_`. and differs from
-           ``str(Iterable(sth))``!
-
-        Examples
-        --------
-        >>> from iteration_utilities import Iterable
-        >>> Iterable(range(5)).as_string()
-        '01234'
-        """
-        return ''.join(map(str, self._iterable))
-
     def as_set(self):
         """See :py:meth:`as_`.
 
@@ -1164,6 +1149,29 @@ class Iterable(_Base):
         Counter({1: 3})
         """
         return self.as_(Counter)
+
+    def as_string(self, seperaror=''):
+        """Get the iterable as string.
+
+        .. warning::
+           This method **does not** use :py:meth:`as_`. and differs from
+           ``str(Iterable(sth))``! It uses :py:meth:`str.join`.
+
+        Parameters
+        ----------
+        seperator : str, optional
+            The seperator between each item from the iterable in the output
+            string.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable(range(5)).as_string()
+        '01234'
+        >>> Iterable(range(5)).as_string(' ')
+        '0 1 2 3 4'
+        """
+        return seperaror.join(map(str, self._iterable))
 
     def reversed(self):
         """See :py:func:`python:reversed`.
