@@ -1,3 +1,7 @@
+/******************************************************************************
+ * Licensed under Apache License Version 2.0 - see LICENSE.rst
+ *****************************************************************************/
+
 static PyObject * PyIU_Partition(PyObject *m, PyObject *args,
                                  PyObject *kwargs) {
     static char *kwlist[] = {"iterable", "func", NULL};

@@ -1,3 +1,7 @@
+/******************************************************************************
+ * Licensed under Apache License Version 2.0 - see LICENSE.rst
+ *****************************************************************************/
+
 static PyObject * argminmax(PyObject *m, PyObject *args, PyObject *kwargs,
                             int cmpop){
     PyObject *sequence, *defaultvalue, *keyfunc=NULL, *iterator=NULL;

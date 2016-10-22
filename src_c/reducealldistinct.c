@@ -1,3 +1,7 @@
+/******************************************************************************
+ * Licensed under Apache License Version 2.0 - see LICENSE.rst
+ *****************************************************************************/
+
 static PyObject * PyIU_AllDistinct(PyObject *m, PyObject *iterable) {
     PyObject *iterator=NULL, *item=NULL, *seen=NULL, *seenlist=NULL;
     int ok;

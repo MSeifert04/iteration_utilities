@@ -1,3 +1,7 @@
+/******************************************************************************
+ * Licensed under Apache License Version 2.0 - see LICENSE.rst
+ *****************************************************************************/
+
 static PyObject * PyIU_One(PyObject *m, PyObject *iterable) {
     PyObject *iterator, *item1, *item2;
 

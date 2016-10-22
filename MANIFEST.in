@@ -1,7 +1,14 @@
+# Legal stuff
 include README.rst
 include LICENSE.rst
+recursive-include licenses *
+
+# Source code
 recursive-include src_c *.c
-recursive-include docs *
-recursive-include tests *
+
+# Needed for tests
 include pytest.ini
 include .coveragerc
+recursive-include tests *
+
+recursive-include docs *

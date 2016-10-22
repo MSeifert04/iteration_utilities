@@ -1,3 +1,7 @@
+/******************************************************************************
+ * Licensed under Apache License Version 2.0 - see LICENSE.rst
+ *****************************************************************************/
+
 static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
     static char *kwlist[] = {"iterable", "key", "keep", "reduce", "reducestart", NULL};
 

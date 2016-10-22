@@ -2,6 +2,8 @@
 API: Official recipes
 ---------------------
 """
+# Licensed under PSF license - see licenses/LICENSE_PYTHON.rst
+
 # Built-ins
 from __future__ import absolute_import, division, print_function
 from collections import deque
