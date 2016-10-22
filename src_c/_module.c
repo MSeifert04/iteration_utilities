@@ -9,8 +9,8 @@
 #include "isx.c"
 #include "returnx.c"
 #include "mathematical.c"
+#include "functionschained.c"
 #include "functionscomplement.c"
-#include "functionscompose.c"
 #include "functionsconst.c"
 #include "functionsflip.c"
 #include "functionsnth.c"
@@ -124,8 +124,8 @@ PyDoc_STRVAR(PyIU_module_doc, "API: C Functions\n----------------");
 
     // Classes avaiable in module
     PyTypeObject *typelist[] = {
+        &PyIUType_Chained,
         &PyIUType_Complement,
-        &PyIUType_Compose,
         &PyIUType_Constant,
         &PyIUType_Flip,
         &PyIUType_Nth,

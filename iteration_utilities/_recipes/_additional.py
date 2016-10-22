@@ -250,8 +250,8 @@ def getitem(iterable, idx=None, start=None, stop=None, step=None):
     Examples
     --------
     The main bulk of examples is in
-    :py:meth:`~iteration_utilities.core.Iterable.get` because that's where this
-    function was needed.
+    :py:meth:`~iteration_utilities.core.Iterable.getitem` because that's where
+    this function was originally implemented.
     """
     if idx is None and start is None and stop is None and step is None:
         raise TypeError('one of "idx", "start" or "stop" must be given.')

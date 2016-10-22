@@ -23,7 +23,7 @@ Functools for one function
 Functools for several functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- :py:func:`compose`, apply several functions (successivly).
+- :py:func:`chained`, apply several functions (successivly).
 
 
 References

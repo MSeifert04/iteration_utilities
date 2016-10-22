@@ -7,9 +7,9 @@ typedef struct {
     PyObject *funcs;
     int reverse;
     int all;
-} PyIUObject_Compose;
+} PyIUObject_Chained;
 
-static PyTypeObject PyIUType_Compose;
+static PyTypeObject PyIUType_Chained;
 
 /******************************************************************************
  *
@@ -17,9 +17,9 @@ static PyTypeObject PyIUType_Compose;
  *
  *****************************************************************************/
 
-static PyObject * compose_new(PyTypeObject *type, PyObject *funcs,
+static PyObject * chained_new(PyTypeObject *type, PyObject *funcs,
                               PyObject *kwargs) {
-    PyIUObject_Compose *lz;
+    PyIUObject_Chained *lz;
 
     PyObject *kwarg;
     Py_ssize_t nkwargs;
@@ -49,13 +49,13 @@ static PyObject * compose_new(PyTypeObject *type, PyObject *funcs,
 
         if (PyDict_Size(kwargs) - nkwargs != 0) {
             PyErr_Format(PyExc_TypeError,
-                         "`compose` got an unexpected keyword argument");
+                         "`chained` got an unexpected keyword argument");
             return NULL;
         }
     }
 
     /* Create struct */
-    lz = (PyIUObject_Compose *)type->tp_alloc(type, 0);
+    lz = (PyIUObject_Chained *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         return NULL;
     }
@@ -72,7 +72,7 @@ static PyObject * compose_new(PyTypeObject *type, PyObject *funcs,
  *
  *****************************************************************************/
 
-static void compose_dealloc(PyIUObject_Compose *lz) {
+static void chained_dealloc(PyIUObject_Chained *lz) {
     PyObject_GC_UnTrack(lz);
     Py_XDECREF(lz->funcs);
     Py_TYPE(lz)->tp_free(lz);
@@ -84,7 +84,7 @@ static void compose_dealloc(PyIUObject_Compose *lz) {
  *
  *****************************************************************************/
 
-static int compose_traverse(PyIUObject_Compose *lz, visitproc visit,
+static int chained_traverse(PyIUObject_Chained *lz, visitproc visit,
                             void *arg) {
     Py_VISIT(lz->funcs);
     return 0;
@@ -96,7 +96,7 @@ static int compose_traverse(PyIUObject_Compose *lz, visitproc visit,
  *
  *****************************************************************************/
 
-static PyObject * compose_call(PyIUObject_Compose *lz, PyObject *args,
+static PyObject * chained_call(PyIUObject_Chained *lz, PyObject *args,
                                PyObject *kwargs) {
     PyObject *func, *temp, *oldtemp, *result;
     Py_ssize_t tuplesize, idx;
@@ -149,7 +149,7 @@ static PyObject * compose_call(PyIUObject_Compose *lz, PyObject *args,
  *
  *****************************************************************************/
 
-static PyObject * compose_reduce(PyIUObject_Compose *lz, PyObject *unused) {
+static PyObject * chained_reduce(PyIUObject_Chained *lz, PyObject *unused) {
     return Py_BuildValue("OO(ii)", Py_TYPE(lz),
                          lz->funcs,
                          lz->reverse, lz->all);
@@ -161,7 +161,7 @@ static PyObject * compose_reduce(PyIUObject_Compose *lz, PyObject *unused) {
  *
  *****************************************************************************/
 
-static PyObject * compose_setstate(PyIUObject_Compose *lz, PyObject *state) {
+static PyObject * chained_setstate(PyIUObject_Chained *lz, PyObject *state) {
     int reverse, all;
 
     if (!PyArg_ParseTuple(state, "ii", &reverse, &all)) {
@@ -179,9 +179,9 @@ static PyObject * compose_setstate(PyIUObject_Compose *lz, PyObject *state) {
  *
  *****************************************************************************/
 
-static PyMethodDef compose_methods[] = {
-    {"__reduce__", (PyCFunction)compose_reduce, METH_NOARGS, ""},
-    {"__setstate__", (PyCFunction)compose_setstate, METH_O, ""},
+static PyMethodDef chained_methods[] = {
+    {"__reduce__", (PyCFunction)chained_reduce, METH_NOARGS, ""},
+    {"__setstate__", (PyCFunction)chained_setstate, METH_O, ""},
     {NULL, NULL}
 };
 
@@ -191,9 +191,9 @@ static PyMethodDef compose_methods[] = {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(compose_doc, "compose(*funcs[, reverse, all])\n\
+PyDoc_STRVAR(chained_doc, "chained(*funcs[, reverse, all])\n\
 \n\
-Chains several function calls.\n\
+Chained function calls.\n\
 \n\
 Parameters\n\
 ----------\n\
@@ -210,7 +210,7 @@ all : bool, optional\n\
 \n\
 Returns\n\
 -------\n\
-composed_func : callable\n\
+chained_func : callable\n\
     The chained `funcs`.\n\
 \n\
 Methods\n\
@@ -222,24 +222,24 @@ __call__(\\*args, \\*\\*kwargs)\n\
 \n\
 Examples\n\
 --------\n\
-`compose` simple calls all `funcs` on the result of the previous one::\n\
+`chained` simple calls all `funcs` on the result of the previous one::\n\
 \n\
-    >>> from iteration_utilities import compose\n\
+    >>> from iteration_utilities import chained\n\
     >>> double = lambda x: x*2\n\
     >>> increment = lambda x: x+1\n\
-    >>> double_then_increment = compose(double, increment)\n\
+    >>> double_then_increment = chained(double, increment)\n\
     >>> double_then_increment(10)\n\
     21\n\
 \n\
 Or apply them in reversed order::\n\
 \n\
-    >>> increment_then_double = compose(double, increment, reverse=True)\n\
+    >>> increment_then_double = chained(double, increment, reverse=True)\n\
     >>> increment_then_double(10)\n\
     22\n\
 \n\
 Or apply all of them on the input::\n\
 \n\
-    >>> double_and_increment = compose(double, increment, all=True)\n\
+    >>> double_and_increment = chained(double, increment, all=True)\n\
     >>> double_and_increment(10)\n\
     (20, 11)");
 
@@ -249,13 +249,13 @@ Or apply all of them on the input::\n\
  *
  *****************************************************************************/
 
-static PyTypeObject PyIUType_Compose = {
+static PyTypeObject PyIUType_Chained = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.compose",      /* tp_name */
-    sizeof(PyIUObject_Compose),   /* tp_basicsize */
+    "iteration_utilities.chained",      /* tp_name */
+    sizeof(PyIUObject_Chained),         /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
-    (destructor)compose_dealloc, /* tp_dealloc */
+    (destructor)chained_dealloc,        /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -265,21 +265,21 @@ static PyTypeObject PyIUType_Compose = {
     0,                                  /* tp_as_sequence */
     0,                                  /* tp_as_mapping */
     0,                                  /* tp_hash */
-    (ternaryfunc)compose_call, /* tp_call */
+    (ternaryfunc)chained_call,          /* tp_call */
     0,                                  /* tp_str */
     PyObject_GenericGetAttr,            /* tp_getattro */
     0,                                  /* tp_setattro */
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    compose_doc,              /* tp_doc */
-    (traverseproc)compose_traverse, /* tp_traverse */
+    chained_doc,                        /* tp_doc */
+    (traverseproc)chained_traverse,     /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
     0,                                  /* tp_iter */
     0,                                  /* tp_iternext */
-    compose_methods,          /* tp_methods */
+    chained_methods,                    /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
@@ -289,6 +289,6 @@ static PyTypeObject PyIUType_Compose = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     0,                                  /* tp_alloc */
-    compose_new,              /* tp_new */
+    chained_new,                        /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };
