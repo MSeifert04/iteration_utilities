@@ -24,7 +24,7 @@ from iteration_utilities import (accumulate, applyfunc,
                                  clamp,
                                  deepflatten,
                                  flatten,
-                                 grouper,
+                                 getitem, grouper,
                                  insert, intersperse, itersubclasses,
                                  iter_except,
                                  ncycles,
@@ -78,141 +78,25 @@ class _Base(object):
         return iter(self._iterable)
 
     def __getitem__(self, idx):
-        # Slicing with nth!
+        """see `get`."""
         if isinstance(idx, int):
-            if idx < -1:
-                raise ValueError('index must be -1 or bigger.')
-            return nth(idx)(self._iterable)
-
-        # Slicing with islice and tail
+            return getitem(self._iterable, idx=idx)
         elif isinstance(idx, slice):
-            start = idx.start
-            stop = idx.stop
-            step = idx.step
-
-            start_gt_0 = start is None or start > 0
-            step_gt_0 = step is None or step > 0
-
-            start_lt_0 = start is not None and start < 0
-            stop_lt_0 = stop is not None and stop < 0
-            step_lt_0 = step is not None and step < 0
-
-            # Several possibilities:
-
-            # - start None, stop None, step None = self
-            if start is None and stop is None and step is None:
-                return self.__class__(self._iterable)
-            # - start None or > 0, stop None, step None or > 0 = islice
-            elif start_gt_0 and stop is None and step_gt_0:
-                return self._call(islice, 0, start, stop, step)
-            # - start None or > 0, stop > 0, step None or > 0 = finite islice
-            elif start_gt_0 and stop is not None and stop > 0 and step_gt_0:
-                return self._call_finite(islice, 0, start, stop, step)
-
-            # There could be valid combinations with negative indexes, which
-            # rely on tail (which uses "deque") and therefore process the
-            # iterable completly!!! Therefore these are only possible on
-            # Iterables not InfiniteIterables
-            elif isinstance(self, InfiniteIterable):
+            if (isinstance(self, InfiniteIterable) and
+                    any(x is not None and x < 0
+                        for x in [idx.start, idx.stop, idx.step])):
                 raise TypeError('subscripting InfiniteIterables requires '
                                 '"start", "stop" and "step" to be positive '
                                 'integers or None.')
 
-            # There could be valid cases with negative steps, for example if
-            # reversed can be applied. But I won't go down that road!
-            elif step_lt_0:
-                raise ValueError('negative "step" is not possible.')
-
-            # Any other combination requires the start to be not None and
-            # negative.
-            elif start_lt_0:
-                # - start < 0, stop < 0, step None or > 0 = tail then islice.
-                if stop_lt_0 and step_gt_0:
-                    it = tail(self._iterable, -start)
-                    it = islice(it, 0, stop-start, step)
-                    return Iterable(it)
-                # - start < 0, stop None, step None = tail
-                elif stop is None and step is None:
-                    it = tail(self._iterable, -start)
-                    return Iterable(it)
-                # - start < 0, stop None, step > 0 = tail and islice
-                elif stop is None and step > 0:
-                    it = tail(self._iterable, -start)
-                    it = islice(it, 0, None, step)
-                    return Iterable(it)
+            if idx.stop is not None and idx.stop > 0:
+                meth = self._call_finite
             else:
-                raise ValueError('{0} cannot be subscripted with any '
-                                 'combination of negative "start", "stop" or '
-                                 '"step". This combination wasn\'t allowed.')
+                meth = self._call
+            return meth(getitem, 0, start=idx.start, stop=idx.stop,
+                        step=idx.step)
         raise TypeError('can only subscript {0} with integers and slices.'
                         ''.format(self.__class__.__name__))
-
-    def get(self, item, range_=None):
-        """Get one item from the Iterable or slices of it. This method is
-        equivalent to using normal slicing syntax.
-
-        Parameters
-        ----------
-        item : integer, slice
-            The item or items to retrieve
-
-        Returns
-        -------
-        parts : any type or generator
-            If `item` was an integer the return is a singly item otherwise it
-            returns a generator of the items.
-
-        Examples
-        --------
-        With integers::
-
-            >>> from iteration_utilities import Iterable
-            >>> it = Iterable(range(10))
-            >>> it[2]
-            2
-
-            >>> it[-1]  # -1 is the **only** allowed negative integer.
-            9
-
-        With slices::
-
-            >>> it[:].as_list()
-            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-
-            >>> it[1:].as_list()
-            [1, 2, 3, 4, 5, 6, 7, 8, 9]
-
-            >>> it[1:8:2].as_list()
-            [1, 3, 5, 7]
-
-        Slices with negative values (only these cases are possible!)::
-
-            >>> # start and stop negative; step None
-            >>> it[-5:-2].as_list()
-            [5, 6, 7]
-
-            >>> # start and stop negative; step positive
-            >>> it[-6:-1:2].as_list()
-            [4, 6, 8]
-
-            >>> # start negative, stop and step None
-            >>> it[-6:].as_list()
-            [4, 5, 6, 7, 8, 9]
-
-            >>> # start negative, stop None, step positive
-            >>> it[-6::2].as_list()
-            [4, 6, 8]
-
-        It's also possible to use ``get``, you have to pass in the appropriate
-        value or :py:func:`slice`::
-
-            >>> Iterable(range(10)).get(3)
-            3
-
-            >>> Iterable(range(10)).get(slice(5, 8)).as_tuple()
-            (5, 6, 7)
-        """
-        return self[item]
 
     def __repr__(self):
         return '<{0.__class__.__name__}: {0._iterable!r}>'.format(self)
@@ -617,6 +501,77 @@ class _Base(object):
         [1, 2, 3, 3, 2, 1]
         """
         return self._call(flatten, 0)
+
+    def get(self, item):
+        """"See also
+        :py:func:`~iteration_utilities._recipes._additional.getitem`
+
+        Parameters
+        ----------
+        item : integer, slice
+            The item or items to retrieve
+
+        Returns
+        -------
+        parts : any type or generator
+            If `item` was an integer the return is a singly item otherwise it
+            returns a generator of the items.
+
+        Examples
+        --------
+        With integers::
+
+            >>> from iteration_utilities import Iterable
+            >>> it = Iterable(range(10))
+            >>> it[2]
+            2
+
+            >>> it[-1]  # -1 is the **only** allowed negative integer.
+            9
+
+        With slices::
+
+            >>> it[1:].as_list()
+            [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+            >>> it[1:8:2].as_list()
+            [1, 3, 5, 7]
+
+        Slices with negative values (only these cases are possible!)::
+
+            >>> # start and stop negative; step None
+            >>> it[-5:-2].as_list()
+            [5, 6, 7]
+
+            >>> # start and stop negative; step positive
+            >>> it[-6:-1:2].as_list()
+            [4, 6, 8]
+
+            >>> # start negative, stop and step None
+            >>> it[-6:].as_list()
+            [4, 5, 6, 7, 8, 9]
+
+            >>> # start negative, stop None, step positive
+            >>> it[-6::2].as_list()
+            [4, 6, 8]
+
+        It's also possible to use ``get``, you have to pass in the appropriate
+        value or :py:class:`slice`::
+
+            >>> Iterable(range(10)).get(3)
+            3
+
+            >>> Iterable(range(10)).get(slice(5, 8)).as_tuple()
+            (5, 6, 7)
+
+        .. note::
+           This function might also turn an `InfiniteIterable` into an
+           `Iterable` if the slice has a positive stop.
+
+           >>> Iterable.from_count()[:4]  # doctest: +ELLIPSIS
+           <Iterable: <itertools.islice object at ...>>
+        """
+        return self[item]
 
     def grouper(self, n, fillvalue=_default, truncate=_default):
         """See :py:func:`~iteration_utilities.grouper`.

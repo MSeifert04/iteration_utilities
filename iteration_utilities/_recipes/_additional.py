@@ -7,14 +7,16 @@ from __future__ import absolute_import, division, print_function
 from itertools import chain, islice, repeat
 
 # This module
-from .. import PY2
+from .. import PY2, nth
+from ._core import tail
 
 
 if PY2:
     from itertools import imap as map
 
 
-__all__ = ['insert', 'itersubclasses', 'pad', 'remove', 'replace', 'replicate']
+__all__ = ['getitem', 'insert', 'itersubclasses', 'pad', 'remove', 'replace',
+           'replicate']
 
 
 def itersubclasses(cls, seen=None):
@@ -186,11 +188,122 @@ def replicate(iterable, times):
 # =============================================================================
 # List-like interface methods
 #
+# getitem: list[x]
 # insert: list[x:x] = item
 # replace: list[x:y] = item
 # remove: del list[x:y]
 #
 # =============================================================================
+
+
+def getitem(iterable, idx=None, start=None, stop=None, step=None):
+    """Get the item at `idx` or the items specified by `start`, `stop` and
+    `step`.
+
+    Parameters
+    ----------
+    iterable : iterable
+        The iterable from which to extract the items.
+
+    idx : positive integer or None, optional
+        If not ``None``, get the item at `idx`.
+        Default is ``None``.
+
+        .. note::
+           This parameter must not be ``None`` if also `start`, `stop` and
+           `step` are ``None``.
+
+    start : integer or None, optional
+        If ``None`` then take all items before `stop`, otherwise take only
+        the items starting by `start`.
+        Default is ``None``.
+
+        .. note::
+           This parameter is ignored if `idx` is not ``None``.
+
+    stop : integer or None, optional
+        If ``None`` then take all items starting by `start`, otherwise only
+        take the items before `stop`.
+        Default is ``None``.
+
+        .. note::
+           This parameter is ignored if `idx` is not ``None``.
+
+    step : positive integer or None, optional
+        If ``None`` then take all items seperated by `step`, otherwise take
+        successive items.
+        Default is ``None``.
+
+        .. note::
+           This parameter is ignored if `idx` is not ``None``.
+
+    Returns
+    -------
+    items : any type or generator
+        If `idx` was not ``None`` then it returns the item, otherwise it
+        returns the items specified by `start`, `stop` and `step`.
+
+    Examples
+    --------
+    The main bulk of examples is in
+    :py:meth:`~iteration_utilities.core.Iterable.get` because that's where this
+    function was needed.
+    """
+    if idx is None and start is None and stop is None and step is None:
+        raise TypeError('one of "idx", "start" or "stop" must be given.')
+
+    it = iter(iterable)
+
+    if idx is not None:
+        if idx < -1:
+            raise ValueError('index must be -1 or bigger.')
+        return nth(idx)(iterable)
+
+    start_gt_0 = start is None or start > 0
+    step_gt_0 = step is None or step > 0
+
+    start_lt_0 = start is not None and start < 0
+    stop_lt_0 = stop is not None and stop < 0
+    step_lt_0 = step is not None and step < 0
+
+    # Several possibilities:
+
+    # - start None, stop None, step None = self
+    if start is None and stop is None and step is None:
+        return iterable
+    # - start None or > 0, stop None, step None or > 0 = islice
+    elif start_gt_0 and stop is None and step_gt_0:
+        return islice(iterable, start, stop, step)
+    # - start None or > 0, stop > 0, step None or > 0 = finite islice
+    elif start_gt_0 and stop is not None and stop > 0 and step_gt_0:
+        return islice(iterable, start, stop, step)
+
+    # There could be valid cases with negative steps, for example if
+    # reversed can be applied. But I won't go down that road!
+    elif step_lt_0:
+        raise ValueError('negative "step" is not possible.')
+
+    # Any other combination requires the start to be not None and
+    # negative.
+    elif start_lt_0:
+        # - start < 0, stop < 0, step None or > 0 = tail then islice.
+        if stop_lt_0 and step_gt_0:
+            it = tail(iterable, -start)
+            it = islice(it, 0, stop-start, step)
+            return it
+        # - start < 0, stop None, step None = tail
+        elif stop is None and step is None:
+            it = tail(iterable, -start)
+            return it
+        # - start < 0, stop None, step > 0 = tail and islice
+        elif stop is None and step > 0:
+            it = tail(iterable, -start)
+            it = islice(it, 0, None, step)
+            return it
+    else:
+        raise ValueError('{0} cannot be subscripted with any '
+                         'combination of negative "start", "stop" or '
+                         '"step". This combination wasn\'t allowed.')
 
 
 def insert(iterable, element, idx, unpack=False):
