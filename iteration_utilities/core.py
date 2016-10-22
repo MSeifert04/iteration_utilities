@@ -1077,6 +1077,21 @@ class Iterable(_Base):
         """
         return self.as_(tuple)
 
+    def as_string(self):
+        """Get the iterable as string.
+
+        .. warning::
+           This method **does not** use :py:meth:`as_`. and differs from
+           ``str(Iterable(sth))``!
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable(range(5)).as_string()
+        '01234'
+        """
+        return ''.join(map(str, self._iterable))
+
     def as_set(self):
         """See :py:meth:`as_`.
 
