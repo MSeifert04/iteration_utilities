@@ -26,6 +26,7 @@ Contents:
    :maxdepth: 2
 
    installation
+   license
    CHANGES
    iterable
    generators
