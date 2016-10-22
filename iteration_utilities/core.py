@@ -504,7 +504,7 @@ class _Base(object):
         """
         return self._call(flatten, 0)
 
-    def get(self, item):
+    def getitem(self, item):
         """"See also
         :py:func:`~iteration_utilities._recipes._additional.getitem`
 
@@ -568,10 +568,10 @@ class _Base(object):
         It's also possible to use ``get``, you have to pass in the appropriate
         value or :py:class:`slice`::
 
-            >>> Iterable(range(10)).get(3)
+            >>> Iterable(range(10)).getitem(3)
             3
 
-            >>> Iterable(range(10)).get(slice(5, 8)).as_tuple()
+            >>> Iterable(range(10)).getitem(slice(5, 8)).as_tuple()
             (5, 6, 7)
 
         .. note::
