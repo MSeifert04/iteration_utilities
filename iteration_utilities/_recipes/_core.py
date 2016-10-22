@@ -6,7 +6,7 @@ API: Official recipes
 from __future__ import absolute_import, division, print_function
 from collections import deque
 from copy import copy
-from itertools import (islice, count, groupby, chain, repeat, starmap, tee,
+from itertools import (islice, count, chain, repeat, starmap, tee,
                        combinations)
 from operator import mul
 from random import choice, sample, randrange
