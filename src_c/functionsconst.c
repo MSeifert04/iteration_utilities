@@ -89,7 +89,7 @@ static PyObject * constant_reduce(PyIUObject_Constant *lz, PyObject *unused) {
  *****************************************************************************/
 
 static PyMethodDef constant_methods[] = {
-    {"__reduce__", (PyCFunction)constant_reduce, METH_NOARGS, ""},
+    {"__reduce__", (PyCFunction)constant_reduce, METH_NOARGS, PYIU_reduce_doc},
     {NULL, NULL}
 };
 

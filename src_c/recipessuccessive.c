@@ -201,8 +201,8 @@ static PyObject * successive_setstate(PyIUObject_Successive *lz,
  *****************************************************************************/
 
 static PyMethodDef successive_methods[] = {
-    {"__reduce__", (PyCFunction)successive_reduce, METH_NOARGS, ""},
-    {"__setstate__", (PyCFunction)successive_setstate, METH_O, ""},
+    {"__reduce__", (PyCFunction)successive_reduce, METH_NOARGS, PYIU_reduce_doc},
+    {"__setstate__", (PyCFunction)successive_setstate, METH_O, PYIU_setstate_doc},
     {NULL, NULL}
 };
 

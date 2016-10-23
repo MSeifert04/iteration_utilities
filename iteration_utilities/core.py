@@ -24,7 +24,7 @@ from iteration_utilities import PY2, PY34, _default
 # - generators
 from iteration_utilities import (accumulate, applyfunc,
                                  clamp,
-                                 deepflatten,
+                                 deepflatten, duplicates,
                                  flatten,
                                  getitem, grouper,
                                  insert, intersperse, itersubclasses,
@@ -439,6 +439,23 @@ class _Base(object):
         [3, 4, 5, 6, 7, 8, 9]
         """
         return self._call(dropwhile, 1, predicate)
+
+    def duplicates(self, key=_default):
+        """See :py:func:`itertools.dropwhile`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable([1, 1, 2, 1]).duplicates().as_list()
+        [1, 1]
+
+        >>> Iterable([1, -1, 2, 1]).duplicates(abs).as_list()
+        [-1, 1]
+
+        >>> Iterable([1, -1, 2, 1]).duplicates(key=abs).as_list()
+        [-1, 1]
+        """
+        return self._call(duplicates, 0, key=key)
 
     def enumerate(self, start=_default):
         """See :py:func:`python:enumerate`.

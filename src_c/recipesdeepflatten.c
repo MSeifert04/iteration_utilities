@@ -243,8 +243,8 @@ static PyObject * deepflatten_setstate(PyIUObject_DeepFlatten *lz,
  *****************************************************************************/
 
 static PyMethodDef deepflatten_methods[] = {
-    {"__reduce__", (PyCFunction)deepflatten_reduce, METH_NOARGS, ""},
-    {"__setstate__", (PyCFunction)deepflatten_setstate, METH_O, ""},
+    {"__reduce__", (PyCFunction)deepflatten_reduce, METH_NOARGS, PYIU_reduce_doc},
+    {"__setstate__", (PyCFunction)deepflatten_setstate, METH_O, PYIU_setstate_doc},
     {NULL, NULL}
 };
 

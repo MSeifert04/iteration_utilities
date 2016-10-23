@@ -181,8 +181,8 @@ static PyObject * roundrobin_setstate(PyIUObject_Roundrobin *lz,
  *****************************************************************************/
 
 static PyMethodDef roundrobin_methods[] = {
-    {"__reduce__", (PyCFunction)roundrobin_reduce, METH_NOARGS, ""},
-    {"__setstate__", (PyCFunction)roundrobin_setstate, METH_O, ""},
+    {"__reduce__", (PyCFunction)roundrobin_reduce, METH_NOARGS, PYIU_reduce_doc},
+    {"__setstate__", (PyCFunction)roundrobin_setstate, METH_O, PYIU_setstate_doc},
     {NULL, NULL}
 };
 

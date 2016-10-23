@@ -242,8 +242,8 @@ static PyObject * grouper_setstate(PyIUObject_Grouper *lz, PyObject *state) {
  *****************************************************************************/
 
 static PyMethodDef grouper_methods[] = {
-    {"__reduce__", (PyCFunction)grouper_reduce, METH_NOARGS, ""},
-    {"__setstate__", (PyCFunction)grouper_setstate, METH_O, ""},
+    {"__reduce__", (PyCFunction)grouper_reduce, METH_NOARGS, PYIU_reduce_doc},
+    {"__setstate__", (PyCFunction)grouper_setstate, METH_O, PYIU_setstate_doc},
     {NULL, NULL}
 };
 

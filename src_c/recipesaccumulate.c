@@ -32,14 +32,8 @@ static PyObject * accumulate_new(PyTypeObject *type, PyObject *args,
     PyObject *iterator, *iterable, *binop=NULL, *start=NULL;
 
     /* Parse arguments */
-    // accumulate(iterable)
-    if (PyTuple_Check(args) && PyTuple_Size(args) == 1 && kwargs == NULL) {
-        if (!PyArg_UnpackTuple(args, "accumulate", 1, 1, &iterable)) {
-            return NULL;
-        }
-    // accumulate(binop, iterable[, start])
-    } else if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OO:accumulate", kwlist,
-                                            &iterable, &binop, &start)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OO:accumulate", kwlist,
+                                     &iterable, &binop, &start)) {
         return NULL;
     }
 
@@ -162,7 +156,7 @@ static PyObject * accumulate_reduce(PyIUObject_Accumulate *lz) {
  *****************************************************************************/
 
 static PyMethodDef accumulate_methods[] = {
-    {"__reduce__", (PyCFunction)accumulate_reduce, METH_NOARGS, ""},
+    {"__reduce__", (PyCFunction)accumulate_reduce, METH_NOARGS, PYIU_reduce_doc},
     {NULL, NULL}
 };
 
@@ -180,13 +174,13 @@ argument). Copied and modified from [0]_.\n\
 \n\
 Parameters\n\
 ----------\n\
+iterable : iterable\n\
+    The `iterable` to accumulate.\n\
+\n\
 func : callable or None, optional\n\
     The function with which to accumulate. Should be a function of two\n\
     arguments.\n\
     If ``None`` defaults to :py:func:`operator.add`.\n\
-\n\
-iterable : iterable\n\
-    The `iterable` to accumulate.\n\
 \n\
 start : any type, optional\n\
     If given this value is inserted before the `iterable`.\n\

@@ -103,7 +103,7 @@ static PyObject * complement_reduce(PyIUObject_Complement *lz,
  *****************************************************************************/
 
 static PyMethodDef complement_methods[] = {
-    {"__reduce__", (PyCFunction)complement_reduce, METH_NOARGS, ""},
+    {"__reduce__", (PyCFunction)complement_reduce, METH_NOARGS, PYIU_reduce_doc},
     {NULL, NULL}
 };
 

@@ -170,8 +170,8 @@ static PyObject * intersperse_setstate(PyIUObject_Intersperse *lz,
  *****************************************************************************/
 
 static PyMethodDef intersperse_methods[] = {
-    {"__reduce__", (PyCFunction)intersperse_reduce, METH_NOARGS, ""},
-    {"__setstate__", (PyCFunction)intersperse_setstate, METH_O, ""},
+    {"__reduce__", (PyCFunction)intersperse_reduce, METH_NOARGS, PYIU_reduce_doc},
+    {"__setstate__", (PyCFunction)intersperse_setstate, METH_O, PYIU_setstate_doc},
     {NULL,              NULL}
 };
 
