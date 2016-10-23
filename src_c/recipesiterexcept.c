@@ -130,7 +130,7 @@ static PyObject * iterexcept_reduce(PyIUObject_Iterexcept *lz) {
  *****************************************************************************/
 
 static PyMethodDef iterexcept_methods[] = {
-    {"__reduce__", (PyCFunction)iterexcept_reduce, METH_NOARGS, ""},
+    {"__reduce__", (PyCFunction)iterexcept_reduce, METH_NOARGS, PYIU_reduce_doc},
     {NULL, NULL}
 };
 

@@ -6,7 +6,7 @@
  *
  * IMPORTANT NOTE:
  *
- * This function is almost identical to "duplicates", so any changes
+ * This function is almost identical to "unique_everseen", so any changes
  * or bugfixes should also be implemented there!!!
  *
  *****************************************************************************/
@@ -17,9 +17,9 @@ typedef struct {
     PyObject *iterator;
     PyObject *seen;
     PyObject *seenlist;
-} PyIUObject_UniqueEver;
+} PyIUObject_Duplicates;
 
-static PyTypeObject PyIUType_UniqueEver;
+static PyTypeObject PyIUType_Duplicates;
 
 /******************************************************************************
  *
@@ -27,15 +27,15 @@ static PyTypeObject PyIUType_UniqueEver;
  *
  *****************************************************************************/
 
-static PyObject * uniqueever_new(PyTypeObject *type, PyObject *args,
+static PyObject * duplicates_new(PyTypeObject *type, PyObject *args,
                                  PyObject *kwargs) {
     static char *kwlist[] = {"iterable", "key", NULL};
-    PyIUObject_UniqueEver *lz;
+    PyIUObject_Duplicates *lz;
 
     PyObject *iterable, *iterator, *seen, *seenlist=NULL, *func=NULL;
 
     /* Parse arguments */
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:unique_everseen", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:duplicates", kwlist,
                                      &iterable, &func)) {
         return NULL;
     }
@@ -50,7 +50,7 @@ static PyObject * uniqueever_new(PyTypeObject *type, PyObject *args,
         Py_DECREF(iterator);
         return NULL;
     }
-    lz = (PyIUObject_UniqueEver *)type->tp_alloc(type, 0);
+    lz = (PyIUObject_Duplicates *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         Py_DECREF(iterator);
         Py_DECREF(seen);
@@ -70,7 +70,7 @@ static PyObject * uniqueever_new(PyTypeObject *type, PyObject *args,
  *
  *****************************************************************************/
 
-static void uniqueever_dealloc(PyIUObject_UniqueEver *lz) {
+static void duplicates_dealloc(PyIUObject_Duplicates *lz) {
     PyObject_GC_UnTrack(lz);
     Py_XDECREF(lz->iterator);
     Py_XDECREF(lz->func);
@@ -85,7 +85,7 @@ static void uniqueever_dealloc(PyIUObject_UniqueEver *lz) {
  *
  *****************************************************************************/
 
-static int uniqueever_traverse(PyIUObject_UniqueEver *lz, visitproc visit,
+static int duplicates_traverse(PyIUObject_Duplicates *lz, visitproc visit,
                                void *arg) {
     Py_VISIT(lz->iterator);
     Py_VISIT(lz->func);
@@ -100,7 +100,7 @@ static int uniqueever_traverse(PyIUObject_UniqueEver *lz, visitproc visit,
  *
  *****************************************************************************/
 
-static PyObject * uniqueever_next(PyIUObject_UniqueEver *lz) {
+static PyObject * duplicates_next(PyIUObject_Duplicates *lz) {
     PyObject *item, *temp;
     long ok;
 
@@ -129,7 +129,7 @@ static PyObject * uniqueever_next(PyIUObject_UniqueEver *lz) {
         if (ok == 0) {
             if (PySet_Add(lz->seen, temp) == 0) {
                 Py_DECREF(temp);
-                return item;
+                Py_DECREF(item);
             } else {
                 goto Fail;
             }
@@ -137,7 +137,7 @@ static PyObject * uniqueever_next(PyIUObject_UniqueEver *lz) {
         // Found
         } else if (ok == 1) {
             Py_DECREF(temp);
-            Py_DECREF(item);
+            return item;
 
         // Failure
         } else {
@@ -164,7 +164,7 @@ static PyObject * uniqueever_next(PyIUObject_UniqueEver *lz) {
             if (ok == 0) {
                 if (PyList_Append(lz->seenlist, temp) == 0) {
                     Py_DECREF(temp);
-                    return item;
+                    Py_DECREF(item);
                 } else {
                     goto Fail;
                 }
@@ -172,7 +172,7 @@ static PyObject * uniqueever_next(PyIUObject_UniqueEver *lz) {
             // Found
             } else if (ok == 1) {
                 Py_DECREF(temp);
-                Py_DECREF(item);
+                return item;
 
             // Failure
             } else {
@@ -193,7 +193,7 @@ Fail:
  *
  *****************************************************************************/
 
-static PyObject * uniqueever_reduce(PyIUObject_UniqueEver *lz) {
+static PyObject * duplicates_reduce(PyIUObject_Duplicates *lz) {
     PyObject *value;
     value = Py_BuildValue("O(OO)(OO)", Py_TYPE(lz),
                           lz->iterator,
@@ -209,7 +209,7 @@ static PyObject * uniqueever_reduce(PyIUObject_UniqueEver *lz) {
  *
  *****************************************************************************/
 
-static PyObject * uniqueever_setstate(PyIUObject_UniqueEver *lz,
+static PyObject * duplicates_setstate(PyIUObject_Duplicates *lz,
                                       PyObject *state) {
     PyObject *seen, *seenlist;
 
@@ -232,9 +232,9 @@ static PyObject * uniqueever_setstate(PyIUObject_UniqueEver *lz,
  *
  *****************************************************************************/
 
-static PyMethodDef uniqueever_methods[] = {
-    {"__reduce__", (PyCFunction)uniqueever_reduce, METH_NOARGS, PYIU_reduce_doc},
-    {"__setstate__", (PyCFunction)uniqueever_setstate, METH_O, PYIU_setstate_doc},
+static PyMethodDef duplicates_methods[] = {
+    {"__reduce__", (PyCFunction)duplicates_reduce, METH_NOARGS, PYIU_reduce_doc},
+    {"__setstate__", (PyCFunction)duplicates_setstate, METH_O, PYIU_setstate_doc},
     {NULL, NULL}
 };
 
@@ -244,9 +244,9 @@ static PyMethodDef uniqueever_methods[] = {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(uniqueever_doc, "unique_everseen(iterable[, key])\n\
+PyDoc_STRVAR(duplicates_doc, "duplicates(iterable[, key])\n\
 \n\
-List unique elements, preserving their order. Remembers all elements ever seen.\n\
+Return only duplicate entries, remembers all items ever seen.\n\
 \n\
 Parameters\n\
 ----------\n\
@@ -260,7 +260,7 @@ key : callable, optional\n\
 Returns\n\
 -------\n\
 iterable : generator\n\
-    An iterable containing all unique values ever seen in the `iterable`.\n\
+    An iterable containing all duplicates values of the `iterable`.\n\
 \n\
 Notes\n\
 -----\n\
@@ -270,15 +270,19 @@ speeds up the lookup if a value was seen.\n\
 \n\
 Examples\n\
 --------\n\
+>>> from iteration_utilities import duplicates\n\
+>>> list(duplicates('AABBCCDA'))\n\
+['A', 'B', 'C', 'A']\n\
+\n\
+>>> list(duplicates('ABBCcAD', str.lower))\n\
+['B', 'c', 'A']\n\
+\n\
+To get each duplicate only once this can be combined with \n\
+:py:func:`~iteration_utilities.unique_everseen`::\n\
+\n\
 >>> from iteration_utilities import unique_everseen\n\
->>> list(unique_everseen('AAAABBBCCDAABBB'))\n\
-['A', 'B', 'C', 'D']\n\
-\n\
->>> list(unique_everseen('ABBCcAD', str.lower))\n\
-['A', 'B', 'C', 'D']\n\
-\n\
->>> list(unique_everseen([[1, 2], [1, 1], [1, 2]]))\n\
-[[1, 2], [1, 1]]");
+>>> list(unique_everseen(duplicates('AABBCCDA')))\n\
+['A', 'B', 'C']");
 
 /******************************************************************************
  *
@@ -286,13 +290,13 @@ Examples\n\
  *
  *****************************************************************************/
 
-static PyTypeObject PyIUType_UniqueEver = {
+static PyTypeObject PyIUType_Duplicates = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.unique_everseen", /* tp_name */
-    sizeof(PyIUObject_UniqueEver),      /* tp_basicsize */
+    "iteration_utilities.duplicates",   /* tp_name */
+    sizeof(PyIUObject_Duplicates),      /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
-    (destructor)uniqueever_dealloc,     /* tp_dealloc */
+    (destructor)duplicates_dealloc,     /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -309,14 +313,14 @@ static PyTypeObject PyIUType_UniqueEver = {
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    uniqueever_doc,                     /* tp_doc */
-    (traverseproc)uniqueever_traverse,  /* tp_traverse */
+    duplicates_doc,                     /* tp_doc */
+    (traverseproc)duplicates_traverse,  /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
     PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)uniqueever_next,      /* tp_iternext */
-    uniqueever_methods,                 /* tp_methods */
+    (iternextfunc)duplicates_next,      /* tp_iternext */
+    duplicates_methods,                 /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
@@ -326,6 +330,6 @@ static PyTypeObject PyIUType_UniqueEver = {
     0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
     0,                                  /* tp_alloc */
-    uniqueever_new,                     /* tp_new */
+    duplicates_new,                     /* tp_new */
     PyObject_GC_Del,                    /* tp_free */
 };

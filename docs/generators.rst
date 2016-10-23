@@ -34,6 +34,7 @@ Processing an iterable
 - :py:func:`itertools.cycle`
 - :py:func:`~iteration_utilities.deepflatten`
 - :py:func:`itertools.dropwhile`
+- :py:func:`~iteration_utilities.duplicates`
 - :py:func:`enumerate`
 - :py:func:`filter`
 - :py:func:`itertools.filterfalse`

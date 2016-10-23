@@ -229,8 +229,8 @@ static PyObject * split_setstate(PyIUObject_Split *lz, PyObject *state) {
  *****************************************************************************/
 
 static PyMethodDef split_methods[] = {
-    {"__reduce__", (PyCFunction)split_reduce, METH_NOARGS, ""},
-    {"__setstate__", (PyCFunction)split_setstate, METH_O, ""},
+    {"__reduce__", (PyCFunction)split_reduce, METH_NOARGS, PYIU_reduce_doc},
+    {"__setstate__", (PyCFunction)split_setstate, METH_O, PYIU_setstate_doc},
     {NULL, NULL}
 };
 

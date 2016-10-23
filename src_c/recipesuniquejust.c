@@ -187,8 +187,8 @@ static PyObject * uniquejust_setstate(PyIUObject_UniqueJust *lz,
  *****************************************************************************/
 
 static PyMethodDef uniquejust_methods[] = {
-    {"__reduce__", (PyCFunction)uniquejust_reduce, METH_NOARGS, ""},
-    {"__setstate__", (PyCFunction)uniquejust_setstate, METH_O, ""},
+    {"__reduce__", (PyCFunction)uniquejust_reduce, METH_NOARGS, PYIU_reduce_doc},
+    {"__setstate__", (PyCFunction)uniquejust_setstate, METH_O, PYIU_setstate_doc},
     {NULL, NULL}
 };
 

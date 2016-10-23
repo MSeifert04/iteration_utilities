@@ -221,7 +221,7 @@ static PyObject * nth_reduce(PyIUObject_Nth *lz, PyObject *unused) {
  *****************************************************************************/
 
 static PyMethodDef nth_methods[] = {
-    {"__reduce__", (PyCFunction)nth_reduce, METH_NOARGS, ""},
+    {"__reduce__", (PyCFunction)nth_reduce, METH_NOARGS, PYIU_reduce_doc},
     {NULL, NULL}
 };
 

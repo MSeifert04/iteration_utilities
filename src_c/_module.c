@@ -6,6 +6,7 @@
 #include <structmember.h>
 
 #include "_helper.c"
+#include "_globaldocs.c"
 #include "isx.c"
 #include "returnx.c"
 #include "mathematical.c"
@@ -26,6 +27,7 @@
 #include "recipesapplyfunc.c"
 #include "recipesclamp.c"
 #include "recipesdeepflatten.c"
+#include "recipesduplicates.c"
 #include "recipesgrouper.c"
 #include "recipesintersperse.c"
 #include "recipesiterexcept.c"
@@ -134,6 +136,7 @@ PyDoc_STRVAR(PyIU_module_doc, "API: C Functions\n----------------");
         &PyIUType_Applyfunc,
         &PyIUType_Clamp,
         &PyIUType_DeepFlatten,
+        &PyIUType_Duplicates,
         &PyIUType_Grouper,
         &PyIUType_Intersperse,
         &PyIUType_Iterexcept,

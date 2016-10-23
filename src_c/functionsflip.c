@@ -98,7 +98,7 @@ static PyObject * flip_reduce(PyIUObject_Flip *lz, PyObject *unused) {
  *****************************************************************************/
 
 static PyMethodDef flip_methods[] = {
-    {"__reduce__", (PyCFunction)flip_reduce, METH_NOARGS, ""},
+    {"__reduce__", (PyCFunction)flip_reduce, METH_NOARGS, PYIU_reduce_doc},
     {NULL, NULL}
 };
 

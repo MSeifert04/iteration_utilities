@@ -110,7 +110,7 @@ static PyObject * applyfunc_reduce(PyIUObject_Applyfunc *lz) {
  *****************************************************************************/
 
 static PyMethodDef applyfunc_methods[] = {
-    {"__reduce__", (PyCFunction)applyfunc_reduce, METH_NOARGS, ""},
+    {"__reduce__", (PyCFunction)applyfunc_reduce, METH_NOARGS, PYIU_reduce_doc},
     {NULL, NULL}
 };
 
