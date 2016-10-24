@@ -65,6 +65,8 @@ The ``iteration_utilities`` package includes some additional fold functions:
   if all the items are distinct.
 - :py:func:`all_equal`, reduces the iterable to a boolean value indicating
   if all the items are equal.
+- :py:func:`all_monotone`, reduces the iterable to a boolean value indicating
+  if all the items are (strictly) bigger or smaller than their predecessor.
 - :py:func:`argmax`, reduces the iterable to the index of the maximum.
 - :py:func:`argmin`, reduces the iterable to the index of the minimum.
 - :py:func:`count_items`, reduces the iterable to the number of (matching) items.
@@ -141,6 +143,7 @@ functions:
 
 - :py:func:`all_distinct`, stops as soon as a duplicate item is found.
 - :py:func:`all_equal`, stops as soon as a deviating item is found.
+- :py:func:`all_monotone`, stops as soon as a item is found violating monotony.
 - :py:func:`one`, get the one and only item of an iterable.
 
 .. py:currentmodule:: iteration_utilities

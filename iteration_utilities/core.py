@@ -36,7 +36,8 @@ from iteration_utilities import (accumulate, applyfunc,
                                  tabulate, tail,
                                  unique_everseen, unique_justseen)
 # - folds
-from iteration_utilities import (all_distinct, all_equal, argmax, argmin,
+from iteration_utilities import (all_distinct, all_equal, all_monotone,
+                                 argmax, argmin,
                                  count_items, first, groupedby, last,
                                  minmax, nth, one, partition, second,
                                  third)
@@ -441,7 +442,7 @@ class _Base(object):
         return self._call(dropwhile, 1, predicate)
 
     def duplicates(self, key=_default):
-        """See :py:func:`itertools.dropwhile`.
+        """See :py:func:`~iteration_utilities.duplicates`.
 
         Examples
         --------
@@ -1263,6 +1264,24 @@ class Iterable(_Base):
         True
         """
         return self._get(all_equal, 0)
+
+    def get_all_monotone(self, decreasing=_default, strict=_default):
+        """See :py:func:`~iteration_utilities._cfuncs.all_monotone`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable(range(10)).get_all_monotone()
+        True
+
+        >>> Iterable(range(10)).get_all_monotone(decreasing=False, \
+strict=False)
+        True
+
+        >>> Iterable(range(10)).get_all_monotone(decreasing=True, strict=True)
+        False
+        """
+        return self._get(all_monotone, 0, decreasing=decreasing, strict=strict)
 
     def get_any(self):
         """See :py:func:`python:any`.

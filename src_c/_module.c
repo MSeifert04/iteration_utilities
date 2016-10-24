@@ -18,6 +18,7 @@
 #include "reduceargminmax.c"
 #include "reducealldistinct.c"
 #include "reduceallequal.c"
+#include "reduceallmonotone.c"
 #include "reducecountitems.c"
 #include "reducegroupedby.c"
 #include "reduceminmax.c"
@@ -70,6 +71,7 @@ static PyMethodDef PyIU_methods[] = {
     {"argmax",       (PyCFunction)PyIU_Argmax,      METH_VARARGS | METH_KEYWORDS, PyIU_Argmax_doc},
     {"all_distinct", (PyCFunction)PyIU_AllDistinct, METH_O,                       PyIU_AllDistinct_doc},
     {"all_equal",    (PyCFunction)PyIU_AllEqual,    METH_O,                       PyIU_AllEqual_doc},
+    {"all_monotone", (PyCFunction)PyIU_Monotone,    METH_VARARGS | METH_KEYWORDS, PyIU_Monotone_doc},
     {"count_items",  (PyCFunction)PyIU_Count,       METH_VARARGS | METH_KEYWORDS, PyIU_Count_doc},
     {"groupedby",    (PyCFunction)PyIU_Groupby,     METH_VARARGS | METH_KEYWORDS, PyIU_Groupby_doc},
     {"minmax",       (PyCFunction)PyIU_MinMax,      METH_VARARGS | METH_KEYWORDS, PyIU_MinMax_doc},
