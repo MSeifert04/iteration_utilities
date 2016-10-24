@@ -1,12 +1,14 @@
 /******************************************************************************
- * Licensed under Apache License Version 2.0 - see LICENSE.rst
+ * Licensed under PSF license - see licenses/LICENSE_PYTHON.rst
  *****************************************************************************/
 
 /******************************************************************************
- * Part of recipes.c
  *
- * - "accumulate" is only included for python 2 compatibility. But has a
- *   different signature as well.
+ * IMPORTANT NOTE:
+ *
+ * This function is _roughly_ identical to the one in "itertoolsmodule.c" in
+ * CPython. This class is inlcuded _mostly_ for Python2 compatibility!
+ *
  *****************************************************************************/
 
 typedef struct {

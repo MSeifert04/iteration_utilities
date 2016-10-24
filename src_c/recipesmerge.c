@@ -2,6 +2,21 @@
  * Licensed under Apache License Version 2.0 - see LICENSE.rst
  *****************************************************************************/
 
+/******************************************************************************
+ *
+ * IMPORTANT NOTE:
+ *
+ * The function does the same as "heapq.merge(*iterables)" or
+ * "sorted(itertools.chain(*iterables))" it is included because heapq.merge
+ * did not have the key and reverse parameter before Python 3.5 and it is
+ * included for compatibility reasons.
+ *
+ * That this is faster than heapq.merge for most inputs is a nice but worrying
+ * fact. :-(
+ *
+ *****************************************************************************/
+
+
 typedef struct {
     PyObject_HEAD
     PyObject *iteratortuple;
