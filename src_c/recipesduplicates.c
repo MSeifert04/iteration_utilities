@@ -270,19 +270,21 @@ speeds up the lookup if a value was seen.\n\
 \n\
 Examples\n\
 --------\n\
->>> from iteration_utilities import duplicates\n\
->>> list(duplicates('AABBCCDA'))\n\
-['A', 'B', 'C', 'A']\n\
+Multiple duplicates will be kept::\n\
 \n\
->>> list(duplicates('ABBCcAD', str.lower))\n\
-['B', 'c', 'A']\n\
+    >>> from iteration_utilities import duplicates\n\
+    >>> list(duplicates('AABBCCDA'))\n\
+    ['A', 'B', 'C', 'A']\n\
+\n\
+    >>> list(duplicates('ABBCcAD', str.lower))\n\
+    ['B', 'c', 'A']\n\
 \n\
 To get each duplicate only once this can be combined with \n\
 :py:func:`~iteration_utilities.unique_everseen`::\n\
 \n\
->>> from iteration_utilities import unique_everseen\n\
->>> list(unique_everseen(duplicates('AABBCCDA')))\n\
-['A', 'B', 'C']");
+    >>> from iteration_utilities import unique_everseen\n\
+    >>> list(unique_everseen(duplicates('AABBCCDA')))\n\
+    ['A', 'B', 'C']");
 
 /******************************************************************************
  *

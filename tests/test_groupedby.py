@@ -106,6 +106,17 @@ def test_groupedby_reduce2():
     assert not memory_leak(test)
 
 
+def test_groupedby_reduce3():
+    assert groupedby(range(10000), key=lambda x: x % 5,
+                     reduce=operator.add,
+                     reducestart=0)
+
+    def test():
+        groupedby(map(T, range(10000)), key=lambda x: x.value % 5,
+                  reduce=operator.add, reducestart=T(0))
+    assert not memory_leak(test)
+
+
 def test_groupedby_failure1():
     # not iterable
     with pytest.raises(TypeError):
