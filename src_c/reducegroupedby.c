@@ -78,7 +78,6 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
                 if (lst == NULL) {
                     Py_DECREF(keep);
                     Py_DECREF(val);
-                    Py_DECREF(lst);
                     goto Fail;
                 }
                 PyList_SET_ITEM(lst, 0, keep);
@@ -89,7 +88,7 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
 #endif
                 Py_DECREF(lst);
                 Py_DECREF(val);
-                if (ok < 0) {
+                if (ok == -1) {
                     goto Fail;
                 }
             } else {
@@ -108,6 +107,7 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
 #else
             lst = PyDict_GetItem(resdict, val);
 #endif
+            Py_XINCREF(lst);
 
             // No item yet and no starting value given: Keep the "keep".
             if (lst == NULL && reducestart == NULL) {
@@ -118,7 +118,7 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
 #endif
                 Py_DECREF(val);
                 Py_DECREF(keep);
-                if (ok < 0) {
+                if (ok == -1) {
                     goto Fail;
                 }
 
@@ -130,9 +130,9 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
                     reducetmp = PyObject_CallFunctionObjArgs(reduce, lst, keep, NULL);
                     Py_DECREF(lst);
                 }
+                Py_DECREF(keep);
                 if (reducetmp == NULL) {
                     Py_DECREF(val);
-                    Py_DECREF(keep);
                     goto Fail;
                 }
 #if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 5
@@ -141,9 +141,8 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
                 ok = PyDict_SetItem(resdict, val, reducetmp);
 #endif
                 Py_DECREF(val);
-                Py_DECREF(keep);
                 Py_DECREF(reducetmp);
-                if (ok < 0) {
+                if (ok == -1) {
                     goto Fail;
                 }
             }

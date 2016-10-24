@@ -14,17 +14,17 @@ python:
 
 matrix:
   include:
-    - python: "2.7"
-      os: osx
-    - python: "3.5"
-      os: osx
+    #- python: "2.7"
+    #  os: osx
+    #- python: "3.5"
+    #  os: osx
 
   allow_failures:
     - python: "nightly"
-    - python: "2.7"
-      os: osx
-    - python: "3.5"
-      os: osx
+    #- python: "2.7"
+    #  os: osx
+    #- python: "3.5"
+    #  os: osx
 
 install:
   - pip install coveralls

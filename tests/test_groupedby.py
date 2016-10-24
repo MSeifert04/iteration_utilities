@@ -17,6 +17,10 @@ from helper_pytest_monkeypatch import pytest_raises
 groupedby = iteration_utilities.groupedby
 
 
+if iteration_utilities.PY2:
+    range = xrange
+
+
 class T(object):
     def __init__(self, value):
         self.value = value
@@ -103,6 +107,17 @@ def test_groupedby_reduce2():
                   key=operator.itemgetter(0),
                   reduce=lambda x, y: x + y[1],
                   reducestart=T(0))
+    assert not memory_leak(test)
+
+
+def test_groupedby_reduce3():
+    assert groupedby(range(10000), key=lambda x: x % 5,
+                     reduce=operator.add,
+                     reducestart=0)
+
+    def test():
+        groupedby(map(T, range(10000)), key=lambda x: T(x.value % 5),
+                  reduce=operator.add, reducestart=T(0))
     assert not memory_leak(test)
 
 
