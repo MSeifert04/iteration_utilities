@@ -17,6 +17,10 @@ from helper_pytest_monkeypatch import pytest_raises
 groupedby = iteration_utilities.groupedby
 
 
+if iteration_utilities.PY2:
+    range = xrange
+
+
 class T(object):
     def __init__(self, value):
         self.value = value
