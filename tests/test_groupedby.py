@@ -112,7 +112,7 @@ def test_groupedby_reduce3():
                      reducestart=0)
 
     def test():
-        groupedby(map(T, range(10000)), key=lambda x: x.value % 5,
+        groupedby(map(T, range(10000)), key=lambda x: T(x.value % 5),
                   reduce=operator.add, reducestart=T(0))
     assert not memory_leak(test)
 

@@ -107,6 +107,7 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
 #else
             lst = PyDict_GetItem(resdict, val);
 #endif
+            Py_XINCREF(lst);
 
             // No item yet and no starting value given: Keep the "keep".
             if (lst == NULL && reducestart == NULL) {
