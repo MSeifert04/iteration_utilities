@@ -105,7 +105,7 @@ Parameters\n\
 iterable : iterable\n\
     `Iterable` to partition.\n\
 \n\
-pred : callable or None, optional\n\
+func : callable or None, optional\n\
     The predicate which determines the partition.\n\
     Default is ``None``.\n\
 \n\

@@ -47,3 +47,6 @@ Test status
    :target: https://coveralls.io/github/MSeifert04/iteration_utilities?branch=master
    :alt: Coverage Status
 
+.. image:: https://img.shields.io/badge/benchmarked%20by-asv-green.svg?style=flat
+   :target: https://mseifert04.github.io/iutils_benchmarks/
+   :alt: Benchmarks
