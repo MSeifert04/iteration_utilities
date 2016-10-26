@@ -159,36 +159,40 @@ PyDoc_STRVAR(PyIU_module_doc, "API: C Functions\n----------------");
     m = Py_InitModule3(PyIU_module_name, PyIU_methods, PyIU_module_doc);
 #endif
 
-    if (m == NULL)
-        return NULL;
+    if (m != NULL) {
 
-    // Add classes to the module but only use the name starting after the first
-    // occurence of ".".
-    for (i=0 ; typelist[i] != NULL ; i++) {
-        if (PyType_Ready(typelist[i]) < 0)
-            return NULL;
-        name = strchr(typelist[i]->tp_name, '.');
-        assert (name != NULL);
-        Py_INCREF(typelist[i]);
-        PyModule_AddObject(m, name+1, (PyObject *)typelist[i]);
+        // Add classes to the module but only use the name starting after the first
+        // occurence of ".".
+        for (i=0 ; typelist[i] != NULL ; i++) {
+            if (PyType_Ready(typelist[i]) < 0)
+#if PY_MAJOR_VERSION >= 3
+                return m;
+#else
+                return;
+#endif
+            name = strchr(typelist[i]->tp_name, '.');
+            assert (name != NULL);
+            Py_INCREF(typelist[i]);
+            PyModule_AddObject(m, name+1, (PyObject *)typelist[i]);
+        }
+
+        // Add pre-defined instances.
+        PyIU_returnTrue = constant_new(&PyIUType_Constant, Py_BuildValue("(O)", Py_True), NULL);
+        PyModule_AddObject(m, PyIU_returnTrue_name, PyIU_returnTrue);
+        PyIU_returnFalse = constant_new(&PyIUType_Constant, Py_BuildValue("(O)", Py_False), NULL);
+        PyModule_AddObject(m, PyIU_returnFalse_name, PyIU_returnFalse);
+        PyIU_returnNone = constant_new(&PyIUType_Constant, Py_BuildValue("(O)", Py_None), NULL);
+        PyModule_AddObject(m, PyIU_returnNone_name, PyIU_returnNone);
+
+        PyIU_ReduceFirst = nth_new(&PyIUType_Nth, Py_BuildValue("(n)", 0), NULL);
+        PyModule_AddObject(m, PyIU_ReduceFirst_name, PyIU_ReduceFirst);
+        PyIU_ReduceSecond = nth_new(&PyIUType_Nth, Py_BuildValue("(n)", 1), NULL);
+        PyModule_AddObject(m, PyIU_ReduceSecond_name, PyIU_ReduceSecond);
+        PyIU_ReduceThird = nth_new(&PyIUType_Nth, Py_BuildValue("(n)", 2), NULL);
+        PyModule_AddObject(m, PyIU_ReduceThird_name, PyIU_ReduceThird);
+        PyIU_ReduceLast = nth_new(&PyIUType_Nth, Py_BuildValue("(n)", minus_one), NULL);
+        PyModule_AddObject(m, PyIU_ReduceLast_name, PyIU_ReduceLast);
     }
-
-    // Add pre-defined instances.
-    PyIU_returnTrue = constant_new(&PyIUType_Constant, Py_BuildValue("(O)", Py_True), NULL);
-    PyModule_AddObject(m, PyIU_returnTrue_name, PyIU_returnTrue);
-    PyIU_returnFalse = constant_new(&PyIUType_Constant, Py_BuildValue("(O)", Py_False), NULL);
-    PyModule_AddObject(m, PyIU_returnFalse_name, PyIU_returnFalse);
-    PyIU_returnNone = constant_new(&PyIUType_Constant, Py_BuildValue("(O)", Py_None), NULL);
-    PyModule_AddObject(m, PyIU_returnNone_name, PyIU_returnNone);
-
-    PyIU_ReduceFirst = nth_new(&PyIUType_Nth, Py_BuildValue("(n)", 0), NULL);
-    PyModule_AddObject(m, PyIU_ReduceFirst_name, PyIU_ReduceFirst);
-    PyIU_ReduceSecond = nth_new(&PyIUType_Nth, Py_BuildValue("(n)", 1), NULL);
-    PyModule_AddObject(m, PyIU_ReduceSecond_name, PyIU_ReduceSecond);
-    PyIU_ReduceThird = nth_new(&PyIUType_Nth, Py_BuildValue("(n)", 2), NULL);
-    PyModule_AddObject(m, PyIU_ReduceThird_name, PyIU_ReduceThird);
-    PyIU_ReduceLast = nth_new(&PyIUType_Nth, Py_BuildValue("(n)", minus_one), NULL);
-    PyModule_AddObject(m, PyIU_ReduceLast_name, PyIU_ReduceLast);
 
 #if PY_MAJOR_VERSION >= 3
     return m;
