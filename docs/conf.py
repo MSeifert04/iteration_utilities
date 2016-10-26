@@ -84,8 +84,10 @@ author = 'Michael Seifert'
 
 
 def get_version():
-    with open('../VERSION.rst') as f:
-        return f.read().strip()
+    with open('../iteration_utilities/__init__.py') as f:
+        for line in f:
+            if line.startswith('__version__'):
+                return line.split(r"'")[1]
 
 version = get_version()
 release = get_version()
