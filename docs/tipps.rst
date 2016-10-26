@@ -25,10 +25,10 @@ All Python builtins are written in C and some (there are exceptions like
     >>> l1 = [random.randint(0, 1000) for _ in range(20000)]
     >>> l2 = [random.randint(0, 1000) for _ in range(20000)]
     >>> l3 = [random.randint(0, 1000) for _ in range(20000)]
-    >>> %timeit [min(i) for i in zip(l1, l2, l3)]
+    >>> %timeit [min(i) for i in zip(l1, l2, l3)]  # doctest: +SKIP
     100 loops, best of 3: 4.94 ms per loop
 
-    >>> %timeit list(map(min, l1, l2, l3))
+    >>> %timeit list(map(min, l1, l2, l3))  # doctest: +SKIP
     100 loops, best of 3: 3.24 ms per loop
 
 Sometimes it is not possible to use such a function directly with
@@ -39,10 +39,10 @@ use :py:func:`itertools.repeat`!
 
     >>> from itertools import repeat
     >>> lst = [0]*100000
-    >>> %timeit [isinstance(i, int) for i in lst]
+    >>> %timeit [isinstance(i, int) for i in lst]  # doctest: +SKIP
     100 loops, best of 3: 17.4 ms per loop
 
-    >>> %timeit list(map(isinstance, lst, repeat(int)))
+    >>> %timeit list(map(isinstance, lst, repeat(int)))  # doctest: +SKIP
     100 loops, best of 3: 7.99 ms per loop
 
 .. note::
@@ -61,10 +61,10 @@ Sometimes one needs a predicate function or filter out some items. One little
     >>> import random
     >>> from iteration_utilities import consume
     >>> lst = [random.random() for _ in range(200000)]
-    >>> %timeit consume((i for i in lst if i > 0.5), None)
+    >>> %timeit consume((i for i in lst if i > 0.5), None)  # doctest: +SKIP
     100 loops, best of 3: 9.51 ms per loop
 
-    >>> %timeit consume(filter((0.5).__lt__, lst), None)
+    >>> %timeit consume(filter((0.5).__lt__, lst), None)  # doctest: +SKIP
     100 loops, best of 3: 8.03 ms per loop
 
 This shows only a slight improvement but it's not always possible to use a
@@ -77,10 +77,10 @@ function you'll see the performance increase:
     >>> from functools import partial
     >>> from operator import lt
     >>> partial_gt_05 = partial(lt, 0.5)
-    >>> %timeit consume(filter(lambda x: x > 0.5, lst), None)
+    >>> %timeit consume(filter(lambda x: x > 0.5, lst), None)  # doctest: +SKIP
     10 loops, best of 3: 22.3 ms per loop
 
-    >>> %timeit consume(filter(partial_gt_05, lst), None)
+    >>> %timeit consume(filter(partial_gt_05, lst), None)  # doctest: +SKIP
     100 loops, best of 3: 17 ms per loop
 
 .. warning::
