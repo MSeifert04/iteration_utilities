@@ -41,7 +41,7 @@ setup(name='iteration_utilities',
         'Programming Language :: Python :: 3.6',
       ],
 
-      license='MIT',
+      license='Apache License Version 2.0',
 
       url='https://github.com/MSeifert04/iteration_utilities',
 
