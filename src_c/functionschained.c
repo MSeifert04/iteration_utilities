@@ -107,6 +107,9 @@ static PyObject * chained_call(PyIUObject_Chained *lz, PyObject *args,
     // Create a placeholder tuple for "all=True"
     if (lz->all) {
         result = PyTuple_New(tuplesize);
+        if (result == NULL) {
+            return NULL;
+        }
     }
 
     for (idx=0 ; idx<tuplesize ; idx++) {
@@ -132,6 +135,9 @@ static PyObject * chained_call(PyIUObject_Chained *lz, PyObject *args,
 
         // In case something went wrong when calling the function
         if (temp == NULL) {
+            if (lz->all) {
+                Py_DECREF(result);
+            }
             return NULL;
         }
     }

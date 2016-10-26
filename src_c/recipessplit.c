@@ -95,7 +95,7 @@ static int split_traverse(PyIUObject_Split *lz, visitproc visit, void *arg) {
  *****************************************************************************/
 
 static PyObject * split_next(PyIUObject_Split *lz) {
-    PyObject *result, *item, *val=NULL;
+    PyObject *result, *item=NULL, *val=NULL;
     int ok;
 
     // Create a list to hold the result.
