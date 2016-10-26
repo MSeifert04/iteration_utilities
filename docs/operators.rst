@@ -13,7 +13,9 @@ Reverse arithmetic operators
 - :py:func:`rsub`, equivalent to ``lambda x, y: y - x``
 - :py:func:`rmul`, equivalent to ``lambda x, y: y * x``
 - :py:func:`rdiv`, equivalent to ``lambda x, y: y / x``
+- :py:func:`rfdiv`, equivalent to ``lambda x, y: y // x``
 - :py:func:`rpow`, equivalent to ``lambda x, y: y ** x``
+- :py:func:`rmod`, equivalent to ``lambda x, y: y % x``
 
 
 Math operators

@@ -61,7 +61,9 @@ static PyMethodDef PyIU_methods[] = {
     {"rsub",       (PyCFunction)PyIU_MathRsub,       METH_VARARGS, PyIU_MathRsub_doc},
     {"rmul",       (PyCFunction)PyIU_MathRmul,       METH_VARARGS, PyIU_MathRmul_doc},
     {"rdiv",       (PyCFunction)PyIU_MathRdiv,       METH_VARARGS, PyIU_MathRdiv_doc},
+    {"rfdiv",      (PyCFunction)PyIU_MathRfdiv,      METH_VARARGS, PyIU_MathRfdiv_doc},
     {"rpow",       (PyCFunction)PyIU_MathRpow,       METH_VARARGS, PyIU_MathRpow_doc},
+    {"rmod",       (PyCFunction)PyIU_MathRmod,       METH_VARARGS, PyIU_MathRmod_doc},
 
     {"return_identity",  (PyCFunction)PyIU_ReturnIdentity, METH_O,                       PyIU_ReturnIdentity_doc},
     {"return_first_arg", (PyCFunction)PyIU_ReturnFirstArg, METH_VARARGS | METH_KEYWORDS, PyIU_ReturnFirstArg_doc},
