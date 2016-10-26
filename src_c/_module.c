@@ -165,7 +165,11 @@ PyDoc_STRVAR(PyIU_module_doc, "API: C Functions\n----------------");
         // occurence of ".".
         for (i=0 ; typelist[i] != NULL ; i++) {
             if (PyType_Ready(typelist[i]) < 0)
-                return NULL;
+#if PY_MAJOR_VERSION >= 3
+                return m;
+#else
+                return;
+#endif
             name = strchr(typelist[i]->tp_name, '.');
             assert (name != NULL);
             Py_INCREF(typelist[i]);
@@ -188,9 +192,9 @@ PyDoc_STRVAR(PyIU_module_doc, "API: C Functions\n----------------");
         PyModule_AddObject(m, PyIU_ReduceThird_name, PyIU_ReduceThird);
         PyIU_ReduceLast = nth_new(&PyIUType_Nth, Py_BuildValue("(n)", minus_one), NULL);
         PyModule_AddObject(m, PyIU_ReduceLast_name, PyIU_ReduceLast);
+    }
 
 #if PY_MAJOR_VERSION >= 3
-        return m;
+    return m;
 #endif
-    }
 }

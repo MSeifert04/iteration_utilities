@@ -98,7 +98,7 @@ static int chained_traverse(PyIUObject_Chained *lz, visitproc visit,
 
 static PyObject * chained_call(PyIUObject_Chained *lz, PyObject *args,
                                PyObject *kwargs) {
-    PyObject *func, *temp, *oldtemp, *result;
+    PyObject *func, *temp, *oldtemp, *result=NULL;
     Py_ssize_t tuplesize, idx;
 
     tuplesize = PyTuple_Size(lz->funcs);
