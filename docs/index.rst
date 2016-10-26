@@ -35,6 +35,7 @@ Contents:
    random
    callbacks
    operators
+   tipps
    api/cls
    api/core
    api/additional
