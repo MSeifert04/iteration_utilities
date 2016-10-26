@@ -93,6 +93,21 @@ static PyObject* PyIU_MathRdiv(PyObject *m, PyObject *args) {
 }
 
 /******************************************************************************
+ * rfdiv : equivalent to:
+ *
+ * lambda o1, o2: o2 // o1
+ *****************************************************************************/
+
+static PyObject* PyIU_MathRfdiv(PyObject *m, PyObject *args) {
+    PyObject *op1, *op2;
+    if (PyArg_UnpackTuple(args, "rfdiv", 2, 2, &op1, &op2)) {
+        return PyNumber_FloorDivide(op2, op1);
+    } else {
+        return NULL;
+    }
+}
+
+/******************************************************************************
  * rpow : equivalent to:
  *
  * lambda o1, o2: o2 ** o1
@@ -102,6 +117,21 @@ static PyObject* PyIU_MathRpow(PyObject *m, PyObject *args) {
     PyObject *op1, *op2;
     if (PyArg_UnpackTuple(args, "rpow", 2, 2, &op1, &op2)) {
         return PyNumber_Power(op2, op1, Py_None);
+    } else {
+        return NULL;
+    }
+}
+
+/******************************************************************************
+ * rmod : equivalent to:
+ *
+ * lambda o1, o2: o2 % o1
+ *****************************************************************************/
+
+static PyObject* PyIU_MathRmod(PyObject *m, PyObject *args) {
+    PyObject *op1, *op2;
+    if (PyArg_UnpackTuple(args, "rmod", 2, 2, &op1, &op2)) {
+        return PyNumber_Remainder(op2, op1);
     } else {
         return NULL;
     }
@@ -279,6 +309,28 @@ Equivalent to ``lambda x, y: y / x``::\n\
     >>> rdiv(10, 1)\n\
     0.1");
 
+PyDoc_STRVAR(PyIU_MathRfdiv_doc, "rfdiv(op1, op2)\n\
+\n\
+Returns ``op2 // op1``.\n\
+\n\
+Parameters\n\
+----------\n\
+op1, op2 : any type\n\
+    The values to be floor divided.\n\
+\n\
+Returns\n\
+-------\n\
+rfdiv : any type\n\
+    Returns ``op2 // op1``.\n\
+\n\
+Examples\n\
+--------\n\
+Equivalent to ``lambda x, y: y // x``::\n\
+\n\
+    >>> from iteration_utilities import rfdiv\n\
+    >>> rfdiv(10, 22)\n\
+    2");
+
 PyDoc_STRVAR(PyIU_MathRpow_doc, "rpow(op1, op2)\n\
 \n\
 Returns ``op2 ** op1``.\n\
@@ -300,3 +352,25 @@ Equivalent to ``lambda x, y: y ** x``::\n\
     >>> from iteration_utilities import rpow\n\
     >>> rpow(3, 2)\n\
     8");
+
+PyDoc_STRVAR(PyIU_MathRmod_doc, "rmod(op1, op2)\n\
+\n\
+Returns ``op2 % op1``.\n\
+\n\
+Parameters\n\
+----------\n\
+op1, op2 : any type\n\
+    Get the remainder of these two operands.\n\
+\n\
+Returns\n\
+-------\n\
+rmod : any type\n\
+    Returns ``op2 % op1``.\n\
+\n\
+Examples\n\
+--------\n\
+Equivalent to ``lambda x, y: y % x``::\n\
+\n\
+    >>> from iteration_utilities import rmod\n\
+    >>> rmod(2, 5)\n\
+    1");
