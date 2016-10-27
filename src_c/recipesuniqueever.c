@@ -44,14 +44,17 @@ static PyObject * uniqueever_new(PyTypeObject *type, PyObject *args,
     }
 
     /* Create and fill struct */
-    if ( !(iterator = PyObject_GetIter(iterable)) ) {
+    iterator = PyObject_GetIter(iterable);
+    if (iterator == NULL) {
         return NULL;
     }
-    if ( !(seen = PySet_New(NULL)) ) {
+    seen = PySet_New(NULL);
+    if (seen == NULL) {
         Py_DECREF(iterator);
         return NULL;
     }
-    if ( !(lz = (PyIUObject_UniqueEver *)type->tp_alloc(type, 0)) ) {
+    lz = (PyIUObject_UniqueEver *)type->tp_alloc(type, 0);
+    if (lz == NULL) {
         Py_DECREF(iterator);
         Py_DECREF(seen);
         return NULL;
@@ -110,7 +113,8 @@ static PyObject * uniqueever_next(PyIUObject_UniqueEver *lz) {
         if (lz->key == NULL) {
             temp = item;
         } else {
-            if (!(temp = PyObject_CallFunctionObjArgs(lz->key, item, NULL))) {
+            temp = PyObject_CallFunctionObjArgs(lz->key, item, NULL);
+            if (temp == NULL) {
                 goto Fail;
             }
         }

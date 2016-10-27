@@ -24,9 +24,7 @@ static PyObject * PyIU_AllEqual(PyObject *m, PyObject *iterable) {
             goto Fail;
         }
     }
-
     PYIU_CLEAR_STOPITERATION;;
-
     Py_XDECREF(iterator);
     Py_XDECREF(first);
     Py_RETURN_TRUE;
