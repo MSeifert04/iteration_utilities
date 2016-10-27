@@ -133,7 +133,7 @@ static int merge_traverse(PyIUObject_Merge *lz, visitproc visit, void *arg) {
  *****************************************************************************/
 
 static int merge_init_current(PyIUObject_Merge *lz) {
-    PyObject *current, *iterator, *item, *idx, *newitem, *keyval;
+    PyObject *current, *iterator, *item, *newitem, *keyval=NULL;
     Py_ssize_t i, insert, tuplelength;
 
     current = PyTuple_New(lz->numactive);
@@ -146,13 +146,6 @@ static int merge_init_current(PyIUObject_Merge *lz) {
         iterator = PyTuple_GET_ITEM(lz->iteratortuple, i);
         item = (*Py_TYPE(iterator)->tp_iternext)(iterator);
         if (item != NULL) {
-            // Negate the index if we sort from high to small because this is
-            // consistent with using Py_GT instead of Py_LT.
-            if (lz->reverse) {
-                idx = PyLong_FromSsize_t(-i);
-            } else {
-                idx = PyLong_FromSsize_t(i);
-            }
             // The idea here is that we can keep stability by also remembering
             // the index of the iterable (which is also useful to remember
             // from which iterable to get the next item if it is yielded).
@@ -160,21 +153,15 @@ static int merge_init_current(PyIUObject_Merge *lz) {
             // takes the second item into account if the first is equal.
             // If a key function is given we make a tuple consisting of
             // [key(value), idx_iterator, value] otherwise [value, idx_iterator]
-            if (lz->keyfunc == NULL) {
-                newitem = PyTuple_Pack(2, item, idx);
-            } else {
+            if (lz->keyfunc != NULL) {
                 keyval = PyObject_CallFunctionObjArgs(lz->keyfunc, item, NULL);
                 if (keyval == NULL) {
                     Py_DECREF(current);
                     Py_DECREF(item);
-                    Py_DECREF(idx);
                     return -1;
                 }
-                newitem = PyTuple_Pack(3, keyval, idx, item);
-                Py_DECREF(keyval);
             }
-            Py_DECREF(item);
-            Py_DECREF(idx);
+            newitem = ItemIdxKey_FromC(item, i, keyval);
 
             // Insert the tuple into the current tuple.
             if (tuplelength==0) {
@@ -206,8 +193,9 @@ static int merge_init_current(PyIUObject_Merge *lz) {
  *****************************************************************************/
 
 static PyObject * merge_next(PyIUObject_Merge *lz) {
-    PyObject *iterator, *item, *val, *next, *keyval, *oldkeyval;
-    Py_ssize_t idx, insert=0;
+    PyObject *iterator, *item, *val, *keyval, *oldkeyval;
+    Py_ssize_t insert=0;
+    ItemIdxKey *next;
 
     // No current then we create one.
     if (lz->current == NULL || lz->current == Py_None) {
@@ -222,25 +210,15 @@ static PyObject * merge_next(PyIUObject_Merge *lz) {
     }
 
     // Tuple containing the next value
-    next = PyTuple_GET_ITEM(lz->current, lz->numactive-1);
+    next = (ItemIdxKey *)PyTuple_GET_ITEM(lz->current, lz->numactive-1);
     Py_INCREF(next);
 
     // Value to be returned
-    if (lz->keyfunc == NULL) {
-        val = PyTuple_GET_ITEM(next, 0);
-    } else {
-        val = PyTuple_GET_ITEM(next, 2);
-    }
+    val = next->item;
     Py_INCREF(val);
 
-    // Iterable from which the value was taken
-    idx = PyLong_AsSsize_t(PyTuple_GET_ITEM(next, 1));
     // Get the next value from the iterable where the value was from
-    if (lz->reverse) {
-        iterator = PyTuple_GET_ITEM(lz->iteratortuple, -idx);
-    } else {
-        iterator = PyTuple_GET_ITEM(lz->iteratortuple, idx);
-    }
+    iterator = PyTuple_GET_ITEM(lz->iteratortuple, next->idx);
     item = (*Py_TYPE(iterator)->tp_iternext)(iterator);
 
     if (item == NULL) {
@@ -251,13 +229,8 @@ static PyObject * merge_next(PyIUObject_Merge *lz) {
         Py_INCREF(val);
         lz->numactive--;
     } else {
-        // Reuse the tuple, no need to set the idx again!
-        // If no key is given the structure is [item, index_iterable]
-        // otherwise [key(item), index_iterable, item]
-        if (lz->keyfunc == NULL) {
-            PyTuple_SET_ITEM(next, 0, item);
-        } else {
-            oldkeyval = PyTuple_GET_ITEM(next, 0);
+        if (lz->keyfunc != NULL) {
+            oldkeyval = next->key;
             keyval = PyObject_CallFunctionObjArgs(lz->keyfunc, item, NULL);
             if (keyval == NULL) {
                 Py_DECREF(item);
@@ -265,14 +238,16 @@ static PyObject * merge_next(PyIUObject_Merge *lz) {
                 Py_DECREF(next);
                 return NULL;
             }
-            PyTuple_SET_ITEM(next, 0, keyval);
-            PyTuple_SET_ITEM(next, 2, item);
+            next->key = keyval;
+            next->item = item;
             Py_DECREF(oldkeyval);
+        } else {
+            next->item = item;
         }
 
         // Insert the new value into the sorted current tuple.
-        insert = PyUI_TupleBisectRight(lz->current, next, lz->numactive,
-                                       lz->reverse);
+        insert = PyUI_TupleBisectRight(lz->current, (PyObject *)next,
+                                       lz->numactive, lz->reverse);
         if (insert < 0) {
             Py_DECREF(next);
             Py_DECREF(next);
@@ -280,7 +255,7 @@ static PyObject * merge_next(PyIUObject_Merge *lz) {
             Py_DECREF(val);
             return NULL;
         }
-        PYUI_TupleInsert(lz->current, insert, next, lz->numactive);
+        PYUI_TupleInsert(lz->current, insert, (PyObject *)next, lz->numactive);
         Py_DECREF(next);
     }
     Py_DECREF(val);
