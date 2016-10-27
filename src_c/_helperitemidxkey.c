@@ -132,7 +132,29 @@ static PyObject * ItemIdxKey_richcompare(PyObject *v, PyObject *w, int op) {
         item1 = l->key;
         item2 = r->key;
     }
-    // Check if the items are the same
+    // The order to check for equality and lt makes a huge performance
+    // difference:
+    //
+    // - lots of duplicates: first eq then "op"
+    // - no/few duplicates: first "op" then eq
+    // - first compare idx and if it's smaller check le/ge otherwise lt/gt
+    //
+    // --> I chose eq then "op" but the other version is also avaiable as
+    // comment.
+    if (l->idx < r->idx) {
+        op = (op == Py_LT) ? Py_LE : Py_GE;
+    }
+    ok = PyObject_RichCompareBool(item1, item2, op);
+    if (ok == 1) {
+        Py_RETURN_TRUE;
+    } else if (ok == 0) {
+        Py_RETURN_FALSE;
+    } else {
+        return NULL;
+    }
+
+    /* First eq then "op" : Better if there are lots of duplicates! Worse if
+                            there are lots!
     ok = PyObject_RichCompareBool(item1, item2, Py_EQ);
     if (ok == -1) {
         return NULL;
@@ -152,6 +174,44 @@ static PyObject * ItemIdxKey_richcompare(PyObject *v, PyObject *w, int op) {
             Py_RETURN_TRUE;
         }
     }
+    */
+
+    /* First "op" then eq : Better if there are almost no duplicates! Worse if
+                            there are lots!
+    ok = PyObject_RichCompareBool(item1, item2, op);
+    if (ok == 1) {
+        Py_RETURN_TRUE;
+    } else if (ok == 0) {
+        ok = PyObject_RichCompareBool(item1, item2, Py_EQ);
+        if (ok == 1) {
+            if (l->idx < r->idx) {
+                Py_RETURN_TRUE;
+            } else {
+                Py_RETURN_FALSE;
+            }
+        } else if (ok == 0) {
+            Py_RETURN_FALSE;
+        } else {
+            return NULL;
+        }
+    } else {
+        return NULL;
+    }
+    */
+
+    /* First compare idx and then compare the other elements
+    if (l->idx < r->idx) {
+        op = (op == Py_LT) ? Py_LE : Py_GE;
+    }
+    ok = PyObject_RichCompareBool(item1, item2, op);
+    if (ok == 1) {
+        Py_RETURN_TRUE;
+    } else if (ok == 0) {
+        Py_RETURN_FALSE;
+    } else {
+        return NULL;
+    }
+    */
 }
 
 /******************************************************************************

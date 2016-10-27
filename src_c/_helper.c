@@ -141,23 +141,24 @@ Py_ssize_t PyUI_TupleBisectRight(PyObject *tuple, PyObject *item,
     PyObject *litem;
     Py_ssize_t mid, lo = 0;
     int res;
+    //printf("Start bisect right for %i elements.\n", hi);
 
     while (lo < hi) {
         mid = ((size_t)lo + hi) / 2;
+        //printf("mid: %i low: %i high: %i \n", mid, lo, hi);
         litem = PyTuple_GET_ITEM(tuple, mid);
         if (litem == NULL) {
             return -1;
         }
         res = PyObject_RichCompareBool(item, litem, cmpop);
-        if (res < 0) {
+        if (res == 1) {
+            lo = mid + 1;
+        } else if (res == 0) {
+            hi = mid;
+        } else {
             return -1;
         }
-        if (res) {
-            lo = mid + 1;
-        } else {
-            hi = mid;
-        }
     }
-
+    //printf("result: %i\n", lo);
     return lo;
 }
