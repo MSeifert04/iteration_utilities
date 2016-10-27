@@ -48,6 +48,14 @@ static PyObject * ItemIdxKey_new(PyTypeObject *type, PyObject *args,
                                      &item, &idx, &key)) {
         return NULL;
     }
+    if (ItemIdxKey_CheckExact(item)) {
+        PyErr_Format(PyExc_TypeError, "cannot use `ItemIdxKey` instance as `item`.");
+        return NULL;
+    }
+    if (key != NULL && ItemIdxKey_CheckExact(key)) {
+        PyErr_Format(PyExc_TypeError, "cannot use `ItemIdxKey` instance as `key`.");
+        return NULL;
+    }
 
     self = (ItemIdxKey *)type->tp_alloc(type, 0);
     if (self == NULL) {
@@ -61,6 +69,14 @@ static PyObject * ItemIdxKey_new(PyTypeObject *type, PyObject *args,
 
     return (PyObject *)self;
 }
+
+/******************************************************************************
+ *
+ * New (only from C code)
+ *
+ * This bypasses the argument unpacking!
+ *
+ *****************************************************************************/
 
 static PyObject * ItemIdxKey_FromC(PyObject *item, Py_ssize_t idx,
                                    PyObject *key) {
@@ -106,6 +122,29 @@ static int ItemIdxKey_traverse(ItemIdxKey *s, visitproc visit, void *arg) {
     Py_VISIT(s->key);
     return 0;
 }
+
+/******************************************************************************
+ *
+ * Representation
+ *
+ *****************************************************************************/
+
+static PyObject * ItemIdxKey_repr(ItemIdxKey *s) {
+    if (s->key == NULL) {
+        return PyUnicode_FromFormat("ItemIdxKey(item=%R, idx=%zd)",
+                                    s->item, s->idx);
+    } else {
+        return PyUnicode_FromFormat("ItemIdxKey(item=%R, idx=%zd, key=%R)",
+                                    s->item, s->idx, s->key);
+    }
+}
+
+
+/******************************************************************************
+ *
+ * Richcompare
+ *
+ *****************************************************************************/
 
 static PyObject * ItemIdxKey_richcompare(PyObject *v, PyObject *w, int op) {
     PyObject *item1, *item2;
@@ -229,6 +268,9 @@ int ItemIdxKey_setitem(ItemIdxKey *self,  PyObject *o, void *closure) {
     if (o == NULL) {
         PyErr_Format(PyExc_TypeError, "cannot delete `item`.");
         return -1;
+    } else if (ItemIdxKey_CheckExact(o)) {
+        PyErr_Format(PyExc_TypeError, "cannot use `ItemIdxKey` instance as `item`.");
+        return -1;
     }
     Py_DECREF(self->item);
     Py_INCREF(o);
@@ -275,6 +317,10 @@ static PyObject * ItemIdxKey_getkey(ItemIdxKey *self, void *closure) {
 }
 
 int ItemIdxKey_setkey(ItemIdxKey *self,  PyObject *o, void *closure) {
+    if (o != NULL && ItemIdxKey_CheckExact(o)) {
+        PyErr_Format(PyExc_TypeError, "cannot use `ItemIdxKey` instance as `key`.");
+        return -1;
+    }
     Py_XDECREF(self->key);
     Py_XINCREF(o);
     self->key = o;
@@ -341,6 +387,128 @@ static PyMethodDef ItemIdxKey_methods[] = {
     {NULL, NULL}
 };
 
+/******************************************************************************
+ *
+ * Docstring
+ *
+ *****************************************************************************/
+
+PyDoc_STRVAR(ItemIdxKey_doc, "ItemIdxKey(item, idx[, key])\n\
+\n\
+Helper class that makes it easier and faster to compare two values for\n\
+*stable* sorting algorithms supporting key functions.\n\
+\n\
+Parameters\n\
+----------\n\
+item : any type\n\
+    The original `item`.\n\
+\n\
+idx : number\n\
+    The position (index) of the `item`.\n\
+\n\
+key : any type, optional\n\
+    The `item` processed by the `key` function. If it is set then\n\
+    comparisons will compare the `key` instead of the `item`.\n\
+\n\
+Attributes\n\
+----------\n\
+item : any type\n\
+    The `item` to sort.\n\
+idx : integer\n\
+    The original position of the `item`.\n\
+key : any type\n\
+    The result of a key function applied to the `item`.\n\
+\n\
+Notes\n\
+-----\n\
+Comparisons involving `ItemIdxKey` have some limitations:\n\
+\n\
+- Both have to be `ItemIdxKey` instances.\n\
+- If the first operand has no `key` then the `items` are compared.\n\
+- The `idx` must be different.\n\
+- only ``<`` and ``>`` are supported!\n\
+\n\
+The implementation is rougly like:\n\
+\n\
+.. code::\n\
+\n\
+   _notgiven = object()\n\
+   \n\
+   class ItemIdxKey(object):\n\
+       def __init__(self, item, idx, key=_notgiven):\n\
+           self.item = item\n\
+           self.idx = idx\n\
+           self.key = key\n\
+   \n\
+       def __lt__(self, other):\n\
+           if type(other) != ItemIdxKey:\n\
+               raise TypeError()\n\
+           if self.key is _notgiven:\n\
+               item1, item2 = self.item, other.item\n\
+           else:\n\
+               item1, item2 = self.key, other.key\n\
+           if self.idx < other.idx:\n\
+               return item1 <= item2\n\
+           else:\n\
+               return item1 < item2\n\
+   \n\
+       def __gt__(self, other):\n\
+           if type(other) != ItemIdxKey:\n\
+               raise TypeError()\n\
+           if self.key is _notgiven:\n\
+               item1, item2 = self.item, other.item\n\
+           else:\n\
+               item1, item2 = self.key, other.key\n\
+           if self.idx < other.idx:\n\
+               return item1 >= item2\n\
+           else:\n\
+               return item1 > item2\n\
+\n\
+.. note::\n\
+   The actual C makes the initialization and comparisons several times faster\n\
+   than the above illustrated Python class! But it's only slightly faster\n\
+   than comparing `tuple` or `list`. If you do not plan to support `reverse`\n\
+   or `key` then there is no need to use this class!\n\
+\n\
+.. warning::\n\
+   You should **never** insert a `ItemIdxKey` instance as `item` or `key` in\n\
+   another `ItemIdxKey` instance. This would yield false results and breaks\n\
+   your computer! (the latter might not be true.)\n\
+\n\
+Examples\n\
+--------\n\
+Stability is one of the distinct features of sorting algorithms. This class\n\
+aids in supporting those algorithms which allow `reverse` and `key`.\n\
+This means that comparisons require absolute lesser (or greater if `reverse`)\n\
+if the `idx` is bigger but only require lesser or equal (or greater or equal)\n\
+if the `idx` is smaller. This class implements exactly these conditions::\n\
+\n\
+    >>> # Use < for normal sorting.\n\
+    >>> ItemIdxKey(10, 2) < ItemIdxKey(10, 3)\n\
+    True\n\
+    >>> # and > for reverse sorting.\n\
+    >>> ItemIdxKey(10, 2) > ItemIdxKey(10, 3)\n\
+    True\n\
+\n\
+The result may seem surprising but if the `item` (or `key`) is equal then\n\
+in either normal or `reverse` sorting the one with the smaller `idx` should\n\
+come first! If the `items` (or `keys`) differ they take precedence.\n\
+\n\
+    >>> ItemIdxKey(10, 2) < ItemIdxKey(11, 3)\n\
+    True\n\
+    >>> ItemIdxKey(10, 2) > ItemIdxKey(11, 3)\n\
+    False\n\
+\n\
+But it compares the `key` instead of the `item` if it's given::\n\
+\n\
+    >>> ItemIdxKey(0, 2, 20) < ItemIdxKey(10, 3, 19)\n\
+    False\n\
+    >>> ItemIdxKey(0, 2, 20) > ItemIdxKey(10, 3, 19)\n\
+    True\n\
+\n\
+This allows to sort based on `item` or `key` but always to access the `item`\n\
+for the value that should be sorted.");
+
 
 /******************************************************************************
  *
@@ -358,7 +526,7 @@ static PyTypeObject PyIUType_ItemIdxKey = {
     0,                         /* tp_getattr */
     0,                         /* tp_setattr */
     0,                         /* tp_reserved */
-    0,                         /* tp_repr */
+    (reprfunc)ItemIdxKey_repr, /* tp_repr */
     0,                         /* tp_as_number */
     0,                         /* tp_as_sequence */
     0,                         /* tp_as_mapping */
@@ -370,7 +538,7 @@ static PyTypeObject PyIUType_ItemIdxKey = {
     0,                         /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,   /* tp_flags */
-    "ItemIdxKey object",       /* tp_doc */
+    ItemIdxKey_doc,            /* tp_doc */
     (traverseproc)ItemIdxKey_traverse, /* tp_traverse */
     0,                         /* tp_clear */
     ItemIdxKey_richcompare,    /* tp_richcompare */

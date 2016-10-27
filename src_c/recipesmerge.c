@@ -11,8 +11,8 @@
  * did not have the key and reverse parameter before Python 3.5 and it is
  * included for compatibility reasons.
  *
- * That this is faster than heapq.merge for most inputs is a nice but worrying
- * fact. :-(
+ * That this is (much) faster than heapq.merge for most inputs is a nice but
+ * worrying side effect. :-(
  *
  *****************************************************************************/
 
@@ -149,10 +149,6 @@ static int merge_init_current(PyIUObject_Merge *lz) {
             // The idea here is that we can keep stability by also remembering
             // the index of the iterable (which is also useful to remember
             // from which iterable to get the next item if it is yielded).
-            // Using tuples allows to use the Python comparison operators which
-            // takes the second item into account if the first is equal.
-            // If a key function is given we make a tuple consisting of
-            // [key(value), idx_iterator, value] otherwise [value, idx_iterator]
             if (lz->keyfunc != NULL) {
                 keyval = PyObject_CallFunctionObjArgs(lz->keyfunc, item, NULL);
                 if (keyval == NULL) {
@@ -353,12 +349,11 @@ merged : generator\n\
 \n\
 See also\n\
 --------\n\
-heapq.merge : Equivalent since Python 3.5 but only faster for a large number\n\
-    (more than 5000) of iterables. Additionally earlier versions did not \n\
-    support the `key` or `reverse` argument.\n\
+heapq.merge : Equivalent since Python 3.5 but in most cases slower!\n\
+    Earlier Python versions did not support the `key` or `reverse` argument.\n\
 \n\
 sorted : ``sorted(itertools.chain(*iterables))`` supports the same options\n\
-    and is much faster if you need a sequence instead of a generator.\n\
+    and *can* be faster.\n\
 \n\
 Examples\n\
 --------\n\
