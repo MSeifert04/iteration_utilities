@@ -124,6 +124,9 @@ static void PYUI_TupleRemove(PyObject *tuple, Py_ssize_t where,
  * the sorting should be stable and searches the rightmost place where the
  * tuple is still sorted.
  *
+ * Function will compare first to the "hi-1"-th element and then start
+ * bisecting. (See inline code for explanation).
+ *
  * tuple : Sorted tuple to inspect
  * item  : Value to search the position for.
  * hi    : Upper index to search for.
@@ -136,12 +139,39 @@ static void PYUI_TupleRemove(PyObject *tuple, Py_ssize_t where,
  *
  *****************************************************************************/
 
-Py_ssize_t PyUI_TupleBisectRight(PyObject *tuple, PyObject *item,
-                                 Py_ssize_t hi, int cmpop) {
+Py_ssize_t PyUI_TupleBisectRight_LastFirst(PyObject *tuple, PyObject *item,
+                                           Py_ssize_t hi, int cmpop) {
     PyObject *litem;
     Py_ssize_t mid, lo = 0;
     int res;
     //printf("Start bisect right for %i elements.\n", hi);
+
+    // Bisection has two worst cases: If it should be inserted in the first or
+    // last place. The list is reverse-ordered so it's likely that the
+    // bisection could return the last place (for bisect_left it would be the
+    // first) in the "merge_sorted" function.
+
+    // Checking the number of comparisons in "merge" shows that merge now uses
+    // slightly less comparisons than "sorted" in the average case, slightly
+    // more in the worst case and much less in the best case!
+
+    // So let's check the last item first!
+    if (hi <= 0) {
+        return 0;
+    }
+    litem = PyTuple_GET_ITEM(tuple, hi-1);
+    if (litem == NULL) {
+        return -1;
+    }
+    res = PyObject_RichCompareBool(item, litem, cmpop);
+    if (res == 1) {
+        return hi;
+    } else if (res == 0) {
+        hi = hi - 1;
+    } else {
+        return -1;
+    }
+
 
     while (lo < hi) {
         mid = ((size_t)lo + hi) / 2;

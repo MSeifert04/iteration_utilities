@@ -167,8 +167,9 @@ static int merge_init_current(PyIUObject_Merge *lz) {
             if (tuplelength == 0) {
                 PyTuple_SET_ITEM(current, 0, newitem);
             } else {
-                insert = PyUI_TupleBisectRight(current, newitem, tuplelength,
-                                               lz->reverse);
+                insert = PyUI_TupleBisectRight_LastFirst(current, newitem,
+                                                         tuplelength,
+                                                         lz->reverse);
                 if (insert < 0) {
                     Py_DECREF(current);
                     Py_DECREF(newitem);
@@ -246,8 +247,8 @@ static PyObject * merge_next(PyIUObject_Merge *lz) {
         }
 
         // Insert the new value into the sorted current tuple.
-        insert = PyUI_TupleBisectRight(lz->current, (PyObject *)next,
-                                       lz->numactive-1, lz->reverse);
+        insert = PyUI_TupleBisectRight_LastFirst(lz->current, (PyObject *)next,
+                                                 lz->numactive-1, lz->reverse);
         if (insert == -1) {
             Py_DECREF(next);
             Py_DECREF(next);
