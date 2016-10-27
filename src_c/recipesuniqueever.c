@@ -13,8 +13,8 @@
 
 typedef struct {
     PyObject_HEAD
-    PyObject *func;
     PyObject *iterator;
+    PyObject *key;
     PyObject *seen;
     PyObject *seenlist;
 } PyIUObject_UniqueEver;
@@ -32,12 +32,15 @@ static PyObject * uniqueever_new(PyTypeObject *type, PyObject *args,
     static char *kwlist[] = {"iterable", "key", NULL};
     PyIUObject_UniqueEver *lz;
 
-    PyObject *iterable, *iterator, *seen, *seenlist=NULL, *func=NULL;
+    PyObject *iterable, *iterator, *seen, *key=NULL;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:unique_everseen", kwlist,
-                                     &iterable, &func)) {
+                                     &iterable, &key)) {
         return NULL;
+    }
+    if (key == Py_None) {
+        key = NULL;
     }
 
     /* Create and fill struct */
@@ -56,11 +59,11 @@ static PyObject * uniqueever_new(PyTypeObject *type, PyObject *args,
         Py_DECREF(seen);
         return NULL;
     }
-    Py_XINCREF(func);
+    Py_XINCREF(key);
     lz->iterator = iterator;
-    lz->func = func;
+    lz->key = key;
     lz->seen = seen;
-    lz->seenlist = seenlist;
+    lz->seenlist = NULL;
     return (PyObject *)lz;
 }
 
@@ -73,7 +76,7 @@ static PyObject * uniqueever_new(PyTypeObject *type, PyObject *args,
 static void uniqueever_dealloc(PyIUObject_UniqueEver *lz) {
     PyObject_GC_UnTrack(lz);
     Py_XDECREF(lz->iterator);
-    Py_XDECREF(lz->func);
+    Py_XDECREF(lz->key);
     Py_XDECREF(lz->seen);
     Py_XDECREF(lz->seenlist);
     Py_TYPE(lz)->tp_free(lz);
@@ -88,7 +91,7 @@ static void uniqueever_dealloc(PyIUObject_UniqueEver *lz) {
 static int uniqueever_traverse(PyIUObject_UniqueEver *lz, visitproc visit,
                                void *arg) {
     Py_VISIT(lz->iterator);
-    Py_VISIT(lz->func);
+    Py_VISIT(lz->key);
     Py_VISIT(lz->seen);
     Py_VISIT(lz->seenlist);
     return 0;
@@ -101,46 +104,32 @@ static int uniqueever_traverse(PyIUObject_UniqueEver *lz, visitproc visit,
  *****************************************************************************/
 
 static PyObject * uniqueever_next(PyIUObject_UniqueEver *lz) {
-    PyObject *item, *temp;
-    long ok;
+    PyObject *item=NULL, *temp=NULL;
+    int ok;
 
-    for (;;) {
-        item = (*Py_TYPE(lz->iterator)->tp_iternext)(lz->iterator);
-        if (item == NULL) {
-            PYIU_CLEAR_STOPITERATION;
-            return NULL;
-        }
+    while ( (item = (*Py_TYPE(lz->iterator)->tp_iternext)(lz->iterator)) ) {
 
-        // Use the item if func is not given, otherwise apply the func.
-        if (lz->func == NULL || lz->func == Py_None) {
+        // Use the item if key is not given, otherwise apply the key.
+        if (lz->key == NULL) {
             temp = item;
-            Py_INCREF(item);
         } else {
-            temp = PyObject_CallFunctionObjArgs(lz->func, item, NULL);
+            temp = PyObject_CallFunctionObjArgs(lz->key, item, NULL);
             if (temp == NULL) {
                 goto Fail;
             }
         }
-
         // Check if the item is in the set
         ok = PySet_Contains(lz->seen, temp);
-
-        // Not found
+        // Not found in the set
         if (ok == 0) {
             if (PySet_Add(lz->seen, temp) == 0) {
-                Py_DECREF(temp);
-                return item;
+                goto Notfound;
             } else {
                 goto Fail;
             }
-
-        // Found
-        } else if (ok == 1) {
-            Py_DECREF(temp);
-            Py_DECREF(item);
-
-        // Failure
-        } else {
+        // Failure when looking if item is in the set
+        } else if (ok < 0) {
+            // TypeError probably means unhashable, so clear it raise others.
             if (PyErr_Occurred()) {
                 if (PyErr_ExceptionMatches(PyExc_TypeError)) {
                     PyErr_Clear();
@@ -148,41 +137,43 @@ static PyObject * uniqueever_next(PyIUObject_UniqueEver *lz) {
                     goto Fail;
                 }
             }
-
-            // In case we got a TypeError we can still check if it's in the
-            // list. This is much slower but works better than an exception. :-)
-            if (lz->seenlist == NULL || lz->seenlist == Py_None) {
-                lz->seenlist = PyList_New(0);
-                if (lz->seenlist == NULL) {
-                    goto Fail;
-                }
+            // Create the seenlist if its unset yet.
+            if (lz->seenlist == NULL && !(lz->seenlist = PyList_New(0))) {
+                goto Fail;
             }
-
+            // Check if the item is in the list
             ok = lz->seenlist->ob_type->tp_as_sequence->sq_contains(lz->seenlist, temp);
-
-            // Not found
+            // Not found in the list either
             if (ok == 0) {
                 if (PyList_Append(lz->seenlist, temp) == 0) {
-                    Py_DECREF(temp);
-                    return item;
+                    goto Notfound;
                 } else {
                     goto Fail;
                 }
-
-            // Found
-            } else if (ok == 1) {
-                Py_DECREF(temp);
-                Py_DECREF(item);
-
-            // Failure
-            } else {
+            // Failure when looking if item is in the list
+            } else if (ok < 0) {
                 goto Fail;
             }
         }
+        // We have found the item either in the set or list so continue.
+        if (lz->key != NULL) {
+            Py_DECREF(temp);
+        }
+        Py_DECREF(item);
     }
 
+    PYIU_CLEAR_STOPITERATION;
+    return NULL;
+
+Notfound:
+    if (lz->key != NULL) {
+        Py_XDECREF(temp);
+    }
+    return item;
 Fail:
-    Py_XDECREF(temp);
+    if (lz->key != NULL) {
+        Py_XDECREF(temp);
+    }
     Py_XDECREF(item);
     return NULL;
 }
@@ -197,7 +188,7 @@ static PyObject * uniqueever_reduce(PyIUObject_UniqueEver *lz) {
     PyObject *value;
     value = Py_BuildValue("O(OO)(OO)", Py_TYPE(lz),
                           lz->iterator,
-                          lz->func ? lz->func : Py_None,
+                          lz->key ? lz->key : Py_None,
                           lz->seen,
                           lz->seenlist ? lz->seenlist : Py_None);
     return value;
@@ -216,13 +207,16 @@ static PyObject * uniqueever_setstate(PyIUObject_UniqueEver *lz,
     if (!PyArg_ParseTuple(state, "OO", &seen, &seenlist)) {
         return NULL;
     }
+    if (seenlist == Py_None) {
+        seenlist = NULL;
+    }
 
     Py_CLEAR(lz->seen);
     lz->seen = seen;
     Py_INCREF(lz->seen);
     Py_CLEAR(lz->seenlist);
     lz->seenlist = seenlist;
-    Py_INCREF(lz->seenlist);
+    Py_XINCREF(lz->seenlist);
     Py_RETURN_NONE;
 }
 
@@ -233,9 +227,104 @@ static PyObject * uniqueever_setstate(PyIUObject_UniqueEver *lz,
  *****************************************************************************/
 
 static PyMethodDef uniqueever_methods[] = {
-    {"__reduce__", (PyCFunction)uniqueever_reduce, METH_NOARGS, PYIU_reduce_doc},
-    {"__setstate__", (PyCFunction)uniqueever_setstate, METH_O, PYIU_setstate_doc},
+    {"__reduce__",   (PyCFunction)uniqueever_reduce,   METH_NOARGS, PYIU_reduce_doc},
+    {"__setstate__", (PyCFunction)uniqueever_setstate, METH_O,      PYIU_setstate_doc},
     {NULL, NULL}
+};
+
+/******************************************************************************
+ *
+ * Seen property
+ *
+ *****************************************************************************/
+
+static PyObject * uniqueever_getseen(PyIUObject_UniqueEver *lz,
+                                     void *closure) {
+    Py_INCREF(lz->seen);
+    return lz->seen;
+}
+
+int uniqueever_setseen(PyIUObject_UniqueEver *lz, PyObject *o, void *closure) {
+    if (o == NULL) {
+        o = PySet_New(NULL);
+        if (o == NULL) {
+            return -1;
+        }
+    } else if (!PySet_Check(o)) {
+        PyErr_Format(PyExc_TypeError, "`seen` must be a set-like object.");
+        return -1;
+    } else {
+        Py_INCREF(o);
+    }
+    Py_DECREF(lz->seen);
+    lz->seen = o;
+    return 0;
+}
+
+/******************************************************************************
+ *
+ * Seenlist property
+ *
+ *****************************************************************************/
+
+static PyObject * uniqueever_getseenlist(PyIUObject_UniqueEver *lz,
+                                         void *closure) {
+    if (lz->seenlist == NULL) {
+        Py_RETURN_NONE;
+    }
+    Py_INCREF(lz->seenlist);
+    return lz->seenlist;
+}
+
+int uniqueever_setseenlist(PyIUObject_UniqueEver *lz,  PyObject *o,
+                           void *closure) {
+    if (o == NULL || o == Py_None) {
+        o = NULL;
+    } else if (!PyList_Check(o)) {
+        PyErr_Format(PyExc_TypeError, "`seenlist` must be a list-like object.");
+        return -1;
+    }
+    Py_XDECREF(lz->seenlist);
+    Py_XINCREF(o);
+    lz->seenlist = o;
+    return 0;
+}
+
+/******************************************************************************
+ *
+ * key property
+ *
+ *****************************************************************************/
+
+static PyObject * uniqueever_getkey(PyIUObject_UniqueEver *lz, void *closure) {
+    if (lz->key == NULL) {
+        Py_RETURN_NONE;
+    }
+    Py_INCREF(lz->key);
+    return lz->key;
+}
+
+int uniqueever_setkey(PyIUObject_UniqueEver *lz,  PyObject *o, void *closure) {
+    if (o == NULL || o == Py_None) {
+        o = NULL;
+    }
+    Py_XDECREF(lz->key);
+    Py_XINCREF(o);
+    lz->key = o;
+    return 0;
+}
+
+/******************************************************************************
+ *
+ * Properties
+ *
+ *****************************************************************************/
+
+static PyGetSetDef uniqueever_getsetlist[] = {
+    {"seen",     (getter)uniqueever_getseen,     (setter)uniqueever_setseen,     NULL},
+    {"seenlist", (getter)uniqueever_getseenlist, (setter)uniqueever_setseenlist, NULL},
+    {"key",      (getter)uniqueever_getkey,      (setter)uniqueever_setkey,      NULL},
+    {NULL}
 };
 
 /******************************************************************************
@@ -262,6 +351,15 @@ Returns\n\
 iterable : generator\n\
     An iterable containing all unique values ever seen in the `iterable`.\n\
 \n\
+Attributes\n\
+----------\n\
+seen : set\n\
+    Already seen (and hashable) values.\n\
+seenlist : list, None\n\
+    Already seen (and unhashable) values.\n\
+key : callable, None\n\
+    The key function.\n\
+\n\
 Notes\n\
 -----\n\
 The items in the `iterable` must implement equality. If the items are hashable\n\
@@ -270,15 +368,31 @@ speeds up the lookup if a value was seen.\n\
 \n\
 Examples\n\
 --------\n\
->>> from iteration_utilities import unique_everseen\n\
->>> list(unique_everseen('AAAABBBCCDAABBB'))\n\
-['A', 'B', 'C', 'D']\n\
+Some simple examples::\n\
 \n\
->>> list(unique_everseen('ABBCcAD', str.lower))\n\
-['A', 'B', 'C', 'D']\n\
+    >>> from iteration_utilities import unique_everseen, consume\n\
+    >>> list(unique_everseen('AAAABBBCCDAABBB'))\n\
+    ['A', 'B', 'C', 'D']\n\
+    \n\
+    >>> list(unique_everseen('ABBCcAD', str.lower))\n\
+    ['A', 'B', 'C', 'D']\n\
+    \n\
+Even unhashable values can be processed, like `list`::\n\
 \n\
->>> list(unique_everseen([[1, 2], [1, 1], [1, 2]]))\n\
-[[1, 2], [1, 1]]");
+    >>> list(unique_everseen([[1, 2], [1, 1], [1, 2]]))\n\
+    [[1, 2], [1, 1]]\n\
+    \n\
+One can access the already seen values by accessing the `seen` and `seenlist`\n\
+attribute::\n\
+\n\
+    >>> uniques = unique_everseen(['a', [1, 2], 'b', [1, 1], [1, 2]])\n\
+    >>> consume(uniques, 2)\n\
+    >>> uniques.seen  # doctest: +SKIP\n\
+    {'a'}\n\
+    >>> uniques.seen == {'a'}\n\
+    True\n\
+    >>> uniques.seenlist\n\
+    [[1, 2]]");
 
 /******************************************************************************
  *
@@ -318,7 +432,7 @@ static PyTypeObject PyIUType_UniqueEver = {
     (iternextfunc)uniqueever_next,      /* tp_iternext */
     uniqueever_methods,                 /* tp_methods */
     0,                                  /* tp_members */
-    0,                                  /* tp_getset */
+    uniqueever_getsetlist,              /* tp_getset */
     0,                                  /* tp_base */
     0,                                  /* tp_dict */
     0,                                  /* tp_descr_get */

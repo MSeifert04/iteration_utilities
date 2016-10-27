@@ -19,8 +19,7 @@ static PyObject * PyIU_AllDistinct(PyObject *m, PyObject *iterable) {
     while ( (item = (*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
         ok = PySet_Contains(seen, item);
         if (ok == 0) {
-            ok = PySet_Add(seen, item);
-            if (ok < 0) {
+            if (PySet_Add(seen, item) < 0) {
                 goto Fail;
             }
         } else if (ok == 1) {
@@ -33,16 +32,12 @@ static PyObject * PyIU_AllDistinct(PyObject *m, PyObject *iterable) {
                     goto Fail;
                 }
             }
-            if (seenlist == NULL) {
-                seenlist = PyList_New(0);
-                if (seenlist == NULL) {
-                    goto Fail;
-                }
+            if (seenlist == NULL && !(seenlist = PyList_New(0))) {
+                goto Fail;
             }
             ok = seenlist->ob_type->tp_as_sequence->sq_contains(seenlist, item);
             if (ok == 0) {
-                ok = PyList_Append(seenlist, item);
-                if (ok != 0) {
+                if (PyList_Append(seenlist, item) != 0) {
                     goto Fail;
                 }
             } else if (ok == 1) {
