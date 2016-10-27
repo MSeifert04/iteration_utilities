@@ -13,9 +13,9 @@
 
 typedef struct {
     PyObject_HEAD
-    PyObject *total;
     PyObject *iterator;
     PyObject *binop;
+    PyObject *total;
 } PyIUObject_Accumulate;
 
 static PyTypeObject PyIUType_Accumulate;
@@ -37,6 +37,9 @@ static PyObject * accumulate_new(PyTypeObject *type, PyObject *args,
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OO:accumulate", kwlist,
                                      &iterable, &binop, &start)) {
         return NULL;
+    }
+    if (binop == Py_None) {
+        binop = NULL;
     }
 
     /* Create and fill struct */
@@ -65,9 +68,9 @@ static PyObject * accumulate_new(PyTypeObject *type, PyObject *args,
 
 static void accumulate_dealloc(PyIUObject_Accumulate *lz) {
     PyObject_GC_UnTrack(lz);
+    Py_XDECREF(lz->iterator);
     Py_XDECREF(lz->binop);
     Py_XDECREF(lz->total);
-    Py_XDECREF(lz->iterator);
     Py_TYPE(lz)->tp_free(lz);
 }
 
@@ -79,8 +82,8 @@ static void accumulate_dealloc(PyIUObject_Accumulate *lz) {
 
 static int accumulate_traverse(PyIUObject_Accumulate *lz, visitproc visit,
                                void *arg) {
-    Py_VISIT(lz->binop);
     Py_VISIT(lz->iterator);
+    Py_VISIT(lz->binop);
     Py_VISIT(lz->total);
     return 0;
 }
@@ -111,7 +114,7 @@ static PyObject * accumulate_next(PyIUObject_Accumulate *lz) {
 
     // Apply the binop to the old total and the item defaulting to add if the
     // binop is not set or set to None.
-    if (lz->binop == NULL || lz->binop == Py_None) {
+    if (lz->binop == NULL) {
         newtotal = PyNumber_Add(lz->total, item);
     } else {
         newtotal = PyObject_CallFunctionObjArgs(lz->binop, lz->total, item, NULL);
@@ -121,7 +124,7 @@ static PyObject * accumulate_next(PyIUObject_Accumulate *lz) {
         return NULL;
     }
 
-    // Update to the new state
+    // Update the total and return it
     oldtotal = lz->total;
     lz->total = newtotal;
     Py_DECREF(oldtotal);
@@ -148,7 +151,6 @@ static PyObject * accumulate_reduce(PyIUObject_Accumulate *lz) {
                              lz->iterator,
                              lz->binop ? lz->binop : Py_None);
     }
-
 }
 
 /******************************************************************************

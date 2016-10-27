@@ -63,8 +63,8 @@ static void applyfunc_dealloc(PyIUObject_Applyfunc *lz) {
 
 static int applyfunc_traverse(PyIUObject_Applyfunc *lz, visitproc visit,
                               void *arg) {
-    Py_VISIT(lz->value);
     Py_VISIT(lz->func);
+    Py_VISIT(lz->value);
     return 0;
 }
 
@@ -75,19 +75,21 @@ static int applyfunc_traverse(PyIUObject_Applyfunc *lz, visitproc visit,
  *****************************************************************************/
 
 static PyObject * applyfunc_next(PyIUObject_Applyfunc *lz) {
-    PyObject *temp;
+    PyObject *newval, *temp;
 
     // Call the function with the current value as argument
-    temp = PyObject_CallFunctionObjArgs(lz->func, lz->value, NULL);
-    Py_DECREF(lz->value);
-    if (temp == NULL) {
+    newval = PyObject_CallFunctionObjArgs(lz->func, lz->value, NULL);
+    if (newval == NULL) {
         return NULL;
     }
 
     // Save the new value and also return it.
-    Py_INCREF(temp);
-    lz->value = temp;
-    return temp;
+    temp = lz->value;
+    lz->value = newval;
+    Py_DECREF(temp);
+
+    Py_INCREF(newval);
+    return newval;
 }
 
 /******************************************************************************
