@@ -294,10 +294,22 @@ int ItemIdxKey_setidx(ItemIdxKey *self,  PyObject *o, void *closure) {
         PyErr_Format(PyExc_TypeError, "cannot delete `idx`.");
         return -1;
     }
-    idx = PyLong_AsSsize_t(o);
+#if PY_MAJOR_VERSION == 2
+    if (PyInt_Check(o)) {
+        idx = PyInt_AsSsize_t(o);
+    } else
+#endif
+    if (PyLong_Check(o)) {
+        idx = PyLong_AsSsize_t(o);
+    } else {
+        PyErr_Format(PyExc_TypeError, "an integer is required.");
+        return -1;
+    }
+
     if (PyErr_Occurred()) {
         return -1;
     }
+
     self->idx = idx;
     return 0;
 }

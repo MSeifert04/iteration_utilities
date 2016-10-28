@@ -148,8 +148,6 @@ def test_itemidxkey_deleter_failure():
     assert not memory_leak(test)
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
-                   reason='pickle does not work on Python 2')
 def test_itemidxkey_pickle1():
     iik = ItemIdxKey(10, 2)
     x = pickle.dumps(iik)
@@ -164,8 +162,6 @@ def test_itemidxkey_pickle1():
     assert not memory_leak(test)
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
-                   reason='pickle does not work on Python 2')
 def test_itemidxkey_pickle2():
     iik = ItemIdxKey(10, 2, 11)
     x = pickle.dumps(iik)
