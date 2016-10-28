@@ -36,6 +36,7 @@ Contents:
    callbacks
    operators
    tipps
+   misc
    api/cls
    api/core
    api/additional
