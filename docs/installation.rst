@@ -20,6 +20,15 @@ or to install the development version:
 
 - ``pip install git+https://github.com/MSeifert04/iteration_utilities.git@master``
 
+
+Using conda
+^^^^^^^^^^^
+
+It can by installed with ``conda`` [2]_ from the ``conda-forge`` channel:
+
+- ``conda install -c conda-forge iteration_utilities``
+
+
 Manual installation
 ^^^^^^^^^^^^^^^^^^^
 
@@ -61,3 +70,4 @@ References
 
 .. [0] https://github.com/MSeifert04/iteration_utilities
 .. [1] https://pypi.python.org/pypi/iteration_utilities
+.. [2] https://www.continuum.io/

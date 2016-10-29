@@ -2,7 +2,7 @@ Iteration utilities
 -------------------
 
 Includes the itertools recipes from the python homepage as well as other
-iteration based functions.
+iteration based functionality.
 
 .. image:: https://img.shields.io/pypi/pyversions/iteration_utilities.svg
    :target: https://www.python.org/
@@ -30,6 +30,10 @@ Downloads
 .. image:: https://img.shields.io/github/release/MSeifert04/iteration_utilities.svg
    :target: https://github.com/MSeifert04/iteration_utilities/releases
    :alt: GitHub Project
+
+.. image:: https://anaconda.org/conda-forge/iteration_utilities/badges/version.svg
+   :target: https://anaconda.org/conda-forge/iteration_utilities
+   :alt: Anaconda-Server Badge
 
 
 Test status
