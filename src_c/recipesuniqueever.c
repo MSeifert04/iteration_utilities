@@ -16,7 +16,6 @@ typedef struct {
     PyObject *iterator;
     PyObject *key;
     PyObject *seen;
-    PyObject *seenlist;
 } PyIUObject_UniqueEver;
 
 static PyTypeObject PyIUType_UniqueEver;
@@ -48,7 +47,7 @@ static PyObject * uniqueever_new(PyTypeObject *type, PyObject *args,
     if (iterator == NULL) {
         return NULL;
     }
-    seen = PySet_New(NULL);
+    seen = PyIUSeen_New();
     if (seen == NULL) {
         Py_DECREF(iterator);
         return NULL;
@@ -63,7 +62,6 @@ static PyObject * uniqueever_new(PyTypeObject *type, PyObject *args,
     lz->iterator = iterator;
     lz->key = key;
     lz->seen = seen;
-    lz->seenlist = NULL;
     return (PyObject *)lz;
 }
 
@@ -78,7 +76,6 @@ static void uniqueever_dealloc(PyIUObject_UniqueEver *lz) {
     Py_XDECREF(lz->iterator);
     Py_XDECREF(lz->key);
     Py_XDECREF(lz->seen);
-    Py_XDECREF(lz->seenlist);
     Py_TYPE(lz)->tp_free(lz);
 }
 
@@ -93,7 +90,6 @@ static int uniqueever_traverse(PyIUObject_UniqueEver *lz, visitproc visit,
     Py_VISIT(lz->iterator);
     Py_VISIT(lz->key);
     Py_VISIT(lz->seen);
-    Py_VISIT(lz->seenlist);
     return 0;
 }
 
@@ -118,43 +114,16 @@ static PyObject * uniqueever_next(PyIUObject_UniqueEver *lz) {
                 goto Fail;
             }
         }
-        // Check if the item is in the set
-        ok = PySet_Contains(lz->seen, temp);
-        // Not found in the set
+
+        // Check if the item is in seen
+        ok = PyIUSeen_ContainsAdd(lz->seen, temp);
         if (ok == 0) {
-            if (PySet_Add(lz->seen, temp) == 0) {
-                goto Notfound;
-            } else {
-                goto Fail;
-            }
+            goto Notfound;
         // Failure when looking if item is in the set
-        } else if (ok < 0) {
-            // TypeError probably means unhashable, so clear it raise others.
-            if (PyErr_Occurred()) {
-                if (PyErr_ExceptionMatches(PyExc_TypeError)) {
-                    PyErr_Clear();
-                } else {
-                    goto Fail;
-                }
-            }
-            // Create the seenlist if its unset yet.
-            if (lz->seenlist == NULL && !(lz->seenlist = PyList_New(0))) {
-                goto Fail;
-            }
-            // Check if the item is in the list
-            ok = lz->seenlist->ob_type->tp_as_sequence->sq_contains(lz->seenlist, temp);
-            // Not found in the list either
-            if (ok == 0) {
-                if (PyList_Append(lz->seenlist, temp) == 0) {
-                    goto Notfound;
-                } else {
-                    goto Fail;
-                }
-            // Failure when looking if item is in the list
-            } else if (ok < 0) {
-                goto Fail;
-            }
+        } else if (ok == -1) {
+            goto Fail;
         }
+
         // We have found the item either in the set or list so continue.
         if (lz->key != NULL) {
             Py_DECREF(temp);
@@ -186,11 +155,10 @@ Fail:
 
 static PyObject * uniqueever_reduce(PyIUObject_UniqueEver *lz) {
     PyObject *value;
-    value = Py_BuildValue("O(OO)(OO)", Py_TYPE(lz),
+    value = Py_BuildValue("O(OO)(O)", Py_TYPE(lz),
                           lz->iterator,
                           lz->key ? lz->key : Py_None,
-                          lz->seen,
-                          lz->seenlist ? lz->seenlist : Py_None);
+                          lz->seen);
     return value;
 }
 
@@ -202,21 +170,15 @@ static PyObject * uniqueever_reduce(PyIUObject_UniqueEver *lz) {
 
 static PyObject * uniqueever_setstate(PyIUObject_UniqueEver *lz,
                                       PyObject *state) {
-    PyObject *seen, *seenlist;
+    PyObject *seen;
 
-    if (!PyArg_ParseTuple(state, "OO", &seen, &seenlist)) {
+    if (!PyArg_ParseTuple(state, "O", &seen)) {
         return NULL;
-    }
-    if (seenlist == Py_None) {
-        seenlist = NULL;
     }
 
     Py_CLEAR(lz->seen);
     lz->seen = seen;
     Py_INCREF(lz->seen);
-    Py_CLEAR(lz->seenlist);
-    lz->seenlist = seenlist;
-    Py_XINCREF(lz->seenlist);
     Py_RETURN_NONE;
 }
 
@@ -244,52 +206,6 @@ static PyObject * uniqueever_getseen(PyIUObject_UniqueEver *lz,
     return lz->seen;
 }
 
-int uniqueever_setseen(PyIUObject_UniqueEver *lz, PyObject *o, void *closure) {
-    if (o == NULL) {
-        o = PySet_New(NULL);
-        if (o == NULL) {
-            return -1;
-        }
-    } else if (!PySet_Check(o)) {
-        PyErr_Format(PyExc_TypeError, "`seen` must be a set-like object.");
-        return -1;
-    } else {
-        Py_INCREF(o);
-    }
-    Py_DECREF(lz->seen);
-    lz->seen = o;
-    return 0;
-}
-
-/******************************************************************************
- *
- * Seenlist property
- *
- *****************************************************************************/
-
-static PyObject * uniqueever_getseenlist(PyIUObject_UniqueEver *lz,
-                                         void *closure) {
-    if (lz->seenlist == NULL) {
-        Py_RETURN_NONE;
-    }
-    Py_INCREF(lz->seenlist);
-    return lz->seenlist;
-}
-
-int uniqueever_setseenlist(PyIUObject_UniqueEver *lz,  PyObject *o,
-                           void *closure) {
-    if (o == NULL || o == Py_None) {
-        o = NULL;
-    } else if (!PyList_Check(o)) {
-        PyErr_Format(PyExc_TypeError, "`seenlist` must be a list-like object.");
-        return -1;
-    }
-    Py_XDECREF(lz->seenlist);
-    Py_XINCREF(o);
-    lz->seenlist = o;
-    return 0;
-}
-
 /******************************************************************************
  *
  * key property
@@ -304,16 +220,6 @@ static PyObject * uniqueever_getkey(PyIUObject_UniqueEver *lz, void *closure) {
     return lz->key;
 }
 
-int uniqueever_setkey(PyIUObject_UniqueEver *lz,  PyObject *o, void *closure) {
-    if (o == NULL || o == Py_None) {
-        o = NULL;
-    }
-    Py_XDECREF(lz->key);
-    Py_XINCREF(o);
-    lz->key = o;
-    return 0;
-}
-
 /******************************************************************************
  *
  * Properties
@@ -321,9 +227,8 @@ int uniqueever_setkey(PyIUObject_UniqueEver *lz,  PyObject *o, void *closure) {
  *****************************************************************************/
 
 static PyGetSetDef uniqueever_getsetlist[] = {
-    {"seen",     (getter)uniqueever_getseen,     (setter)uniqueever_setseen,     NULL},
-    {"seenlist", (getter)uniqueever_getseenlist, (setter)uniqueever_setseenlist, NULL},
-    {"key",      (getter)uniqueever_getkey,      (setter)uniqueever_setkey,      NULL},
+    {"seen",     (getter)uniqueever_getseen, NULL},
+    {"key",      (getter)uniqueever_getkey,  NULL},
     {NULL}
 };
 
@@ -353,10 +258,8 @@ iterable : generator\n\
 \n\
 Attributes\n\
 ----------\n\
-seen : set\n\
+seen : Seen\n\
     Already seen (and hashable) values.\n\
-seenlist : list, None\n\
-    Already seen (and unhashable) values.\n\
 key : callable, None\n\
     The key function.\n\
 \n\
@@ -382,17 +285,7 @@ Even unhashable values can be processed, like `list`::\n\
     >>> list(unique_everseen([[1, 2], [1, 1], [1, 2]]))\n\
     [[1, 2], [1, 1]]\n\
     \n\
-One can access the already seen values by accessing the `seen` and `seenlist`\n\
-attribute::\n\
-\n\
-    >>> uniques = unique_everseen(['a', [1, 2], 'b', [1, 1], [1, 2]])\n\
-    >>> consume(uniques, 2)\n\
-    >>> uniques.seen  # doctest: +SKIP\n\
-    {'a'}\n\
-    >>> uniques.seen == {'a'}\n\
-    True\n\
-    >>> uniques.seenlist\n\
-    [[1, 2]]");
+One can access the already seen values by accessing the `seen` attribute.");
 
 /******************************************************************************
  *

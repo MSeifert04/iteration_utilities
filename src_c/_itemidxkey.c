@@ -19,16 +19,12 @@ typedef struct {
     PyObject *item;
     PyObject *key;
     Py_ssize_t idx;
-} ItemIdxKey;
+} PyIUObject_ItemIdxKey;
 
 static PyTypeObject PyIUType_ItemIdxKey;
 
-#define ItemIdxKey_CheckExact(op) (Py_TYPE(op) == &PyIUType_ItemIdxKey)
-
-#if PY_MAJOR_VERSION == 2
-#define Py_RETURN_NOTIMPLEMENTED \
-    return PyErr_Format(PyExc_TypeError, "not implemented."), NULL
-#endif
+#define PyIU_ItemIdxKey_Check(obj) PyObject_IsInstance(obj, (PyObject*) &PyIUType_ItemIdxKey)
+#define PyIU_ItemIdxKey_CheckExact(op) (Py_TYPE(op) == &PyIUType_ItemIdxKey)
 
 /******************************************************************************
  *
@@ -36,10 +32,10 @@ static PyTypeObject PyIUType_ItemIdxKey;
  *
  *****************************************************************************/
 
-static PyObject * ItemIdxKey_new(PyTypeObject *type, PyObject *args,
+static PyObject * itemidxkey_new(PyTypeObject *type, PyObject *args,
                                  PyObject *kwargs) {
     static char *kwlist[] = {"item", "idx", "key", NULL};
-    ItemIdxKey *self;
+    PyIUObject_ItemIdxKey *self;
 
     PyObject *item, *key=NULL;
     Py_ssize_t idx;
@@ -48,16 +44,16 @@ static PyObject * ItemIdxKey_new(PyTypeObject *type, PyObject *args,
                                      &item, &idx, &key)) {
         return NULL;
     }
-    if (ItemIdxKey_CheckExact(item)) {
+    if (PyIU_ItemIdxKey_CheckExact(item)) {
         PyErr_Format(PyExc_TypeError, "cannot use `ItemIdxKey` instance as `item`.");
         return NULL;
     }
-    if (key != NULL && ItemIdxKey_CheckExact(key)) {
+    if (key != NULL && PyIU_ItemIdxKey_CheckExact(key)) {
         PyErr_Format(PyExc_TypeError, "cannot use `ItemIdxKey` instance as `key`.");
         return NULL;
     }
 
-    self = (ItemIdxKey *)type->tp_alloc(type, 0);
+    self = (PyIUObject_ItemIdxKey *)type->tp_alloc(type, 0);
     if (self == NULL) {
         return NULL;
     }
@@ -78,17 +74,17 @@ static PyObject * ItemIdxKey_new(PyTypeObject *type, PyObject *args,
  *
  *****************************************************************************/
 
-static PyObject * ItemIdxKey_FromC(PyObject *item, Py_ssize_t idx,
-                                   PyObject *key) {
+static PyObject * PyIU_ItemIdxKey_FromC(PyObject *item, Py_ssize_t idx,
+                                        PyObject *key) {
     // STEALS REFERENCES!!!
-    ItemIdxKey *self;
+    PyIUObject_ItemIdxKey *self;
     // Verify inputs
     if (item == NULL) {
         PyErr_Format(PyExc_TypeError, "`item` must be given.");
         return NULL;
     }
     // Create and fill new ItemIdxKey
-    self = PyObject_GC_New(ItemIdxKey, &PyIUType_ItemIdxKey);
+    self = PyObject_GC_New(PyIUObject_ItemIdxKey, &PyIUType_ItemIdxKey);
     if (self == NULL) {
         return NULL;
     }
@@ -105,7 +101,7 @@ static PyObject * ItemIdxKey_FromC(PyObject *item, Py_ssize_t idx,
  *
  *****************************************************************************/
 
-static void ItemIdxKey_dealloc(ItemIdxKey *s) {
+static void itemidxkey_dealloc(PyIUObject_ItemIdxKey *s) {
     Py_XDECREF(s->item);
     Py_XDECREF(s->key);
     Py_TYPE(s)->tp_free((PyObject*)s);
@@ -117,7 +113,8 @@ static void ItemIdxKey_dealloc(ItemIdxKey *s) {
  *
  *****************************************************************************/
 
-static int ItemIdxKey_traverse(ItemIdxKey *s, visitproc visit, void *arg) {
+static int itemidxkey_traverse(PyIUObject_ItemIdxKey *s, visitproc visit,
+                               void *arg) {
     Py_VISIT(s->item);
     Py_VISIT(s->key);
     return 0;
@@ -129,7 +126,7 @@ static int ItemIdxKey_traverse(ItemIdxKey *s, visitproc visit, void *arg) {
  *
  *****************************************************************************/
 
-static PyObject * ItemIdxKey_repr(ItemIdxKey *s) {
+static PyObject * itemidxkey_repr(PyIUObject_ItemIdxKey *s) {
     if (s->key == NULL) {
         return PyUnicode_FromFormat("ItemIdxKey(item=%R, idx=%zd)",
                                     s->item, s->idx);
@@ -146,9 +143,9 @@ static PyObject * ItemIdxKey_repr(ItemIdxKey *s) {
  *
  *****************************************************************************/
 
-static PyObject * ItemIdxKey_richcompare(PyObject *v, PyObject *w, int op) {
+static PyObject * itemidxkey_richcompare(PyObject *v, PyObject *w, int op) {
     PyObject *item1, *item2;
-    ItemIdxKey *l, *r;
+    PyIUObject_ItemIdxKey *l, *r;
     int ok;
 
     // Only allow < and > for now
@@ -158,11 +155,11 @@ static PyObject * ItemIdxKey_richcompare(PyObject *v, PyObject *w, int op) {
         default: Py_RETURN_NOTIMPLEMENTED;
     }
     // only allow ItemIdxKey to be compared
-    if (!ItemIdxKey_CheckExact(v) || !ItemIdxKey_CheckExact(w))
+    if (!PyIU_ItemIdxKey_CheckExact(v) || !PyIU_ItemIdxKey_CheckExact(w))
         Py_RETURN_NOTIMPLEMENTED;
 
-    l = (ItemIdxKey *)v;
-    r = (ItemIdxKey *)w;
+    l = (PyIUObject_ItemIdxKey *)v;
+    r = (PyIUObject_ItemIdxKey *)w;
     // Compare items if key is NULL otherwise compare keys
     if (l->key == NULL) {
         item1 = l->item;
@@ -259,16 +256,18 @@ static PyObject * ItemIdxKey_richcompare(PyObject *v, PyObject *w, int op) {
  *
  *****************************************************************************/
 
-static PyObject * ItemIdxKey_getitem(ItemIdxKey *self, void *closure) {
+static PyObject * itemidxkey_getitem(PyIUObject_ItemIdxKey *self,
+                                     void *closure) {
     Py_INCREF(self->item);
     return self->item;
 }
 
-int ItemIdxKey_setitem(ItemIdxKey *self,  PyObject *o, void *closure) {
+static int itemidxkey_setitem(PyIUObject_ItemIdxKey *self,  PyObject *o,
+                       void *closure) {
     if (o == NULL) {
         PyErr_Format(PyExc_TypeError, "cannot delete `item`.");
         return -1;
-    } else if (ItemIdxKey_CheckExact(o)) {
+    } else if (PyIU_ItemIdxKey_CheckExact(o)) {
         PyErr_Format(PyExc_TypeError, "cannot use `ItemIdxKey` instance as `item`.");
         return -1;
     }
@@ -284,11 +283,13 @@ int ItemIdxKey_setitem(ItemIdxKey *self,  PyObject *o, void *closure) {
  *
  *****************************************************************************/
 
-static PyObject * ItemIdxKey_getidx(ItemIdxKey *self, void *closure) {
+static PyObject * itemidxkey_getidx(PyIUObject_ItemIdxKey *self,
+                                    void *closure) {
     return PyLong_FromSsize_t(self->idx);
 }
 
-int ItemIdxKey_setidx(ItemIdxKey *self,  PyObject *o, void *closure) {
+static int itemidxkey_setidx(PyIUObject_ItemIdxKey *self,  PyObject *o,
+                             void *closure) {
     Py_ssize_t idx;
     if (o == NULL) {
         PyErr_Format(PyExc_TypeError, "cannot delete `idx`.");
@@ -320,7 +321,8 @@ int ItemIdxKey_setidx(ItemIdxKey *self,  PyObject *o, void *closure) {
  *
  *****************************************************************************/
 
-static PyObject * ItemIdxKey_getkey(ItemIdxKey *self, void *closure) {
+static PyObject * itemidxkey_getkey(PyIUObject_ItemIdxKey *self,
+                                    void *closure) {
     if (self->key == NULL) {
         Py_RETURN_NONE;
     }
@@ -328,8 +330,9 @@ static PyObject * ItemIdxKey_getkey(ItemIdxKey *self, void *closure) {
     return self->key;
 }
 
-int ItemIdxKey_setkey(ItemIdxKey *self,  PyObject *o, void *closure) {
-    if (o != NULL && ItemIdxKey_CheckExact(o)) {
+static int itemidxkey_setkey(PyIUObject_ItemIdxKey *self,  PyObject *o,
+                      void *closure) {
+    if (o != NULL && PyIU_ItemIdxKey_CheckExact(o)) {
         PyErr_Format(PyExc_TypeError, "cannot use `ItemIdxKey` instance as `key`.");
         return -1;
     }
@@ -345,10 +348,10 @@ int ItemIdxKey_setkey(ItemIdxKey *self,  PyObject *o, void *closure) {
  *
  *****************************************************************************/
 
-static PyGetSetDef ItemIdxKey_getsetlist[] = {
-    {"item", (getter)ItemIdxKey_getitem, (setter)ItemIdxKey_setitem, NULL},
-    {"idx",  (getter)ItemIdxKey_getidx,  (setter)ItemIdxKey_setidx,  NULL},
-    {"key",  (getter)ItemIdxKey_getkey,  (setter)ItemIdxKey_setkey,  NULL},
+static PyGetSetDef itemidxkey_getsetlist[] = {
+    {"item", (getter)itemidxkey_getitem, (setter)itemidxkey_setitem, NULL},
+    {"idx",  (getter)itemidxkey_getidx,  (setter)itemidxkey_setidx,  NULL},
+    {"key",  (getter)itemidxkey_getkey,  (setter)itemidxkey_setkey,  NULL},
     {NULL}
 };
 
@@ -358,7 +361,7 @@ static PyGetSetDef ItemIdxKey_getsetlist[] = {
  *
  *****************************************************************************/
 
-static PyObject * ItemIdxKey_reduce(ItemIdxKey *self) {
+static PyObject * itemidxkey_reduce(PyIUObject_ItemIdxKey *self) {
     if (self->key == NULL) {
         return Py_BuildValue("O(On)", Py_TYPE(self),
                              self->item, self->idx);
@@ -374,7 +377,8 @@ static PyObject * ItemIdxKey_reduce(ItemIdxKey *self) {
  *
  *****************************************************************************/
 
-static PyObject * ItemIdxKey_setstate(ItemIdxKey *self, PyObject *state) {
+static PyObject * itemidxkey_setstate(PyIUObject_ItemIdxKey *self,
+                                      PyObject *state) {
     PyObject *key;
     if (!PyArg_ParseTuple(state, "O", &key)) {
         return NULL;
@@ -393,9 +397,9 @@ static PyObject * ItemIdxKey_setstate(ItemIdxKey *self, PyObject *state) {
  *
  *****************************************************************************/
 
-static PyMethodDef ItemIdxKey_methods[] = {
-    {"__reduce__",   (PyCFunction)ItemIdxKey_reduce,   METH_NOARGS, PYIU_reduce_doc},
-    {"__setstate__", (PyCFunction)ItemIdxKey_setstate, METH_O,      PYIU_setstate_doc},
+static PyMethodDef itemidxkey_methods[] = {
+    {"__reduce__",   (PyCFunction)itemidxkey_reduce,   METH_NOARGS, PYIU_reduce_doc},
+    {"__setstate__", (PyCFunction)itemidxkey_setstate, METH_O,      PYIU_setstate_doc},
     {NULL, NULL}
 };
 
@@ -405,7 +409,7 @@ static PyMethodDef ItemIdxKey_methods[] = {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(ItemIdxKey_doc, "ItemIdxKey(item, idx[, key])\n\
+PyDoc_STRVAR(itemidxkey_doc, "ItemIdxKey(item, idx[, key])\n\
 \n\
 Helper class that makes it easier and faster to compare two values for\n\
 *stable* sorting algorithms supporting key functions.\n\
@@ -531,14 +535,14 @@ for the value that should be sorted.");
 static PyTypeObject PyIUType_ItemIdxKey = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.ItemIdxKey", /* tp_name */
-    sizeof(ItemIdxKey),        /* tp_basicsize */
+    sizeof(PyIUObject_ItemIdxKey), /* tp_basicsize */
     0,                         /* tp_itemsize */
-    (destructor)ItemIdxKey_dealloc, /* tp_dealloc */
+    (destructor)itemidxkey_dealloc, /* tp_dealloc */
     0,                         /* tp_print */
     0,                         /* tp_getattr */
     0,                         /* tp_setattr */
     0,                         /* tp_reserved */
-    (reprfunc)ItemIdxKey_repr, /* tp_repr */
+    (reprfunc)itemidxkey_repr, /* tp_repr */
     0,                         /* tp_as_number */
     0,                         /* tp_as_sequence */
     0,                         /* tp_as_mapping */
@@ -550,16 +554,16 @@ static PyTypeObject PyIUType_ItemIdxKey = {
     0,                         /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,   /* tp_flags */
-    ItemIdxKey_doc,            /* tp_doc */
-    (traverseproc)ItemIdxKey_traverse, /* tp_traverse */
+    itemidxkey_doc,            /* tp_doc */
+    (traverseproc)itemidxkey_traverse, /* tp_traverse */
     0,                         /* tp_clear */
-    ItemIdxKey_richcompare,    /* tp_richcompare */
+    itemidxkey_richcompare,    /* tp_richcompare */
     0,                         /* tp_weaklistoffset */
     0,                         /* tp_iter */
     0,                         /* tp_iternext */
-    ItemIdxKey_methods,        /* tp_methods */
+    itemidxkey_methods,        /* tp_methods */
     0,                         /* tp_members */
-    ItemIdxKey_getsetlist,     /* tp_getset */
+    itemidxkey_getsetlist,     /* tp_getset */
     0,                         /* tp_base */
     0,                         /* tp_dict */
     0,                         /* tp_descr_get */
@@ -567,6 +571,6 @@ static PyTypeObject PyIUType_ItemIdxKey = {
     0,                         /* tp_dictoffset */
     0,                         /* tp_init */
     0,                         /* tp_alloc */
-    ItemIdxKey_new,            /* tp_new */
+    itemidxkey_new,            /* tp_new */
     PyObject_GC_Del,           /* tp_free */
 };

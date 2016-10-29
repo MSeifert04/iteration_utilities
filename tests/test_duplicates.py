@@ -88,102 +88,19 @@ def test_duplicates_unhashable3():
 
 def test_duplicates_getter1():
     t = duplicates([1, [0, 0], 3, 1])
-    assert t.seen == set()
-    assert t.seenlist is None
+    assert not t.seen
     assert t.key is None
     assert next(t) == 1
-    assert t.seen == {1, 3}
-    assert t.seenlist == [[0, 0]]
+    assert 1 in t.seen
+    assert 3 in t.seen
+    assert [0, 0] in t.seen
     assert t.key is None
 
     def test():
         t = duplicates([T(1), T([0, 0]), T(3), T(1)])
-        l1 = t.seen, t.seenlist, t.key
+        l1 = t.seen, t.key
         next(t)
-        l2 = t.seen, t.seenlist, t.key
-    assert not memory_leak(test)
-
-
-def test_duplicates_setter1():
-    t = duplicates([1, [0, 0], 3, 1])
-    t.key = iteration_utilities.return_identity
-    assert t.key is iteration_utilities.return_identity
-    t.seenlist = [[0, 0]]
-    assert t.seenlist == [[0, 0]]
-    t.seen = {1}
-    assert list(t) == [1, [0, 0], 1]
-
-    def test():
-        t = duplicates([T(1), T([0, 0]), T(3), T(1)])
-        t.key = iteration_utilities.return_identity
-        t.seenlist = [T([0, 0])]
-        t.seen = {T(1)}
-        list(t)
-    assert not memory_leak(test)
-
-
-def test_duplicates_setter2():
-    t = duplicates([1, [0, 0], 3, 1], iteration_utilities.return_identity)
-    t.key = None
-    assert t.key is None
-    t.seenlist = None
-    assert t.seenlist is None
-    assert list(t) == [1]
-
-    def test():
-        t = duplicates([T(1), T([0, 0]), T(3), T(1)],
-                       iteration_utilities.return_identity)
-        t.key = None
-        t.seenlist = None
-        list(t)
-    assert not memory_leak(test)
-
-
-def test_duplicates_setter_failure1():
-    t = duplicates([1, [0, 0], 3, 1])
-    with pytest.raises(TypeError):
-        t.seen = [1, 2]
-
-    def test():
-        t = duplicates([T(1), T([0, 0]), T(3), T(1)])
-        with pytest.raises(TypeError):
-            t.seen = [T(1), T(2)]
-    assert not memory_leak(test)
-
-
-def test_duplicates_setter_failure2():
-    t = duplicates([1, [0, 0], 3, 1])
-    with pytest.raises(TypeError):
-        t.seenlist = {1, 2}
-
-    def test():
-        t = duplicates([T(1), T([0, 0]), T(3), T(1)])
-        with pytest.raises(TypeError):
-            t.seenlist = {T(1), T(2)}
-    assert not memory_leak(test)
-
-
-def test_duplicates_deleter():
-    t = duplicates([1, [0, 0], 3, 1], iteration_utilities.return_identity)
-    del t.key
-    assert t.key is None
-    t.seenlist = [[0, 0]]
-    del t.seenlist
-    assert t.seenlist is None
-    t.seen = {1}
-    del t.seen
-    assert t.seen == set()
-    assert list(t) == [1]
-
-    def test():
-        t = duplicates([T(1), T([0, 0]), T(3), T(1)],
-                       iteration_utilities.return_identity)
-        del t.key
-        t.seenlist = [T([0, 0])]
-        del t.seenlist
-        t.seen = {1}
-        del t.seen
-        list(t)
+        l2 = t.seen, t.key
     assert not memory_leak(test)
 
 

@@ -157,7 +157,7 @@ static int merge_init_current(PyIUObject_Merge *lz) {
                     return -1;
                 }
             }
-            newitem = ItemIdxKey_FromC(item, i, keyval);
+            newitem = PyIU_ItemIdxKey_FromC(item, i, keyval);
 
             // Insert the tuple into the current tuple.
             if (tuplelength == 0) {
@@ -192,7 +192,7 @@ static int merge_init_current(PyIUObject_Merge *lz) {
 static PyObject * merge_next(PyIUObject_Merge *lz) {
     PyObject *iterator, *item, *val, *keyval, *oldkeyval;
     Py_ssize_t insert=0;
-    ItemIdxKey *next;
+    PyIUObject_ItemIdxKey *next;
 
     // No current then we create one.
     if (lz->current == NULL || lz->current == Py_None) {
@@ -207,7 +207,7 @@ static PyObject * merge_next(PyIUObject_Merge *lz) {
     }
 
     // Tuple containing the next value
-    next = (ItemIdxKey *)PyTuple_GET_ITEM(lz->current, lz->numactive-1);
+    next = (PyIUObject_ItemIdxKey *)PyTuple_GET_ITEM(lz->current, lz->numactive-1);
     Py_INCREF(next);
 
     // Value to be returned

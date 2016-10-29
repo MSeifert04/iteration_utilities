@@ -16,7 +16,6 @@ typedef struct {
     PyObject *iterator;
     PyObject *key;
     PyObject *seen;
-    PyObject *seenlist;
 } PyIUObject_Duplicates;
 
 static PyTypeObject PyIUType_Duplicates;
@@ -48,7 +47,7 @@ static PyObject * duplicates_new(PyTypeObject *type, PyObject *args,
     if (iterator == NULL) {
         return NULL;
     }
-    seen = PySet_New(NULL);
+    seen = PyIUSeen_New();
     if (seen == NULL) {
         Py_DECREF(iterator);
         return NULL;
@@ -63,7 +62,6 @@ static PyObject * duplicates_new(PyTypeObject *type, PyObject *args,
     lz->iterator = iterator;
     lz->key = key;
     lz->seen = seen;
-    lz->seenlist = NULL;
     return (PyObject *)lz;
 }
 
@@ -78,7 +76,6 @@ static void duplicates_dealloc(PyIUObject_Duplicates *lz) {
     Py_XDECREF(lz->iterator);
     Py_XDECREF(lz->key);
     Py_XDECREF(lz->seen);
-    Py_XDECREF(lz->seenlist);
     Py_TYPE(lz)->tp_free(lz);
 }
 
@@ -93,7 +90,6 @@ static int duplicates_traverse(PyIUObject_Duplicates *lz, visitproc visit,
     Py_VISIT(lz->iterator);
     Py_VISIT(lz->key);
     Py_VISIT(lz->seen);
-    Py_VISIT(lz->seenlist);
     return 0;
 }
 
@@ -118,45 +114,16 @@ static PyObject * duplicates_next(PyIUObject_Duplicates *lz) {
                 goto Fail;
             }
         }
-        // Check if the item is in the set
-        ok = PySet_Contains(lz->seen, temp);
-        // Not found in the set
-        if (ok == 0) {
-            if (PySet_Add(lz->seen, temp) != 0) {
-                goto Fail;
-            }
-        // Found in the set
-        } else if (ok == 1) {
+
+        // Check if the item is in seen
+        ok = PyIUSeen_ContainsAdd(lz->seen, temp);
+        if (ok == 1) {
             goto Found;
         // Failure when looking if item is in the set
-        } else {
-            // TypeError probably means unhashable, so clear it raise others.
-            if (PyErr_Occurred()) {
-                if (PyErr_ExceptionMatches(PyExc_TypeError)) {
-                    PyErr_Clear();
-                } else {
-                    goto Fail;
-                }
-            }
-            // Create the seenlist if its unset yet.
-            if (lz->seenlist == NULL && !(lz->seenlist = PyList_New(0))) {
-                goto Fail;
-            }
-            // Check if the item is in the list
-            ok = lz->seenlist->ob_type->tp_as_sequence->sq_contains(lz->seenlist, temp);
-            // Not found in the list either
-            if (ok == 0) {
-                if (PyList_Append(lz->seenlist, temp) != 0) {
-                    goto Fail;
-                }
-            // Found in the list
-            } else if (ok == 1) {
-                goto Found;
-            // Failure when looking if item is in the list
-            } else {
-                goto Fail;
-            }
+        } else if (ok == -1) {
+            goto Fail;
         }
+
         // We have found the item either in the set or list so continue.
         if (lz->key != NULL) {
             Py_DECREF(temp);
@@ -187,11 +154,10 @@ Fail:
 
 static PyObject * duplicates_reduce(PyIUObject_Duplicates *lz) {
     PyObject *value;
-    value = Py_BuildValue("O(OO)(OO)", Py_TYPE(lz),
+    value = Py_BuildValue("O(OO)(O)", Py_TYPE(lz),
                           lz->iterator,
                           lz->key ? lz->key : Py_None,
-                          lz->seen,
-                          lz->seenlist ? lz->seenlist : Py_None);
+                          lz->seen);
     return value;
 }
 
@@ -203,21 +169,15 @@ static PyObject * duplicates_reduce(PyIUObject_Duplicates *lz) {
 
 static PyObject * duplicates_setstate(PyIUObject_Duplicates *lz,
                                       PyObject *state) {
-    PyObject *seen, *seenlist;
+    PyObject *seen;
 
-    if (!PyArg_ParseTuple(state, "OO", &seen, &seenlist)) {
+    if (!PyArg_ParseTuple(state, "O", &seen)) {
         return NULL;
-    }
-    if (seenlist == Py_None) {
-        seenlist = NULL;
     }
 
     Py_CLEAR(lz->seen);
     lz->seen = seen;
     Py_INCREF(lz->seen);
-    Py_CLEAR(lz->seenlist);
-    lz->seenlist = seenlist;
-    Py_XINCREF(lz->seenlist);
     Py_RETURN_NONE;
 }
 
@@ -245,52 +205,6 @@ static PyObject * duplicates_getseen(PyIUObject_Duplicates *lz,
     return lz->seen;
 }
 
-int duplicates_setseen(PyIUObject_Duplicates *lz, PyObject *o, void *closure) {
-    if (o == NULL) {
-        o = PySet_New(NULL);
-        if (o == NULL) {
-            return -1;
-        }
-    } else if (!PySet_Check(o)) {
-        PyErr_Format(PyExc_TypeError, "`seen` must be a set-like object.");
-        return -1;
-    } else {
-        Py_INCREF(o);
-    }
-    Py_DECREF(lz->seen);
-    lz->seen = o;
-    return 0;
-}
-
-/******************************************************************************
- *
- * Seenlist property
- *
- *****************************************************************************/
-
-static PyObject * duplicates_getseenlist(PyIUObject_Duplicates *lz,
-                                         void *closure) {
-    if (lz->seenlist == NULL) {
-        Py_RETURN_NONE;
-    }
-    Py_INCREF(lz->seenlist);
-    return lz->seenlist;
-}
-
-int duplicates_setseenlist(PyIUObject_Duplicates *lz,  PyObject *o,
-                           void *closure) {
-    if (o == NULL || o == Py_None) {
-        o = NULL;
-    } else if (!PyList_Check(o)) {
-        PyErr_Format(PyExc_TypeError, "`seenlist` must be a list-like object.");
-        return -1;
-    }
-    Py_XDECREF(lz->seenlist);
-    Py_XINCREF(o);
-    lz->seenlist = o;
-    return 0;
-}
-
 /******************************************************************************
  *
  * key property
@@ -305,16 +219,6 @@ static PyObject * duplicates_getkey(PyIUObject_Duplicates *lz, void *closure) {
     return lz->key;
 }
 
-int duplicates_setkey(PyIUObject_Duplicates *lz,  PyObject *o, void *closure) {
-    if (o == NULL || o == Py_None) {
-        o = NULL;
-    }
-    Py_XDECREF(lz->key);
-    Py_XINCREF(o);
-    lz->key = o;
-    return 0;
-}
-
 /******************************************************************************
  *
  * Properties
@@ -322,9 +226,8 @@ int duplicates_setkey(PyIUObject_Duplicates *lz,  PyObject *o, void *closure) {
  *****************************************************************************/
 
 static PyGetSetDef duplicates_getsetlist[] = {
-    {"seen",     (getter)duplicates_getseen,     (setter)duplicates_setseen,     NULL},
-    {"seenlist", (getter)duplicates_getseenlist, (setter)duplicates_setseenlist, NULL},
-    {"key",      (getter)duplicates_getkey,      (setter)duplicates_setkey,      NULL},
+    {"seen",     (getter)duplicates_getseen,     NULL},
+    {"key",      (getter)duplicates_getkey,      NULL},
     {NULL}
 };
 
@@ -354,10 +257,8 @@ iterable : generator\n\
 \n\
 Attributes\n\
 ----------\n\
-seen : set\n\
-    Already seen (and hashable) values.\n\
-seenlist : list, None\n\
-    Already seen (and unhashable) values.\n\
+seen : Seen\n\
+    Already seen values.\n\
 key : callable, None\n\
     The key function.\n\
 \n\

@@ -3,49 +3,30 @@
  *****************************************************************************/
 
 static PyObject * PyIU_AllDistinct(PyObject *m, PyObject *iterable) {
-    PyObject *iterator=NULL, *item=NULL, *seen=NULL, *seenlist=NULL;
+    PyObject *iterator=NULL, *item=NULL, *seen=NULL;
     int ok;
 
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
         goto Fail;
     }
-    seen = PySet_New(NULL);
+    seen = PyIUSeen_New();
     if (seen == NULL) {
         goto Fail;
     }
 
     // Almost identical to unique_everseen so no inline commments.
     while ( (item = (*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
-        ok = PySet_Contains(seen, item);
-        if (ok == 0) {
-            if (PySet_Add(seen, item) < 0) {
-                goto Fail;
-            }
-        } else if (ok == 1) {
+
+        // Check if the item is in seen
+        ok = PyIUSeen_ContainsAdd(seen, item);
+        if (ok == 1) {
             goto Found;
-        } else {
-            if (PyErr_Occurred()) {
-                if (PyErr_ExceptionMatches(PyExc_TypeError)) {
-                    PyErr_Clear();
-                } else {
-                    goto Fail;
-                }
-            }
-            if (seenlist == NULL && !(seenlist = PyList_New(0))) {
-                goto Fail;
-            }
-            ok = seenlist->ob_type->tp_as_sequence->sq_contains(seenlist, item);
-            if (ok == 0) {
-                if (PyList_Append(seenlist, item) != 0) {
-                    goto Fail;
-                }
-            } else if (ok == 1) {
-                goto Found;
-            } else {
-                goto Fail;
-            }
+        // Failure when looking if item is in the set
+        } else if (ok == -1) {
+            goto Fail;
         }
+
         Py_DECREF(item);
     }
 
@@ -53,21 +34,17 @@ static PyObject * PyIU_AllDistinct(PyObject *m, PyObject *iterable) {
 
     Py_XDECREF(iterator);
     Py_XDECREF(seen);
-    Py_XDECREF(seenlist);
-    Py_XDECREF(item);
     Py_RETURN_TRUE;
 
 Fail:
     Py_XDECREF(iterator);
     Py_XDECREF(seen);
-    Py_XDECREF(seenlist);
     Py_XDECREF(item);
     return NULL;
 
 Found:
     Py_XDECREF(iterator);
     Py_XDECREF(seen);
-    Py_XDECREF(seenlist);
     Py_XDECREF(item);
     Py_RETURN_FALSE;
 }
