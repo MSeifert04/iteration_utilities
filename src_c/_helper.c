@@ -2,9 +2,21 @@
  * Licensed under Apache License Version 2.0 - see LICENSE.rst
  *****************************************************************************/
 
+/******************************************************************************
+ * Compatibility macros
+ *
+ * Py_RETURN_NOTIMPLEMENTED : sets TypeError and returns NULL.
+ *****************************************************************************/
+
+#if PY_MAJOR_VERSION == 2
+#define Py_RETURN_NOTIMPLEMENTED \
+    return PyErr_Format(PyExc_TypeError, "not implemented."), NULL
+#endif
 
 /******************************************************************************
- * Check if a StopIteration occurred and clear it.
+ * Convenience macros
+ *
+ * PYIU_CLEAR_STOPITERATION : Check if a StopIteration occurred and clear it.
  *****************************************************************************/
 
 # define PYIU_CLEAR_STOPITERATION \
@@ -15,6 +27,7 @@
  *
  * Python objects that are created only once and stay in memory:
  *
+ * PyIU_LongTwo : 1
  * PyIU_LongTwo : 2
  *****************************************************************************/
 

@@ -7,7 +7,8 @@
 
 #include "_helper.c"
 #include "_globaldocs.c"
-#include "_helperitemidxkey.c"
+#include "_seen.c"
+#include "_itemidxkey.c"
 #include "isx.c"
 #include "returnx.c"
 #include "mathematical.c"
@@ -132,6 +133,7 @@ PyDoc_STRVAR(PyIU_module_doc, "API: C Functions\n----------------");
     // Classes avaiable in module
     PyTypeObject *typelist[] = {
         &PyIUType_ItemIdxKey,
+        &PyIUType_Seen,
 
         &PyIUType_Chained,
         &PyIUType_Complement,
