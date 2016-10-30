@@ -10,16 +10,10 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak
-from helper_pytest_monkeypatch import pytest_raises
+from helper_cls import T
 
 
 roundrobin = iteration_utilities.roundrobin
-
-
-class T(object):
-    def __init__(self, value):
-        self.value = value
-
 
 
 def test_roundrobin_empty1():
@@ -81,7 +75,7 @@ def test_roundrobin_failure1():
         list(roundrobin(10))
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             list(roundrobin(T(1)))
     assert not memory_leak(test)
 
@@ -91,7 +85,7 @@ def test_roundrobin_failure2():
         list(roundrobin([10], 100))
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             list(roundrobin([T(1)], T(1)))
     assert not memory_leak(test)
 

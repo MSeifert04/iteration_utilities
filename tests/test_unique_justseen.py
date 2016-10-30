@@ -10,18 +10,10 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak
-from helper_pytest_monkeypatch import pytest_raises
+from helper_cls import T
 
 
 unique_justseen = iteration_utilities.unique_justseen
-
-
-class T(object):
-    def __init__(self, value):
-        self.value = value
-
-    def __eq__(self, other):
-        return self.value == other.value
 
 
 class T2(object):
@@ -76,7 +68,7 @@ def test_unique_justseen_failure1():
         unique_justseen(10)
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             unique_justseen(T(1))
     assert not memory_leak(test)
 
@@ -86,7 +78,7 @@ def test_unique_justseen_failure2():
         list(unique_justseen([1, 2, 3], key=lambda x: x + 'a'))
 
     def test():
-        with pytest_raises(TypeError):  # function call fails
+        with pytest.raises(TypeError):  # function call fails
             list(unique_justseen([T(1), T(2), T(3)],
                                  key=lambda x: x + 'a'))
     assert not memory_leak(test)
@@ -98,7 +90,7 @@ def test_unique_justseen_failure3():
         list(unique_justseen([T2(1), T2(2)]))
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             list(unique_justseen([T2(1), T2(2)]))
     assert not memory_leak(test)
 

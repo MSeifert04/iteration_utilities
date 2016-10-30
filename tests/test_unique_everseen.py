@@ -11,22 +11,11 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak
-from helper_pytest_monkeypatch import pytest_raises
+from helper_cls import T
 
 
 unique_everseen = iteration_utilities.unique_everseen
 Seen = iteration_utilities.Seen
-
-
-class T(object):
-    def __init__(self, value):
-        self.value = value
-
-    def __hash__(self):
-        return hash(self.value)
-
-    def __eq__(self, other):
-        return self.value == other.value
 
 
 def test_uniqueeverseen_empty1():
@@ -109,9 +98,9 @@ def test_uniqueeverseen_getter1():
         t = unique_everseen([T(1), T([0, 0]), T(3)])
         l1 = t.seen, t.key
         next(t)
-        l2 = t.seen, t.key
+        l1 = t.seen, t.key
         next(t)
-        l3 = t.seen, t.key
+        l1 = t.seen, t.key
         next(t)
     assert not memory_leak(test)
 
@@ -121,7 +110,7 @@ def test_uniqueeverseen_failure1():
         list(unique_everseen(10))
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             list(unique_everseen(T(10)))
     assert not memory_leak(test)
 
@@ -131,7 +120,7 @@ def test_uniqueeverseen_failure2():
         list(unique_everseen([1, 2, 3, 'a'], abs))
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             list(unique_everseen([T(1), T(2), T(3), T('a')],
                                  lambda x: abs(x.value)))
     assert not memory_leak(test)

@@ -11,18 +11,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak
-from helper_pytest_monkeypatch import pytest_raises
-
-
-class T(object):
-    def __init__(self, value):
-        self.value = value
-
-    def __add__(self, other):
-        return self.__class__(self.value + other.value)
-
-    def __mul__(self, other):
-        return self.__class__(self.value * other.value)
+from helper_cls import T
 
 
 accumulate = iteration_utilities.accumulate
@@ -89,7 +78,7 @@ def test_accumulate_failure1():
         list(accumulate([1, 2, 3], None, 'a'))
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             list(accumulate([T(1), T(2), T(3)], None, T('a')))
     assert not memory_leak(test)
 
@@ -99,7 +88,7 @@ def test_accumulate_failure2():
         list(accumulate([1, 2, 3], operator.add, 'a'))
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             list(accumulate([T(1), T(2), T(3)], operator.add, T('a')))
     assert not memory_leak(test)
 
@@ -109,7 +98,7 @@ def test_accumulate_failure3():
         list(accumulate(['a', 2, 3]))
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             list(accumulate([T('a'), T(2), T(3)]))
     assert not memory_leak(test)
 

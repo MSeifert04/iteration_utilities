@@ -11,14 +11,9 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak
-from helper_pytest_monkeypatch import pytest_raises
+from helper_cls import T
 
 string_types = basestring if iteration_utilities.PY2 else str
-
-
-class T(object):
-    def __init__(self, value):
-        self.value = value
 
 
 deepflatten = iteration_utilities.deepflatten
@@ -140,7 +135,7 @@ def test_deepflatten_failure1():
         list(deepflatten([1, 2, 3], None, 'a'))
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             list(deepflatten([T(1), T(2), T(3)], None, T('a')))
     assert not memory_leak(test)
 

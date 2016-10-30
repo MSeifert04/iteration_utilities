@@ -11,21 +11,10 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak
-from helper_pytest_monkeypatch import pytest_raises
+from helper_cls import T
 
 
 duplicates = iteration_utilities.duplicates
-
-
-class T(object):
-    def __init__(self, value):
-        self.value = value
-
-    def __hash__(self):
-        return hash(self.value)
-
-    def __eq__(self, other):
-        return self.value == other.value
 
 
 def test_duplicates_empty1():
@@ -109,7 +98,7 @@ def test_duplicates_failure1():
         list(duplicates(10))
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             list(duplicates(T(10)))
     assert not memory_leak(test)
 
@@ -119,7 +108,7 @@ def test_duplicates_failure2():
         list(duplicates([1, 2, 3, 'a'], abs))
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             list(duplicates([T(1), T(2), T(3), T('a')],
                             lambda x: abs(x.value)))
     assert not memory_leak(test)

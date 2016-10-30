@@ -10,14 +10,10 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak
+from helper_cls import T
 
 
 ItemIdxKey = iteration_utilities.ItemIdxKey
-
-
-class T(object):
-    def __init__(self, value):
-        self.value = value
 
 
 def test_itemidxkey_getter():

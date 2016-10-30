@@ -10,24 +10,10 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak
-from helper_pytest_monkeypatch import pytest_raises
+from helper_cls import T
 
 
 nth = iteration_utilities.nth
-
-
-class T(object):
-    def __init__(self, value):
-        self.value = value
-
-    def __bool__(self):
-        return bool(self.value)
-
-    def __nonzero__(self):
-        return bool(self.value)
-
-    def __pow__(self, other):
-        return self.__class__(self.value ** other.value)
 
 
 def test_nth_normal1():
@@ -170,7 +156,7 @@ def test_nth_failures1():
         nth(10)(100)
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             nth(10)(T(100))
     assert not memory_leak(test)
 
@@ -180,7 +166,7 @@ def test_nth_failures2():
         nth(10)([])
 
     def test():
-        with pytest_raises(IndexError):
+        with pytest.raises(IndexError):
             nth(10)([])
     assert not memory_leak(test)
 
@@ -190,7 +176,7 @@ def test_nth_failures3():
         nth(1)([0], pred=bool)
 
     def test():
-        with pytest_raises(IndexError):
+        with pytest.raises(IndexError):
             nth(1)([T(0)])
     assert not memory_leak(test)
 
@@ -200,7 +186,7 @@ def test_nth_failures4():
         nth(1)(['a', 'b'], pred=abs)
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             nth(1)([T('a'), T('b')], pred=lambda x: abs(x.value))
     assert not memory_leak(test)
 
@@ -210,7 +196,7 @@ def test_nth_failures5():
         nth('a')
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             nth('a')
     assert not memory_leak(test)
 

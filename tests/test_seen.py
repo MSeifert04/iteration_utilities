@@ -10,17 +10,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak
-
-
-class T(object):
-    def __init__(self, value):
-        self.value = value
-
-    def __hash__(self):
-        return hash(self.value)
-
-    def __eq__(self, other):
-        return self.value == other.value
+from helper_cls import T
 
 
 Seen = iteration_utilities.Seen
@@ -156,15 +146,15 @@ def test_seen_nequality7():
 
 def test_seen_len0():
     assert not len(Seen())
-    assert len(Seen({1,2,3})) == 3
+    assert len(Seen({1, 2, 3})) == 3
     assert len(Seen(seenlist=[[0, 0], [1, 1], [2, 2]])) == 3
-    assert len(Seen({1,2,3}, seenlist=[[0, 0], [1, 1], [2, 2]])) == 6
+    assert len(Seen({1, 2, 3}, seenlist=[[0, 0], [1, 1], [2, 2]])) == 6
 
     def test():
         len(Seen())
-        len(Seen({T(1),T(2),T(3)}))
+        len(Seen({T(1), T(2), T(3)}))
         len(Seen(seenlist=[[0, 0], [1, 1], [2, 2]]))
-        len(Seen({1,2,3}, seenlist=[[0, 0], [1, 1], [2, 2]]))
+        len(Seen({1, 2, 3}, seenlist=[[0, 0], [1, 1], [2, 2]]))
     assert not memory_leak(test)
 
 

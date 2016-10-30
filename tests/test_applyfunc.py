@@ -10,22 +10,11 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak
-from helper_pytest_monkeypatch import pytest_raises
+from helper_cls import T
 
 
 applyfunc = iteration_utilities.applyfunc
 getitem = iteration_utilities.getitem
-
-
-class T(object):
-    def __init__(self, value):
-        self.value = value
-
-    def __pow__(self, other):
-        if isinstance(other, self.__class__):
-            return self.__class__(self.value**other.value)
-        else:
-            return self.__class__(self.value**other)
 
 
 def test_applyfunc_normal1():
@@ -49,7 +38,7 @@ def test_applyfunc_failure1():
         list(getitem(applyfunc(lambda x: x**2, 'a'), stop=3))
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             list(getitem(applyfunc(lambda x: x**T(2), T('a')), stop=3))
     assert not memory_leak(test)
 

@@ -10,21 +10,10 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak
-from helper_pytest_monkeypatch import pytest_raises
+from helper_cls import T
 
 
 successive = iteration_utilities.successive
-
-
-class T(object):
-    def __init__(self, value):
-        self.value = value
-
-    def __hash__(self):
-        return hash(self.value)
-
-    def __eq__(self, other):
-        return self.value == other.value
 
 
 def test_successive_empty1():
@@ -96,7 +85,7 @@ def test_successive_failure1():
         successive(10)
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             successive(T(1))
     assert not memory_leak(test)
 
@@ -106,7 +95,7 @@ def test_successive_failure2():
         successive([1, 2, 3], 0)
 
     def test():
-        with pytest_raises(ValueError):  # times must be > 0
+        with pytest.raises(ValueError):  # times must be > 0
             successive([T(1), T(2), T(3)], 0)
     assert not memory_leak(test)
 

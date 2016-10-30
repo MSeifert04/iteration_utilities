@@ -9,25 +9,11 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak
-from helper_pytest_monkeypatch import pytest_raises
+from helper_cls import T
 
 
 argmin = iteration_utilities.argmin
 argmax = iteration_utilities.argmax
-
-
-class T(object):
-    def __init__(self, value):
-        self.value = value
-
-    def __gt__(self, other):
-        return self.value > other.value
-
-    def __lt__(self, other):
-        return self.value < other.value
-
-    def __abs__(self):
-        return self.__class__(abs(self.value))
 
 
 def test_argmax_normal1():
@@ -93,7 +79,7 @@ def test_argmin_failure1():
         argmin(3, 0, 1, default=1)
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             argmin(T(3), T(0), T(1), default=1)
     assert not memory_leak(test)
 
@@ -104,7 +90,7 @@ def test_argmin_failure2():
         argmin([3, 0, 1], default='1.5', key=lambda x: x + 1)
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             argmin([T(3), T(0), T(1)], default='1.5', key=lambda x: x + 1)
     assert not memory_leak(test)
 
@@ -115,7 +101,7 @@ def test_argmin_failure3():
         argmin([3, 0, 1], default=1, key=lambda x: x + 1, blub=10)
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             argmin([T(3), T(0), T(1)],
                    default=1, key=lambda x: x + 1, blub=T(10))
     assert not memory_leak(test)
@@ -127,7 +113,7 @@ def test_argmin_failure4():
         argmin(key=lambda x: x + 1)
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             argmin(key=lambda x: x + 1)
     assert not memory_leak(test)
 
@@ -138,7 +124,7 @@ def test_argmin_failure5():
         argmin([], key=lambda x: x + 1)
 
     def test():
-        with pytest_raises(ValueError):
+        with pytest.raises(ValueError):
             argmin([], key=lambda x: x + 1)
     assert not memory_leak(test)
 
@@ -150,7 +136,7 @@ def test_argmin_failure6():
         argmin([1, 2, 'a'], key=lambda x: x)
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             argmin([T(1), T(2), T('a')], key=lambda x: x)
     assert not memory_leak(test)
 
@@ -161,6 +147,6 @@ def test_argmin_failure7():
         argmin([1, 2, 'a'], key=lambda x: x + 1)
 
     def test():
-        with pytest_raises(TypeError):
-            argmin([T(1), T(2), T('a')], key=lambda x: x + 1)
+        with pytest.raises(TypeError):
+            argmin([T(1), T(2), T('a')], key=lambda x: x + T(1))
     assert not memory_leak(test)

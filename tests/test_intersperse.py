@@ -10,15 +10,10 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak
-from helper_pytest_monkeypatch import pytest_raises
+from helper_cls import T
 
 
 intersperse = iteration_utilities.intersperse
-
-
-class T(object):
-    def __init__(self, value):
-        self.value = value
 
 
 def test_intersperse_empty1():
@@ -50,7 +45,7 @@ def test_intersperse_failure1():
         intersperse(100, 0)
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             intersperse(T(100), T(0))
     assert not memory_leak(test)
 

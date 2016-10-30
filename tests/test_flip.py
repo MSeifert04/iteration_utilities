@@ -10,15 +10,10 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak
-from helper_pytest_monkeypatch import pytest_raises
+from helper_cls import T
 
 
 flip = iteration_utilities.flip
-
-
-class T(object):
-    def __init__(self, value):
-        self.value = value
 
 
 def test_flip_normal1():
@@ -82,7 +77,7 @@ def test_flip_failure1():
         flip(isinstance)(10, float)
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             flip(isinstance)(10, float)
     assert not memory_leak(test)
 

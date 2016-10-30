@@ -10,30 +10,10 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak
-from helper_pytest_monkeypatch import pytest_raises
+from helper_cls import T
 
 
 count_items = iteration_utilities.count_items
-
-
-class T(object):
-    def __init__(self, value):
-        self.value = value
-
-    def __lt__(self, other):
-        return self.value < other.value
-
-    def __gt__(self, other):
-        return self.value > other.value
-
-    def __eq__(self, other):
-        return self.value == other.value
-
-    def __bool__(self):
-        return bool(self.value)
-
-    def __nonzero__(self):
-        return bool(self.value)
 
 
 def test_count_empty1():
@@ -105,7 +85,7 @@ def test_count_failure1():
         count_items(1)
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             count_items(T(1))
     assert not memory_leak(test)
 
@@ -115,6 +95,6 @@ def test_count_failure2():
         count_items([1], 1)
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             count_items([T(1)], T(1))
     assert not memory_leak(test)

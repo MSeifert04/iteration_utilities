@@ -10,16 +10,13 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak
-from helper_pytest_monkeypatch import pytest_raises
+from helper_cls import T as Original_T
 
 
 chained = iteration_utilities.chained
 
 
-class T(object):
-    def __init__(self, value):
-        self.value = value
-
+class T(Original_T):
     def __add__(self, other):
         return self.__class__(self.value + other)
 
@@ -71,7 +68,7 @@ def test_chained_failure1():
         chained()
 
     def test():
-        with pytest_raises(TypeError):  # at least one func must be present
+        with pytest.raises(TypeError):  # at least one func must be present
             chained()
     assert not memory_leak(test)
 
@@ -81,7 +78,7 @@ def test_chained_failure2():
         chained(lambda x: x+1, invalidkwarg=lambda x: x*2)
 
     def test():
-        with pytest_raises(TypeError):  # kwarg not accepted
+        with pytest.raises(TypeError):  # kwarg not accepted
             chained(lambda x: x+1, invalidkwarg=lambda x: x*2)
     assert not memory_leak(test)
 
@@ -91,7 +88,7 @@ def test_chained_failure3():
         chained(lambda x: x+1)('a')
 
     def test():
-        with pytest_raises(TypeError):  # func fails
+        with pytest.raises(TypeError):  # func fails
             chained(lambda x: x+1)(T('a'))
     assert not memory_leak(test)
 
@@ -101,7 +98,7 @@ def test_chained_failure4():
         chained(lambda x: x*2, lambda x: x+1)('a')
 
     def test():
-        with pytest_raises(TypeError):  # second func fails
+        with pytest.raises(TypeError):  # second func fails
             chained(lambda x: x*2, lambda x: x+1)(T('a'))
     assert not memory_leak(test)
 

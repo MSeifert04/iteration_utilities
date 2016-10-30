@@ -10,15 +10,10 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak
-from helper_pytest_monkeypatch import pytest_raises
+from helper_cls import T
 
 
 grouper = iteration_utilities.grouper
-
-
-class T(object):
-    def __init__(self, value):
-        self.value = value
 
 
 def test_grouper_empty1():
@@ -208,7 +203,7 @@ def test_grouper_failure1():
         grouper([1, 2, 3], 2, fillvalue=None, truncate=True)
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             grouper([T(1), T(2), T(3)], 2,
                     fillvalue=T(0), truncate=True)
     assert not memory_leak(test)
@@ -220,7 +215,7 @@ def test_grouper_failure2():
         grouper([1, 2, 3], 0)
 
     def test():
-        with pytest_raises(ValueError):
+        with pytest.raises(ValueError):
             grouper([T(1), T(2), T(3)], 0)
     assert not memory_leak(test)
 
@@ -231,7 +226,7 @@ def test_grouper_failure3():
         grouper(1, 2)
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             grouper(T(1), 2)
     assert not memory_leak(test)
 

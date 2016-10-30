@@ -12,20 +12,10 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak
-from helper_pytest_monkeypatch import pytest_raises
+from helper_cls import T
 
 
 split = iteration_utilities.split
-
-
-class T(object):
-    def __init__(self, value):
-        self.value = value
-
-    def __eq__(self, other):
-        if type(self.value) != type(other.value):
-            raise TypeError('simulated failure.')
-        return self.value == other.value
 
 
 equalsthree = partial(eq, 3)
@@ -112,7 +102,7 @@ def test_split_failure1():
         split(1, lambda x: False)
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             split(T(1), lambda x: False)
     assert not memory_leak(test)
 
@@ -123,7 +113,7 @@ def test_split_failure2():
         list(split([1, 2, 3], lambda x: x + 'a'))
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             list(split([T(1), T(2), T(3)],
                        lambda x: T(x.value + 'a')))
     assert not memory_leak(test)
@@ -135,7 +125,7 @@ def test_split_failure3():
         list(split([T(1), T(2), T(3)], T('a'), eq=True))
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             list(split([T(1), T(2), T(3)], T('a'), eq=True))
     assert not memory_leak(test)
 

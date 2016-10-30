@@ -10,35 +10,10 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak
-from helper_pytest_monkeypatch import pytest_raises
+from helper_cls import T
 
 
 all_monotone = iteration_utilities.all_monotone
-
-
-class T(object):
-    def __init__(self, value):
-        self.value = value
-
-    def __lt__(self, other):
-        if type(self.value) != type(other.value):
-            raise TypeError('simulated failure.')
-        return self.value < other.value
-
-    def __gt__(self, other):
-        if type(self.value) != type(other.value):
-            raise TypeError('simulated failure.')
-        return self.value > other.value
-
-    def __ge__(self, other):
-        if type(self.value) != type(other.value):
-            raise TypeError('simulated failure.')
-        return self.value >= other.value
-
-    def __le__(self, other):
-        if type(self.value) != type(other.value):
-            raise TypeError('simulated failure.')
-        return self.value <= other.value
 
 
 def test_all_monotone_empty1():
@@ -119,7 +94,7 @@ def test_all_monotone_failure1():
         all_monotone(1)
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             all_monotone(T(1))
     assert not memory_leak(test)
 
@@ -130,6 +105,6 @@ def test_all_monotone_failure2():
         all_monotone([T(1), T('a')])
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             all_monotone([T(1), T('a')])
     assert not memory_leak(test)

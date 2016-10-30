@@ -10,21 +10,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak
-from helper_pytest_monkeypatch import pytest_raises
-
-
-class T(object):
-    def __init__(self, value):
-        self.value = value
-
-    def __gt__(self, other):
-        return self.value > other.value
-
-    def __lt__(self, other):
-        return self.value < other.value
-
-    def __abs__(self):
-        return self.__class__(abs(self.value))
+from helper_cls import T
 
 
 minmax = iteration_utilities.minmax
@@ -256,7 +242,7 @@ def test_minmax_failure1():
         minmax()
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             minmax()
     assert not memory_leak(test)
 
@@ -267,7 +253,7 @@ def test_minmax_failure2():
         minmax([])
 
     def test():
-        with pytest_raises(ValueError):
+        with pytest.raises(ValueError):
             minmax([])
     assert not memory_leak(test)
 
@@ -278,7 +264,7 @@ def test_minmax_failure3():
         minmax(1, 2, invalid_kw='a')
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             minmax(T(1), T(2), invalid_kw='a')
     assert not memory_leak(test)
 
@@ -289,7 +275,7 @@ def test_minmax_failure4():
         minmax(1, 2, default=10)
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             minmax(T(1), T(2), default=T(10))
     assert not memory_leak(test)
 
@@ -300,7 +286,7 @@ def test_minmax_failure5():
         minmax(100)
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             minmax(T(100))
     assert not memory_leak(test)
 
@@ -311,7 +297,7 @@ def test_minmax_failure6():
         minmax(100, 'a', key=lambda x: x + '')
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             minmax(T(100), T('a'), key=lambda x: x.value + '')
     assert not memory_leak(test)
 
@@ -322,7 +308,7 @@ def test_minmax_failure7():
         minmax('a', 100, key=lambda x: x + '')
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             minmax(T('a'), T(100), key=lambda x: x.value + '')
     assert not memory_leak(test)
 
@@ -334,7 +320,7 @@ def test_minmax_failure8():
         minmax(100, 'a')
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             minmax(T(100), T('a'))
     assert not memory_leak(test)
 
@@ -346,7 +332,7 @@ def test_minmax_failure9():
         minmax(100, 20, 100, 'a')
 
     def test():
-        with pytest_raises(TypeError):  # unable to compare 3 and 4
+        with pytest.raises(TypeError):  # unable to compare 3 and 4
             minmax(T(100), T(20), T(100), T('a'))
     assert not memory_leak(test)
 
@@ -358,7 +344,7 @@ def test_minmax_failure10():
         minmax(1, 20, 'a', 'c')
 
     def test():
-        with pytest_raises(TypeError):  # unable to compare 1 and 3
+        with pytest.raises(TypeError):  # unable to compare 1 and 3
             minmax(T(1), T(20), T('a'), T('c'))
     assert not memory_leak(test)
 
@@ -378,7 +364,7 @@ def test_minmax_failure11():
         minmax((100, 'a'), (200, 10), (150, 'b'), (200, 'd'))
 
     def test():
-        with pytest_raises(TypeError):
+        with pytest.raises(TypeError):
             minmax(T((100, 'a')), T((200, 10)),
                    T((150, 'b')), T((200, 'd')))
     assert not memory_leak(test)

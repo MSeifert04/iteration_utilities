@@ -1,16 +1,12 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
-import pickle
 
 # 3rd party
-import pytest
 
 # This module
 import iteration_utilities
 
 # Test helper
-from helper_leak import memory_leak
-from helper_pytest_monkeypatch import pytest_raises
 
 
 def test_other_c_funcs():
