@@ -27,12 +27,6 @@ def memory_leak_decorator(specific_object=None, exclude_object=weakref.ref,
 
     Parameters
     ----------
-    func : callable or None, optional
-        The function that should be tested. Should be `None` if the function
-        is used as a decorator _if_ it should also accept `specific_object` or
-        `exclude_object`.
-        Default is `None`.
-
     specific_object : type, tuple of types, None, optional
         Test all tracked types (if it's ``None``) or only the specific type(s).
         Default is ``None``.
@@ -54,11 +48,14 @@ def memory_leak_decorator(specific_object=None, exclude_object=weakref.ref,
 
     Returns
     -------
-    difference : collections.Counter
-        A Counter containing the types after the function call minus the ones
-        before the function call. If the function doesn't return anything this
-        Counter should be empty. If it contains types the function probably
-        contains a memory leak.
+    decorator : callable, optional
+        Returns a decorator which can be applied to test functions.
+
+    Raises
+    ------
+    TypeError
+        The decoratored function raises this Exception if any Python object
+        leaked.
 
     Notes
     -----
