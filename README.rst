@@ -1,8 +1,8 @@
 Iteration utilities
 -------------------
 
-Includes the itertools recipes from the python homepage as well as other
-iteration based functionality.
+This package includes functional programming utilities for Python 2 and 3.
+Most of the functions and classes are written in C to optimize performance.
 
 .. image:: https://img.shields.io/pypi/pyversions/iteration_utilities.svg
    :target: https://www.python.org/

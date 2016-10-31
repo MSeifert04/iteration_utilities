@@ -25,12 +25,11 @@ cfuncs_module = Extension('iteration_utilities._cfuncs',
 setup(name='iteration_utilities',
       version=version(),
 
-      description='Functional programming utilities for Python.',
+      description='Functional programming utilities for Python 2 and 3.',
       long_description=readme(),
-      keywords=['functional', 'functools', 'generator',
-                'itertools', 'iteration', 'iterator',
-                'operators', 'performance', 'reduce', 'utility'],
-      platforms=["Windows", "Linux"],  # maybe sometime also "Mac OS-X", "Unix"
+      keywords=['functional functools generator itertools iteration iterator'
+                'operators performance reduce utility'],
+      platforms=["Windows Linux"],  # maybe sometime also "Mac OS-X", "Unix"
 
       classifiers=[
         'Development Status :: 4 - Beta',
@@ -55,11 +54,13 @@ setup(name='iteration_utilities',
           ],
 
       install_requires=[
-          'setuptools',  # actually unnecessary because it's already imported at this point.
+          # actually unnecessary because it's already imported at this point.
+          'setuptools',
           ],
 
       setup_requires=[
           'pytest-runner',
+          'setuptools_scm',
           ],
 
       tests_require=[
