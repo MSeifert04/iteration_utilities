@@ -117,6 +117,8 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
                         minitem = item1;
                         maxval = val1;
                         maxitem = item1;
+                        Py_INCREF(item1);
+                        Py_INCREF(val1);
                         Py_DECREF(item2);
                         Py_DECREF(val2);
                     }
@@ -127,6 +129,8 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
                 minval = val1;
                 maxitem = item1;
                 maxval = val1;
+                Py_INCREF(item1);
+                Py_INCREF(val1);
             }
         } else {
             // If the sequence ends and only one element remains we can just

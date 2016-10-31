@@ -1,3 +1,10 @@
+# This module
+import iteration_utilities
+
+if iteration_utilities.PY2:
+    from itertools import imap as map
+
+
 class T(object):
     def __init__(self, value):
         self.value = value
@@ -19,6 +26,9 @@ class T(object):
 
     def __len__(self):
         return len(self.value)
+
+    def __repr__(self):
+        return '{0.__class__.__name__}({0.value})'.format(self)
 
     # Mathematical
     def __add__(self, other):
@@ -61,3 +71,7 @@ class T(object):
     def __ge__(self, other):
         self._cmp_cls_and_value(other)
         return self.value >= other.value
+
+
+def toT(iterable):
+    return list(map(T, iterable))
