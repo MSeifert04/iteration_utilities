@@ -9,61 +9,36 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_leak import memory_leak
-from helper_pytest_monkeypatch import pytest_raises
+from helper_leak import memory_leak_decorator
+from helper_cls import T
 
 
 applyfunc = iteration_utilities.applyfunc
 getitem = iteration_utilities.getitem
 
 
-class T(object):
-    def __init__(self, value):
-        self.value = value
-
-    def __pow__(self, other):
-        if isinstance(other, self.__class__):
-            return self.__class__(self.value**other.value)
-        else:
-            return self.__class__(self.value**other)
-
-
+@memory_leak_decorator()
 def test_applyfunc_normal1():
-    assert list(getitem(applyfunc(lambda x: x**2, 2), stop=3)) == [4, 16, 256]
-
-    def test():
-        list(getitem(applyfunc(lambda x: x**T(2), T(2)), stop=3))
-    assert not memory_leak(test)
+    assert list(getitem(applyfunc(lambda x: x**T(2), T(2)),
+                        stop=3)) == [T(4), T(16), T(256)]
 
 
+@memory_leak_decorator()
 def test_applyfunc_normal2():
-    assert list(getitem(applyfunc(lambda x: x, 2), stop=3)) == [2, 2, 2]
-
-    def test():
-        list(getitem(applyfunc(lambda x: x, T(2)), stop=3))
-    assert not memory_leak(test)
+    assert list(getitem(applyfunc(lambda x: x, T(2)),
+                        stop=3)) == [T(2), T(2), T(2)]
 
 
+@memory_leak_decorator(collect=True)
 def test_applyfunc_failure1():
     with pytest.raises(TypeError):
-        list(getitem(applyfunc(lambda x: x**2, 'a'), stop=3))
-
-    def test():
-        with pytest_raises(TypeError):
-            list(getitem(applyfunc(lambda x: x**T(2), T('a')), stop=3))
-    assert not memory_leak(test)
+        list(getitem(applyfunc(lambda x: x**T(2), T('a')), stop=3))
 
 
+@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@memory_leak_decorator(offset=1)
 def test_applyfunc_pickle1():
-    apf = applyfunc(iteration_utilities.square, 2)
-    assert next(apf) == 4
+    apf = applyfunc(iteration_utilities.square, T(2))
+    assert next(apf) == T(4)
     x = pickle.dumps(apf)
-    assert next(pickle.loads(x)) == 16
-
-    def test():
-        apf = applyfunc(iteration_utilities.square, T(2))
-        next(apf)
-        x = pickle.dumps(apf)
-        next(pickle.loads(x))
-    memory_leak(test)
-    assert not memory_leak(test)
+    assert next(pickle.loads(x)) == T(16)

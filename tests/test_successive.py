@@ -9,134 +9,81 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_leak import memory_leak
-from helper_pytest_monkeypatch import pytest_raises
+from helper_leak import memory_leak_decorator
+from helper_cls import T
 
 
 successive = iteration_utilities.successive
 
 
-class T(object):
-    def __init__(self, value):
-        self.value = value
-
-    def __hash__(self):
-        return hash(self.value)
-
-    def __eq__(self, other):
-        return self.value == other.value
-
-
+@memory_leak_decorator()
 def test_successive_empty1():
     assert list(successive([])) == []
 
-    def test():
-        list(successive([]))
-    assert not memory_leak(test)
 
-
+@memory_leak_decorator()
 def test_successive_empty2():
-    assert list(successive([1])) == []
-
-    def test():
-        list(successive([T(1)]))
-    assert not memory_leak(test)
+    assert list(successive([T(1)])) == []
 
 
+@memory_leak_decorator()
 def test_successive_empty3():
     assert list(successive([], times=10)) == []
 
-    def test():
-        list(successive([], times=10))
-    assert not memory_leak(test)
 
-
+@memory_leak_decorator()
 def test_successive_empty4():
-    assert list(successive([1, 2, 3, 4, 5], times=10)) == []
-
-    def test():
-        list(successive([T(1), T(2), T(3)], times=10))
-    assert not memory_leak(test)
+    assert list(successive([T(1), T(2), T(3)], times=10)) == []
 
 
+@memory_leak_decorator()
 def test_successive_normal1():
-    assert list(successive(range(4))) == [(0, 1), (1, 2), (2, 3)]
-
-    def test():
-        list(successive([T(1), T(2), T(3), T(4)]))
-    assert not memory_leak(test)
+    assert (list(successive([T(1), T(2), T(3), T(4)])) ==
+            [(T(1), T(2)), (T(2), T(3)), (T(3), T(4))])
 
 
+@memory_leak_decorator()
 def test_successive_normal2():
-    assert list(successive(range(4), times=3)) == [(0, 1, 2), (1, 2, 3)]
-
-    def test():
-        list(successive([T(1), T(2), T(3), T(4)], times=3))
-    assert not memory_leak(test)
+    assert (list(successive([T(1), T(2), T(3), T(4)], times=3)) ==
+            [(T(1), T(2), T(3)), (T(2), T(3), T(4))])
 
 
+@memory_leak_decorator()
 def test_successive_normal3():
-    assert list(successive(range(4), times=4)) == [(0, 1, 2, 3)]
-
-    def test():
-        list(successive([T(1), T(2), T(3), T(4)], times=4))
-    assert not memory_leak(test)
+    assert (list(successive([T(1), T(2), T(3), T(4)], times=4)) ==
+            [(T(1), T(2), T(3), T(4))])
 
 
+@memory_leak_decorator()
 def test_successive_normal4():
-    assert dict(successive(range(4))) == {0: 1, 1: 2, 2: 3}
-
-    def test():
-        dict(successive([T(1), T(2), T(3), T(4)]))
-    assert not memory_leak(test)
+    assert (dict(successive([T(1), T(2), T(3), T(4)])) ==
+            {T(1): T(2), T(2): T(3), T(3): T(4)})
 
 
+@memory_leak_decorator(collect=True)
 def test_successive_failure1():
     with pytest.raises(TypeError):
-        successive(10)
-
-    def test():
-        with pytest_raises(TypeError):
-            successive(T(1))
-    assert not memory_leak(test)
+        successive(T(1))
 
 
+@memory_leak_decorator(collect=True)
 def test_successive_failure2():
     with pytest.raises(ValueError):  # times must be > 0
-        successive([1, 2, 3], 0)
-
-    def test():
-        with pytest_raises(ValueError):  # times must be > 0
-            successive([T(1), T(2), T(3)], 0)
-    assert not memory_leak(test)
+        successive([T(1), T(2), T(3)], 0)
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
-                   reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@memory_leak_decorator(offset=1)
 def test_successive_pickle1():
-    suc = successive([1, 2, 3, 4])
-    assert next(suc) == (1, 2)
+    suc = successive([T(1), T(2), T(3), T(4)])
+    assert next(suc) == (T(1), T(2))
     x = pickle.dumps(suc)
-    assert list(pickle.loads(x)) == [(2, 3), (3, 4)]
-
-    def test():
-        suc = successive([T(1), T(2), T(3), T(4)])
-        next(suc)
-        x = pickle.dumps(suc)
-        list(pickle.loads(x))
-    memory_leak(test)
-    assert not memory_leak(test)
+    assert list(pickle.loads(x)) == [(T(2), T(3)), (T(3), T(4))]
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
-                   reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@memory_leak_decorator(offset=1)
 def test_successive_pickle2():
-    suc = successive([1, 2, 3, 4])
+    suc = successive([T(1), T(2), T(3), T(4)])
     x = pickle.dumps(suc)
-    assert list(pickle.loads(x)) == [(1, 2), (2, 3), (3, 4)]
-
-    def test():
-        suc = successive([T(1), T(2), T(3), T(4)])
-        x = pickle.dumps(suc)
-        list(pickle.loads(x))
-    assert not memory_leak(test)
+    assert list(pickle.loads(x)) == [(T(1), T(2)), (T(2), T(3)), (T(3), T(4))]
