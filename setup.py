@@ -1,7 +1,9 @@
 from setuptools import setup, Extension
 
-from os import path
 from glob import glob
+from os import path
+
+import sys
 
 
 def readme():
@@ -21,6 +23,8 @@ cfuncs_module = Extension('iteration_utilities._cfuncs',
                           depends=glob(path.join('src_c', '*.c'))
                           )
 
+needs_pytest = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
+pytest_runner = ['pytest-runner'] if needs_pytest else []
 
 setup(name='iteration_utilities',
       version=version(),
@@ -54,14 +58,10 @@ setup(name='iteration_utilities',
           ],
 
       install_requires=[
-          # actually unnecessary because it's already imported at this point.
-          'setuptools',
           ],
 
       setup_requires=[
-          'pytest-runner',
-          'setuptools_scm',
-          ],
+          ] + pytest_runner,
 
       tests_require=[
           'pytest',
