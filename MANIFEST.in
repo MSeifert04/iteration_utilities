@@ -12,3 +12,6 @@ include .coveragerc
 recursive-include tests *
 
 recursive-include docs *
+
+# remove private stuff
+prune iteration_utilities/_private
