@@ -36,8 +36,8 @@ def argsorted(iterable, key=None, reverse=False):
         Default is ``None``.
 
     reverse : bool, optional
-        If ``False`` sort the `iterable` in increasing order otherwise use
-        in decreasing order.
+        If ``False`` sort the `iterable` in increasing order otherwise in
+        decreasing order.
         Default is ``False``.
 
     Returns

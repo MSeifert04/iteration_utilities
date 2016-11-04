@@ -105,6 +105,8 @@ Most fold functions reduce an iterable by discarding most of the iterable.
 However ``iteration_utilities`` includes functions that discard no elements or
 only a few:
 
+- :py:func:`~iteration_utilities._recipes._additional.argsorted`, create a list
+  of indices that would sort the iterable.
 - :py:func:`~iteration_utilities._cfuncs.groupedby`, create a dictionary
   containing lists representing the groups of values of the iterable.
 - :py:func:`heapq.nlargest`, create a list containing the `n` largest items.
