@@ -31,7 +31,7 @@ setup(name='iteration_utilities',
 
       description='Functional programming utilities for Python 2 and 3.',
       long_description=readme(),
-      keywords=['functional functools generator itertools iteration iterator'
+      keywords=['functional functools generator itertools iteration iterator '
                 'operators performance reduce utility'],
       platforms=["Windows Linux"],  # maybe sometime also "Mac OS-X", "Unix"
 
