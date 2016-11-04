@@ -7,11 +7,11 @@ recursive-include licenses *
 recursive-include src_c *.c
 
 # Needed for tests
-include pytest.ini
-include .coveragerc
-recursive-include tests *
+#include pytest.ini
+#include .coveragerc
+#recursive-include tests *
 
-recursive-include docs *
+#recursive-include docs *
 
 # remove private stuff
 prune iteration_utilities/_private
