@@ -1,10 +1,9 @@
 Iteration utilities
 -------------------
 
-This package includes functional programming utilities for Python 2 and 3.
-Most of the functions and classes are written in C to optimize performance.
+Utilities based on Pythons iterators and generators.
 
-The full list of functions:
+The full list of functions and classes included in this package:
 
 ===================================================================================================================================== ================================================================================================================================================ =============================================================================================================================================== ===================================================================================================================================================
                    `accumulate <http://iteration-utilities.readthedocs.io/en/latest/api/cfuncs.html#iteration_utilities.accumulate>`_                   `all_distinct <http://iteration-utilities.readthedocs.io/en/latest/api/cfuncs.html#iteration_utilities._cfuncs.all_distinct>`_                        `all_equal <http://iteration-utilities.readthedocs.io/en/latest/api/cfuncs.html#iteration_utilities._cfuncs.all_equal>`_    `all_isinstance <http://iteration-utilities.readthedocs.io/en/latest/api/helper.html#iteration_utilities._helpers._performance.all_isinstance>`_
@@ -26,6 +25,14 @@ The full list of functions:
                              `split <http://iteration-utilities.readthedocs.io/en/latest/api/cfuncs.html#iteration_utilities.split>`_                               `square <http://iteration-utilities.readthedocs.io/en/latest/api/cfuncs.html#iteration_utilities._cfuncs.square>`_                              `successive <http://iteration-utilities.readthedocs.io/en/latest/api/cfuncs.html#iteration_utilities.successive>`_                         `tabulate <http://iteration-utilities.readthedocs.io/en/latest/api/core.html#iteration_utilities._recipes._core.tabulate>`_
                   `tail <http://iteration-utilities.readthedocs.io/en/latest/api/core.html#iteration_utilities._recipes._core.tail>`_            `tee_lookahead <http://iteration-utilities.readthedocs.io/en/latest/api/core.html#iteration_utilities._recipes._core.tee_lookahead>`_                    `unique_everseen <http://iteration-utilities.readthedocs.io/en/latest/api/cfuncs.html#iteration_utilities.unique_everseen>`_                        `unique_justseen <http://iteration-utilities.readthedocs.io/en/latest/api/cfuncs.html#iteration_utilities.unique_justseen>`_
 ===================================================================================================================================== ================================================================================================================================================ =============================================================================================================================================== ===================================================================================================================================================
+
+But also some convenience classes providing a lazy and chainable interface for
+function evaluation:
+
+- `Iterable <http://iteration-utilities.readthedocs.io/en/latest/api/cls.html#iteration_utilities.core.Iterable>`_
+- `InfiniteIterable <http://iteration-utilities.readthedocs.io/en/latest/api/cls.html#iteration_utilities.core.InfiniteIterable>`_
+- `ManyIterables <http://iteration-utilities.readthedocs.io/en/latest/api/cls.html#iteration_utilities.core.ManyIterables>`_
+
 
 .. image:: https://img.shields.io/pypi/pyversions/iteration_utilities.svg
    :target: https://www.python.org/
