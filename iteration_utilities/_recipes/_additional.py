@@ -7,9 +7,10 @@ API: Additional recipes
 # Built-ins
 from __future__ import absolute_import, division, print_function
 from itertools import chain, islice, repeat
+from operator import itemgetter
 
 # This module
-from .. import PY2, nth, unique_justseen
+from .. import PY2, nth, unique_justseen, chained
 from ._core import tail
 
 
@@ -17,8 +18,61 @@ if PY2:
     from itertools import imap as map
 
 
-__all__ = ['getitem', 'insert', 'itersubclasses', 'pad', 'remove', 'replace',
-           'replicate']
+__all__ = ['argsorted', 'getitem', 'insert', 'itersubclasses', 'pad', 'remove',
+           'replace', 'replicate']
+
+
+def argsorted(iterable, key=None, reverse=False):
+    """Returns the indices that would sort the `iterable`.
+
+    Parameters
+    ----------
+    iterable : iterable
+        The `iterable` to sort.
+
+    key : callable, None, optional
+        If ``None`` sort the items in the `iterable`, otherwise sort the
+        ``key(items)``.
+        Default is ``None``.
+
+    reverse : bool, optional
+        If ``False`` sort the `iterable` in increasing order otherwise use
+        in decreasing order.
+        Default is ``False``.
+
+    Returns
+    -------
+    sortindices : list
+        The indices that would sort the `iterable`.
+
+    Notes
+    -----
+    See :py:func:`sorted` for more explanations to the parameters.
+
+    Examples
+    --------
+    To get the indices that would sort a sequence in increasing order::
+
+        >>> from iteration_utilities import argsorted
+        >>> argsorted([3, 1, 2])
+        [1, 2, 0]
+
+    It also works when sorting in decreasing order::
+
+        >>> argsorted([3, 1, 2], reverse=True)
+        [0, 2, 1]
+
+    And when applying a `key` function::
+
+        >>> argsorted([3, 1, -2], key=abs)
+        [1, 2, 0]
+    """
+    if key is None:
+        key = itemgetter(1)
+    else:
+        key = chained(itemgetter(1), key)
+    return [i[0] for i in sorted(enumerate(iterable),
+                                 key=key, reverse=reverse)]
 
 
 def itersubclasses(cls, seen=None):

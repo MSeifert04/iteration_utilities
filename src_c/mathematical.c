@@ -184,8 +184,8 @@ doubled : any type\n\
 \n\
 Examples\n\
 --------\n\
-It is not possible to apply ``functools.partial`` to ``operator.mul`` so that one has\n\
-a one-argument double function and is significantly faster than ``lambda x: x*2``::\n\
+This function is equivalent to ``lambda x: x*2`` and for numerical arguments\n\
+to ``functools.partial(operator.mul, 2)`` but faster::\n\
 \n\
     >>> from iteration_utilities import double\n\
     >>> double(1)\n\
@@ -209,9 +209,8 @@ reciprocal  : any type\n\
 \n\
 Examples\n\
 --------\n\
-It is not possible to apply ``functools.partial`` to ``operator.true_divide``\n\
-so that one has a one-argument divide function and is significantly faster\n\
-than ``lambda x: 1 / x``::\n\
+This is equivalent to ``lambda x: 1 / x`` (or ``lambda x: 1. / x`` Python2)\n\
+or ``functools.partial(operator.truediv, 1)`` but faster::\n\
 \n\
     >>> from iteration_utilities import reciprocal \n\
     >>> reciprocal(1)\n\
