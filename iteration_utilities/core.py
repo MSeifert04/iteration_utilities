@@ -37,7 +37,7 @@ from iteration_utilities import (accumulate, applyfunc,
                                  unique_everseen, unique_justseen)
 # - folds
 from iteration_utilities import (all_distinct, all_equal, all_monotone,
-                                 argmax, argmin,
+                                 argmax, argmin, argsorted,
                                  count_items, first, groupedby, last,
                                  minmax, nth, one, partition, second,
                                  third)
@@ -1049,6 +1049,8 @@ class Iterable(_Base):
         See :py:func:`~iteration_utilities._cfuncs.argmax`.
     :py:meth:`~Iterable.get_argmin`
         See :py:func:`~iteration_utilities._cfuncs.argmin`.
+    :py:meth:`~Iterable.get_argsorted`
+        See :py:func:`~iteration_utilities._recipes._additional.argsorted`.
     :py:meth:`~Iterable.get_count_items`
         See :py:func:`~iteration_utilities._cfuncs.count_items`.
     :py:meth:`~Iterable.get_first`
@@ -1517,6 +1519,26 @@ strict=False)
         """
         return self._get(argmin, 0, key=key, default=default)
     get_argmin.__doc__ = get_argmin.__doc__.format('L' if PY2 else '')
+
+    def get_argsorted(self, key=_default, reverse=_default):
+        """See :py:func:`~iteration_utilities._recipes._additional.argsorted`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable([1, 2, -5, 3, 4]).get_argsorted()
+        [2, 0, 1, 3, 4]
+
+        >>> Iterable([1, 2, -5, 3, 4]).get_argsorted(reverse=True)
+        [4, 3, 1, 0, 2]
+
+        >>> Iterable([1, 2, -5, 3, 4]).get_argsorted(key=abs)
+        [0, 1, 3, 4, 2]
+
+        >>> Iterable([1, 2, -5, 3, 4]).get_argsorted(abs, True)
+        [2, 4, 3, 1, 0]
+        """
+        return self._get(argsorted, 0, key=key, reverse=reverse)
 
     def get_count_items(self, pred=_default, eq=_default):
         """See :py:func:`~iteration_utilities._cfuncs.count_items`.

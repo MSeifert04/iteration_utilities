@@ -176,7 +176,8 @@ argmin : int\n\
 \n\
 Examples\n\
 --------\n\
-For example::\n\
+This is equivalent (but faster) than \n\
+``min(enumerate(iterable), key=operator.itemgetter(1))[0]``::\n\
 \n\
     >>> from iteration_utilities import argmin\n\
     >>> argmin(3,2,1,2,3)\n\
@@ -219,7 +220,8 @@ argmax : int\n\
 \n\
 Examples\n\
 --------\n\
-For example::\n\
+This is equivalent (but faster) than \n\
+``max(enumerate(iterable), key=operator.itemgetter(1))[0]``::\n\
 \n\
     >>> from iteration_utilities import argmax\n\
     >>> argmax(3,2,1,2,3)\n\
