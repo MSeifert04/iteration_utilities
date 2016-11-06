@@ -74,8 +74,11 @@ static PyObject * PyIU_Count(PyObject *m, PyObject *args,
 
     PYIU_CLEAR_STOPITERATION;
     Py_DECREF(iterator);
-
+#if PY_MAJOR_VERSION == 2
+    return PyInt_FromSsize_t(sum_int);
+#else
     return PyLong_FromSsize_t(sum_int);
+#endif
 }
 
 /******************************************************************************

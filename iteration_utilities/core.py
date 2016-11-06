@@ -695,15 +695,12 @@ class _Base(object):
         --------
         >>> from iteration_utilities import Iterable, square
         >>> Iterable(range(1, 10)).map(square).as_list()
-        {0}
+        [1, 4, 9, 16, 25, 36, 49, 64, 81]
 
         >>> Iterable(range(1, 10)).map(function=square).as_list()
-        {0}
+        [1, 4, 9, 16, 25, 36, 49, 64, 81]
         """
         return self._call(map, 1, function)
-    map.__doc__ = map.__doc__.format(
-        '[1L, 4L, 9L, 16L, 25L, 36L, 49L, 64L, 81L]' if PY2 else
-        '[1, 4, 9, 16, 25, 36, 49, 64, 81]')
 
     def ncycles(self, n):
         """See :py:func:`~iteration_utilities._recipes._core.ncycles`.
@@ -1485,19 +1482,18 @@ strict=False)
         --------
         >>> from iteration_utilities import Iterable
         >>> Iterable([1, 2, -5, 3, 4]).get_argmax()
-        4{0}
+        4
 
         >>> Iterable([1, 2, -5, 3, 4]).get_argmax(abs)
-        2{0}
+        2
 
         >>> Iterable([1, 2, -5, 3, 4]).get_argmax(key=abs)
-        2{0}
+        2
 
         >>> Iterable([]).get_argmax(key=abs, default=-1)
-        -1{0}
+        -1
         """
         return self._get(argmax, 0, key=key, default=default)
-    get_argmax.__doc__ = get_argmax.__doc__.format('L' if PY2 else '')
 
     def get_argmin(self, key=_default, default=_default):
         """See :py:func:`~iteration_utilities._cfuncs.argmin`.
@@ -1506,19 +1502,18 @@ strict=False)
         --------
         >>> from iteration_utilities import Iterable
         >>> Iterable([1, 2, -5, 3, 4]).get_argmin()
-        2{0}
+        2
 
         >>> Iterable([1, 2, -5, 3, 4]).get_argmin(abs)
-        0{0}
+        0
 
         >>> Iterable([1, 2, -5, 3, 4]).get_argmin(key=abs)
-        0{0}
+        0
 
         >>> Iterable([]).get_argmin(key=abs, default=-1)
-        -1{0}
+        -1
         """
         return self._get(argmin, 0, key=key, default=default)
-    get_argmin.__doc__ = get_argmin.__doc__.format('L' if PY2 else '')
 
     def get_argsorted(self, key=_default, reverse=_default):
         """See :py:func:`~iteration_utilities._recipes._additional.argsorted`.
@@ -1547,17 +1542,15 @@ strict=False)
         --------
         >>> from iteration_utilities import Iterable
         >>> Iterable((i for i in range(10))).get_count_items()
-        10{0}
+        10
 
         >>> Iterable([1, 2, 3, 2, 1]).get_count_items(2, True)
-        2{0}
+        2
 
         >>> Iterable([1, 2, 3, 2, 1]).get_count_items(pred=2, eq=True)
-        2{0}
+        2
         """
         return self._get(count_items, 0, pred=pred, eq=eq)
-    get_count_items.__doc__ = get_count_items.__doc__.format(
-        'L' if PY2 else '')
 
     def get_first(self, default=_default, pred=_default, truthy=_default,
                   retpred=_default, retidx=_default):
