@@ -285,7 +285,11 @@ static int itemidxkey_setitem(PyIUObject_ItemIdxKey *self,  PyObject *o,
 
 static PyObject * itemidxkey_getidx(PyIUObject_ItemIdxKey *self,
                                     void *closure) {
+#if PY_MAJOR_VERSION == 2
+    return PyInt_FromSsize_t(self->idx);
+#else
     return PyLong_FromSsize_t(self->idx);
+#endif
 }
 
 static int itemidxkey_setidx(PyIUObject_ItemIdxKey *self,  PyObject *o,

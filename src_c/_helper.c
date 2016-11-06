@@ -35,7 +35,11 @@ static PyObject *PyIU_Long_1_global = NULL;
 
 static PyObject * PyIU_Long_1(void) {
     if (PyIU_Long_1_global == NULL) {
+#if PY_MAJOR_VERSION == 2
+        PyIU_Long_1_global = PyInt_FromLong((long)1);
+#else
         PyIU_Long_1_global = PyLong_FromLong((long)1);
+#endif
     }
     return PyIU_Long_1_global;
 }
@@ -44,7 +48,11 @@ static PyObject *PyIU_Long_2_global = NULL;
 
 static PyObject * PyIU_Long_2(void) {
     if (PyIU_Long_2_global == NULL) {
+#if PY_MAJOR_VERSION == 2
+        PyIU_Long_2_global = PyInt_FromLong((long)2);
+#else
         PyIU_Long_2_global = PyLong_FromLong((long)2);
+#endif
     }
     return PyIU_Long_2_global;
 }
