@@ -1,7 +1,7 @@
 language: python
 
 os:
-  - linux
+  - osx
 
 python:
   - "2.7"
@@ -12,27 +12,15 @@ python:
   - "3.6-dev"
   - "nightly"
 
-matrix:
-  include:
-    - python: "2.7"
-      os: osx
-    - python: "3.5"
-      os: osx
-
-  allow_failures:
-    - python: "nightly"
-    - python: "2.7"
-      os: osx
-    - python: "3.5"
-      os: osx
-
 install:
-  - pip install coveralls
-  - python setup.py install
+    - |
+      MINICONDA_URL="https://repo.continuum.io/miniconda"
+      MINICONDA_FILE="Miniconda3-latest-MacOSX-x86_64.sh"
+      curl -L -O "${MINICONDA_URL}/${MINICONDA_FILE}"
+      bash $MINICONDA_FILE -b
+      source /Users/travis/miniconda3/bin/activate root
+      python setup.py install
 
 # command to run tests
 script:
-  - coverage run --source=iteration_utilities setup.py test
-
-after_success:
-  coveralls
+  - python setup.py test
