@@ -1025,7 +1025,8 @@ class Iterable(_Base):
     :py:meth:`~Iterable.from_iterfunc_sentinel`
         See :py:func:`python:iter`.
     :py:meth:`~Iterable.from_itersubclasses`
-        See :py:func:`~iteration_utilities._recipes._additional.itersubclasses`.
+        See \
+:py:func:`~iteration_utilities._recipes._additional.itersubclasses`.
     :py:meth:`~Iterable.from_repeat`
         See :py:func:`itertools.repeat`.
     :py:meth:`~Iterable.from_repeatfunc`
@@ -2045,7 +2046,8 @@ class InfiniteIterable(_Base):
     :py:meth:`~InfiniteIterable.from_iterfunc_sentinel`
         See :py:func:`python:iter`.
     :py:meth:`~InfiniteIterable.from_itersubclasses`
-        See :py:func:`~iteration_utilities._recipes._additional.itersubclasses`.
+        See \
+:py:func:`~iteration_utilities._recipes._additional.itersubclasses`.
     :py:meth:`~InfiniteIterable.from_repeat`
         See :py:func:`itertools.repeat`.
     :py:meth:`~InfiniteIterable.from_repeatfunc`
