@@ -1839,10 +1839,6 @@ strict=False)
         Examples
         --------
         >>> from iteration_utilities import Iterable
-
-        Examples
-        --------
-        >>> from iteration_utilities import Iterable
         >>> Iterable(range(10)).get_third()
         2
 

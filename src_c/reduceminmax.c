@@ -247,8 +247,8 @@ Fail:
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(PyIU_MinMax_doc, "minmax(iterable, *[, key, default])\n\
-minmax(arg1, arg2, *args[, key])\n\
+PyDoc_STRVAR(PyIU_MinMax_doc, "minmax(iterable, /, key, default)\n\
+--\n\
 \n\
 Computes the minimum and maximum values in one-pass using only\n\
 ``1.5*len(iterable)`` comparisons. Recipe based on the snippet\n\
@@ -260,6 +260,10 @@ iterable : iterable\n\
     The `iterable` for which to calculate the minimum and maximum.\n\
     Instead of passing the `iterable` the elements to compare can also be\n\
     given as (two or more) positional arguments.\n\
+\n\
+    .. note::\n\
+        Instead of one `iterable` it is also possible to pass the values (at\n\
+        least 2) as positional arguments.\n\
 \n\
 key : callable, optional\n\
     If not given then compare the values, otherwise compare ``key(item)``.\n\
@@ -296,6 +300,11 @@ This function calculates the minimum (:py:func:`min`) and maximum\n\
     >>> minmax([2,1,3,5,4])\n\
     (1, 5)\n\
 \n\
+or pass in the values as arguments::\n\
+\n\
+    >>> minmax(2, 1, -1, 5, 4)\n\
+    (-1, 5)\n\
+\n\
 If the iterable is empty `default` is returned::\n\
 \n\
     >>> minmax([], default=0)\n\
@@ -307,16 +316,6 @@ Like the builtin functions it also supports a `key` argument::\n\
     >>> seq = [(3, 2), (5, 1), (10, 3), (8, 5), (3, 4)]\n\
     >>> minmax(seq, key=operator.itemgetter(1))\n\
     ((5, 1), (8, 5))\n\
-\n\
-.. note::\n\
-    This function is only faster if:\n\
-\n\
-    - A `key`-argument is given or\n\
-    - Comparisons are costly or\n\
-    - `iterable` is a generator.\n\
-\n\
-    In other cases using both :py:func:`min` and :py:func:`max` should be\n\
-    preferred.\n\
 \n\
 References\n\
 ----------\n\
