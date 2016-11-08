@@ -95,7 +95,8 @@ Fail:
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(PyIU_Partition_doc, "partition(iterable[, func])\n\
+PyDoc_STRVAR(PyIU_Partition_doc, "partition(iterable, func=None)\n\
+--\n\
 \n\
 Use a predicate to partition entries into ``False`` entries and ``True``\n\
 entries.\n\

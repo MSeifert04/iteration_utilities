@@ -170,7 +170,8 @@ static PyMethodDef accumulate_methods[] = {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(accumulate_doc, "accumulate(iterable[, func, start])\n\
+PyDoc_STRVAR(accumulate_doc, "accumulate(iterable, func=None, start=None)\n\
+--\n\
 \n\
 Make an iterator that returns accumulated sums, or accumulated\n\
 results of other binary functions (specified via the optional `func`\n\

@@ -123,6 +123,7 @@ static PyMethodDef applyfunc_methods[] = {
  *****************************************************************************/
 
 PyDoc_STRVAR(applyfunc_doc, "applyfunc(func, initial)\n\
+--\n\
 \n\
 Successivly apply `func` on `value`.\n\
 \n\

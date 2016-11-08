@@ -3,7 +3,7 @@
  *****************************************************************************/
 
 static PyObject * PyIU_Count(PyObject *m, PyObject *args,
-                                PyObject *kwargs) {
+                             PyObject *kwargs) {
     static char *kwlist[] = {"iterable", "pred", "eq", NULL};
 
     PyObject *iterable, *iterator, *item, *val=NULL, *pred=NULL;
@@ -87,7 +87,8 @@ static PyObject * PyIU_Count(PyObject *m, PyObject *args,
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(PyIU_Count_doc, "count_items(iterable[, pred, eq])\n\
+PyDoc_STRVAR(PyIU_Count_doc, "count_items(iterable, pred=None, eq=False)\n\
+--\n\
 \n\
 Count how many times the predicate is true.\n\
 \n\
@@ -106,6 +107,8 @@ pred : callable, any type, None, optional\n\
       the iterable is counted.\n\
       If ``pred`` is given and not ``None`` then each item satisifying\n\
       ``if pred(item)`` is counted.\n\
+\n\
+    Default is ``None``.\n\
 \n\
 eq : bool, optional\n\
     If ``True`` compare each item in the `iterable` to `pred` instead of\n\

@@ -197,7 +197,8 @@ static PyMethodDef chained_methods[] = {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(chained_doc, "chained(*funcs[, reverse, all])\n\
+PyDoc_STRVAR(chained_doc, "chained(*funcs, /, reverse=False, all=False)\n\
+--\n\
 \n\
 Chained function calls.\n\
 \n\

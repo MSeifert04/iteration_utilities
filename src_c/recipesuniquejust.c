@@ -198,7 +198,8 @@ static PyMethodDef uniquejust_methods[] = {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(uniquejust_doc, "unique_justseen(iterable[, key])\n\
+PyDoc_STRVAR(uniquejust_doc, "unique_justseen(iterable, key=None)\n\
+--\n\
 \n\
 List unique elements, preserving order. Remember only the element just seen.\n\
 \n\

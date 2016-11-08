@@ -253,7 +253,8 @@ static PyMethodDef grouper_methods[] = {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(grouper_doc, "grouper(iterable, n[, fillvalue, truncate])\n\
+PyDoc_STRVAR(grouper_doc, "grouper(iterable, n, fillvalue=None, truncate=False)\n\
+--\n\
 \n\
 Collect data into fixed-length chunks or blocks.\n\
 \n\

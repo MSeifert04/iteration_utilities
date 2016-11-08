@@ -154,8 +154,8 @@ static PyObject * PyIU_Argmax(PyObject *self, PyObject *args, PyObject *kwargs) 
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(PyIU_Argmin_doc, "argmin(iterable, *[, key, default])\n\
-argmin(arg1, arg2, *iterable[, key])\n\
+PyDoc_STRVAR(PyIU_Argmin_doc, "argmin(iterable, /, key=None, default=None)\n\
+--\n\
 \n\
 Find index of the minimum.\n\
 \n\
@@ -163,8 +163,10 @@ Parameters\n\
 ----------\n\
 iterable : iterable\n\
     The `iterable` for which to calculate the index of the minimum.\n\
-    Instead of passing the `iterable` the elements to compare can also be\n\
-    given as (two or more) positional arguments.\n\
+\n\
+    .. note::\n\
+        Instead of one `iterable` it is also possible to pass the values (at\n\
+        least 2) as positional arguments.\n\
 \n\
 key : callable, optional\n\
     If not given then compare the values, otherwise compare ``key(item)``.\n\
@@ -198,8 +200,8 @@ And a `default`::\n\
     10\n\
 ");
 
-PyDoc_STRVAR(PyIU_Argmax_doc, "argmax(iterable, *[, key, default])\n\
-argmax(arg1, arg2, *iterable[, key])\n\
+PyDoc_STRVAR(PyIU_Argmax_doc, "argmax(iterable, /, key=None, default=None)\n\
+--\n\
 \n\
 Find index of the maximum.\n\
 \n\
@@ -207,8 +209,10 @@ Parameters\n\
 ----------\n\
 iterable : iterable\n\
     The `iterable` for which to calculate the index of the maximum.\n\
-    Instead of passing the `iterable` the elements to compare can also be\n\
-    given as (two or more) positional arguments.\n\
+\n\
+    .. note::\n\
+        Instead of one `iterable` it is also possible to pass the values (at\n\
+        least 2) as positional arguments.\n\
 \n\
 key : callable, optional\n\
     If not given then compare the values, otherwise compare ``key(item)``.\n\

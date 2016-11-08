@@ -237,7 +237,8 @@ static PyGetSetDef duplicates_getsetlist[] = {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(duplicates_doc, "duplicates(iterable[, key])\n\
+PyDoc_STRVAR(duplicates_doc, "duplicates(iterable, key=None)\n\
+--\n\
 \n\
 Return only duplicate entries, remembers all items ever seen.\n\
 \n\

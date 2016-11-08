@@ -116,7 +116,8 @@ static PyObject* PyIU_IsIterable(PyObject *m, PyObject *o) {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(PyIU_IsNone_doc, "is_None(value)\n\
+PyDoc_STRVAR(PyIU_IsNone_doc, "is_None(value, /)\n\
+--\n\
 \n\
 Returns ``True`` if `value` is ``None``, otherwise ``False``.\n\
 \n\
@@ -149,7 +150,8 @@ This can be used for example to remove all ``None`` from an iterable::\n\
     >>> list(filterfalse(is_None, [1, None, 3, 4, 5, None, 7]))\n\
     [1, 3, 4, 5, 7]");
 
-PyDoc_STRVAR(PyIU_IsNotNone_doc, "is_not_None(value)\n\
+PyDoc_STRVAR(PyIU_IsNotNone_doc, "is_not_None(value, /)\n\
+--\n\
 \n\
 Returns ``False`` if `value` is ``None``, otherwise ``True``.\n\
 \n\
@@ -174,7 +176,8 @@ faster::\n\
     >>> is_not_None(False)\n\
     True");
 
-PyDoc_STRVAR(PyIU_IsEven_doc, "is_even(value)\n\
+PyDoc_STRVAR(PyIU_IsEven_doc, "is_even(value, /)\n\
+--\n\
 \n\
 Returns ``True`` if `value` is even, otherwise ``False``.\n\
 \n\
@@ -201,7 +204,8 @@ faster::\n\
     >>> is_even(2)\n\
     True");
 
-PyDoc_STRVAR(PyIU_IsOdd_doc, "is_odd(value)\n\
+PyDoc_STRVAR(PyIU_IsOdd_doc, "is_odd(value, /)\n\
+--\n\
 \n\
 Returns ``True`` if `value` is odd, otherwise ``False``.\n\
 \n\
@@ -228,7 +232,8 @@ faster::\n\
     >>> is_odd(2)\n\
     False");
 
-PyDoc_STRVAR(PyIU_IsIterable_doc, "is_iterable(value)\n\
+PyDoc_STRVAR(PyIU_IsIterable_doc, "is_iterable(value, /)\n\
+--\n\
 \n\
 Returns ``True`` if `value` is iterable, otherwise ``False``.\n\
 \n\

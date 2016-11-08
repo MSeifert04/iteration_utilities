@@ -413,7 +413,8 @@ static PyMethodDef itemidxkey_methods[] = {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(itemidxkey_doc, "ItemIdxKey(item, idx[, key])\n\
+PyDoc_STRVAR(itemidxkey_doc, "ItemIdxKey(item, idx, key=None)\n\
+--\n\
 \n\
 Helper class that makes it easier and faster to compare two values for\n\
 *stable* sorting algorithms supporting key functions.\n\

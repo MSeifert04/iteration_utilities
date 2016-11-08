@@ -236,6 +236,7 @@ static PyMethodDef nth_methods[] = {
  *****************************************************************************/
 
 PyDoc_STRVAR(nth_doc, "nth(x)\n\
+--\n\
 \n\
 Class that returns the `n`-th found value.\n\
 \n\

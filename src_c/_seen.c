@@ -343,37 +343,38 @@ static PyObject * seen_containsadd(PyObject *self, PyObject *o) {
  *****************************************************************************/
 
 PyDoc_STRVAR(seen_containsadd_doc, "contains_add(o)\n\
-             \n\
-             Check if `o` is already contained in `self` and return the result.\n\
-             But also adds `o` to `self` if it's not contained.\n\
-             \n\
-             Parameters\n\
-             ----------\n\
-             o : any type\n\
-                 The object to check if it's contained in `self` and added to\n\
-                 `self` if not.\n\
-             \n\
-             Returns\n\
-             -------\n\
-             contained : bool\n\
-                 ``True`` if `o` is contained in `self` otherwise ``False``.\n\
-             \n\
-             Examples\n\
-             --------\n\
-             A simple example::\n\
-             \n\
-                 >>> from iteration_utilities import Seen\n\
-                 >>> x = Seen()\n\
-                 >>> 10 in x\n\
-                 False\n\
-                 >>> x.contains_add(10)\n\
-                 False\n\
-                 >>> 10 in x\n\
-                 True\n\
-                 >>> x.contains_add(10)\n\
-                 True\n\
-                 >>> x  #doctest: +SKIP\n\
-                 Seen({10})");
+--\n\
+\n\
+Check if `o` is already contained in `self` and return the result.\n\
+But also adds `o` to `self` if it's not contained.\n\
+\n\
+Parameters\n\
+----------\n\
+o : any type\n\
+    The object to check if it's contained in `self` and added to\n\
+    `self` if not.\n\
+\n\
+Returns\n\
+-------\n\
+contained : bool\n\
+    ``True`` if `o` is contained in `self` otherwise ``False``.\n\
+\n\
+Examples\n\
+--------\n\
+A simple example::\n\
+\n\
+    >>> from iteration_utilities import Seen\n\
+    >>> x = Seen()\n\
+    >>> 10 in x\n\
+    False\n\
+    >>> x.contains_add(10)\n\
+    False\n\
+    >>> 10 in x\n\
+    True\n\
+    >>> x.contains_add(10)\n\
+    True\n\
+    >>> x  #doctest: +SKIP\n\
+    Seen({10})");
 
 /******************************************************************************
  *
@@ -410,7 +411,8 @@ static PySequenceMethods seen_as_sequence = {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(seen_doc, "Seen([seenset, seenlist])\n\
+PyDoc_STRVAR(seen_doc, "Seen(seenset, seenlist)\n\
+--\n\
 \n\
 Helper class which adds the items after each `contains_add` check.\n\
 \n\

@@ -50,7 +50,8 @@ static PyObject* PyIU_ReturnCalled(PyObject *m, PyObject *o) {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(PyIU_ReturnIdentity_doc, "return_identity(obj)\n\
+PyDoc_STRVAR(PyIU_ReturnIdentity_doc, "return_identity(obj, /)\n\
+--\n\
 \n\
 Always return the argument.\n\
 \n\
@@ -75,6 +76,7 @@ This function is equivalent to ``lambda x: x`` but significantly faster::\n\
     'abc'");
 
 PyDoc_STRVAR(PyIU_ReturnFirstArg_doc, "return_first_arg(*args, **kwargs)\n\
+--\n\
 \n\
 Always return the first positional argument given to the function.\n\
 \n\
@@ -97,7 +99,8 @@ significantly faster::\n\
     >>> return_first_arg(1, 2, 3, 4, a=100)\n\
     1");
 
-PyDoc_STRVAR(PyIU_ReturnCalled_doc, "return_called(func)\n\
+PyDoc_STRVAR(PyIU_ReturnCalled_doc, "return_called(func, /)\n\
+--\n\
 \n\
 Return the result of ``func()``.\n\
 \n\

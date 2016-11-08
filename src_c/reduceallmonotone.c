@@ -56,7 +56,8 @@ Found:
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(PyIU_Monotone_doc, "all_monotone(iterable[, decreasing=False, strict=False])\n\
+PyDoc_STRVAR(PyIU_Monotone_doc, "all_monotone(iterable, decreasing=False, strict=False)\n\
+--\n\
 \n\
 Checks if the elements in `iterable` are (strictly) monotone \n\
 increasing/decreasing.\n\

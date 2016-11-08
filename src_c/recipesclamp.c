@@ -189,7 +189,8 @@ static PyMethodDef clamp_methods[] = {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(clamp_doc, "clamp(iterable, [low, high, inclusive])\n\
+PyDoc_STRVAR(clamp_doc, "clamp(iterable, low=None, high=None, inclusive=False)\n\
+--\n\
 \n\
 Remove values which are not between `low` and `high`.\n\
 \n\

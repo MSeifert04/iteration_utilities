@@ -140,7 +140,8 @@ static PyMethodDef iterexcept_methods[] = {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(iterexcept_doc, "iter_except(func, exception[, first])\n\
+PyDoc_STRVAR(iterexcept_doc, "iter_except(func, exception, first=None)\n\
+--\n\
 \n\
 Call a function repeatedly until an `exception` is raised.\n\
 \n\

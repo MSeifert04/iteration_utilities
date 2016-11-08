@@ -17,6 +17,54 @@ import sys
 import os
 import shlex
 
+# #############################################################################
+# PATCHES
+# See also: https://github.com/numpy/numpydoc/pull/73
+# #############################################################################
+
+import collections
+import inspect
+import pydoc
+import re
+
+import six
+
+import numpydoc
+
+
+if six.PY2:
+    sixu = lambda s: unicode(s, 'unicode_escape')
+else:
+    sixu = lambda s: s
+
+
+def mangle_signature(app, what, name, obj, options, sig, retann):
+    # Do not try to inspect classes that don't define `__init__`
+    if (inspect.isclass(obj) and
+        (not hasattr(obj, '__init__') or
+            'initializes x; see ' in pydoc.getdoc(obj.__init__))):
+        return '', ''
+
+    if not (isinstance(obj, collections.Callable) or
+            hasattr(obj, '__argspec_is_invalid_')):
+        return
+
+    if not hasattr(obj, '__doc__'):
+        return
+
+    doc = numpydoc.docscrape_sphinx.SphinxDocString(pydoc.getdoc(obj))
+    sig = doc['Signature'] or getattr(obj, '__text_signature__', None)
+    if sig:
+        sig = re.sub(sixu("^[^(]*"), sixu(""), sig)
+        return sig, sixu('')
+
+
+numpydoc.numpydoc.mangle_signature = mangle_signature
+
+# #############################################################################
+# PATCHES (End)
+# #############################################################################
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.

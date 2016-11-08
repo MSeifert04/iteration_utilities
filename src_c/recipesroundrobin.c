@@ -193,6 +193,7 @@ static PyMethodDef roundrobin_methods[] = {
  *****************************************************************************/
 
 PyDoc_STRVAR(roundrobin_doc, "roundrobin(*iterables)\n\
+--\n\
 \n\
 Round-Robin implementation ([0]_).\n\
 \n\

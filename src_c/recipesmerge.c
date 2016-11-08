@@ -324,7 +324,8 @@ static PyMethodDef merge_methods[] = {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(merge_doc, "merge(*iterable, [key, reverse])\n\
+PyDoc_STRVAR(merge_doc, "merge(*iterable, /, key=None, reverse=False)\n\
+--\n\
 \n\
 Merge sorted `iterables` into one.\n\
 \n\

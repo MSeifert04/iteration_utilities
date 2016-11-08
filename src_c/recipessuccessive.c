@@ -213,6 +213,7 @@ static PyMethodDef successive_methods[] = {
  *****************************************************************************/
 
 PyDoc_STRVAR(successive_doc, "successive(iterable, times)\n\
+--\n\
 \n\
 Like the recipe for pairwise but allows to get an arbitary number\n\
 of successive elements.\n\
