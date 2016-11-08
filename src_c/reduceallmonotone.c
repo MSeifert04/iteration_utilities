@@ -89,13 +89,14 @@ Examples\n\
 --------\n\
 This is roughly equivalent to\n\
 ``all(itertools.starmap(operator.lt, iteration_utilities.successive(iterable, 2)))``\n\
-with the appropriate operator depending on `decreasing` and `strict`\n\
->>> from iteration_utilities import all_monotone\n\
->>> all_monotone([1,1,1,1,1,1,1,1,1])\n\
-True\n\
->>> all_monotone([1,1,1,1,1,1,1,1,1], strict=True)\n\
-False\n\
->>> all_monotone([2,1,1,1,1,1,1,1,0], decreasing=True)\n\
-True\n\
->>> all_monotone([2,1,1,1,1,1,1,1,0], decreasing=True, strict=True)\n\
-False");
+with the appropriate operator depending on `decreasing` and `strict`::\n\
+\n\
+    >>> from iteration_utilities import all_monotone\n\
+    >>> all_monotone([1,1,1,1,1,1,1,1,1])\n\
+    True\n\
+    >>> all_monotone([1,1,1,1,1,1,1,1,1], strict=True)\n\
+    False\n\
+    >>> all_monotone([2,1,1,1,1,1,1,1,0], decreasing=True)\n\
+    True\n\
+    >>> all_monotone([2,1,1,1,1,1,1,1,0], decreasing=True, strict=True)\n\
+    False");

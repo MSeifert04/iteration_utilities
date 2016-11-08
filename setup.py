@@ -31,17 +31,20 @@ setup(name='iteration_utilities',
 
       description='Functional programming utilities for Python 2 and 3.',
       long_description=readme(),
-      keywords=['functional functools generator itertools iteration iterator '
-                'operators performance reduce utility'],
+      keywords=('functional functools generator itertools iteration iterator '
+                'operators performance reduce utility').split(' '),
       platforms=["Windows Linux"],  # maybe sometime also "Mac OS-X", "Unix"
 
       classifiers=[
         'Development Status :: 4 - Beta',
+        'Programming Language :: Python :: 2'
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3'
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: Implementation :: CPython',
       ],
 
       license='Apache License Version 2.0',
