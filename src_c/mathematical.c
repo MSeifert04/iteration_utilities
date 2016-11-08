@@ -143,7 +143,8 @@ static PyObject* PyIU_MathRmod(PyObject *m, PyObject *args) {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(PyIU_MathSquare_doc, "square(value)\n\
+PyDoc_STRVAR(PyIU_MathSquare_doc, "square(value, /)\n\
+--\n\
 \n\
 Returns the squared `value`.\n\
 \n\
@@ -168,7 +169,8 @@ a one-argument square function and is significantly faster than ``lambda x: x**2
     >>> square(2.0)\n\
     4.0");
 
-PyDoc_STRVAR(PyIU_MathDouble_doc, "double(value)\n\
+PyDoc_STRVAR(PyIU_MathDouble_doc, "double(value, /)\n\
+--\n\
 \n\
 Returns the doubled `value`.\n\
 \n\
@@ -193,7 +195,8 @@ to ``functools.partial(operator.mul, 2)`` but faster::\n\
     >>> double(2.0)\n\
     4.0");
 
-PyDoc_STRVAR(PyIU_MathReciprocal_doc, "reciprocal(value)\n\
+PyDoc_STRVAR(PyIU_MathReciprocal_doc, "reciprocal(value, /)\n\
+--\n\
 \n\
 Returns ``1 / value``.\n\
 \n\
@@ -220,7 +223,8 @@ or ``functools.partial(operator.truediv, 1)`` but faster::\n\
     >>> reciprocal(4)\n\
     0.25");
 
-PyDoc_STRVAR(PyIU_MathRadd_doc, "radd(op1, op2)\n\
+PyDoc_STRVAR(PyIU_MathRadd_doc, "radd(op1, op2, /)\n\
+--\n\
 \n\
 Returns ``op2 + op1``.\n\
 \n\
@@ -242,7 +246,8 @@ Equivalent to ``lambda x, y: y + x``::\n\
     >>> radd(2, 2)\n\
     4");
 
-PyDoc_STRVAR(PyIU_MathRsub_doc, "rsub(op1, op2)\n\
+PyDoc_STRVAR(PyIU_MathRsub_doc, "rsub(op1, op2, /)\n\
+--\n\
 \n\
 Returns ``op2 - op1``.\n\
 \n\
@@ -264,7 +269,8 @@ Equivalent to ``lambda x, y: y - x``::\n\
     >>> rsub(2, 5)\n\
     3");
 
-PyDoc_STRVAR(PyIU_MathRmul_doc, "rmul(op1, op2)\n\
+PyDoc_STRVAR(PyIU_MathRmul_doc, "rmul(op1, op2, /)\n\
+--\n\
 \n\
 Returns ``op2 * op1``.\n\
 \n\
@@ -286,7 +292,8 @@ Equivalent to ``lambda x, y: y * x``::\n\
     >>> rmul(2, 2)\n\
     4");
 
-PyDoc_STRVAR(PyIU_MathRdiv_doc, "rdiv(op1, op2)\n\
+PyDoc_STRVAR(PyIU_MathRdiv_doc, "rdiv(op1, op2, /)\n\
+--\n\
 \n\
 Returns ``op2 / op1``.\n\
 \n\
@@ -308,7 +315,8 @@ Equivalent to ``lambda x, y: y / x``::\n\
     >>> rdiv(10, 1)\n\
     0.1");
 
-PyDoc_STRVAR(PyIU_MathRfdiv_doc, "rfdiv(op1, op2)\n\
+PyDoc_STRVAR(PyIU_MathRfdiv_doc, "rfdiv(op1, op2, /)\n\
+--\n\
 \n\
 Returns ``op2 // op1``.\n\
 \n\
@@ -330,7 +338,8 @@ Equivalent to ``lambda x, y: y // x``::\n\
     >>> rfdiv(10, 22)\n\
     2");
 
-PyDoc_STRVAR(PyIU_MathRpow_doc, "rpow(op1, op2)\n\
+PyDoc_STRVAR(PyIU_MathRpow_doc, "rpow(op1, op2, /)\n\
+--\n\
 \n\
 Returns ``op2 ** op1``.\n\
 \n\
@@ -352,7 +361,8 @@ Equivalent to ``lambda x, y: y ** x``::\n\
     >>> rpow(3, 2)\n\
     8");
 
-PyDoc_STRVAR(PyIU_MathRmod_doc, "rmod(op1, op2)\n\
+PyDoc_STRVAR(PyIU_MathRmod_doc, "rmod(op1, op2, /)\n\
+--\n\
 \n\
 Returns ``op2 % op1``.\n\
 \n\

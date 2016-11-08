@@ -46,7 +46,8 @@ Found:
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(PyIU_AllEqual_doc, "all_equal(iterable)\n\
+PyDoc_STRVAR(PyIU_AllEqual_doc, "all_equal(iterable, /)\n\
+--\n\
 \n\
 Checks if all the elements are equal to each other.\n\
 \n\

@@ -238,7 +238,8 @@ static PyGetSetDef uniqueever_getsetlist[] = {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(uniqueever_doc, "unique_everseen(iterable[, key])\n\
+PyDoc_STRVAR(uniqueever_doc, "unique_everseen(iterable, key=None)\n\
+--\n\
 \n\
 List unique elements, preserving their order. Remembers all elements ever seen.\n\
 \n\

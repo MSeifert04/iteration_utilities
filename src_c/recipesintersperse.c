@@ -182,6 +182,7 @@ static PyMethodDef intersperse_methods[] = {
  *****************************************************************************/
 
 PyDoc_STRVAR(intersperse_doc, "intersperse(iterable, e)\n\
+--\n\
 \n\
 Alternately yield an item from the `iterable` and `e`. Recipe based on the\n\
 homonymous function in the `more-itertools` package ([0]_) but significantly\n\

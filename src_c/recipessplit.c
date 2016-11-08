@@ -240,7 +240,8 @@ static PyMethodDef split_methods[] = {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(split_doc, "split(iterable, key[, maxsplit, keep, eq])\n\
+PyDoc_STRVAR(split_doc, "split(iterable, key, maxsplit=-1, keep=False, eq=False)\n\
+--\n\
 \n\
 Splits an `iterable` by a `key`.\n\
 \n\

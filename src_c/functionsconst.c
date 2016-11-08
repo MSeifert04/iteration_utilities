@@ -100,6 +100,7 @@ static PyMethodDef constant_methods[] = {
  *****************************************************************************/
 
 PyDoc_STRVAR(constant_doc, "constant(x)\n\
+--\n\
 \n\
 Class that always returns `x` when called.\n\
 \n\

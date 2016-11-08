@@ -254,7 +254,9 @@ static PyMethodDef deepflatten_methods[] = {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(deepflatten_doc, "deepflatten(iterable[, depth=-1, types=None, ignore=None])\n\
+PyDoc_STRVAR(deepflatten_doc, "deepflatten(iterable, depth=-1, types=None, ignore=None)\n\
+--\n\
+\n\
 Flatten an `iterable` with given `depth`.\n\
 \n\
 Parameters\n\

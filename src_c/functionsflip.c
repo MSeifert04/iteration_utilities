@@ -109,6 +109,7 @@ static PyMethodDef flip_methods[] = {
  *****************************************************************************/
 
 PyDoc_STRVAR(flip_doc, "flip(x)\n\
+--\n\
 \n\
 Class that reverses the positional arguments to a `func` when called.\n\
 \n\

@@ -114,6 +114,7 @@ static PyMethodDef complement_methods[] = {
  *****************************************************************************/
 
 PyDoc_STRVAR(complement_doc, "complement(func)\n\
+--\n\
 \n\
 Invert a predicate function. homonymous function in the `toolz` package \n\
 ([0]_) but significantly modified.\n\

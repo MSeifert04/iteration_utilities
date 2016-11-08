@@ -39,7 +39,8 @@ static PyObject * PyIU_One(PyObject *m, PyObject *iterable) {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(PyIU_One_doc, "one(iterable)\n\
+PyDoc_STRVAR(PyIU_One_doc, "one(iterable, /)\n\
+--\n\
 \n\
 Return the first value in the `iterable` and expects it only contains one element.\n\
 \n\

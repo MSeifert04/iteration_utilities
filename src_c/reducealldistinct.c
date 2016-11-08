@@ -55,7 +55,8 @@ Found:
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(PyIU_AllDistinct_doc, "all_distinct(iterable)\n\
+PyDoc_STRVAR(PyIU_AllDistinct_doc, "all_distinct(iterable, /)\n\
+--\n\
 \n\
 Checks if all items in the `iterable` are distinct.\n\
 \n\

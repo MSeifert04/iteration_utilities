@@ -258,8 +258,6 @@ Parameters\n\
 ----------\n\
 iterable : iterable\n\
     The `iterable` for which to calculate the minimum and maximum.\n\
-    Instead of passing the `iterable` the elements to compare can also be\n\
-    given as (two or more) positional arguments.\n\
 \n\
     .. note::\n\
         Instead of one `iterable` it is also possible to pass the values (at\n\

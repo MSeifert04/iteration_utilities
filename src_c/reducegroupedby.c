@@ -171,7 +171,8 @@ Fail:
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(PyIU_Groupby_doc, "groupedby(iterable, key[, keep, reduce, reducestart])\n\
+PyDoc_STRVAR(PyIU_Groupby_doc, "groupedby(iterable, key, keep=None, reduce=None, reducestart=None)\n\
+--\n\
 \n\
 Group values of `iterable` by a `key` function as dictionary.\n\
 \n\
