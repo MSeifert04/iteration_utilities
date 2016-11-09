@@ -38,6 +38,7 @@
 #include "recipesroundrobin.c"
 #include "recipessplit.c"
 #include "recipessuccessive.c"
+#include "recipestabulate.c"
 #include "recipesuniqueever.c"
 #include "recipesuniquejust.c"
 
@@ -153,6 +154,7 @@ PyDoc_STRVAR(PyIU_module_doc, "API: C Functions\n----------------");
         &PyIUType_Roundrobin,
         &PyIUType_Split,
         &PyIUType_Successive,
+        &PyIUType_Tabulate,
         &PyIUType_UniqueEver,
         &PyIUType_UniqueJust,
         NULL
