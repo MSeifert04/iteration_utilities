@@ -241,7 +241,7 @@ static PyGetSetDef uniqueever_getsetlist[] = {
 PyDoc_STRVAR(uniqueever_doc, "unique_everseen(iterable, key=None)\n\
 --\n\
 \n\
-List unique elements, preserving their order. Remembers all elements ever seen.\n\
+Find unique elements, preserving their order. Remembers all elements ever seen.\n\
 \n\
 Parameters\n\
 ----------\n\
@@ -268,7 +268,7 @@ Notes\n\
 -----\n\
 The items in the `iterable` must implement equality. If the items are hashable\n\
 the function is much faster because the internally a ``set`` is used which\n\
-speeds up the lookup if a value was seen.\n\
+speeds up the lookup.\n\
 \n\
 Examples\n\
 --------\n\
