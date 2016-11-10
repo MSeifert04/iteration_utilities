@@ -8,8 +8,7 @@ API: Official recipes
 from __future__ import absolute_import, division, print_function
 from collections import deque
 from copy import copy
-from itertools import (islice, count, chain, repeat, starmap, tee,
-                       combinations)
+from itertools import islice, chain, repeat, starmap, tee, combinations
 from operator import mul
 from random import choice, sample, randrange
 
@@ -34,45 +33,7 @@ __all__ = ['consume',
            'powerset',
            'random_combination', 'random_product', 'random_permutation',
            'repeatfunc',
-           'tabulate', 'tail', 'tee_lookahead']
-
-
-def tabulate(function, start=0):
-    """Return ``function(0)``, ``function(1)``, ...
-
-    Parameters
-    ----------
-    function : callable
-        The `function` to apply.
-
-    start : int, optional
-        The starting value to apply the `function` on. Each time `tabulate` is
-        called this value will be incremented by one.
-        Default is ``0``.
-
-    Returns
-    -------
-    tabulated : generator
-        An infinite generator containing the results of the `function` applied
-        on the values beginning by `start`.
-
-    Examples
-    --------
-    Since the return is an infinite generator you need some other function
-    to extract only the needed values. For example
-    :py:func:`~iteration_utilities._recipes._additional.getitem`::
-
-        >>> from iteration_utilities import tabulate, getitem
-        >>> from math import sqrt
-        >>> t = tabulate(sqrt, 0)
-        >>> list(getitem(t, stop=3))
-        [0.0, 1.0, 1.4142135623730951]
-
-    .. warning::
-        This will return an infinitly long generator so do **not** try to do
-        something like ``list(tabulate())``!
-    """
-    return map(function, count(start))
+           'tail', 'tee_lookahead']
 
 
 def tail(iterable, n):
