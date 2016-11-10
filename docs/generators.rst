@@ -98,7 +98,7 @@ From a function
 - :py:func:`iter` (two arguments) (implemented as `from_iterfunc_sentinel` in `Iterable`)
 - :py:func:`~iteration_utilities.iter_except` (implemented as `from_iterfunc_exception` in `Iterable`)
 - :py:func:`~iteration_utilities._recipes._core.repeatfunc`
-- :py:func:`~iteration_utilities._recipes._core.tabulate`
+- :py:func:`~iteration_utilities.tabulate`
 
 
 References
