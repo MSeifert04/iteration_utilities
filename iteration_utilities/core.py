@@ -292,7 +292,7 @@ class _Base(object):
 
     @staticmethod
     def from_tabulate(func, start=_default):
-        """See :py:func:`~iteration_utilities._recipes._core.tabulate`.
+        """See :py:func:`~iteration_utilities.tabulate`.
 
         Examples
         --------
@@ -1032,7 +1032,7 @@ class Iterable(_Base):
     :py:meth:`~Iterable.from_repeatfunc`
         See :py:func:`~iteration_utilities._recipes._core.repeatfunc`.
     :py:meth:`~Iterable.from_tabulate`
-        See :py:func:`~iteration_utilities._recipes._core.tabulate`.
+        See :py:func:`~iteration_utilities.tabulate`.
     :py:meth:`~Iterable.get_all`
         See :py:func:`python:all`.
     :py:meth:`~Iterable.get_all_distinct`
@@ -2049,7 +2049,7 @@ class InfiniteIterable(_Base):
     :py:meth:`~InfiniteIterable.from_repeatfunc`
         See :py:func:`~iteration_utilities._recipes._core.repeatfunc`.
     :py:meth:`~InfiniteIterable.from_tabulate`
-        See :py:func:`~iteration_utilities._recipes._core.tabulate`.
+        See :py:func:`~iteration_utilities.tabulate`.
     :py:meth:`~InfiniteIterable.getitem`
         See :py:func:`~iteration_utilities._recipes._additional.getitem`
     :py:meth:`~InfiniteIterable.grouper`
