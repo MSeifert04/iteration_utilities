@@ -42,6 +42,7 @@ static PyObject * tabulate_new(PyTypeObject *type, PyObject *args,
     /* Create and fill struct */
     lz = (PyIUObject_Tabulate *)type->tp_alloc(type, 0);
     if (lz == NULL) {
+        Py_DECREF(cnt);
         return NULL;
     }
     Py_INCREF(func);
@@ -84,27 +85,31 @@ static int tabulate_traverse(PyIUObject_Tabulate *lz, visitproc visit,
  *****************************************************************************/
 
 static PyObject * tabulate_next(PyIUObject_Tabulate *lz) {
-    PyObject *result, *tmp=NULL;
-
+    PyObject *result=NULL, *tmp=NULL;
     if (lz->cnt == NULL) {
-        PyErr_Format(PyExc_TypeError, "Something went wrong and `cnt` was lost.");
-        return NULL;
+        goto Fail;
     }
-
     // Call the function with the current value as argument
     result = PyObject_CallFunctionObjArgs(lz->func, lz->cnt, NULL);
     if (result == NULL) {
-        return NULL;
+        goto Fail;
     }
-
+    // Increment the counter.
     tmp = lz->cnt;
-    lz->cnt = PyNumber_Add(tmp, PyIU_Long_1());
+    lz->cnt = PyNumber_Add(lz->cnt, PyIU_Long_1());
     Py_DECREF(tmp);
     if (lz->cnt == NULL) {
-        return NULL;
+        goto Fail;
     }
-
+    // Return the result
     return result;
+
+Fail:
+    Py_XDECREF(result);
+    Py_XDECREF(lz->cnt);
+    // Reset counter to NULL, so subsequent iterations yield StopIterations
+    lz->cnt = NULL;
+    return NULL;
 }
 
 /******************************************************************************
@@ -137,7 +142,50 @@ static PyMethodDef tabulate_methods[] = {
  *
  *****************************************************************************/
 
-PyDoc_STRVAR(tabulate_doc, "tabulate(function, start=0)");
+PyDoc_STRVAR(tabulate_doc, "tabulate(function, start=0)\n\
+--\n\
+\n\
+Return ``function(0)``, ``function(1)``, ...\n\
+\n\
+Parameters\n\
+----------\n\
+function : callable\n\
+    The `function` to apply.\n\
+\n\
+start : int, optional\n\
+    The starting value to apply the `function` on. Each time `tabulate` is\n\
+    called this value will be incremented by one.\n\
+    Default is ``0``.\n\
+\n\
+Returns\n\
+-------\n\
+tabulated : generator\n\
+    An infinite generator containing the results of the `function` applied\n\
+    on the values beginning by `start`.\n\
+\n\
+Examples\n\
+--------\n\
+Since the return is an infinite generator you need some other function\n\
+to extract only the needed values. For example\n\
+:py:func:`~iteration_utilities._recipes._additional.getitem`::\n\
+\n\
+    >>> from iteration_utilities import tabulate, getitem\n\
+    >>> from math import sqrt\n\
+    >>> t = tabulate(sqrt, 0)\n\
+    >>> list(getitem(t, stop=3))\n\
+    [0.0, 1.0, 1.4142135623730951]\n\
+\n\
+.. warning::\n\
+    This will return an infinitly long generator so do **not** try to do\n\
+    something like ``list(tabulate())``!\n\
+\n\
+This is equivalent to:\n\
+\n\
+.. code::\n\
+\n\
+    import itertools\n\
+    def tabulate(function, start=0)\n\
+        return map(function, itertools.count(start))");
 
 /******************************************************************************
  *
@@ -147,7 +195,7 @@ PyDoc_STRVAR(tabulate_doc, "tabulate(function, start=0)");
 
 static PyTypeObject PyIUType_Tabulate = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.tabulate2",    /* tp_name */
+    "iteration_utilities.tabulate",     /* tp_name */
     sizeof(PyIUObject_Tabulate),        /* tp_basicsize */
     0,                                  /* tp_itemsize */
     /* methods */
