@@ -4,7 +4,7 @@ include LICENSE.rst
 recursive-include licenses *
 
 # Source code
-recursive-include src_c *.c
+recursive-include src *.c
 
 # Needed for tests
 #include pytest.ini

@@ -19,8 +19,8 @@ def version():
 
 
 cfuncs_module = Extension('iteration_utilities._cfuncs',
-                          sources=[path.join('src_c', '_module.c')],
-                          depends=glob(path.join('src_c', '*.c'))
+                          sources=[path.join('src', '_module.c')],
+                          depends=glob(path.join('src', '*.c'))
                           )
 
 needs_pytest = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
