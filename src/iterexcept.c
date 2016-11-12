@@ -9,7 +9,7 @@ typedef struct {
     PyObject *first;
 } PyIUObject_Iterexcept;
 
-static PyTypeObject PyIUType_Iterexcept;
+PyTypeObject PyIUType_Iterexcept;
 
 /******************************************************************************
  * New
@@ -202,7 +202,7 @@ Further examples:\n\
  * Type
  *****************************************************************************/
 
-static PyTypeObject PyIUType_Iterexcept = {
+PyTypeObject PyIUType_Iterexcept = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.iter_except",                  /* tp_name */
     sizeof(PyIUObject_Iterexcept),                      /* tp_basicsize */

@@ -11,7 +11,7 @@ typedef struct {
     Py_ssize_t currentdepth;
 } PyIUObject_DeepFlatten;
 
-static PyTypeObject PyIUType_DeepFlatten;
+PyTypeObject PyIUType_DeepFlatten;
 
 /******************************************************************************
  * New
@@ -359,7 +359,7 @@ This function is roughly equivalent to this python function:\n\
  * Type
  *****************************************************************************/
 
-static PyTypeObject PyIUType_DeepFlatten = {
+PyTypeObject PyIUType_DeepFlatten = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.deepflatten",                  /* tp_name */
     sizeof(PyIUObject_DeepFlatten),                     /* tp_basicsize */

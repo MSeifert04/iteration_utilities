@@ -24,7 +24,7 @@ typedef struct {
     PyObject *funcargs;
 } PyIUObject_Merge;
 
-static PyTypeObject PyIUType_Merge;
+PyTypeObject PyIUType_Merge;
 
 /******************************************************************************
  * New
@@ -403,7 +403,7 @@ However if the `iterabes` are not sorted the result will be unsorted\n\
  * Type
  *****************************************************************************/
 
-static PyTypeObject PyIUType_Merge = {
+PyTypeObject PyIUType_Merge = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.merge",                        /* tp_name */
     sizeof(PyIUObject_Merge),                           /* tp_basicsize */

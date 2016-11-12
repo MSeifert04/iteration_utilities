@@ -26,7 +26,7 @@ typedef struct {
     PyObject *seenlist;
 } PyIUObject_Seen;
 
-static PyTypeObject PyIUType_Seen;
+PyTypeObject PyIUType_Seen;
 
 #define PyIUSeen_Check(obj) (PyObject_IsInstance(obj, (PyObject*) &PyIUType_Seen))
 #define PyIUSeen_CheckExact(op) (Py_TYPE(op) == &PyIUType_Seen)
@@ -36,7 +36,7 @@ static PyTypeObject PyIUType_Seen;
  * Returns ``NULL`` on failure with the appropriate exception.
  *****************************************************************************/
 
-static PyObject *
+PyObject *
 PyIUSeen_New(void)
 {
     /* Create and fill new object. */
@@ -225,7 +225,7 @@ seen_reduce(PyIUObject_Seen *self)
  * May be not overflow safe ...
  *****************************************************************************/
 
-static Py_ssize_t
+Py_ssize_t
 PyIUSeen_Size(PyIUObject_Seen *self)
 {
     if (self->seenlist != NULL) {
@@ -323,7 +323,7 @@ seen_containsnoadd_direct(PyIUObject_Seen *self,
     }
 }
 
-static int
+int
 PyIUSeen_ContainsAdd(PyObject *self,
                      PyObject *o)
 {
@@ -469,7 +469,7 @@ applications.");
  * Type
  *****************************************************************************/
 
-static PyTypeObject PyIUType_Seen = {
+PyTypeObject PyIUType_Seen = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.Seen",                         /* tp_name */
     sizeof(PyIUObject_Seen),                            /* tp_basicsize */

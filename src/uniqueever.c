@@ -16,7 +16,7 @@ typedef struct {
     PyObject *funcargs;
 } PyIUObject_UniqueEver;
 
-static PyTypeObject PyIUType_UniqueEver;
+PyTypeObject PyIUType_UniqueEver;
 
 /******************************************************************************
  * New
@@ -298,7 +298,7 @@ One can access the already seen values by accessing the `seen` attribute.");
  * Type
  *****************************************************************************/
 
-static PyTypeObject PyIUType_UniqueEver = {
+PyTypeObject PyIUType_UniqueEver = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.unique_everseen",              /* tp_name */
     sizeof(PyIUObject_UniqueEver),                      /* tp_basicsize */

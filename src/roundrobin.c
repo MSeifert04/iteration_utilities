@@ -9,7 +9,7 @@ typedef struct {
     Py_ssize_t active;
 } PyIUObject_Roundrobin;
 
-static PyTypeObject PyIUType_Roundrobin;
+PyTypeObject PyIUType_Roundrobin;
 
 /******************************************************************************
  * New
@@ -223,7 +223,7 @@ References\n\
  * Type
  *****************************************************************************/
 
-static PyTypeObject PyIUType_Roundrobin = {
+PyTypeObject PyIUType_Roundrobin = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.roundrobin",                   /* tp_name */
     sizeof(PyIUObject_Roundrobin),                      /* tp_basicsize */

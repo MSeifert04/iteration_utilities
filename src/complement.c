@@ -7,7 +7,7 @@ typedef struct {
     PyObject *func;
 } PyIUObject_Complement;
 
-static PyTypeObject PyIUType_Complement;
+PyTypeObject PyIUType_Complement;
 
 /******************************************************************************
  * New
@@ -150,7 +150,7 @@ References\n\
  * Type
  *****************************************************************************/
 
-static PyTypeObject PyIUType_Complement = {
+PyTypeObject PyIUType_Complement = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.complement",                   /* tp_name */
     sizeof(PyIUObject_Complement),                      /* tp_basicsize */

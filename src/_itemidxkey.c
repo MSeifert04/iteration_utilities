@@ -1,9 +1,6 @@
 /******************************************************************************
  * Licensed under Apache License Version 2.0 - see LICENSE.rst
- *****************************************************************************/
-
-
-/******************************************************************************
+ *
  * Helper class that mimics a 2-tuple when compared but dynamically decides
  * which item to compare (item or key) and assumes that the idx is always
  * different.
@@ -19,7 +16,7 @@ typedef struct {
     Py_ssize_t idx;
 } PyIUObject_ItemIdxKey;
 
-static PyTypeObject PyIUType_ItemIdxKey;
+PyTypeObject PyIUType_ItemIdxKey;
 
 #define PyIU_ItemIdxKey_Check(obj) PyObject_IsInstance(obj, (PyObject*) &PyIUType_ItemIdxKey)
 #define PyIU_ItemIdxKey_CheckExact(op) (Py_TYPE(op) == &PyIUType_ItemIdxKey)
@@ -71,7 +68,7 @@ itemidxkey_new(PyTypeObject *type,
  * This bypasses the argument unpacking!
  *****************************************************************************/
 
-static PyObject *
+PyObject *
 PyIU_ItemIdxKey_FromC(PyObject *item,
                       Py_ssize_t idx,
                       PyObject *key)
@@ -546,7 +543,7 @@ for the value that should be sorted.");
  * Type
  *****************************************************************************/
 
-static PyTypeObject PyIUType_ItemIdxKey = {
+PyTypeObject PyIUType_ItemIdxKey = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.ItemIdxKey",                   /* tp_name */
     sizeof(PyIUObject_ItemIdxKey),                      /* tp_basicsize */

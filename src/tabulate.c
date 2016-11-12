@@ -9,7 +9,7 @@ typedef struct {
     PyObject *funcargs;
 } PyIUObject_Tabulate;
 
-static PyTypeObject PyIUType_Tabulate;
+PyTypeObject PyIUType_Tabulate;
 
 /******************************************************************************
  * New
@@ -198,7 +198,7 @@ This is equivalent to:\n\
  * Type
  *****************************************************************************/
 
-static PyTypeObject PyIUType_Tabulate = {
+PyTypeObject PyIUType_Tabulate = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.tabulate",                     /* tp_name */
     sizeof(PyIUObject_Tabulate),                        /* tp_basicsize */

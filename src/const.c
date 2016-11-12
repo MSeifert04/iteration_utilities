@@ -7,7 +7,7 @@ typedef struct {
     PyObject *item;
 } PyIUObject_Constant;
 
-static PyTypeObject PyIUType_Constant;
+PyTypeObject PyIUType_Constant;
 
 /******************************************************************************
  * New
@@ -148,7 +148,7 @@ For example::\n\
  * Type
  *****************************************************************************/
 
-static PyTypeObject PyIUType_Constant = {
+PyTypeObject PyIUType_Constant = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.constant",                     /* tp_name */
     sizeof(PyIUObject_Constant),                        /* tp_basicsize */

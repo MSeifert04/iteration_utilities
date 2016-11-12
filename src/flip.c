@@ -7,7 +7,7 @@ typedef struct {
     PyObject *func;
 } PyIUObject_Flip;
 
-static PyTypeObject PyIUType_Flip;
+PyTypeObject PyIUType_Flip;
 
 /******************************************************************************
  * New
@@ -142,7 +142,7 @@ This can be used to alter the call to a function::\n\
  * Type
  *****************************************************************************/
 
-static PyTypeObject PyIUType_Flip = {
+PyTypeObject PyIUType_Flip = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.flip",                         /* tp_name */
     sizeof(PyIUObject_Flip),                            /* tp_basicsize */

@@ -8,7 +8,7 @@ typedef struct {
     PyObject *funcargs;
 } PyIUObject_Nth;
 
-static PyTypeObject PyIUType_Nth;
+PyTypeObject PyIUType_Nth;
 
 /******************************************************************************
  * New
@@ -368,7 +368,7 @@ There are already three predefined instances:\n\
  * Type
  *****************************************************************************/
 
-static PyTypeObject PyIUType_Nth = {
+PyTypeObject PyIUType_Nth = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.nth",                          /* tp_name */
     sizeof(PyIUObject_Nth),                             /* tp_basicsize */

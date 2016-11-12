@@ -10,7 +10,7 @@ typedef struct {
     PyObject *funcargs;
 } PyIUObject_Chained;
 
-static PyTypeObject PyIUType_Chained;
+PyTypeObject PyIUType_Chained;
 
 /******************************************************************************
  * New
@@ -267,7 +267,7 @@ Or apply all of them on the input::\n\
  * Type
  *****************************************************************************/
 
-static PyTypeObject PyIUType_Chained = {
+PyTypeObject PyIUType_Chained = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.chained",                      /* tp_name */
     sizeof(PyIUObject_Chained),                         /* tp_basicsize */

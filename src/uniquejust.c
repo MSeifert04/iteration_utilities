@@ -10,7 +10,7 @@ typedef struct {
     PyObject *funcargs;
 } PyIUObject_UniqueJust;
 
-static PyTypeObject PyIUType_UniqueJust;
+PyTypeObject PyIUType_UniqueJust;
 
 /******************************************************************************
  * New
@@ -239,7 +239,7 @@ Examples\n\
  * Type
  *****************************************************************************/
 
-static PyTypeObject PyIUType_UniqueJust = {
+PyTypeObject PyIUType_UniqueJust = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.unique_justseen",              /* tp_name */
     sizeof(PyIUObject_UniqueJust),                      /* tp_basicsize */

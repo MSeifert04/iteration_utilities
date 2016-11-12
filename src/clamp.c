@@ -10,7 +10,7 @@ typedef struct {
     int inclusive;
 } PyIUObject_Clamp;
 
-static PyTypeObject PyIUType_Clamp;
+PyTypeObject PyIUType_Clamp;
 
 /******************************************************************************
  * New
@@ -235,7 +235,7 @@ Some simple examples::\n\
  * Type
  *****************************************************************************/
 
-static PyTypeObject PyIUType_Clamp = {
+PyTypeObject PyIUType_Clamp = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.clamp",                        /* tp_name */
     sizeof(PyIUObject_Clamp),                           /* tp_basicsize */

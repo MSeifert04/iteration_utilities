@@ -10,7 +10,7 @@ typedef struct {
     int started;
 } PyIUObject_Intersperse;
 
-static PyTypeObject PyIUType_Intersperse;
+PyTypeObject PyIUType_Intersperse;
 
 /******************************************************************************
  * New
@@ -225,7 +225,7 @@ References\n\
  * Type
  *****************************************************************************/
 
-static PyTypeObject PyIUType_Intersperse = {
+PyTypeObject PyIUType_Intersperse = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.intersperse",                  /* tp_name */
     sizeof(PyIUObject_Intersperse),                     /* tp_basicsize */

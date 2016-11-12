@@ -96,7 +96,7 @@
 
 static PyObject *PyIU_Long_1_global = NULL;
 
-static PyObject *
+PyObject *
 PyIU_Long_1(void)
 {
     if (PyIU_Long_1_global == NULL) {
@@ -111,7 +111,7 @@ PyIU_Long_1(void)
 
 static PyObject *PyIU_Long_2_global = NULL;
 
-static PyObject *
+PyObject *
 PyIU_Long_2(void)
 {
     if (PyIU_Long_2_global == NULL) {
@@ -128,7 +128,7 @@ PyIU_Long_2(void)
  * Create a new reversed tuple from another tuple.
  *****************************************************************************/
 
-static PyObject *
+PyObject *
 PyUI_TupleReverse(PyObject *tuple)
 {
     PyObject *item, *newtuple;
@@ -161,7 +161,7 @@ PyUI_TupleReverse(PyObject *tuple)
  *         PyObject, see Warning.)
  *****************************************************************************/
 
-static void
+void
 PYUI_TupleInsert(PyObject *tuple,
                  Py_ssize_t where,
                  PyObject *v,
@@ -192,7 +192,7 @@ PYUI_TupleInsert(PyObject *tuple,
  *         moved to "where".
  *****************************************************************************/
 
-static void
+void
 PYUI_TupleRemove(PyObject *tuple,
                  Py_ssize_t where,
                  Py_ssize_t num)

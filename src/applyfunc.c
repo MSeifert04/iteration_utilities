@@ -9,7 +9,7 @@ typedef struct {
     PyObject *funcargs;
 } PyIUObject_Applyfunc;
 
-static PyTypeObject PyIUType_Applyfunc;
+PyTypeObject PyIUType_Applyfunc;
 
 /******************************************************************************
  * New
@@ -166,7 +166,7 @@ the result of ``func(value)``, then ``func(func(value))``, ...::\n\
  * Type
  *****************************************************************************/
 
-static PyTypeObject PyIUType_Applyfunc = {
+PyTypeObject PyIUType_Applyfunc = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.applyfunc",                    /* tp_name */
     sizeof(PyIUObject_Applyfunc),                       /* tp_basicsize */

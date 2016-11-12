@@ -13,7 +13,7 @@ typedef struct {
     PyObject *funcargs;
 } PyIUObject_Split;
 
-static PyTypeObject PyIUType_Split;
+PyTypeObject PyIUType_Split;
 
 /******************************************************************************
  * New
@@ -307,7 +307,7 @@ Examples\n\
  * Type
  *****************************************************************************/
 
-static PyTypeObject PyIUType_Split = {
+PyTypeObject PyIUType_Split = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.split",                        /* tp_name */
     sizeof(PyIUObject_Split),                           /* tp_basicsize */

@@ -16,7 +16,7 @@ typedef struct {
     PyObject *funcargs;
 } PyIUObject_Duplicates;
 
-static PyTypeObject PyIUType_Duplicates;
+PyTypeObject PyIUType_Duplicates;
 
 /******************************************************************************
  * New
@@ -297,7 +297,7 @@ To get each duplicate only once this can be combined with \n\
  * Type
  *****************************************************************************/
 
-static PyTypeObject PyIUType_Duplicates = {
+PyTypeObject PyIUType_Duplicates = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.duplicates",                   /* tp_name */
     sizeof(PyIUObject_Duplicates),                      /* tp_basicsize */

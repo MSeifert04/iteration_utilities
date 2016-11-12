@@ -9,7 +9,7 @@ typedef struct {
     PyObject *result;
 } PyIUObject_Successive;
 
-static PyTypeObject PyIUType_Successive;
+PyTypeObject PyIUType_Successive;
 
 /******************************************************************************
  * New
@@ -251,7 +251,7 @@ Varying the `times` can give you also 3 successive elements::\n\
  * Type
  *****************************************************************************/
 
-static PyTypeObject PyIUType_Successive = {
+PyTypeObject PyIUType_Successive = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.successive",                   /* tp_name */
     sizeof(PyIUObject_Successive),                      /* tp_basicsize */
