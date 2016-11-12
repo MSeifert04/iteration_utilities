@@ -167,13 +167,18 @@ PYUI_TupleInsert(PyObject *tuple,
                  PyObject *v,
                  Py_ssize_t num)
 {
+    /* Temporary variables */
     PyObject *temp;
     Py_ssize_t i;
 
+    /* Move each of them to the next place, starting by the next-to-last
+       element going left until where.
+       */
     for (i=num-2 ; i>=where ; i--) {
         temp = PyTuple_GET_ITEM(tuple, i);
         PyTuple_SET_ITEM(tuple, i+1, temp);
     }
+    /* Insert the new element. */
     PyTuple_SET_ITEM(tuple, where, v);
 }
 
@@ -197,13 +202,18 @@ PYUI_TupleRemove(PyObject *tuple,
                  Py_ssize_t where,
                  Py_ssize_t num)
 {
+    /* Temporary variables */
     PyObject *temp;
     Py_ssize_t idx;
 
+    /* Move each item to the left from the after-where index until the end of
+       the array.
+       */
     for (idx = where + 1 ; idx < num ; idx++) {
         temp = PyTuple_GET_ITEM(tuple, idx);
         PyTuple_SET_ITEM(tuple, idx-1, temp);
     }
+    /* Insert NULL at the last position. */
     PyTuple_SET_ITEM(tuple, num-1, NULL);
 }
 
@@ -234,10 +244,14 @@ PyUI_TupleBisectRight_LastFirst(PyObject *tuple,
                                 Py_ssize_t hi,
                                 int cmpop)
 {
+    /* Temporary variables */
     PyObject *litem;
-    Py_ssize_t mid, lo = 0;
     int res;
-    //printf("Start bisect right for %i elements.\n", hi);
+
+    /* Indices for the left end and mid of the current part of the array.
+       The right end (hi) is given as input.
+       */
+    Py_ssize_t mid, lo = 0;
 
     /* Bisection has two worst cases: If it should be inserted in the first or
        last place. The list is reverse-ordered so it's likely that the
@@ -265,10 +279,9 @@ PyUI_TupleBisectRight_LastFirst(PyObject *tuple,
         return -1;
     }
 
-
+    /* Start the normal bisection algorithm from biscet.c */
     while (lo < hi) {
         mid = ((size_t)lo + hi) / 2;
-        //printf("mid: %i low: %i high: %i \n", mid, lo, hi);
         litem = PyTuple_GET_ITEM(tuple, mid);
         if (litem == NULL) {
             return -1;
@@ -282,6 +295,5 @@ PyUI_TupleBisectRight_LastFirst(PyObject *tuple,
             return -1;
         }
     }
-    //printf("result: %i\n", lo);
     return lo;
 }
