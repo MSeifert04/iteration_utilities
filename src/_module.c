@@ -24,6 +24,7 @@
 #include "allequal.c"
 #include "allmonotone.c"
 #include "countitems.c"
+#include "dotproduct.c"
 #include "groupedby.c"
 #include "minmax.c"
 #include "one.c"
@@ -75,7 +76,7 @@ static PyMethodDef PyIU_methods[] = {
 
     {"return_identity",  (PyCFunction)PyIU_ReturnIdentity, METH_O,                       PyIU_ReturnIdentity_doc},
     {"return_first_arg", (PyCFunction)PyIU_ReturnFirstArg, METH_VARARGS | METH_KEYWORDS, PyIU_ReturnFirstArg_doc},
-    {"return_called",   (PyCFunction)PyIU_ReturnCalled,    METH_O,                       PyIU_ReturnCalled_doc},
+    {"return_called",    (PyCFunction)PyIU_ReturnCalled,   METH_O,                       PyIU_ReturnCalled_doc},
 
     {"argmin",       (PyCFunction)PyIU_Argmin,      METH_VARARGS | METH_KEYWORDS, PyIU_Argmin_doc},
     {"argmax",       (PyCFunction)PyIU_Argmax,      METH_VARARGS | METH_KEYWORDS, PyIU_Argmax_doc},
@@ -83,6 +84,7 @@ static PyMethodDef PyIU_methods[] = {
     {"all_equal",    (PyCFunction)PyIU_AllEqual,    METH_O,                       PyIU_AllEqual_doc},
     {"all_monotone", (PyCFunction)PyIU_Monotone,    METH_VARARGS | METH_KEYWORDS, PyIU_Monotone_doc},
     {"count_items",  (PyCFunction)PyIU_Count,       METH_VARARGS | METH_KEYWORDS, PyIU_Count_doc},
+    {"dotproduct",   (PyCFunction)PyIU_DotProduct,  METH_VARARGS,                 PyIU_DotProduct_doc},
     {"groupedby",    (PyCFunction)PyIU_Groupby,     METH_VARARGS | METH_KEYWORDS, PyIU_Groupby_doc},
     {"minmax",       (PyCFunction)PyIU_MinMax,      METH_VARARGS | METH_KEYWORDS, PyIU_MinMax_doc},
     {"one",          (PyCFunction)PyIU_One,         METH_O,                       PyIU_One_doc},

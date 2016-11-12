@@ -62,8 +62,6 @@ def test_empty_input():
 
     assert iteration_utilities.consume(empty, 2) is None
 
-    assert iteration_utilities.dotproduct(empty, empty) == 0
-
     assert list(iteration_utilities.flatten(empty)) == []
 
     assert list(iteration_utilities.getitem(
