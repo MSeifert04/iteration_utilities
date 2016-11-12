@@ -9,7 +9,7 @@ PyIU_Partition(PyObject *m,
 {
     static char *kwlist[] = {"iterable", "func", NULL};
     PyObject *iterable=NULL, *func=Py_None;
-    PyObject *iterator, *item, *result1, *result2, *result, *temp;
+    PyObject *iterator, *item, *result1, *result2, *result, *temp=NULL;
     PyObject *funcargs=NULL, *tmp=NULL;
     long ok;
 

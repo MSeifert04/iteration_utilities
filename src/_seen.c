@@ -402,14 +402,14 @@ static PyMethodDef seen_methods[] = {
  *****************************************************************************/
 
 static PySequenceMethods seen_as_sequence = {
-    seen_len,                           /* sq_length */
-    0,                                  /* sq_concat */
-    0,                                  /* sq_repeat */
-    0,                                  /* sq_item */
-    0,                                  /* sq_slice */
-    0,                                  /* sq_ass_item */
-    0,                                  /* sq_ass_slice */
-    (objobjproc)seen_containsnoadd_direct, /* sq_contains */
+    seen_len,                                                /* sq_length */
+    0,                                                       /* sq_concat */
+    0,                                                       /* sq_repeat */
+    0,                                                       /* sq_item */
+    0,                                                       /* sq_slice */
+    0,                                                       /* sq_ass_item */
+    0,                                                       /* sq_ass_slice */
+    (objobjproc)seen_containsnoadd_direct,                   /* sq_contains */
 };
 
 /******************************************************************************
