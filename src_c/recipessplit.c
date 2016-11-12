@@ -10,6 +10,7 @@ typedef struct {
     int keep_delimiter;
     int cmp;
     PyObject *next;
+    PyObject *funcargs;
 } PyIUObject_Split;
 
 static PyTypeObject PyIUType_Split;
@@ -25,7 +26,7 @@ static PyObject * split_new(PyTypeObject *type, PyObject *args,
     static char *kwlist[] = {"iterable", "key", "maxsplit", "keep", "eq", NULL};
     PyIUObject_Split *lz;
 
-    PyObject *iterable, *iterator, *delimiter;
+    PyObject *iterable, *iterator, *delimiter, *funcargs=NULL;
     Py_ssize_t maxsplit = -1;  // -1 means no maxsplit!
     int keep_delimiter = 0, cmp = 0;
 
@@ -46,9 +47,15 @@ static PyObject * split_new(PyTypeObject *type, PyObject *args,
     if (iterator == NULL) {
         return NULL;
     }
+    funcargs = PyTuple_New(1);
+    if (funcargs == NULL) {
+        Py_DECREF(iterator);
+        return NULL;
+    }
     lz = (PyIUObject_Split *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         Py_DECREF(iterator);
+        Py_DECREF(funcargs);
         return NULL;
     }
     Py_INCREF(delimiter);
@@ -58,6 +65,7 @@ static PyObject * split_new(PyTypeObject *type, PyObject *args,
     lz->keep_delimiter = keep_delimiter;
     lz->cmp = cmp;
     lz->next = NULL;
+    lz->funcargs = funcargs;
     return (PyObject *)lz;
 }
 
@@ -72,6 +80,7 @@ static void split_dealloc(PyIUObject_Split *lz) {
     Py_XDECREF(lz->iterator);
     Py_XDECREF(lz->delimiter);
     Py_XDECREF(lz->next);
+    Py_XDECREF(lz->funcargs);
     Py_TYPE(lz)->tp_free(lz);
 }
 
@@ -85,6 +94,7 @@ static int split_traverse(PyIUObject_Split *lz, visitproc visit, void *arg) {
     Py_VISIT(lz->iterator);
     Py_VISIT(lz->delimiter);
     Py_VISIT(lz->next);
+    Py_VISIT(lz->funcargs);
     return 0;
 }
 
@@ -95,7 +105,7 @@ static int split_traverse(PyIUObject_Split *lz, visitproc visit, void *arg) {
  *****************************************************************************/
 
 static PyObject * split_next(PyIUObject_Split *lz) {
-    PyObject *result, *item=NULL, *val=NULL;
+    PyObject *result, *item=NULL, *val=NULL, *tmp=NULL;
     int ok;
 
     // Create a list to hold the result.
@@ -124,7 +134,8 @@ static PyObject * split_next(PyIUObject_Split *lz) {
             ok = PyObject_RichCompareBool(lz->delimiter, item, Py_EQ);
 
         } else {
-            val = PyObject_CallFunctionObjArgs(lz->delimiter, item, NULL);
+            PYIU_RECYCLE_ARG_TUPLE(lz->funcargs, item, tmp, goto Fail)
+            val = PyObject_Call(lz->delimiter, lz->funcargs, NULL);
             if (val == NULL) {
                 goto Fail;
             }

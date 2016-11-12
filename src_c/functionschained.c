@@ -7,6 +7,7 @@ typedef struct {
     PyObject *funcs;
     int reverse;
     int all;
+    PyObject *funcargs;
 } PyIUObject_Chained;
 
 static PyTypeObject PyIUType_Chained;
@@ -21,7 +22,7 @@ static PyObject * chained_new(PyTypeObject *type, PyObject *funcs,
                               PyObject *kwargs) {
     PyIUObject_Chained *lz;
 
-    PyObject *kwarg;
+    PyObject *kwarg, *funcargs=NULL;
     Py_ssize_t nkwargs;
     int reverse = 0;
     int all = 0;
@@ -54,15 +55,21 @@ static PyObject * chained_new(PyTypeObject *type, PyObject *funcs,
         }
     }
 
+    funcargs = PyTuple_New(1);
+    if (funcargs == NULL) {
+        return NULL;
+    }
     /* Create struct */
     lz = (PyIUObject_Chained *)type->tp_alloc(type, 0);
     if (lz == NULL) {
+        Py_DECREF(funcargs);
         return NULL;
     }
     Py_INCREF(funcs);
     lz->funcs = funcs;
     lz->reverse = reverse;
     lz->all = all;
+    lz->funcargs = funcargs;
     return (PyObject *)lz;
 }
 
@@ -75,6 +82,7 @@ static PyObject * chained_new(PyTypeObject *type, PyObject *funcs,
 static void chained_dealloc(PyIUObject_Chained *lz) {
     PyObject_GC_UnTrack(lz);
     Py_XDECREF(lz->funcs);
+    Py_XDECREF(lz->funcargs);
     Py_TYPE(lz)->tp_free(lz);
 }
 
@@ -87,6 +95,7 @@ static void chained_dealloc(PyIUObject_Chained *lz) {
 static int chained_traverse(PyIUObject_Chained *lz, visitproc visit,
                             void *arg) {
     Py_VISIT(lz->funcs);
+    Py_VISIT(lz->funcargs);
     return 0;
 }
 
@@ -98,7 +107,7 @@ static int chained_traverse(PyIUObject_Chained *lz, visitproc visit,
 
 static PyObject * chained_call(PyIUObject_Chained *lz, PyObject *args,
                                PyObject *kwargs) {
-    PyObject *func, *temp, *oldtemp, *result=NULL;
+    PyObject *func, *temp, *oldtemp, *result=NULL, *tmp=NULL;
     Py_ssize_t tuplesize, idx;
 
     tuplesize = PyTuple_Size(lz->funcs);
@@ -129,7 +138,10 @@ static PyObject * chained_call(PyIUObject_Chained *lz, PyObject *args,
             }
         } else {
             oldtemp = temp;
-            temp = PyObject_CallFunctionObjArgs(func, temp, NULL);
+            PYIU_RECYCLE_ARG_TUPLE(lz->funcargs, temp, tmp, Py_DECREF(result);
+                                                            Py_DECREF(oldtemp);
+                                                            return NULL)
+            temp = PyObject_Call(func, lz->funcargs, NULL);
             Py_DECREF(oldtemp);
         }
 

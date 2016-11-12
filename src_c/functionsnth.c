@@ -5,6 +5,7 @@
 typedef struct {
     PyObject_HEAD
     Py_ssize_t index;
+    PyObject *funcargs;
 } PyIUObject_Nth;
 
 static PyTypeObject PyIUType_Nth;
@@ -19,19 +20,26 @@ static PyObject * nth_new(PyTypeObject *type, PyObject *args,
                           PyObject *kwargs) {
     PyIUObject_Nth *lz;
 
+    PyObject *funcargs;
     Py_ssize_t index;
 
     /* Parse arguments */
     if (!PyArg_ParseTuple(args, "n:nth", &index)) {
         return NULL;
     }
+    funcargs = PyTuple_New(1);
+    if (funcargs == NULL) {
+        return NULL;
+    }
 
     /* Create struct */
     lz = (PyIUObject_Nth *)type->tp_alloc(type, 0);
     if (lz == NULL) {
+        Py_DECREF(funcargs);
         return NULL;
     }
     lz->index = index;
+    lz->funcargs = funcargs;
     return (PyObject *)lz;
 }
 
@@ -43,6 +51,7 @@ static PyObject * nth_new(PyTypeObject *type, PyObject *args,
 
 static void nth_dealloc(PyIUObject_Nth *lz) {
     PyObject_GC_UnTrack(lz);
+    Py_XDECREF(lz->funcargs);
     Py_TYPE(lz)->tp_free(lz);
 }
 
@@ -53,6 +62,7 @@ static void nth_dealloc(PyIUObject_Nth *lz) {
  *****************************************************************************/
 
 static int nth_traverse(PyIUObject_Nth *lz, visitproc visit, void *arg) {
+    Py_VISIT(lz->funcargs);
     return 0;
 }
 
@@ -69,7 +79,7 @@ static PyObject * nth_call(PyIUObject_Nth *lz, PyObject *args,
 
     PyObject *(*iternext)(PyObject *);
     PyObject *iterable, *iterator, *item;
-    PyObject *defaultitem=NULL, *func=NULL, *last=NULL, *val=NULL;
+    PyObject *defaultitem=NULL, *func=NULL, *last=NULL, *val=NULL, *tmp=NULL;
     int ok, truthy=1, retpred=0, retidx=0;
     Py_ssize_t idx, nfound=-1;
 
@@ -128,7 +138,8 @@ static PyObject * nth_call(PyIUObject_Nth *lz, PyObject *args,
 
         // Otherwise call the function
         } else {
-            val = PyObject_CallFunctionObjArgs(func, item, NULL);
+            PYIU_RECYCLE_ARG_TUPLE(lz->funcargs, item, tmp, Py_DECREF(iterator); Py_DECREF(item); Py_XDECREF(last); return NULL)
+            val = PyObject_Call(func, lz->funcargs, NULL);
             if (val == NULL) {
                 Py_DECREF(iterator);
                 Py_DECREF(item);

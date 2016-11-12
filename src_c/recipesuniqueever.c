@@ -16,6 +16,7 @@ typedef struct {
     PyObject *iterator;
     PyObject *key;
     PyObject *seen;
+    PyObject *funcargs;
 } PyIUObject_UniqueEver;
 
 static PyTypeObject PyIUType_UniqueEver;
@@ -31,7 +32,7 @@ static PyObject * uniqueever_new(PyTypeObject *type, PyObject *args,
     static char *kwlist[] = {"iterable", "key", NULL};
     PyIUObject_UniqueEver *lz;
 
-    PyObject *iterable, *iterator, *seen, *key=NULL;
+    PyObject *iterable, *iterator, *seen, *key=NULL, *funcargs=NULL;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:unique_everseen", kwlist,
@@ -52,16 +53,24 @@ static PyObject * uniqueever_new(PyTypeObject *type, PyObject *args,
         Py_DECREF(iterator);
         return NULL;
     }
+    funcargs = PyTuple_New(1);
+    if (funcargs == NULL) {
+        Py_DECREF(iterator);
+        Py_DECREF(seen);
+        return NULL;
+    }
     lz = (PyIUObject_UniqueEver *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         Py_DECREF(iterator);
         Py_DECREF(seen);
+        Py_DECREF(funcargs);
         return NULL;
     }
     Py_XINCREF(key);
     lz->iterator = iterator;
     lz->key = key;
     lz->seen = seen;
+    lz->funcargs = funcargs;
     return (PyObject *)lz;
 }
 
@@ -76,6 +85,7 @@ static void uniqueever_dealloc(PyIUObject_UniqueEver *lz) {
     Py_XDECREF(lz->iterator);
     Py_XDECREF(lz->key);
     Py_XDECREF(lz->seen);
+    Py_XDECREF(lz->funcargs);
     Py_TYPE(lz)->tp_free(lz);
 }
 
@@ -90,6 +100,7 @@ static int uniqueever_traverse(PyIUObject_UniqueEver *lz, visitproc visit,
     Py_VISIT(lz->iterator);
     Py_VISIT(lz->key);
     Py_VISIT(lz->seen);
+    Py_VISIT(lz->funcargs);
     return 0;
 }
 
@@ -100,7 +111,7 @@ static int uniqueever_traverse(PyIUObject_UniqueEver *lz, visitproc visit,
  *****************************************************************************/
 
 static PyObject * uniqueever_next(PyIUObject_UniqueEver *lz) {
-    PyObject *item=NULL, *temp=NULL;
+    PyObject *item=NULL, *temp=NULL, *tmp=NULL;
     int ok;
 
     while ( (item = (*Py_TYPE(lz->iterator)->tp_iternext)(lz->iterator)) ) {
@@ -109,7 +120,8 @@ static PyObject * uniqueever_next(PyIUObject_UniqueEver *lz) {
         if (lz->key == NULL) {
             temp = item;
         } else {
-            temp = PyObject_CallFunctionObjArgs(lz->key, item, NULL);
+            PYIU_RECYCLE_ARG_TUPLE(lz->funcargs, item, tmp, return NULL)
+            temp = PyObject_Call(lz->key, lz->funcargs, NULL);
             if (temp == NULL) {
                 goto Fail;
             }

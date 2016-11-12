@@ -16,6 +16,7 @@ typedef struct {
     PyObject *iterator;
     PyObject *key;
     PyObject *seen;
+    PyObject *funcargs;
 } PyIUObject_Duplicates;
 
 static PyTypeObject PyIUType_Duplicates;
@@ -31,7 +32,7 @@ static PyObject * duplicates_new(PyTypeObject *type, PyObject *args,
     static char *kwlist[] = {"iterable", "key", NULL};
     PyIUObject_Duplicates *lz;
 
-    PyObject *iterable, *iterator, *seen, *key=NULL;
+    PyObject *iterable, *iterator, *seen, *key=NULL, *funcargs=NULL;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:duplicates", kwlist,
@@ -41,19 +42,26 @@ static PyObject * duplicates_new(PyTypeObject *type, PyObject *args,
     if (key == Py_None) {
         key = NULL;
     }
+    funcargs = PyTuple_New(1);
+    if (funcargs == NULL) {
+        return NULL;
+    }
 
     /* Create and fill struct */
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
+        Py_DECREF(funcargs);
         return NULL;
     }
     seen = PyIUSeen_New();
     if (seen == NULL) {
+        Py_DECREF(funcargs);
         Py_DECREF(iterator);
         return NULL;
     }
     lz = (PyIUObject_Duplicates *)type->tp_alloc(type, 0);
     if (lz == NULL) {
+        Py_DECREF(funcargs);
         Py_DECREF(iterator);
         Py_DECREF(seen);
         return NULL;
@@ -62,6 +70,7 @@ static PyObject * duplicates_new(PyTypeObject *type, PyObject *args,
     lz->iterator = iterator;
     lz->key = key;
     lz->seen = seen;
+    lz->funcargs = funcargs;
     return (PyObject *)lz;
 }
 
@@ -76,6 +85,7 @@ static void duplicates_dealloc(PyIUObject_Duplicates *lz) {
     Py_XDECREF(lz->iterator);
     Py_XDECREF(lz->key);
     Py_XDECREF(lz->seen);
+    Py_XDECREF(lz->funcargs);
     Py_TYPE(lz)->tp_free(lz);
 }
 
@@ -90,6 +100,7 @@ static int duplicates_traverse(PyIUObject_Duplicates *lz, visitproc visit,
     Py_VISIT(lz->iterator);
     Py_VISIT(lz->key);
     Py_VISIT(lz->seen);
+    Py_VISIT(lz->funcargs);
     return 0;
 }
 
@@ -100,7 +111,7 @@ static int duplicates_traverse(PyIUObject_Duplicates *lz, visitproc visit,
  *****************************************************************************/
 
 static PyObject * duplicates_next(PyIUObject_Duplicates *lz) {
-    PyObject *item=NULL, *temp=NULL;
+    PyObject *item=NULL, *temp=NULL, *tmp=NULL;
     int ok;
 
     while ( (item = (*Py_TYPE(lz->iterator)->tp_iternext)(lz->iterator)) ) {
@@ -109,7 +120,8 @@ static PyObject * duplicates_next(PyIUObject_Duplicates *lz) {
         if (lz->key == NULL) {
             temp = item;
         } else {
-            temp = PyObject_CallFunctionObjArgs(lz->key, item, NULL);
+            PYIU_RECYCLE_ARG_TUPLE(lz->funcargs, item, tmp, goto Fail)
+            temp = PyObject_Call(lz->key, lz->funcargs, NULL);
             if (temp == NULL) {
                 goto Fail;
             }

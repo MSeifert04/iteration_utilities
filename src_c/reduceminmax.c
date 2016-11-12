@@ -7,6 +7,7 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
     PyObject *item1 = NULL, *item2 = NULL, *val1 = NULL, *val2 = NULL;
     PyObject *maxitem = NULL, *maxval = NULL, *minitem = NULL, *minval = NULL;
     PyObject *temp = NULL, *resulttuple = NULL;
+    PyObject *funcargs=NULL, *tmp=NULL;
     Py_ssize_t nkwargs = 0;
     int cmp;
     const int positional = PyTuple_Size(args) > 1;
@@ -46,6 +47,12 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
         Py_XDECREF(defaultitem);
         return NULL;
     }
+    funcargs = PyTuple_New(0);
+    if (funcargs == NULL) {
+        Py_XDECREF(keyfunc);
+        Py_XDECREF(defaultitem);
+        return NULL;
+    }
 
     iterator = PyObject_GetIter(sequence);
     if (iterator == NULL) {
@@ -64,12 +71,14 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
 
         // get the value from the key function
         if (keyfunc != NULL) {
-            val1 = PyObject_CallFunctionObjArgs(keyfunc, item1, NULL);
+            PYIU_RECYCLE_ARG_TUPLE(funcargs, item1, tmp, goto Fail)
+            val1 = PyObject_Call(keyfunc, funcargs, NULL);
             if (val1 == NULL) {
                 goto Fail;
             }
             if (item2 != NULL) {
-                val2 = PyObject_CallFunctionObjArgs(keyfunc, item2, NULL);
+                PYIU_RECYCLE_ARG_TUPLE(funcargs, item2, tmp, goto Fail)
+                val2 = PyObject_Call(keyfunc, funcargs, NULL);
                 if (val2 == NULL) {
                     goto Fail;
                 }
@@ -214,6 +223,7 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
     }
 
     Py_DECREF(iterator);
+    Py_DECREF(funcargs);
     Py_XDECREF(keyfunc);
     Py_XDECREF(defaultitem);
 
@@ -227,6 +237,7 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
     return resulttuple;
 
 Fail:
+    Py_XDECREF(funcargs);
     Py_XDECREF(keyfunc);
     Py_XDECREF(defaultitem);
     Py_XDECREF(item1);

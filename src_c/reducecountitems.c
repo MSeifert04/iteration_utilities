@@ -7,8 +7,14 @@ static PyObject * PyIU_Count(PyObject *m, PyObject *args,
     static char *kwlist[] = {"iterable", "pred", "eq", NULL};
 
     PyObject *iterable, *iterator, *item, *val=NULL, *pred=NULL;
+    PyObject *tmp=NULL, *funcargs=NULL;
     Py_ssize_t sum_int = 0;
     int ok, eq=0;
+
+    funcargs = PyTuple_New(1);
+    if (funcargs == NULL) {
+        return NULL;
+    }
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|Oi:count", kwlist,
                                      &iterable, &pred, &eq)) {
@@ -43,11 +49,11 @@ static PyObject * PyIU_Count(PyObject *m, PyObject *args,
 
         // Call the function and check if the returned value is truthy.
         } else {
-            val = PyObject_CallFunctionObjArgs(pred, item, NULL);
+            PYIU_RECYCLE_ARG_TUPLE(funcargs, item, tmp, goto Fail)
+            val = PyObject_Call(pred, funcargs, NULL);
             Py_DECREF(item);
             if (val == NULL) {
-                Py_DECREF(iterator);
-                return NULL;
+                goto Fail;
             }
             ok = PyObject_IsTrue(val);
             Py_DECREF(val);
@@ -58,8 +64,7 @@ static PyObject * PyIU_Count(PyObject *m, PyObject *args,
         if (ok == 1) {
             sum_int++;
         } else if (ok < 0) {
-            Py_DECREF(iterator);
-            return NULL;
+            goto Fail;
         }
 
         // check for overflow, no fallback because it's unlikely that we should
@@ -72,6 +77,8 @@ static PyObject * PyIU_Count(PyObject *m, PyObject *args,
         }
     }
 
+    Py_XDECREF(funcargs);
+
     PYIU_CLEAR_STOPITERATION;
     Py_DECREF(iterator);
 #if PY_MAJOR_VERSION == 2
@@ -79,6 +86,11 @@ static PyObject * PyIU_Count(PyObject *m, PyObject *args,
 #else
     return PyLong_FromSsize_t(sum_int);
 #endif
+
+Fail:
+    Py_DECREF(iterator);
+    Py_XDECREF(funcargs);
+    return NULL;
 }
 
 /******************************************************************************
