@@ -23,6 +23,36 @@
  if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_StopIteration)) { PyErr_Clear(); }
 
 /******************************************************************************
+ * Convenience macros
+ *
+ * PYIU_RECYCLE_ARG_TUPLE : args (Tuple of length 1)
+ *                          newarg (PyObject *)
+ *                          tmp (PyObject *)
+ *                          error_stmt (for example "return NULL" or "goto Fail")
+ *****************************************************************************/
+
+#define PYIU_RECYCLE_ARG_TUPLE(args, newarg, tmp, error_stmt) \
+    if (Py_REFCNT(args) == 1) { \
+        /* Recycle args by replacing the element with newarg. */ \
+        tmp = PyTuple_GET_ITEM(args, 0); \
+        Py_INCREF(newarg); \
+        PyTuple_SET_ITEM(args, 0, newarg); \
+        Py_XDECREF(tmp); \
+        tmp = NULL; \
+    } else { \
+        /* Create a new tuple and insert the newarg. */ \
+        tmp = args; \
+        args = PyTuple_New(1); \
+        if (args == NULL) { \
+            error_stmt; \
+        } \
+        Py_INCREF(newarg); \
+        PyTuple_SET_ITEM(args, 0, newarg); \
+        Py_DECREF(tmp); \
+        tmp = NULL; \
+    }
+
+/******************************************************************************
  * Global constants.
  *
  * Python objects that are created only once and stay in memory:

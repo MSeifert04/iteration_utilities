@@ -7,6 +7,7 @@ static PyObject * PyIU_Partition(PyObject *m, PyObject *args,
     static char *kwlist[] = {"iterable", "func", NULL};
     PyObject *iterable=NULL, *func=Py_None;
     PyObject *iterator, *item, *result1, *result2, *result, *temp;
+    PyObject *funcargs=NULL, *tmp=NULL;
     long ok;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:partition", kwlist,
@@ -29,6 +30,14 @@ static PyObject * PyIU_Partition(PyObject *m, PyObject *args,
         return NULL;
     }
 
+    funcargs = PyTuple_New(1);
+    if (funcargs == NULL) {
+        Py_XDECREF(result1);
+        Py_XDECREF(result2);
+        Py_DECREF(iterator);
+        return NULL;
+    }
+
     if (func == Py_None || func == (PyObject *)&PyBool_Type) {
         func = NULL;
     }
@@ -39,7 +48,8 @@ static PyObject * PyIU_Partition(PyObject *m, PyObject *args,
             temp = item;
             Py_INCREF(item);
         } else {
-            temp = PyObject_CallFunctionObjArgs(func, item, NULL);
+            PYIU_RECYCLE_ARG_TUPLE(funcargs, item, tmp, goto Fail)
+            temp = PyObject_Call(func, funcargs, NULL);
             if (temp == NULL) {
                 goto Fail;
             }
@@ -63,6 +73,7 @@ static PyObject * PyIU_Partition(PyObject *m, PyObject *args,
     }
 
     PYIU_CLEAR_STOPITERATION;
+    Py_DECREF(funcargs);
     Py_DECREF(iterator);
 
     if (PyErr_Occurred()) {
@@ -81,6 +92,7 @@ static PyObject * PyIU_Partition(PyObject *m, PyObject *args,
     return result;
 
 Fail:
+    Py_XDECREF(funcargs);
     Py_XDECREF(result1);
     Py_XDECREF(result2);
     Py_XDECREF(item);

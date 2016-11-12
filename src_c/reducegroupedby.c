@@ -7,6 +7,7 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
 
     PyObject *iterable, *key1, *key2=NULL, *iterator, *item, *val, *lst, *keep;
     PyObject *reduce=NULL, *reducestart=NULL, *reducetmp=NULL, *resdict;
+    PyObject *funcargs=NULL, *tmp=NULL;
     int ok;
 #if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 5
     Py_hash_t hash;
@@ -32,10 +33,16 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
         Py_DECREF(iterator);
         return NULL;
     }
+    funcargs = PyTuple_New(1);
+    if (funcargs == NULL) {
+        Py_DECREF(iterator);
+        Py_DECREF(resdict);
+    }
 
     while ( (item = (*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
         // Calculate the key for the dictionary (val)
-        val = PyObject_CallFunctionObjArgs(key1, item, NULL);
+        PYIU_RECYCLE_ARG_TUPLE(funcargs, item, tmp, Py_DECREF(item); goto Fail)
+        val = PyObject_Call(key1, funcargs, NULL);
         if (val == NULL) {
             Py_DECREF(item);
             goto Fail;
@@ -45,7 +52,10 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
         if (key2 == NULL || key2 == Py_None) {
             keep = item;
         } else {
-            keep = PyObject_CallFunctionObjArgs(key2, item, NULL);
+            /* We use the same item again to calculate the keep so we don't need
+               to replace. */
+            //PYIU_RECYCLE_ARG_TUPLE(funcargs, item, tmp, Py_DECREF(item); goto Fail)
+            keep = PyObject_Call(key2, funcargs, NULL);
             Py_DECREF(item);
             if (keep == NULL) {
                 Py_DECREF(val);
@@ -149,6 +159,8 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
         }
     }
 
+    Py_DECREF(funcargs);
+
     PYIU_CLEAR_STOPITERATION;
     Py_DECREF(iterator);
 
@@ -160,6 +172,8 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
     return resdict;
 
 Fail:
+    Py_XDECREF(funcargs);
+    Py_XDECREF(funcargs);
     Py_XDECREF(iterator);
     Py_XDECREF(resdict);
     return NULL;

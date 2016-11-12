@@ -6,6 +6,7 @@ typedef struct {
     PyObject_HEAD
     PyObject *func;
     PyObject *value;
+    PyObject *funcargs;
 } PyIUObject_Applyfunc;
 
 static PyTypeObject PyIUType_Applyfunc;
@@ -21,23 +22,29 @@ static PyObject * applyfunc_new(PyTypeObject *type, PyObject *args,
     static char *kwlist[] = {"func", "initial", NULL};
     PyIUObject_Applyfunc *lz;
 
-    PyObject *func, *initial;
+    PyObject *func, *initial, *funcargs=NULL;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO:applyfunc", kwlist,
                                      &func, &initial)) {
         return NULL;
     }
+    funcargs = PyTuple_New(1);
+    if (funcargs == NULL) {
+        return NULL;
+    }
 
     /* Create and fill struct */
     lz = (PyIUObject_Applyfunc *)type->tp_alloc(type, 0);
     if (lz == NULL) {
+        Py_DECREF(funcargs);
         return NULL;
     }
     Py_INCREF(func);
     Py_INCREF(initial);
     lz->func = func;
     lz->value = initial;
+    lz->funcargs = funcargs;
 
     return (PyObject *)lz;
 }
@@ -52,6 +59,7 @@ static void applyfunc_dealloc(PyIUObject_Applyfunc *lz) {
     PyObject_GC_UnTrack(lz);
     Py_XDECREF(lz->func);
     Py_XDECREF(lz->value);
+    Py_XDECREF(lz->funcargs);
     Py_TYPE(lz)->tp_free(lz);
 }
 
@@ -65,6 +73,7 @@ static int applyfunc_traverse(PyIUObject_Applyfunc *lz, visitproc visit,
                               void *arg) {
     Py_VISIT(lz->func);
     Py_VISIT(lz->value);
+    Py_VISIT(lz->funcargs);
     return 0;
 }
 
@@ -75,10 +84,11 @@ static int applyfunc_traverse(PyIUObject_Applyfunc *lz, visitproc visit,
  *****************************************************************************/
 
 static PyObject * applyfunc_next(PyIUObject_Applyfunc *lz) {
-    PyObject *newval, *temp;
+    PyObject *newval, *temp, *tmp;
 
     // Call the function with the current value as argument
-    newval = PyObject_CallFunctionObjArgs(lz->func, lz->value, NULL);
+    PYIU_RECYCLE_ARG_TUPLE(lz->funcargs, lz->value, tmp, return NULL)
+    newval = PyObject_Call(lz->func, lz->funcargs, NULL);
     if (newval == NULL) {
         return NULL;
     }

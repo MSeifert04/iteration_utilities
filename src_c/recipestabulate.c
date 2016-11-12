@@ -6,6 +6,7 @@ typedef struct {
     PyObject_HEAD
     PyObject *func;
     PyObject *cnt;
+    PyObject *funcargs;
 } PyIUObject_Tabulate;
 
 static PyTypeObject PyIUType_Tabulate;
@@ -21,7 +22,7 @@ static PyObject * tabulate_new(PyTypeObject *type, PyObject *args,
     static char *kwlist[] = {"function", "start", NULL};
     PyIUObject_Tabulate *lz;
 
-    PyObject *func, *cnt=NULL;
+    PyObject *func, *cnt=NULL, *funcargs=NULL;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:tabulate", kwlist,
@@ -37,17 +38,22 @@ static PyObject * tabulate_new(PyTypeObject *type, PyObject *args,
     } else {
         Py_INCREF(cnt);
     }
-
+    funcargs = PyTuple_New(1);
+    if (funcargs == NULL) {
+        Py_DECREF(cnt);
+    }
 
     /* Create and fill struct */
     lz = (PyIUObject_Tabulate *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         Py_DECREF(cnt);
+        Py_DECREF(funcargs);
         return NULL;
     }
     Py_INCREF(func);
     lz->func = func;
     lz->cnt = cnt;
+    lz->funcargs = funcargs;
 
     return (PyObject *)lz;
 }
@@ -62,6 +68,7 @@ static void tabulate_dealloc(PyIUObject_Tabulate *lz) {
     PyObject_GC_UnTrack(lz);
     Py_XDECREF(lz->func);
     Py_XDECREF(lz->cnt);
+    Py_XDECREF(lz->funcargs);
     Py_TYPE(lz)->tp_free(lz);
 }
 
@@ -75,6 +82,7 @@ static int tabulate_traverse(PyIUObject_Tabulate *lz, visitproc visit,
                              void *arg) {
     Py_VISIT(lz->func);
     Py_VISIT(lz->cnt);
+    Py_VISIT(lz->funcargs);
     return 0;
 }
 
@@ -90,7 +98,8 @@ static PyObject * tabulate_next(PyIUObject_Tabulate *lz) {
         goto Fail;
     }
     // Call the function with the current value as argument
-    result = PyObject_CallFunctionObjArgs(lz->func, lz->cnt, NULL);
+    PYIU_RECYCLE_ARG_TUPLE(lz->funcargs, lz->cnt, tmp, return NULL)
+    result = PyObject_Call(lz->func, lz->funcargs, NULL);
     if (result == NULL) {
         goto Fail;
     }

@@ -7,6 +7,7 @@ typedef struct {
     PyObject *iterator;
     PyObject *keyfunc;
     PyObject *lastitem;
+    PyObject *funcargs;
 } PyIUObject_UniqueJust;
 
 static PyTypeObject PyIUType_UniqueJust;
@@ -22,7 +23,7 @@ static PyObject * uniquejust_new(PyTypeObject *type, PyObject *args,
     static char *kwlist[] = {"iterable", "key", NULL};
     PyIUObject_UniqueJust *lz;
 
-    PyObject *iterable, *iterator, *keyfunc=NULL;
+    PyObject *iterable, *iterator, *keyfunc=NULL, *funcargs=NULL;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:unique_justseen", kwlist,
@@ -38,16 +39,22 @@ static PyObject * uniquejust_new(PyTypeObject *type, PyObject *args,
     if (iterator == NULL) {
         return NULL;
     }
+    funcargs = PyTuple_New(1);
+    if (funcargs == NULL) {
+        return NULL;
+    }
     lz = (PyIUObject_UniqueJust *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         Py_DECREF(iterator);
         Py_XDECREF(keyfunc);
+        Py_XDECREF(funcargs);
         return NULL;
     }
     Py_XINCREF(keyfunc);
     lz->iterator = iterator;
     lz->keyfunc = keyfunc;
     lz->lastitem = NULL;
+    lz->funcargs = funcargs;
     return (PyObject *)lz;
 }
 
@@ -62,6 +69,7 @@ static void uniquejust_dealloc(PyIUObject_UniqueJust *lz) {
     Py_XDECREF(lz->iterator);
     Py_XDECREF(lz->keyfunc);
     Py_XDECREF(lz->lastitem);
+    Py_XDECREF(lz->funcargs);
     Py_TYPE(lz)->tp_free(lz);
 }
 
@@ -76,6 +84,7 @@ static int uniquejust_traverse(PyIUObject_UniqueJust *lz, visitproc visit,
     Py_VISIT(lz->iterator);
     Py_VISIT(lz->keyfunc);
     Py_VISIT(lz->lastitem);
+    Py_VISIT(lz->funcargs);
     return 0;
 }
 
@@ -86,7 +95,7 @@ static int uniquejust_traverse(PyIUObject_UniqueJust *lz, visitproc visit,
  *****************************************************************************/
 
 static PyObject * uniquejust_next(PyIUObject_UniqueJust *lz) {
-    PyObject *item, *old, *val=NULL;
+    PyObject *item, *old, *val=NULL, *tmp=NULL;
     int ok;
 
     while ( (item = (*Py_TYPE(lz->iterator)->tp_iternext)(lz->iterator)) ) {
@@ -96,7 +105,8 @@ static PyObject * uniquejust_next(PyIUObject_UniqueJust *lz) {
             Py_INCREF(item);
             val = item;
         } else {
-            val = PyObject_CallFunctionObjArgs(lz->keyfunc, item, NULL);
+            PYIU_RECYCLE_ARG_TUPLE(lz->funcargs, item, tmp, goto Fail)
+            val = PyObject_Call(lz->keyfunc, lz->funcargs, NULL);
             if (val == NULL) {
                 goto Fail;
             }

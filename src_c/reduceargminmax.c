@@ -5,7 +5,7 @@
 static PyObject * argminmax(PyObject *m, PyObject *args, PyObject *kwargs,
                             int cmpop){
     PyObject *sequence, *defaultvalue, *keyfunc=NULL, *iterator=NULL;
-    PyObject *item=NULL, *val=NULL, *maxval=NULL;
+    PyObject *item=NULL, *val=NULL, *maxval=NULL, *funcargs=NULL, *tmp=NULL;
     Py_ssize_t defaultitem=0, idx=-1, maxidx=-1, nkwargs=0;
     int defaultisset = 0;
     const int positional = PyTuple_Size(args) > 1;
@@ -46,6 +46,13 @@ static PyObject * argminmax(PyObject *m, PyObject *args, PyObject *kwargs,
         }
     }
 
+    if (keyfunc != NULL) {
+        funcargs = PyTuple_New(1);
+        if (funcargs == NULL) {
+            goto Fail;
+        }
+    }
+
     if (positional && defaultisset) {
         PyErr_Format(PyExc_TypeError,
                      "Cannot specify a default for argmin/argmax with multiple "
@@ -64,7 +71,8 @@ static PyObject * argminmax(PyObject *m, PyObject *args, PyObject *kwargs,
 
         // Use the item itself or keyfunc(item)
         if (keyfunc != NULL) {
-            val = PyObject_CallFunctionObjArgs(keyfunc, item, NULL);
+            PYIU_RECYCLE_ARG_TUPLE(funcargs, item, tmp, goto Fail)
+            val = PyObject_Call(keyfunc, funcargs, NULL);
             if (val == NULL) {
                 goto Fail;
             }
@@ -97,6 +105,7 @@ static PyObject * argminmax(PyObject *m, PyObject *args, PyObject *kwargs,
     PYIU_CLEAR_STOPITERATION;
 
     Py_DECREF(iterator);
+    Py_XDECREF(funcargs);
     Py_XDECREF(maxval);
     Py_XDECREF(keyfunc);
 
@@ -120,6 +129,7 @@ static PyObject * argminmax(PyObject *m, PyObject *args, PyObject *kwargs,
 #endif
 
 Fail:
+    Py_XDECREF(funcargs);
     Py_XDECREF(keyfunc);
     Py_XDECREF(item);
     Py_XDECREF(val);

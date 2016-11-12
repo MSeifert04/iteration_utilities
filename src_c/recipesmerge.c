@@ -24,6 +24,7 @@ typedef struct {
     PyObject *current;
     Py_ssize_t numactive;
     int reverse;
+    PyObject *funcargs;
 } PyIUObject_Merge;
 
 static PyTypeObject PyIUType_Merge;
@@ -38,7 +39,7 @@ static PyObject * merge_new(PyTypeObject *type, PyObject *args,
                             PyObject *kwargs) {
     PyIUObject_Merge *lz;
 
-    PyObject *iteratortuple, *iterator, *keyfunc=NULL, *reversekw=NULL;
+    PyObject *iteratortuple, *iterator, *keyfunc=NULL, *reversekw=NULL, *funcargs=NULL;
     Py_ssize_t numactive, idx, nkwargs;
     int reverse = Py_LT;
 
@@ -85,10 +86,17 @@ static PyObject * merge_new(PyTypeObject *type, PyObject *args,
         }
         PyTuple_SET_ITEM(iteratortuple, idx, iterator);
     }
+    funcargs = PyTuple_New(1);
+    if (funcargs == NULL) {
+        Py_DECREF(iteratortuple);
+        Py_XDECREF(keyfunc);
+        return NULL;
+    }
     lz = (PyIUObject_Merge *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         Py_DECREF(iteratortuple);
         Py_XDECREF(keyfunc);
+        Py_XDECREF(funcargs);
         return NULL;
     }
     lz->iteratortuple = iteratortuple;
@@ -96,6 +104,7 @@ static PyObject * merge_new(PyTypeObject *type, PyObject *args,
     lz->reverse = reverse;
     lz->current = NULL;
     lz->numactive = numactive;
+    lz->funcargs = funcargs;
     return (PyObject *)lz;
 }
 
@@ -110,6 +119,7 @@ static void merge_dealloc(PyIUObject_Merge *lz) {
     Py_XDECREF(lz->iteratortuple);
     Py_XDECREF(lz->keyfunc);
     Py_XDECREF(lz->current);
+    Py_XDECREF(lz->funcargs);
     Py_TYPE(lz)->tp_free(lz);
 }
 
@@ -123,6 +133,7 @@ static int merge_traverse(PyIUObject_Merge *lz, visitproc visit, void *arg) {
     Py_VISIT(lz->iteratortuple);
     Py_VISIT(lz->keyfunc);
     Py_VISIT(lz->current);
+    Py_VISIT(lz->funcargs);
     return 0;
 }
 
@@ -133,7 +144,7 @@ static int merge_traverse(PyIUObject_Merge *lz, visitproc visit, void *arg) {
  *****************************************************************************/
 
 static int merge_init_current(PyIUObject_Merge *lz) {
-    PyObject *current, *iterator, *item, *newitem, *keyval=NULL;
+    PyObject *current, *iterator, *item, *newitem, *keyval=NULL, *tmp=NULL;
     Py_ssize_t i, insert, tuplelength;
 
     current = PyTuple_New(lz->numactive);
@@ -150,7 +161,8 @@ static int merge_init_current(PyIUObject_Merge *lz) {
             // the index of the iterable (which is also useful to remember
             // from which iterable to get the next item if it is yielded).
             if (lz->keyfunc != NULL) {
-                keyval = PyObject_CallFunctionObjArgs(lz->keyfunc, item, NULL);
+                PYIU_RECYCLE_ARG_TUPLE(lz->funcargs, item, tmp, Py_DECREF(current); Py_DECREF(item); return -1;)
+                keyval = PyObject_Call(lz->keyfunc, lz->funcargs, NULL);
                 if (keyval == NULL) {
                     Py_DECREF(current);
                     Py_DECREF(item);
@@ -190,7 +202,7 @@ static int merge_init_current(PyIUObject_Merge *lz) {
  *****************************************************************************/
 
 static PyObject * merge_next(PyIUObject_Merge *lz) {
-    PyObject *iterator, *item, *val, *keyval, *oldkeyval;
+    PyObject *iterator, *item, *val, *keyval, *oldkeyval, *tmp=NULL;
     Py_ssize_t insert=0;
     PyIUObject_ItemIdxKey *next;
 
@@ -228,7 +240,8 @@ static PyObject * merge_next(PyIUObject_Merge *lz) {
     } else {
         if (lz->keyfunc != NULL) {
             oldkeyval = next->key;
-            keyval = PyObject_CallFunctionObjArgs(lz->keyfunc, item, NULL);
+            PYIU_RECYCLE_ARG_TUPLE(lz->funcargs, item, tmp, Py_DECREF(item); Py_DECREF(val); Py_DECREF(next); return NULL;)
+            keyval = PyObject_Call(lz->keyfunc, lz->funcargs, NULL);
             if (keyval == NULL) {
                 Py_DECREF(item);
                 Py_DECREF(val);
