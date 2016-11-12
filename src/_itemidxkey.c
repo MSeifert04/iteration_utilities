@@ -4,14 +4,12 @@
 
 
 /******************************************************************************
- *
  * Helper class that mimics a 2-tuple when compared but dynamically decides
  * which item to compare (item or key) and assumes that the idx is always
  * different.
  *
  * It also has a constructor function that bypasses the args/kwargs unpacking
  * to allow faster creation from within C code.
- *
  *****************************************************************************/
 
 typedef struct {
@@ -27,13 +25,14 @@ static PyTypeObject PyIUType_ItemIdxKey;
 #define PyIU_ItemIdxKey_CheckExact(op) (Py_TYPE(op) == &PyIUType_ItemIdxKey)
 
 /******************************************************************************
- *
  * New
- *
  *****************************************************************************/
 
-static PyObject * itemidxkey_new(PyTypeObject *type, PyObject *args,
-                                 PyObject *kwargs) {
+static PyObject *
+itemidxkey_new(PyTypeObject *type,
+               PyObject *args,
+               PyObject *kwargs)
+{
     static char *kwlist[] = {"item", "idx", "key", NULL};
     PyIUObject_ItemIdxKey *self;
 
@@ -67,23 +66,24 @@ static PyObject * itemidxkey_new(PyTypeObject *type, PyObject *args,
 }
 
 /******************************************************************************
- *
  * New (only from C code)
  *
  * This bypasses the argument unpacking!
- *
  *****************************************************************************/
 
-static PyObject * PyIU_ItemIdxKey_FromC(PyObject *item, Py_ssize_t idx,
-                                        PyObject *key) {
-    // STEALS REFERENCES!!!
+static PyObject *
+PyIU_ItemIdxKey_FromC(PyObject *item,
+                      Py_ssize_t idx,
+                      PyObject *key)
+{
+    /* STEALS REFERENCES!!! */
     PyIUObject_ItemIdxKey *self;
-    // Verify inputs
+    /* Verify inputs. */
     if (item == NULL) {
         PyErr_Format(PyExc_TypeError, "`item` must be given.");
         return NULL;
     }
-    // Create and fill new ItemIdxKey
+    /* Create and fill new ItemIdxKey. */
     self = PyObject_GC_New(PyIUObject_ItemIdxKey, &PyIUType_ItemIdxKey);
     if (self == NULL) {
         return NULL;
@@ -96,37 +96,38 @@ static PyObject * PyIU_ItemIdxKey_FromC(PyObject *item, Py_ssize_t idx,
 }
 
 /******************************************************************************
- *
  * Destructor
- *
  *****************************************************************************/
 
-static void itemidxkey_dealloc(PyIUObject_ItemIdxKey *s) {
+static void
+itemidxkey_dealloc(PyIUObject_ItemIdxKey *s)
+{
     Py_XDECREF(s->item);
     Py_XDECREF(s->key);
     Py_TYPE(s)->tp_free((PyObject*)s);
 }
 
 /******************************************************************************
- *
  * Traverse
- *
  *****************************************************************************/
 
-static int itemidxkey_traverse(PyIUObject_ItemIdxKey *s, visitproc visit,
-                               void *arg) {
+static int
+itemidxkey_traverse(PyIUObject_ItemIdxKey *s,
+                    visitproc visit,
+                    void *arg)
+{
     Py_VISIT(s->item);
     Py_VISIT(s->key);
     return 0;
 }
 
 /******************************************************************************
- *
  * Representation
- *
  *****************************************************************************/
 
-static PyObject * itemidxkey_repr(PyIUObject_ItemIdxKey *s) {
+static PyObject *
+itemidxkey_repr(PyIUObject_ItemIdxKey *s)
+{
     if (s->key == NULL) {
         return PyUnicode_FromFormat("ItemIdxKey(item=%R, idx=%zd)",
                                     s->item, s->idx);
@@ -138,29 +139,31 @@ static PyObject * itemidxkey_repr(PyIUObject_ItemIdxKey *s) {
 
 
 /******************************************************************************
- *
  * Richcompare
- *
  *****************************************************************************/
 
-static PyObject * itemidxkey_richcompare(PyObject *v, PyObject *w, int op) {
+static PyObject *
+itemidxkey_richcompare(PyObject *v,
+                       PyObject *w,
+                       int op)
+{
     PyObject *item1, *item2;
     PyIUObject_ItemIdxKey *l, *r;
     int ok;
 
-    // Only allow < and > for now
+    /* Only allow < and > for now */
     switch (op) {
         case Py_LT: break;
         case Py_GT: break;
         default: Py_RETURN_NOTIMPLEMENTED;
     }
-    // only allow ItemIdxKey to be compared
+    /* only allow ItemIdxKey to be compared. */
     if (!PyIU_ItemIdxKey_CheckExact(v) || !PyIU_ItemIdxKey_CheckExact(w))
         Py_RETURN_NOTIMPLEMENTED;
 
     l = (PyIUObject_ItemIdxKey *)v;
     r = (PyIUObject_ItemIdxKey *)w;
-    // Compare items if key is NULL otherwise compare keys
+    /* Compare items if key is NULL otherwise compare keys. */
     if (l->key == NULL) {
         item1 = l->item;
         item2 = r->item;
@@ -168,15 +171,14 @@ static PyObject * itemidxkey_richcompare(PyObject *v, PyObject *w, int op) {
         item1 = l->key;
         item2 = r->key;
     }
-    // The order to check for equality and lt makes a huge performance
-    // difference:
-    //
-    // - lots of duplicates: first eq then "op"
-    // - no/few duplicates: first "op" then eq
-    // - first compare idx and if it's smaller check le/ge otherwise lt/gt
-    //
-    // --> I chose eq then "op" but the other version is also avaiable as
-    // comment.
+    /* The order to check for equality and lt makes a huge performance
+       difference:
+       - lots of duplicates: first eq then "op"
+       - no/few duplicates: first "op" then eq
+       - first compare idx and if it's smaller check le/ge otherwise lt/gt
+
+       --> I chose eq then "op" but the other version is also avaiable as
+       comment. */
     if (l->idx < r->idx) {
         op = (op == Py_LT) ? Py_LE : Py_GE;
     }
@@ -190,7 +192,9 @@ static PyObject * itemidxkey_richcompare(PyObject *v, PyObject *w, int op) {
     }
 
     /* First eq then "op" : Better if there are lots of duplicates! Worse if
-                            there are lots!
+                            there are few or None!
+    */
+    /*
     ok = PyObject_RichCompareBool(item1, item2, Py_EQ);
     if (ok == -1) {
         return NULL;
@@ -214,6 +218,8 @@ static PyObject * itemidxkey_richcompare(PyObject *v, PyObject *w, int op) {
 
     /* First "op" then eq : Better if there are almost no duplicates! Worse if
                             there are lots!
+    */
+    /*
     ok = PyObject_RichCompareBool(item1, item2, op);
     if (ok == 1) {
         Py_RETURN_TRUE;
@@ -235,7 +241,9 @@ static PyObject * itemidxkey_richcompare(PyObject *v, PyObject *w, int op) {
     }
     */
 
-    /* First compare idx and then compare the other elements
+    /* First compare idx and then compare the other elements.
+    */
+    /*
     if (l->idx < r->idx) {
         op = (op == Py_LT) ? Py_LE : Py_GE;
     }
@@ -251,19 +259,22 @@ static PyObject * itemidxkey_richcompare(PyObject *v, PyObject *w, int op) {
 }
 
 /******************************************************************************
- *
- * item property
- *
+ * item Property
  *****************************************************************************/
 
-static PyObject * itemidxkey_getitem(PyIUObject_ItemIdxKey *self,
-                                     void *closure) {
+static PyObject *
+itemidxkey_getitem(PyIUObject_ItemIdxKey *self,
+                   void *closure)
+{
     Py_INCREF(self->item);
     return self->item;
 }
 
-static int itemidxkey_setitem(PyIUObject_ItemIdxKey *self,  PyObject *o,
-                       void *closure) {
+static int
+itemidxkey_setitem(PyIUObject_ItemIdxKey *self,
+                   PyObject *o,
+                   void *closure)
+{
     if (o == NULL) {
         PyErr_Format(PyExc_TypeError, "cannot delete `item`.");
         return -1;
@@ -278,32 +289,35 @@ static int itemidxkey_setitem(PyIUObject_ItemIdxKey *self,  PyObject *o,
 }
 
 /******************************************************************************
- *
- * idx property
- *
+ * idx Property
  *****************************************************************************/
 
-static PyObject * itemidxkey_getidx(PyIUObject_ItemIdxKey *self,
-                                    void *closure) {
-#if PY_MAJOR_VERSION == 2
-    return PyInt_FromSsize_t(self->idx);
-#else
-    return PyLong_FromSsize_t(self->idx);
-#endif
+static PyObject *
+itemidxkey_getidx(PyIUObject_ItemIdxKey *self,
+                  void *closure)
+{
+    #if PY_MAJOR_VERSION == 2
+        return PyInt_FromSsize_t(self->idx);
+    #else
+        return PyLong_FromSsize_t(self->idx);
+    #endif
 }
 
-static int itemidxkey_setidx(PyIUObject_ItemIdxKey *self,  PyObject *o,
-                             void *closure) {
+static int
+itemidxkey_setidx(PyIUObject_ItemIdxKey *self,
+                  PyObject *o,
+                  void *closure)
+{
     Py_ssize_t idx;
     if (o == NULL) {
         PyErr_Format(PyExc_TypeError, "cannot delete `idx`.");
         return -1;
     }
-#if PY_MAJOR_VERSION == 2
+    #if PY_MAJOR_VERSION == 2
     if (PyInt_Check(o)) {
         idx = PyInt_AsSsize_t(o);
     } else
-#endif
+    #endif
     if (PyLong_Check(o)) {
         idx = PyLong_AsSsize_t(o);
     } else {
@@ -320,13 +334,13 @@ static int itemidxkey_setidx(PyIUObject_ItemIdxKey *self,  PyObject *o,
 }
 
 /******************************************************************************
- *
- * key property
- *
+ * key Property
  *****************************************************************************/
 
-static PyObject * itemidxkey_getkey(PyIUObject_ItemIdxKey *self,
-                                    void *closure) {
+static PyObject *
+itemidxkey_getkey(PyIUObject_ItemIdxKey *self,
+                  void *closure)
+{
     if (self->key == NULL) {
         Py_RETURN_NONE;
     }
@@ -334,8 +348,11 @@ static PyObject * itemidxkey_getkey(PyIUObject_ItemIdxKey *self,
     return self->key;
 }
 
-static int itemidxkey_setkey(PyIUObject_ItemIdxKey *self,  PyObject *o,
-                      void *closure) {
+static int
+itemidxkey_setkey(PyIUObject_ItemIdxKey *self,
+                  PyObject *o,
+                  void *closure)
+{
     if (o != NULL && PyIU_ItemIdxKey_CheckExact(o)) {
         PyErr_Format(PyExc_TypeError, "cannot use `ItemIdxKey` instance as `key`.");
         return -1;
@@ -347,9 +364,7 @@ static int itemidxkey_setkey(PyIUObject_ItemIdxKey *self,  PyObject *o,
 }
 
 /******************************************************************************
- *
  * Properties
- *
  *****************************************************************************/
 
 static PyGetSetDef itemidxkey_getsetlist[] = {
@@ -360,12 +375,12 @@ static PyGetSetDef itemidxkey_getsetlist[] = {
 };
 
 /******************************************************************************
- *
  * Reduce
- *
  *****************************************************************************/
 
-static PyObject * itemidxkey_reduce(PyIUObject_ItemIdxKey *self) {
+static PyObject *
+itemidxkey_reduce(PyIUObject_ItemIdxKey *self)
+{
     if (self->key == NULL) {
         return Py_BuildValue("O(On)", Py_TYPE(self),
                              self->item, self->idx);
@@ -376,13 +391,13 @@ static PyObject * itemidxkey_reduce(PyIUObject_ItemIdxKey *self) {
 }
 
 /******************************************************************************
- *
  * Setstate
- *
  *****************************************************************************/
 
-static PyObject * itemidxkey_setstate(PyIUObject_ItemIdxKey *self,
-                                      PyObject *state) {
+static PyObject *
+itemidxkey_setstate(PyIUObject_ItemIdxKey *self,
+                    PyObject *state)
+{
     PyObject *key;
     if (!PyArg_ParseTuple(state, "O", &key)) {
         return NULL;
@@ -396,9 +411,7 @@ static PyObject * itemidxkey_setstate(PyIUObject_ItemIdxKey *self,
 }
 
 /******************************************************************************
- *
  * Methods
- *
  *****************************************************************************/
 
 static PyMethodDef itemidxkey_methods[] = {
@@ -408,9 +421,7 @@ static PyMethodDef itemidxkey_methods[] = {
 };
 
 /******************************************************************************
- *
  * Docstring
- *
  *****************************************************************************/
 
 PyDoc_STRVAR(itemidxkey_doc, "ItemIdxKey(item, idx, key=None)\n\
@@ -532,50 +543,49 @@ for the value that should be sorted.");
 
 
 /******************************************************************************
- *
  * Type
- *
  *****************************************************************************/
 
 static PyTypeObject PyIUType_ItemIdxKey = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.ItemIdxKey", /* tp_name */
-    sizeof(PyIUObject_ItemIdxKey), /* tp_basicsize */
-    0,                         /* tp_itemsize */
-    (destructor)itemidxkey_dealloc, /* tp_dealloc */
-    0,                         /* tp_print */
-    0,                         /* tp_getattr */
-    0,                         /* tp_setattr */
-    0,                         /* tp_reserved */
-    (reprfunc)itemidxkey_repr, /* tp_repr */
-    0,                         /* tp_as_number */
-    0,                         /* tp_as_sequence */
-    0,                         /* tp_as_mapping */
-    0,                         /* tp_hash  */
-    0,                         /* tp_call */
-    0,                         /* tp_str */
-    0,                         /* tp_getattro */
-    0,                         /* tp_setattro */
-    0,                         /* tp_as_buffer */
+    "iteration_utilities.ItemIdxKey",                   /* tp_name */
+    sizeof(PyIUObject_ItemIdxKey),                      /* tp_basicsize */
+    0,                                                  /* tp_itemsize */
+    /* methods */
+    (destructor)itemidxkey_dealloc,                     /* tp_dealloc */
+    0,                                                  /* tp_print */
+    0,                                                  /* tp_getattr */
+    0,                                                  /* tp_setattr */
+    0,                                                  /* tp_reserved */
+    (reprfunc)itemidxkey_repr,                          /* tp_repr */
+    0,                                                  /* tp_as_number */
+    0,                                                  /* tp_as_sequence */
+    0,                                                  /* tp_as_mapping */
+    0,                                                  /* tp_hash  */
+    0,                                                  /* tp_call */
+    0,                                                  /* tp_str */
+    0,                                                  /* tp_getattro */
+    0,                                                  /* tp_setattro */
+    0,                                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
-        Py_TPFLAGS_BASETYPE,   /* tp_flags */
-    itemidxkey_doc,            /* tp_doc */
-    (traverseproc)itemidxkey_traverse, /* tp_traverse */
-    0,                         /* tp_clear */
-    itemidxkey_richcompare,    /* tp_richcompare */
-    0,                         /* tp_weaklistoffset */
-    0,                         /* tp_iter */
-    0,                         /* tp_iternext */
-    itemidxkey_methods,        /* tp_methods */
-    0,                         /* tp_members */
-    itemidxkey_getsetlist,     /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,                         /* tp_init */
-    0,                         /* tp_alloc */
-    itemidxkey_new,            /* tp_new */
-    PyObject_GC_Del,           /* tp_free */
+        Py_TPFLAGS_BASETYPE,                            /* tp_flags */
+    itemidxkey_doc,                                     /* tp_doc */
+    (traverseproc)itemidxkey_traverse,                  /* tp_traverse */
+    0,                                                  /* tp_clear */
+    itemidxkey_richcompare,                             /* tp_richcompare */
+    0,                                                  /* tp_weaklistoffset */
+    0,                                                  /* tp_iter */
+    0,                                                  /* tp_iternext */
+    itemidxkey_methods,                                 /* tp_methods */
+    0,                                                  /* tp_members */
+    itemidxkey_getsetlist,                              /* tp_getset */
+    0,                                                  /* tp_base */
+    0,                                                  /* tp_dict */
+    0,                                                  /* tp_descr_get */
+    0,                                                  /* tp_descr_set */
+    0,                                                  /* tp_dictoffset */
+    0,                                                  /* tp_init */
+    0,                                                  /* tp_alloc */
+    itemidxkey_new,                                     /* tp_new */
+    PyObject_GC_Del,                                    /* tp_free */
 };

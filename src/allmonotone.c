@@ -2,7 +2,11 @@
  * Licensed under Apache License Version 2.0 - see LICENSE.rst
  *****************************************************************************/
 
-static PyObject * PyIU_Monotone(PyObject *m, PyObject *args, PyObject *kwargs) {
+static PyObject *
+PyIU_Monotone(PyObject *m,
+              PyObject *args,
+              PyObject *kwargs)
+{
     static char *kwlist[] = {"iterable", "decreasing", "strict", NULL};
 
     PyObject *iterable, *iterator, *item, *last=NULL;
@@ -51,9 +55,7 @@ Found:
 }
 
 /******************************************************************************
- *
  * Docstring
- *
  *****************************************************************************/
 
 PyDoc_STRVAR(PyIU_Monotone_doc, "all_monotone(iterable, decreasing=False, strict=False)\n\

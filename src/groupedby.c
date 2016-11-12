@@ -2,7 +2,11 @@
  * Licensed under Apache License Version 2.0 - see LICENSE.rst
  *****************************************************************************/
 
-static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
+static PyObject *
+PyIU_Groupby(PyObject *m,
+             PyObject *args,
+             PyObject *kwargs)
+{
     static char *kwlist[] = {"iterable", "key", "keep", "reduce", "reducestart", NULL};
 
     PyObject *iterable, *key1, *key2=NULL, *iterator, *item, *val, *lst, *keep;
@@ -46,7 +50,7 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
     }
 
     while ( (item = (*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
-        // Calculate the key for the dictionary (val)
+        /* Calculate the key for the dictionary (val). */
         PYIU_RECYCLE_ARG_TUPLE(funcargs1, item, tmp1, Py_DECREF(item); goto Fail)
         val = PyObject_Call(key1, funcargs1, NULL);
         if (val == NULL) {
@@ -54,7 +58,7 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
             goto Fail;
         }
 
-        // Calculate the value for the dictionary (keep)
+        /* Calculate the value for the dictionary (keep).  */
         if (key2 == NULL || key2 == Py_None) {
             keep = item;
         } else {
@@ -70,7 +74,7 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
         }
 
 #if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 5
-        // Taken from dictobject.c CPython  3.5
+        /* Taken from dictobject.c CPython 3.5 */
         if (!PyUnicode_CheckExact(val) ||
                 (hash = ((PyASCIIObject *) val)->hash) == -1) {
             hash = PyObject_Hash(val);
@@ -82,7 +86,7 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
         }
 #endif
 
-        // Keep all values as list
+        /* Keep all values as list.  */
         if (reduce == NULL) {
 #if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 5
             lst = _PyDict_GetItem_KnownHash(resdict, val, hash);
@@ -116,7 +120,7 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
                 }
             }
 
-        // Reduce the values with a binary operation
+        /* Reduce the values with a binary operation. */
         } else {
 #if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 5
             lst = _PyDict_GetItem_KnownHash(resdict, val, hash);
@@ -125,7 +129,7 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
 #endif
             Py_XINCREF(lst);
 
-            // No item yet and no starting value given: Keep the "keep".
+            /* No item yet and no starting value given: Keep the "keep". */
             if (lst == NULL && reducestart == NULL) {
 #if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 5
                 ok = _PyDict_SetItem_KnownHash(resdict, val, keep, hash);
@@ -138,7 +142,7 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
                     goto Fail;
                 }
 
-            // Already an item present so use the binary operation.
+            /* Already an item present so use the binary operation. */
             } else {
                 if (lst == NULL) {
                     PYIU_RECYCLE_ARG_TUPLE_BINOP(funcargs2, reducestart, keep, tmp1, tmp2, Py_DECREF(keep);
@@ -192,9 +196,7 @@ Fail:
 }
 
 /******************************************************************************
- *
  * Docstring
- *
  *****************************************************************************/
 
 PyDoc_STRVAR(PyIU_Groupby_doc, "groupedby(iterable, key, keep=None, reduce=None, reducestart=None)\n\

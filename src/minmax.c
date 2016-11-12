@@ -2,7 +2,11 @@
  * Licensed under Apache License Version 2.0 - see LICENSE.rst
  *****************************************************************************/
 
-static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
+static PyObject *
+PyIU_MinMax(PyObject *m,
+            PyObject *args,
+            PyObject *kwargs)
+{
     PyObject *sequence, *iterator, *defaultitem = NULL, *keyfunc = NULL;
     PyObject *item1 = NULL, *item2 = NULL, *val1 = NULL, *val2 = NULL;
     PyObject *maxitem = NULL, *maxval = NULL, *minitem = NULL, *minval = NULL;
@@ -63,13 +67,13 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
 
     while ( (item1=(*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
 
-        // It could be NULL (end of sequence) but don't care .. yet.
+        /* It could be NULL (end of sequence) but don't care .. yet. */
         item2 = (*Py_TYPE(iterator)->tp_iternext)(iterator);
         if (item2 == NULL) {
             PYIU_CLEAR_STOPITERATION;
         }
 
-        // get the value from the key function
+        /* get the value from the key function. */
         if (keyfunc != NULL) {
             PYIU_RECYCLE_ARG_TUPLE(funcargs, item1, tmp, goto Fail)
             val1 = PyObject_Call(keyfunc, funcargs, NULL);
@@ -84,7 +88,7 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
                 }
             }
 
-        // no key function; the value is the item
+        /* no key function; the value is the item. */
         } else {
             val1 = item1;
             Py_INCREF(val1);
@@ -94,11 +98,12 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
             }
         }
 
-        // maximum value and item are unset; set them
+        /* maximum value and item are unset; set them. */
         if (minval == NULL) {
             if (item2 != NULL) {
-                // If both 1 and 2 are set do one compare and set min and max
-                // accordingly
+                /* If both 1 and 2 are set do one compare and set min and max
+                   accordingly.
+                   */
                 cmp = PyObject_RichCompareBool(val1, val2, Py_LT);
                 if (cmp < 0) {
                     goto Fail;
@@ -108,13 +113,15 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
                     maxval = val2;
                     maxitem = item2;
                 } else {
-                    // To keep stability we need to check if they are equal and
-                    // only use val2 as minimum IF it's really smaller.
+                    /* To keep stability we need to check if they are equal and
+                       only use val2 as minimum IF it's really smaller.
+                       */
                     cmp = PyObject_RichCompareBool(val1, val2, Py_GT);
                     if (cmp < 0) {
-                        // Should really be impossible because it already
-                        // worked with LT but maybe we got some weird class
-                        // here...
+                        /* Should really be impossible because it already
+                           worked with LT but maybe we got some weird class
+                           here...
+                           */
                         goto Fail;
                     } else if (cmp > 0) {
                         minval = val2;
@@ -133,7 +140,8 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
                     }
                 }
             } else {
-                // If only one is set we can set min and max to the only item.
+                /* If only one is set we can set min and max to the only item.
+                   */
                 minitem = item1;
                 minval = val1;
                 maxitem = item1;
@@ -142,17 +150,18 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
                 Py_INCREF(val1);
             }
         } else {
-            // If the sequence ends and only one element remains we can just
-            // set item2/val2 to the last element and skip comparing these two.
-            // This "should" keep the ordering, because it's unlikely someone
-            // creates a type that is smallest and highest and uses minmax.
+            /* If the sequence ends and only one element remains we can just
+               set item2/val2 to the last element and skip comparing these two.
+               This "should" keep the ordering, because it's unlikely someone
+               creates a type that is smallest and highest and uses minmax.
+               */
             if (item2 == NULL) {
                 item2 = item1;
                 val2 = val1;
                 Py_INCREF(item1);
                 Py_INCREF(val1);
             } else {
-                // If both are set swap them if val2 is smaller than val1
+                /* If both are set swap them if val2 is smaller than val1. */
                 cmp = PyObject_RichCompareBool(val2, val1, Py_LT);
                 if (cmp < 0) {
                     goto Fail;
@@ -167,8 +176,9 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
                 }
             }
 
-            // val1 is smaller or equal to val2 so we compare only val1 with
-            // the current minimum
+            /* val1 is smaller or equal to val2 so we compare only val1 with
+               the current minimum.
+               */
             cmp = PyObject_RichCompareBool(val1, minval, Py_LT);
             if (cmp < 0) {
                 goto Fail;
@@ -182,7 +192,7 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
                 Py_DECREF(val1);
             }
 
-            // Same for maximum.
+            /* Same for maximum. */
             cmp = PyObject_RichCompareBool(val2, maxval, Py_GT);
             if (cmp < 0) {
                 goto Fail;
@@ -205,7 +215,7 @@ static PyObject * PyIU_MinMax(PyObject *m, PyObject *args, PyObject *kwargs) {
 
     if (minval == NULL) {
         if (maxval != NULL || minitem != NULL || maxitem != NULL) {
-            // This should be impossible to reach but better check.
+            /* This should be impossible to reach but better check. */
             goto Fail;
         }
         if (defaultitem != NULL) {
@@ -253,9 +263,7 @@ Fail:
 }
 
 /******************************************************************************
- *
  * Docstring
- *
  *****************************************************************************/
 
 PyDoc_STRVAR(PyIU_MinMax_doc, "minmax(iterable, /, key, default)\n\

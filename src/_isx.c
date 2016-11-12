@@ -3,12 +3,17 @@
  *****************************************************************************/
 
 /******************************************************************************
- * is_None : equivalent to:
+ * is_None
+ *
+ * equivalent to:
  *
  * lambda value: value is None
  *****************************************************************************/
 
-static PyObject* PyIU_IsNone(PyObject *m, PyObject *o) {
+static PyObject *
+PyIU_IsNone(PyObject *m,
+            PyObject *o)
+{
     if (o == Py_None) {
         Py_RETURN_TRUE;
     } else {
@@ -17,12 +22,17 @@ static PyObject* PyIU_IsNone(PyObject *m, PyObject *o) {
 }
 
 /******************************************************************************
- * is_not_None : equivalent to:
+ * is_not_None
+ *
+ * equivalent to:
  *
  * lambda value: value is not None
  *****************************************************************************/
 
-static PyObject* PyIU_IsNotNone(PyObject *m, PyObject *o) {
+static PyObject *
+PyIU_IsNotNone(PyObject *m,
+               PyObject *o)
+{
     if (o != Py_None) {
         Py_RETURN_TRUE;
     } else {
@@ -31,12 +41,17 @@ static PyObject* PyIU_IsNotNone(PyObject *m, PyObject *o) {
 }
 
 /******************************************************************************
- * is_even : equivalent to:
+ * is_even
+ *
+ * equivalent to:
  *
  * lambda value: value % 2 == 0
  *****************************************************************************/
 
-static PyObject* PyIU_IsEven(PyObject *m, PyObject *o) {
+static PyObject *
+PyIU_IsEven(PyObject *m,
+            PyObject *o)
+{
     PyObject *remainder;
     int res;
 
@@ -58,12 +73,17 @@ static PyObject* PyIU_IsEven(PyObject *m, PyObject *o) {
 }
 
 /******************************************************************************
- * is_odd : equivalent to:
+ * is_odd
+ *
+ * equivalent to:
  *
  * lambda value: value % 2 != 0
  *****************************************************************************/
 
-static PyObject* PyIU_IsOdd(PyObject *m, PyObject *o) {
+static PyObject *
+PyIU_IsOdd(PyObject *m,
+           PyObject *o)
+{
     PyObject *remainder;
     int res;
 
@@ -85,7 +105,9 @@ static PyObject* PyIU_IsOdd(PyObject *m, PyObject *o) {
 }
 
 /******************************************************************************
- * is_iterable : equivalent to:
+ * is_iterable
+ *
+ * equivalent to:
  *
  * try:
  *     iter(value)
@@ -95,7 +117,10 @@ static PyObject* PyIU_IsOdd(PyObject *m, PyObject *o) {
  *     return True
  *****************************************************************************/
 
-static PyObject* PyIU_IsIterable(PyObject *m, PyObject *o) {
+static PyObject *
+PyIU_IsIterable(PyObject *m,
+                PyObject *o)
+{
     PyObject *it = PyObject_GetIter(o);
     if (it == NULL) {
         if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError)) {
@@ -111,9 +136,7 @@ static PyObject* PyIU_IsIterable(PyObject *m, PyObject *o) {
 }
 
 /******************************************************************************
- *
  * Documentation
- *
  *****************************************************************************/
 
 PyDoc_STRVAR(PyIU_IsNone_doc, "is_None(value, /)\n\

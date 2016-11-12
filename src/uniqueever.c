@@ -1,10 +1,7 @@
 /******************************************************************************
  * Licensed under Apache License Version 2.0 - see LICENSE.rst
- *****************************************************************************/
-
-/******************************************************************************
  *
- * IMPORTANT NOTE:
+ * IMPORTANT NOTE (Implementation):
  *
  * This function is almost identical to "duplicates", so any changes
  * or bugfixes should also be implemented there!!!
@@ -22,15 +19,16 @@ typedef struct {
 static PyTypeObject PyIUType_UniqueEver;
 
 /******************************************************************************
- *
  * New
- *
  *****************************************************************************/
 
-static PyObject * uniqueever_new(PyTypeObject *type, PyObject *args,
-                                 PyObject *kwargs) {
+static PyObject *
+uniqueever_new(PyTypeObject *type,
+               PyObject *args,
+               PyObject *kwargs)
+{
     static char *kwlist[] = {"iterable", "key", NULL};
-    PyIUObject_UniqueEver *lz;
+    PyIUObject_UniqueEver *self;
 
     PyObject *iterable, *iterator, *seen, *key=NULL, *funcargs=NULL;
 
@@ -59,85 +57,86 @@ static PyObject * uniqueever_new(PyTypeObject *type, PyObject *args,
         Py_DECREF(seen);
         return NULL;
     }
-    lz = (PyIUObject_UniqueEver *)type->tp_alloc(type, 0);
-    if (lz == NULL) {
+    self = (PyIUObject_UniqueEver *)type->tp_alloc(type, 0);
+    if (self == NULL) {
         Py_DECREF(iterator);
         Py_DECREF(seen);
         Py_DECREF(funcargs);
         return NULL;
     }
     Py_XINCREF(key);
-    lz->iterator = iterator;
-    lz->key = key;
-    lz->seen = seen;
-    lz->funcargs = funcargs;
-    return (PyObject *)lz;
+    self->iterator = iterator;
+    self->key = key;
+    self->seen = seen;
+    self->funcargs = funcargs;
+    return (PyObject *)self;
 }
 
 /******************************************************************************
- *
  * Destructor
- *
  *****************************************************************************/
 
-static void uniqueever_dealloc(PyIUObject_UniqueEver *lz) {
-    PyObject_GC_UnTrack(lz);
-    Py_XDECREF(lz->iterator);
-    Py_XDECREF(lz->key);
-    Py_XDECREF(lz->seen);
-    Py_XDECREF(lz->funcargs);
-    Py_TYPE(lz)->tp_free(lz);
+static void
+uniqueever_dealloc(PyIUObject_UniqueEver *self)
+{
+    PyObject_GC_UnTrack(self);
+    Py_XDECREF(self->iterator);
+    Py_XDECREF(self->key);
+    Py_XDECREF(self->seen);
+    Py_XDECREF(self->funcargs);
+    Py_TYPE(self)->tp_free(self);
 }
 
 /******************************************************************************
- *
  * Traverse
- *
  *****************************************************************************/
 
-static int uniqueever_traverse(PyIUObject_UniqueEver *lz, visitproc visit,
-                               void *arg) {
-    Py_VISIT(lz->iterator);
-    Py_VISIT(lz->key);
-    Py_VISIT(lz->seen);
-    Py_VISIT(lz->funcargs);
+static int
+uniqueever_traverse(PyIUObject_UniqueEver *self,
+                    visitproc visit,
+                    void *arg)
+{
+    Py_VISIT(self->iterator);
+    Py_VISIT(self->key);
+    Py_VISIT(self->seen);
+    Py_VISIT(self->funcargs);
     return 0;
 }
 
 /******************************************************************************
- *
  * Next
- *
  *****************************************************************************/
 
-static PyObject * uniqueever_next(PyIUObject_UniqueEver *lz) {
+static PyObject *
+uniqueever_next(PyIUObject_UniqueEver *self)
+{
     PyObject *item=NULL, *temp=NULL, *tmp=NULL;
     int ok;
 
-    while ( (item = (*Py_TYPE(lz->iterator)->tp_iternext)(lz->iterator)) ) {
+    while ( (item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator)) ) {
 
-        // Use the item if key is not given, otherwise apply the key.
-        if (lz->key == NULL) {
+        /* Use the item if key is not given, otherwise apply the key. */
+        if (self->key == NULL) {
             temp = item;
         } else {
-            PYIU_RECYCLE_ARG_TUPLE(lz->funcargs, item, tmp, return NULL)
-            temp = PyObject_Call(lz->key, lz->funcargs, NULL);
+            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, tmp, return NULL)
+            temp = PyObject_Call(self->key, self->funcargs, NULL);
             if (temp == NULL) {
                 goto Fail;
             }
         }
 
-        // Check if the item is in seen
-        ok = PyIUSeen_ContainsAdd(lz->seen, temp);
+        /* Check if the item is in seen. */
+        ok = PyIUSeen_ContainsAdd(self->seen, temp);
         if (ok == 0) {
             goto Notfound;
-        // Failure when looking if item is in the set
+        /* Failure when looking if item. */
         } else if (ok == -1) {
             goto Fail;
         }
 
-        // We have found the item either in the set or list so continue.
-        if (lz->key != NULL) {
+        /* We have found the item either in the set or list so continue. */
+        if (self->key != NULL) {
             Py_DECREF(temp);
         }
         Py_DECREF(item);
@@ -147,12 +146,12 @@ static PyObject * uniqueever_next(PyIUObject_UniqueEver *lz) {
     return NULL;
 
 Notfound:
-    if (lz->key != NULL) {
+    if (self->key != NULL) {
         Py_XDECREF(temp);
     }
     return item;
 Fail:
-    if (lz->key != NULL) {
+    if (self->key != NULL) {
         Py_XDECREF(temp);
     }
     Py_XDECREF(item);
@@ -160,44 +159,42 @@ Fail:
 }
 
 /******************************************************************************
- *
  * Reduce
- *
  *****************************************************************************/
 
-static PyObject * uniqueever_reduce(PyIUObject_UniqueEver *lz) {
+static PyObject *
+uniqueever_reduce(PyIUObject_UniqueEver *self)
+{
     PyObject *value;
-    value = Py_BuildValue("O(OO)(O)", Py_TYPE(lz),
-                          lz->iterator,
-                          lz->key ? lz->key : Py_None,
-                          lz->seen);
+    value = Py_BuildValue("O(OO)(O)", Py_TYPE(self),
+                          self->iterator,
+                          self->key ? self->key : Py_None,
+                          self->seen);
     return value;
 }
 
 /******************************************************************************
- *
  * Setstate
- *
  *****************************************************************************/
 
-static PyObject * uniqueever_setstate(PyIUObject_UniqueEver *lz,
-                                      PyObject *state) {
+static PyObject *
+uniqueever_setstate(PyIUObject_UniqueEver *self,
+                    PyObject *state)
+{
     PyObject *seen;
 
     if (!PyArg_ParseTuple(state, "O", &seen)) {
         return NULL;
     }
 
-    Py_CLEAR(lz->seen);
-    lz->seen = seen;
-    Py_INCREF(lz->seen);
+    Py_CLEAR(self->seen);
+    self->seen = seen;
+    Py_INCREF(self->seen);
     Py_RETURN_NONE;
 }
 
 /******************************************************************************
- *
  * Methods
- *
  *****************************************************************************/
 
 static PyMethodDef uniqueever_methods[] = {
@@ -207,35 +204,34 @@ static PyMethodDef uniqueever_methods[] = {
 };
 
 /******************************************************************************
- *
  * Seen property
- *
  *****************************************************************************/
 
-static PyObject * uniqueever_getseen(PyIUObject_UniqueEver *lz,
-                                     void *closure) {
-    Py_INCREF(lz->seen);
-    return lz->seen;
+static PyObject *
+uniqueever_getseen(PyIUObject_UniqueEver *self,
+                   void *closure)
+{
+    Py_INCREF(self->seen);
+    return self->seen;
 }
 
 /******************************************************************************
- *
  * key property
- *
  *****************************************************************************/
 
-static PyObject * uniqueever_getkey(PyIUObject_UniqueEver *lz, void *closure) {
-    if (lz->key == NULL) {
+static PyObject *
+uniqueever_getkey(PyIUObject_UniqueEver *self,
+                  void *closure)
+{
+    if (self->key == NULL) {
         Py_RETURN_NONE;
     }
-    Py_INCREF(lz->key);
-    return lz->key;
+    Py_INCREF(self->key);
+    return self->key;
 }
 
 /******************************************************************************
- *
  * Properties
- *
  *****************************************************************************/
 
 static PyGetSetDef uniqueever_getsetlist[] = {
@@ -245,9 +241,7 @@ static PyGetSetDef uniqueever_getsetlist[] = {
 };
 
 /******************************************************************************
- *
  * Docstring
- *
  *****************************************************************************/
 
 PyDoc_STRVAR(uniqueever_doc, "unique_everseen(iterable, key=None)\n\
@@ -301,51 +295,49 @@ Even unhashable values can be processed, like `list`::\n\
 One can access the already seen values by accessing the `seen` attribute.");
 
 /******************************************************************************
- *
  * Type
- *
  *****************************************************************************/
 
 static PyTypeObject PyIUType_UniqueEver = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.unique_everseen", /* tp_name */
-    sizeof(PyIUObject_UniqueEver),      /* tp_basicsize */
-    0,                                  /* tp_itemsize */
+    "iteration_utilities.unique_everseen",              /* tp_name */
+    sizeof(PyIUObject_UniqueEver),                      /* tp_basicsize */
+    0,                                                  /* tp_itemsize */
     /* methods */
-    (destructor)uniqueever_dealloc,     /* tp_dealloc */
-    0,                                  /* tp_print */
-    0,                                  /* tp_getattr */
-    0,                                  /* tp_setattr */
-    0,                                  /* tp_reserved */
-    0,                                  /* tp_repr */
-    0,                                  /* tp_as_number */
-    0,                                  /* tp_as_sequence */
-    0,                                  /* tp_as_mapping */
-    0,                                  /* tp_hash */
-    0,                                  /* tp_call */
-    0,                                  /* tp_str */
-    PyObject_GenericGetAttr,            /* tp_getattro */
-    0,                                  /* tp_setattro */
-    0,                                  /* tp_as_buffer */
+    (destructor)uniqueever_dealloc,                     /* tp_dealloc */
+    0,                                                  /* tp_print */
+    0,                                                  /* tp_getattr */
+    0,                                                  /* tp_setattr */
+    0,                                                  /* tp_reserved */
+    0,                                                  /* tp_repr */
+    0,                                                  /* tp_as_number */
+    0,                                                  /* tp_as_sequence */
+    0,                                                  /* tp_as_mapping */
+    0,                                                  /* tp_hash */
+    0,                                                  /* tp_call */
+    0,                                                  /* tp_str */
+    PyObject_GenericGetAttr,                            /* tp_getattro */
+    0,                                                  /* tp_setattro */
+    0,                                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
-        Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    uniqueever_doc,                     /* tp_doc */
-    (traverseproc)uniqueever_traverse,  /* tp_traverse */
-    0,                                  /* tp_clear */
-    0,                                  /* tp_richcompare */
-    0,                                  /* tp_weaklistoffset */
-    PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)uniqueever_next,      /* tp_iternext */
-    uniqueever_methods,                 /* tp_methods */
-    0,                                  /* tp_members */
-    uniqueever_getsetlist,              /* tp_getset */
-    0,                                  /* tp_base */
-    0,                                  /* tp_dict */
-    0,                                  /* tp_descr_get */
-    0,                                  /* tp_descr_set */
-    0,                                  /* tp_dictoffset */
-    0,                                  /* tp_init */
-    0,                                  /* tp_alloc */
-    uniqueever_new,                     /* tp_new */
-    PyObject_GC_Del,                    /* tp_free */
+        Py_TPFLAGS_BASETYPE,                            /* tp_flags */
+    uniqueever_doc,                                     /* tp_doc */
+    (traverseproc)uniqueever_traverse,                  /* tp_traverse */
+    0,                                                  /* tp_clear */
+    0,                                                  /* tp_richcompare */
+    0,                                                  /* tp_weaklistoffset */
+    PyObject_SelfIter,                                  /* tp_iter */
+    (iternextfunc)uniqueever_next,                      /* tp_iternext */
+    uniqueever_methods,                                 /* tp_methods */
+    0,                                                  /* tp_members */
+    uniqueever_getsetlist,                              /* tp_getset */
+    0,                                                  /* tp_base */
+    0,                                                  /* tp_dict */
+    0,                                                  /* tp_descr_get */
+    0,                                                  /* tp_descr_set */
+    0,                                                  /* tp_dictoffset */
+    0,                                                  /* tp_init */
+    0,                                                  /* tp_alloc */
+    uniqueever_new,                                     /* tp_new */
+    PyObject_GC_Del,                                    /* tp_free */
 };

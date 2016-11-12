@@ -12,15 +12,16 @@ typedef struct {
 static PyTypeObject PyIUType_Successive;
 
 /******************************************************************************
- *
  * New
- *
  *****************************************************************************/
 
-static PyObject * successive_new(PyTypeObject *type, PyObject *args,
-                                 PyObject *kwargs) {
+static PyObject *
+successive_new(PyTypeObject *type,
+               PyObject *args,
+               PyObject *kwargs)
+{
     static char *kwlist[] = {"iterable", "times", NULL};
-    PyIUObject_Successive *lz;
+    PyIUObject_Successive *self;
 
     PyObject *iterable, *iterator;
     Py_ssize_t times = 2;
@@ -41,63 +42,64 @@ static PyObject * successive_new(PyTypeObject *type, PyObject *args,
     if (iterator == NULL) {
         return NULL;
     }
-    lz = (PyIUObject_Successive *)type->tp_alloc(type, 0);
-    if (lz == NULL) {
+    self = (PyIUObject_Successive *)type->tp_alloc(type, 0);
+    if (self == NULL) {
         Py_DECREF(iterator);
         return NULL;
     }
-    lz->iterator = iterator;
-    lz->times = times;
-    lz->result = NULL;
-    return (PyObject *)lz;
+    self->iterator = iterator;
+    self->times = times;
+    self->result = NULL;
+    return (PyObject *)self;
 }
 
 /******************************************************************************
- *
  * Destructor
- *
  *****************************************************************************/
 
-static void successive_dealloc(PyIUObject_Successive *lz) {
-    PyObject_GC_UnTrack(lz);
-    Py_XDECREF(lz->iterator);
-    Py_XDECREF(lz->result);
-    Py_TYPE(lz)->tp_free(lz);
+static void
+successive_dealloc(PyIUObject_Successive *self)
+{
+    PyObject_GC_UnTrack(self);
+    Py_XDECREF(self->iterator);
+    Py_XDECREF(self->result);
+    Py_TYPE(self)->tp_free(self);
 }
 
 /******************************************************************************
- *
  * Traverse
- *
  *****************************************************************************/
 
-static int successive_traverse(PyIUObject_Successive *lz, visitproc visit,
-                               void *arg) {
-    Py_VISIT(lz->iterator);
-    Py_VISIT(lz->result);
+static int
+successive_traverse(PyIUObject_Successive *self,
+                    visitproc visit,
+                    void *arg)
+{
+    Py_VISIT(self->iterator);
+    Py_VISIT(self->result);
     return 0;
 }
 
 /******************************************************************************
- *
  * Next
- *
  *****************************************************************************/
 
-static PyObject * successive_next(PyIUObject_Successive *lz) {
-    PyObject *result = lz->result;
+static PyObject *
+successive_next(PyIUObject_Successive *self)
+{
+    PyObject *result = self->result;
     PyObject *newresult, *item, *olditem, *temp=NULL;
     Py_ssize_t i;
 
-    // First call needs to create a tuple for the result.
+    /* First call needs to create a tuple for the result. */
     if (result == NULL) {
-        result = PyTuple_New(lz->times);
+        result = PyTuple_New(self->times);
         if (result == NULL) {
             return NULL;
         }
 
-        for (i=0; i<lz->times; i++) {
-            item = (*Py_TYPE(lz->iterator)->tp_iternext)(lz->iterator);
+        for (i=0; i<self->times; i++) {
+            item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator);
             if (item == NULL) {
                 PYIU_CLEAR_STOPITERATION;
                 Py_DECREF(result);
@@ -106,98 +108,96 @@ static PyObject * successive_next(PyIUObject_Successive *lz) {
             PyTuple_SET_ITEM(result, i, item);
         }
         Py_INCREF(result);
-        lz->result = result;
+        self->result = result;
         return result;
     }
 
-    // After the first element we can use the normal procedure.
-    item = (*Py_TYPE(lz->iterator)->tp_iternext)(lz->iterator);
+    /* After the first element we can use the normal procedure. */
+    item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator);
     if (item == NULL) {
         PYIU_CLEAR_STOPITERATION;
         return NULL;
     }
 
-    // Recycle old tuple or create a new one.
+    /* Recycle old tuple or create a new one. */
     if (Py_REFCNT(result) == 1) {
 
-        // Remove the first item of the result.
+        /* Remove the first item of the result. */
         temp = PyTuple_GET_ITEM(result, 0);
-        PYUI_TupleRemove(result, 0, lz->times);
+        PYUI_TupleRemove(result, 0, self->times);
         Py_XDECREF(temp);
 
-        // Insert the new item (at the end) and return it
-        PyTuple_SET_ITEM(result, lz->times-1, item);
+        /* Insert the new item (at the end) and return it. */
+        PyTuple_SET_ITEM(result, self->times-1, item);
         Py_INCREF(result);
         return result;
 
     } else {
-        newresult = PyTuple_New(lz->times);
+        newresult = PyTuple_New(self->times);
         if (newresult == NULL) {
             Py_DECREF(item);
             return NULL;
         }
 
-        // Shift all earlier items one index to the left.
-        for (i=1 ; i < lz->times ; i++) {
+        /* Shift all earlier items one index to the left. */
+        for (i=1 ; i < self->times ; i++) {
             olditem = PyTuple_GET_ITEM(result, i);
             Py_INCREF(olditem);
             PyTuple_SET_ITEM(newresult, i-1, olditem);
         }
-        // Insert the new item (at the end), then replace the saved result.
-        PyTuple_SET_ITEM(newresult, lz->times-1, item);
+        /* Insert the new item (at the end), then replace the saved result. */
+        PyTuple_SET_ITEM(newresult, self->times-1, item);
         Py_INCREF(newresult);
-        lz->result = newresult;
+        self->result = newresult;
         Py_DECREF(result);
         return newresult;
     }
 }
 
 /******************************************************************************
- *
  * Reduce
- *
  *****************************************************************************/
 
-static PyObject * successive_reduce(PyIUObject_Successive *lz) {
-    if (lz->result == NULL) {
-        return Py_BuildValue("O(On)", Py_TYPE(lz),
-                             lz->iterator, lz->times);
+static PyObject *
+successive_reduce(PyIUObject_Successive *self)
+{
+    if (self->result == NULL) {
+        return Py_BuildValue("O(On)", Py_TYPE(self),
+                             self->iterator, self->times);
     } else {
-        return Py_BuildValue("O(On)(O)", Py_TYPE(lz),
-                             lz->iterator, lz->times,
-                             lz->result);
+        return Py_BuildValue("O(On)(O)", Py_TYPE(self),
+                             self->iterator, self->times,
+                             self->result);
     }
 }
 
 /******************************************************************************
- *
  * Setstate
- *
  *****************************************************************************/
 
-static PyObject * successive_setstate(PyIUObject_Successive *lz,
-                                      PyObject *state) {
+static PyObject *
+successive_setstate(PyIUObject_Successive *self,
+                    PyObject *state)
+{
     PyObject *result;
     if (!PyArg_ParseTuple(state, "O", &result)) {
         return NULL;
     }
 
-    Py_CLEAR(lz->result);
+    Py_CLEAR(self->result);
 
     if (result == Py_None) {
-        lz->result = NULL;
+        self->result = NULL;
     } else {
         Py_INCREF(result);
-        lz->result = result;
+        self->result = result;
     }
 
     Py_RETURN_NONE;
 }
 
 /******************************************************************************
- *
  * Methods
- *
  *****************************************************************************/
 
 static PyMethodDef successive_methods[] = {
@@ -207,9 +207,7 @@ static PyMethodDef successive_methods[] = {
 };
 
 /******************************************************************************
- *
  * Docstring
- *
  *****************************************************************************/
 
 PyDoc_STRVAR(successive_doc, "successive(iterable, times)\n\
@@ -250,51 +248,49 @@ Varying the `times` can give you also 3 successive elements::\n\
     [('H', 'e'), ('e', 'l'), ('l', 'l'), ('l', 'o'), ('o', '!')]");
 
 /******************************************************************************
- *
  * Type
- *
  *****************************************************************************/
 
 static PyTypeObject PyIUType_Successive = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.successive",   /* tp_name */
-    sizeof(PyIUObject_Successive),      /* tp_basicsize */
-    0,                                  /* tp_itemsize */
+    "iteration_utilities.successive",                   /* tp_name */
+    sizeof(PyIUObject_Successive),                      /* tp_basicsize */
+    0,                                                  /* tp_itemsize */
     /* methods */
-    (destructor)successive_dealloc,     /* tp_dealloc */
-    0,                                  /* tp_print */
-    0,                                  /* tp_getattr */
-    0,                                  /* tp_setattr */
-    0,                                  /* tp_reserved */
-    0,                                  /* tp_repr */
-    0,                                  /* tp_as_number */
-    0,                                  /* tp_as_sequence */
-    0,                                  /* tp_as_mapping */
-    0,                                  /* tp_hash */
-    0,                                  /* tp_call */
-    0,                                  /* tp_str */
-    PyObject_GenericGetAttr,            /* tp_getattro */
-    0,                                  /* tp_setattro */
-    0,                                  /* tp_as_buffer */
+    (destructor)successive_dealloc,                     /* tp_dealloc */
+    0,                                                  /* tp_print */
+    0,                                                  /* tp_getattr */
+    0,                                                  /* tp_setattr */
+    0,                                                  /* tp_reserved */
+    0,                                                  /* tp_repr */
+    0,                                                  /* tp_as_number */
+    0,                                                  /* tp_as_sequence */
+    0,                                                  /* tp_as_mapping */
+    0,                                                  /* tp_hash */
+    0,                                                  /* tp_call */
+    0,                                                  /* tp_str */
+    PyObject_GenericGetAttr,                            /* tp_getattro */
+    0,                                                  /* tp_setattro */
+    0,                                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
-        Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    successive_doc,                     /* tp_doc */
-    (traverseproc)successive_traverse,  /* tp_traverse */
-    0,                                  /* tp_clear */
-    0,                                  /* tp_richcompare */
-    0,                                  /* tp_weaklistoffset */
-    PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)successive_next,      /* tp_iternext */
-    successive_methods,                 /* tp_methods */
-    0,                                  /* tp_members */
-    0,                                  /* tp_getset */
-    0,                                  /* tp_base */
-    0,                                  /* tp_dict */
-    0,                                  /* tp_descr_get */
-    0,                                  /* tp_descr_set */
-    0,                                  /* tp_dictoffset */
-    0,                                  /* tp_init */
-    PyType_GenericAlloc,                /* tp_alloc */
-    successive_new,                     /* tp_new */
-    PyObject_GC_Del,                    /* tp_free */
+        Py_TPFLAGS_BASETYPE,                            /* tp_flags */
+    successive_doc,                                     /* tp_doc */
+    (traverseproc)successive_traverse,                  /* tp_traverse */
+    0,                                                  /* tp_clear */
+    0,                                                  /* tp_richcompare */
+    0,                                                  /* tp_weaklistoffset */
+    PyObject_SelfIter,                                  /* tp_iter */
+    (iternextfunc)successive_next,                      /* tp_iternext */
+    successive_methods,                                 /* tp_methods */
+    0,                                                  /* tp_members */
+    0,                                                  /* tp_getset */
+    0,                                                  /* tp_base */
+    0,                                                  /* tp_dict */
+    0,                                                  /* tp_descr_get */
+    0,                                                  /* tp_descr_set */
+    0,                                                  /* tp_dictoffset */
+    0,                                                  /* tp_init */
+    PyType_GenericAlloc,                                /* tp_alloc */
+    successive_new,                                     /* tp_new */
+    PyObject_GC_Del,                                    /* tp_free */
 };

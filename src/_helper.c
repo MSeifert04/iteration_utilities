@@ -23,12 +23,23 @@
  if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_StopIteration)) { PyErr_Clear(); }
 
 /******************************************************************************
- * Convenience macros
+ * Complex Convenience macros
  *
- * PYIU_RECYCLE_ARG_TUPLE : args (Tuple of length 1)
- *                          newarg (PyObject *)
- *                          tmp (PyObject *)
- *                          error_stmt (for example "return NULL" or "goto Fail")
+ * TODO: These are much too complex for macros but yield a 20-35% speedup over
+ *       functions (which are 10-20% slower than using
+ *       PyObject_CallFunctionArgs or similar).
+ *
+ * PYIU_RECYCLE_ARG_TUPLE :
+ *     args (Tuple of length 1)
+ *     newarg (PyObject *)
+ *     tmp (PyObject *)
+ *     error_stmt (for example "return NULL" or "goto Fail")
+ *
+ * PYIU_RECYCLE_ARG_TUPLE_BINOP :
+ *     args (Tuple of length 1)
+ *     new1, new2 (PyObject *)
+ *     tmp1, tmp2 (PyObject *)
+ *     error_stmt (for example "return NULL" or "goto Fail")
  *****************************************************************************/
 
 #define PYIU_RECYCLE_ARG_TUPLE(args, newarg, tmp, error_stmt) \
@@ -85,37 +96,41 @@
 
 static PyObject *PyIU_Long_1_global = NULL;
 
-static PyObject * PyIU_Long_1(void) {
+static PyObject *
+PyIU_Long_1(void)
+{
     if (PyIU_Long_1_global == NULL) {
-#if PY_MAJOR_VERSION == 2
-        PyIU_Long_1_global = PyInt_FromLong((long)1);
-#else
-        PyIU_Long_1_global = PyLong_FromLong((long)1);
-#endif
+        #if PY_MAJOR_VERSION == 2
+            PyIU_Long_1_global = PyInt_FromLong((long)1);
+        #else
+            PyIU_Long_1_global = PyLong_FromLong((long)1);
+        #endif
     }
     return PyIU_Long_1_global;
 }
 
 static PyObject *PyIU_Long_2_global = NULL;
 
-static PyObject * PyIU_Long_2(void) {
+static PyObject *
+PyIU_Long_2(void)
+{
     if (PyIU_Long_2_global == NULL) {
-#if PY_MAJOR_VERSION == 2
-        PyIU_Long_2_global = PyInt_FromLong((long)2);
-#else
-        PyIU_Long_2_global = PyLong_FromLong((long)2);
-#endif
+        #if PY_MAJOR_VERSION == 2
+            PyIU_Long_2_global = PyInt_FromLong((long)2);
+        #else
+            PyIU_Long_2_global = PyLong_FromLong((long)2);
+        #endif
     }
     return PyIU_Long_2_global;
 }
 
 /******************************************************************************
- *
  * Create a new reversed tuple from another tuple.
- *
  *****************************************************************************/
 
-static PyObject * PyUI_TupleReverse(PyObject *tuple) {
+static PyObject *
+PyUI_TupleReverse(PyObject *tuple)
+{
     PyObject *item, *newtuple;
     Py_ssize_t num, idx;
 
@@ -132,7 +147,6 @@ static PyObject * PyUI_TupleReverse(PyObject *tuple) {
 }
 
 /******************************************************************************
- *
  * Insert a value in a Tuple by moving all items at or above this index one to
  * the right.
  *
@@ -145,11 +159,14 @@ static PyObject * PyUI_TupleReverse(PyObject *tuple) {
  * num   : Move items up to this index. I.e. if 10 then item 9 is moved to
  *         index 10 but item 10 isn't moved. (In fact item 10 mustn't be a
  *         PyObject, see Warning.)
- *
  *****************************************************************************/
 
-static void PYUI_TupleInsert(PyObject *tuple, Py_ssize_t where, PyObject *v,
-                             Py_ssize_t num) {
+static void
+PYUI_TupleInsert(PyObject *tuple,
+                 Py_ssize_t where,
+                 PyObject *v,
+                 Py_ssize_t num)
+{
     PyObject *temp;
     Py_ssize_t i;
 
@@ -161,7 +178,6 @@ static void PYUI_TupleInsert(PyObject *tuple, Py_ssize_t where, PyObject *v,
 }
 
 /******************************************************************************
- *
  * Remove a value from a Tuple and move every successive element one to the
  * left.
  *
@@ -174,11 +190,13 @@ static void PYUI_TupleInsert(PyObject *tuple, Py_ssize_t where, PyObject *v,
  * num   : Move items to up to this index. I.e. if num=10 then the item at pos
  *         10 is moved to 9 (and 10 is set to NULL), ... until where+1 which is
  *         moved to "where".
- *
  *****************************************************************************/
 
-static void PYUI_TupleRemove(PyObject *tuple, Py_ssize_t where,
-                             Py_ssize_t num) {
+static void
+PYUI_TupleRemove(PyObject *tuple,
+                 Py_ssize_t where,
+                 Py_ssize_t num)
+{
     PyObject *temp;
     Py_ssize_t idx;
 
@@ -192,7 +210,6 @@ static void PYUI_TupleRemove(PyObject *tuple, Py_ssize_t where,
 
 
 /******************************************************************************
- *
  * Find the position to insert a value in an already sorted tuple. Assumes that
  * the sorting should be stable and searches the rightmost place where the
  * tuple is still sorted.
@@ -209,26 +226,29 @@ static void PYUI_TupleRemove(PyObject *tuple, Py_ssize_t where,
  * Returns -1 on failure otherwise a positive Py_ssize_t value.
  *
  * Copied and modified from the python bisect module.
- *
  *****************************************************************************/
 
-Py_ssize_t PyUI_TupleBisectRight_LastFirst(PyObject *tuple, PyObject *item,
-                                           Py_ssize_t hi, int cmpop) {
+Py_ssize_t
+PyUI_TupleBisectRight_LastFirst(PyObject *tuple,
+                                PyObject *item,
+                                Py_ssize_t hi,
+                                int cmpop)
+{
     PyObject *litem;
     Py_ssize_t mid, lo = 0;
     int res;
     //printf("Start bisect right for %i elements.\n", hi);
 
-    // Bisection has two worst cases: If it should be inserted in the first or
-    // last place. The list is reverse-ordered so it's likely that the
-    // bisection could return the last place (for bisect_left it would be the
-    // first) in the "merge_sorted" function.
+    /* Bisection has two worst cases: If it should be inserted in the first or
+       last place. The list is reverse-ordered so it's likely that the
+       bisection could return the last place (for bisect_left it would be the
+       first) in the "merge_sorted" function.
 
-    // Checking the number of comparisons in "merge" shows that merge now uses
-    // slightly less comparisons than "sorted" in the average case, slightly
-    // more in the worst case and much less in the best case!
+       Checking the number of comparisons in "merge" shows that merge now uses
+       slightly less comparisons than "sorted" in the average case, slightly
+       more in the worst case and much less in the best case! */
 
-    // So let's check the last item first!
+    /* So let's check the last item first! */
     if (hi <= 0) {
         return 0;
     }

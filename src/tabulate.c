@@ -12,15 +12,16 @@ typedef struct {
 static PyTypeObject PyIUType_Tabulate;
 
 /******************************************************************************
- *
  * New
- *
  *****************************************************************************/
 
-static PyObject * tabulate_new(PyTypeObject *type, PyObject *args,
-                               PyObject *kwargs) {
+static PyObject *
+tabulate_new(PyTypeObject *type,
+             PyObject *args,
+             PyObject *kwargs)
+{
     static char *kwlist[] = {"function", "start", NULL};
-    PyIUObject_Tabulate *lz;
+    PyIUObject_Tabulate *self;
 
     PyObject *func, *cnt=NULL, *funcargs=NULL;
 
@@ -44,100 +45,99 @@ static PyObject * tabulate_new(PyTypeObject *type, PyObject *args,
     }
 
     /* Create and fill struct */
-    lz = (PyIUObject_Tabulate *)type->tp_alloc(type, 0);
-    if (lz == NULL) {
+    self = (PyIUObject_Tabulate *)type->tp_alloc(type, 0);
+    if (self == NULL) {
         Py_DECREF(cnt);
         Py_DECREF(funcargs);
         return NULL;
     }
     Py_INCREF(func);
-    lz->func = func;
-    lz->cnt = cnt;
-    lz->funcargs = funcargs;
+    self->func = func;
+    self->cnt = cnt;
+    self->funcargs = funcargs;
 
-    return (PyObject *)lz;
+    return (PyObject *)self;
 }
 
 /******************************************************************************
- *
  * Destructor
- *
  *****************************************************************************/
 
-static void tabulate_dealloc(PyIUObject_Tabulate *lz) {
-    PyObject_GC_UnTrack(lz);
-    Py_XDECREF(lz->func);
-    Py_XDECREF(lz->cnt);
-    Py_XDECREF(lz->funcargs);
-    Py_TYPE(lz)->tp_free(lz);
+static void
+tabulate_dealloc(PyIUObject_Tabulate *self)
+{
+    PyObject_GC_UnTrack(self);
+    Py_XDECREF(self->func);
+    Py_XDECREF(self->cnt);
+    Py_XDECREF(self->funcargs);
+    Py_TYPE(self)->tp_free(self);
 }
 
 /******************************************************************************
- *
  * Traverse
- *
  *****************************************************************************/
 
-static int tabulate_traverse(PyIUObject_Tabulate *lz, visitproc visit,
-                             void *arg) {
-    Py_VISIT(lz->func);
-    Py_VISIT(lz->cnt);
-    Py_VISIT(lz->funcargs);
+static int
+tabulate_traverse(PyIUObject_Tabulate *self,
+                  visitproc visit,
+                  void *arg)
+{
+    Py_VISIT(self->func);
+    Py_VISIT(self->cnt);
+    Py_VISIT(self->funcargs);
     return 0;
 }
 
 /******************************************************************************
- *
  * Next
- *
  *****************************************************************************/
 
-static PyObject * tabulate_next(PyIUObject_Tabulate *lz) {
+static PyObject *
+tabulate_next(PyIUObject_Tabulate *self)
+{
     PyObject *result=NULL, *tmp=NULL;
-    if (lz->cnt == NULL) {
+    if (self->cnt == NULL) {
         goto Fail;
     }
-    // Call the function with the current value as argument
-    PYIU_RECYCLE_ARG_TUPLE(lz->funcargs, lz->cnt, tmp, return NULL)
-    result = PyObject_Call(lz->func, lz->funcargs, NULL);
+    /* Call the function with the current value as argument. */
+    PYIU_RECYCLE_ARG_TUPLE(self->funcargs, self->cnt, tmp, return NULL)
+    result = PyObject_Call(self->func, self->funcargs, NULL);
     if (result == NULL) {
         goto Fail;
     }
-    // Increment the counter.
-    tmp = lz->cnt;
-    lz->cnt = PyNumber_Add(lz->cnt, PyIU_Long_1());
+    /* Increment the counter. */
+    tmp = self->cnt;
+    self->cnt = PyNumber_Add(self->cnt, PyIU_Long_1());
     Py_DECREF(tmp);
-    if (lz->cnt == NULL) {
+    if (self->cnt == NULL) {
         goto Fail;
     }
-    // Return the result
+    /* Return the result. */
     return result;
 
 Fail:
     Py_XDECREF(result);
-    Py_XDECREF(lz->cnt);
-    // Reset counter to NULL, so subsequent iterations yield StopIterations
-    lz->cnt = NULL;
+    Py_XDECREF(self->cnt);
+    /* Reset counter to NULL, so subsequent iterations yield StopIterations. */
+    self->cnt = NULL;
     return NULL;
 }
 
 /******************************************************************************
- *
  * Reduce
- *
  *****************************************************************************/
 
-static PyObject * tabulate_reduce(PyIUObject_Tabulate *lz) {
+static PyObject *
+tabulate_reduce(PyIUObject_Tabulate *self)
+{
     return Py_BuildValue("O(OO)",
-                         Py_TYPE(lz),
-                         lz->func,
-                         lz->cnt);
+                         Py_TYPE(self),
+                         self->func,
+                         self->cnt);
 }
 
 /******************************************************************************
- *
  * Methods
- *
  *****************************************************************************/
 
 static PyMethodDef tabulate_methods[] = {
@@ -146,9 +146,7 @@ static PyMethodDef tabulate_methods[] = {
 };
 
 /******************************************************************************
- *
  * Docstring
- *
  *****************************************************************************/
 
 PyDoc_STRVAR(tabulate_doc, "tabulate(function, start=0)\n\
@@ -197,51 +195,49 @@ This is equivalent to:\n\
         return map(function, itertools.count(start))");
 
 /******************************************************************************
- *
  * Type
- *
  *****************************************************************************/
 
 static PyTypeObject PyIUType_Tabulate = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.tabulate",     /* tp_name */
-    sizeof(PyIUObject_Tabulate),        /* tp_basicsize */
-    0,                                  /* tp_itemsize */
+    "iteration_utilities.tabulate",                     /* tp_name */
+    sizeof(PyIUObject_Tabulate),                        /* tp_basicsize */
+    0,                                                  /* tp_itemsize */
     /* methods */
-    (destructor)tabulate_dealloc,       /* tp_dealloc */
-    0,                                  /* tp_print */
-    0,                                  /* tp_getattr */
-    0,                                  /* tp_setattr */
-    0,                                  /* tp_reserved */
-    0,                                  /* tp_repr */
-    0,                                  /* tp_as_number */
-    0,                                  /* tp_as_sequence */
-    0,                                  /* tp_as_mapping */
-    0,                                  /* tp_hash */
-    0,                                  /* tp_call */
-    0,                                  /* tp_str */
-    PyObject_GenericGetAttr,            /* tp_getattro */
-    0,                                  /* tp_setattro */
-    0,                                  /* tp_as_buffer */
+    (destructor)tabulate_dealloc,                       /* tp_dealloc */
+    0,                                                  /* tp_print */
+    0,                                                  /* tp_getattr */
+    0,                                                  /* tp_setattr */
+    0,                                                  /* tp_reserved */
+    0,                                                  /* tp_repr */
+    0,                                                  /* tp_as_number */
+    0,                                                  /* tp_as_sequence */
+    0,                                                  /* tp_as_mapping */
+    0,                                                  /* tp_hash */
+    0,                                                  /* tp_call */
+    0,                                                  /* tp_str */
+    PyObject_GenericGetAttr,                            /* tp_getattro */
+    0,                                                  /* tp_setattro */
+    0,                                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
-        Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    tabulate_doc,                       /* tp_doc */
-    (traverseproc)tabulate_traverse,    /* tp_traverse */
-    0,                                  /* tp_clear */
-    0,                                  /* tp_richcompare */
-    0,                                  /* tp_weaklistoffset */
-    PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)tabulate_next,        /* tp_iternext */
-    tabulate_methods,                   /* tp_methods */
-    0,                                  /* tp_members */
-    0,                                  /* tp_getset */
-    0,                                  /* tp_base */
-    0,                                  /* tp_dict */
-    0,                                  /* tp_descr_get */
-    0,                                  /* tp_descr_set */
-    0,                                  /* tp_dictoffset */
-    0,                                  /* tp_init */
-    0,                                  /* tp_alloc */
-    tabulate_new,                       /* tp_new */
-    PyObject_GC_Del,                    /* tp_free */
+        Py_TPFLAGS_BASETYPE,                            /* tp_flags */
+    tabulate_doc,                                       /* tp_doc */
+    (traverseproc)tabulate_traverse,                    /* tp_traverse */
+    0,                                                  /* tp_clear */
+    0,                                                  /* tp_richcompare */
+    0,                                                  /* tp_weaklistoffset */
+    PyObject_SelfIter,                                  /* tp_iter */
+    (iternextfunc)tabulate_next,                        /* tp_iternext */
+    tabulate_methods,                                   /* tp_methods */
+    0,                                                  /* tp_members */
+    0,                                                  /* tp_getset */
+    0,                                                  /* tp_base */
+    0,                                                  /* tp_dict */
+    0,                                                  /* tp_descr_get */
+    0,                                                  /* tp_descr_set */
+    0,                                                  /* tp_dictoffset */
+    0,                                                  /* tp_init */
+    0,                                                  /* tp_alloc */
+    tabulate_new,                                       /* tp_new */
+    PyObject_GC_Del,                                    /* tp_free */
 };

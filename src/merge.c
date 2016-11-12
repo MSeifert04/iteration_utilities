@@ -1,8 +1,5 @@
 /******************************************************************************
  * Licensed under Apache License Version 2.0 - see LICENSE.rst
- *****************************************************************************/
-
-/******************************************************************************
  *
  * IMPORTANT NOTE:
  *
@@ -30,14 +27,15 @@ typedef struct {
 static PyTypeObject PyIUType_Merge;
 
 /******************************************************************************
- *
  * New
- *
  *****************************************************************************/
 
-static PyObject * merge_new(PyTypeObject *type, PyObject *args,
-                            PyObject *kwargs) {
-    PyIUObject_Merge *lz;
+static PyObject *
+merge_new(PyTypeObject *type,
+          PyObject *args,
+          PyObject *kwargs)
+{
+    PyIUObject_Merge *self;
 
     PyObject *iteratortuple, *iterator, *keyfunc=NULL, *reversekw=NULL, *funcargs=NULL;
     Py_ssize_t numactive, idx, nkwargs;
@@ -92,77 +90,80 @@ static PyObject * merge_new(PyTypeObject *type, PyObject *args,
         Py_XDECREF(keyfunc);
         return NULL;
     }
-    lz = (PyIUObject_Merge *)type->tp_alloc(type, 0);
-    if (lz == NULL) {
+    self = (PyIUObject_Merge *)type->tp_alloc(type, 0);
+    if (self == NULL) {
         Py_DECREF(iteratortuple);
         Py_XDECREF(keyfunc);
         Py_XDECREF(funcargs);
         return NULL;
     }
-    lz->iteratortuple = iteratortuple;
-    lz->keyfunc = keyfunc;
-    lz->reverse = reverse;
-    lz->current = NULL;
-    lz->numactive = numactive;
-    lz->funcargs = funcargs;
-    return (PyObject *)lz;
+    self->iteratortuple = iteratortuple;
+    self->keyfunc = keyfunc;
+    self->reverse = reverse;
+    self->current = NULL;
+    self->numactive = numactive;
+    self->funcargs = funcargs;
+    return (PyObject *)self;
 }
 
 /******************************************************************************
- *
  * Destructor
- *
  *****************************************************************************/
 
-static void merge_dealloc(PyIUObject_Merge *lz) {
-    PyObject_GC_UnTrack(lz);
-    Py_XDECREF(lz->iteratortuple);
-    Py_XDECREF(lz->keyfunc);
-    Py_XDECREF(lz->current);
-    Py_XDECREF(lz->funcargs);
-    Py_TYPE(lz)->tp_free(lz);
+static void
+merge_dealloc(PyIUObject_Merge *self)
+{
+    PyObject_GC_UnTrack(self);
+    Py_XDECREF(self->iteratortuple);
+    Py_XDECREF(self->keyfunc);
+    Py_XDECREF(self->current);
+    Py_XDECREF(self->funcargs);
+    Py_TYPE(self)->tp_free(self);
 }
 
 /******************************************************************************
- *
  * Traverse
- *
  *****************************************************************************/
 
-static int merge_traverse(PyIUObject_Merge *lz, visitproc visit, void *arg) {
-    Py_VISIT(lz->iteratortuple);
-    Py_VISIT(lz->keyfunc);
-    Py_VISIT(lz->current);
-    Py_VISIT(lz->funcargs);
+static int
+merge_traverse(PyIUObject_Merge *self,
+               visitproc visit,
+               void *arg)
+{
+    Py_VISIT(self->iteratortuple);
+    Py_VISIT(self->keyfunc);
+    Py_VISIT(self->current);
+    Py_VISIT(self->funcargs);
     return 0;
 }
 
 /******************************************************************************
- *
  * Initialize "current"
- *
  *****************************************************************************/
 
-static int merge_init_current(PyIUObject_Merge *lz) {
+static int
+merge_init_current(PyIUObject_Merge *self)
+{
     PyObject *current, *iterator, *item, *newitem, *keyval=NULL, *tmp=NULL;
     Py_ssize_t i, insert, tuplelength;
 
-    current = PyTuple_New(lz->numactive);
+    current = PyTuple_New(self->numactive);
     if (current == NULL) {
         return -1;
     }
     tuplelength = 0;
 
-    for (i=0 ; i<lz->numactive ; i++) {
-        iterator = PyTuple_GET_ITEM(lz->iteratortuple, i);
+    for (i=0 ; i<self->numactive ; i++) {
+        iterator = PyTuple_GET_ITEM(self->iteratortuple, i);
         item = (*Py_TYPE(iterator)->tp_iternext)(iterator);
         if (item != NULL) {
-            // The idea here is that we can keep stability by also remembering
-            // the index of the iterable (which is also useful to remember
-            // from which iterable to get the next item if it is yielded).
-            if (lz->keyfunc != NULL) {
-                PYIU_RECYCLE_ARG_TUPLE(lz->funcargs, item, tmp, Py_DECREF(current); Py_DECREF(item); return -1;)
-                keyval = PyObject_Call(lz->keyfunc, lz->funcargs, NULL);
+            /* The idea here is that we can keep stability by also remembering
+               the index of the iterable (which is also useful to remember
+               from which iterable to get the next item if it is yielded).
+               */
+            if (self->keyfunc != NULL) {
+                PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, tmp, Py_DECREF(current); Py_DECREF(item); return -1;)
+                keyval = PyObject_Call(self->keyfunc, self->funcargs, NULL);
                 if (keyval == NULL) {
                     Py_DECREF(current);
                     Py_DECREF(item);
@@ -171,13 +172,13 @@ static int merge_init_current(PyIUObject_Merge *lz) {
             }
             newitem = PyIU_ItemIdxKey_FromC(item, i, keyval);
 
-            // Insert the tuple into the current tuple.
+            /* Insert the tuple into the current tuple. */
             if (tuplelength == 0) {
                 PyTuple_SET_ITEM(current, 0, newitem);
             } else {
                 insert = PyUI_TupleBisectRight_LastFirst(current, newitem,
                                                          tuplelength,
-                                                         lz->reverse);
+                                                         self->reverse);
                 if (insert < 0) {
                     Py_DECREF(current);
                     Py_DECREF(newitem);
@@ -190,58 +191,59 @@ static int merge_init_current(PyIUObject_Merge *lz) {
             PYIU_CLEAR_STOPITERATION;
         }
     }
-    lz->numactive = tuplelength;
-    lz->current = current;
+    self->numactive = tuplelength;
+    self->current = current;
     return 0;
 }
 
 /******************************************************************************
- *
  * Next
- *
  *****************************************************************************/
 
-static PyObject * merge_next(PyIUObject_Merge *lz) {
+static PyObject *
+merge_next(PyIUObject_Merge *self)
+{
     PyObject *iterator, *item, *val, *keyval, *oldkeyval, *tmp=NULL;
     Py_ssize_t insert=0;
     PyIUObject_ItemIdxKey *next;
 
-    // No current then we create one.
-    if (lz->current == NULL || lz->current == Py_None) {
-        if (merge_init_current(lz) < 0) {
+    /* No current then we create one. */
+    if (self->current == NULL || self->current == Py_None) {
+        if (merge_init_current(self) < 0) {
             return NULL;
         }
     }
 
-    // Finished as soon as there are no more active iterators.
-    if (lz->numactive <= 0) {
+    /* Finished as soon as there are no more active iterators. */
+    if (self->numactive <= 0) {
         return NULL;
     }
 
-    // Tuple containing the next value
-    next = (PyIUObject_ItemIdxKey *)PyTuple_GET_ITEM(lz->current, lz->numactive-1);
+    /* Tuple containing the next value. */
+    next = (PyIUObject_ItemIdxKey *)PyTuple_GET_ITEM(self->current, self->numactive-1);
     Py_INCREF(next);
 
-    // Value to be returned
+    /* Value to be returned. */
     val = next->item;
     Py_INCREF(val);
 
-    // Get the next value from the iterable where the value was from
-    iterator = PyTuple_GET_ITEM(lz->iteratortuple, next->idx);
+    /* Get the next value from the iterable where the value was from.  */
+    iterator = PyTuple_GET_ITEM(self->iteratortuple, next->idx);
     item = (*Py_TYPE(iterator)->tp_iternext)(iterator);
 
     if (item == NULL) {
         PYIU_CLEAR_STOPITERATION;
-        // No need to keep the extra reference for the tuple because there is
-        // no successive value.
+        /* No need to keep the extra reference for the tuple because there is
+           no successive value.
+           */
         Py_DECREF(next);
         Py_INCREF(val);
-        lz->numactive--;
+        self->numactive--;
     } else {
-        if (lz->keyfunc != NULL) {
+        if (self->keyfunc != NULL) {
             oldkeyval = next->key;
-            PYIU_RECYCLE_ARG_TUPLE(lz->funcargs, item, tmp, Py_DECREF(item); Py_DECREF(val); Py_DECREF(next); return NULL;)
-            keyval = PyObject_Call(lz->keyfunc, lz->funcargs, NULL);
+            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, tmp, Py_DECREF(item); Py_DECREF(val); Py_DECREF(next); return NULL;)
+            keyval = PyObject_Call(self->keyfunc, self->funcargs, NULL);
             if (keyval == NULL) {
                 Py_DECREF(item);
                 Py_DECREF(val);
@@ -255,9 +257,9 @@ static PyObject * merge_next(PyIUObject_Merge *lz) {
             next->item = item;
         }
 
-        // Insert the new value into the sorted current tuple.
-        insert = PyUI_TupleBisectRight_LastFirst(lz->current, (PyObject *)next,
-                                                 lz->numactive-1, lz->reverse);
+        /* Insert the new value into the sorted current tuple. */
+        insert = PyUI_TupleBisectRight_LastFirst(self->current, (PyObject *)next,
+                                                 self->numactive-1, self->reverse);
         if (insert == -1) {
             Py_DECREF(next);
             Py_DECREF(next);
@@ -265,7 +267,7 @@ static PyObject * merge_next(PyIUObject_Merge *lz) {
             Py_DECREF(val);
             return NULL;
         }
-        PYUI_TupleInsert(lz->current, insert, (PyObject *)next, lz->numactive);
+        PYUI_TupleInsert(self->current, insert, (PyObject *)next, self->numactive);
         Py_DECREF(next);
     }
     Py_DECREF(val);
@@ -273,29 +275,30 @@ static PyObject * merge_next(PyIUObject_Merge *lz) {
 }
 
 /******************************************************************************
- *
  * Reduce
- *
  *****************************************************************************/
 
-static PyObject * merge_reduce(PyIUObject_Merge *lz) {
+static PyObject *
+merge_reduce(PyIUObject_Merge *self)
+{
     PyObject * res;
-    res = Py_BuildValue("OO(OiOn)", Py_TYPE(lz),
-                        lz->iteratortuple,
-                        lz->keyfunc ? lz->keyfunc : Py_None,
-                        lz->reverse,
-                        lz->current ? lz->current : Py_None,
-                        lz->numactive);
+    res = Py_BuildValue("OO(OiOn)", Py_TYPE(self),
+                        self->iteratortuple,
+                        self->keyfunc ? self->keyfunc : Py_None,
+                        self->reverse,
+                        self->current ? self->current : Py_None,
+                        self->numactive);
     return res;
 }
 
 /******************************************************************************
- *
  * Setstate
- *
  *****************************************************************************/
 
-static PyObject * merge_setstate(PyIUObject_Merge *lz, PyObject *state) {
+static PyObject *
+merge_setstate(PyIUObject_Merge *self,
+               PyObject *state)
+{
     PyObject *current, *keyfunc;
     Py_ssize_t numactive;
     int reverse;
@@ -304,25 +307,23 @@ static PyObject * merge_setstate(PyIUObject_Merge *lz, PyObject *state) {
         return NULL;
     }
 
-    Py_CLEAR(lz->current);
-    lz->current = current;
-    Py_INCREF(lz->current);
+    Py_CLEAR(self->current);
+    self->current = current;
+    Py_INCREF(self->current);
 
     if (keyfunc != Py_None) {
-        Py_CLEAR(lz->keyfunc);
-        lz->keyfunc = keyfunc;
-        Py_INCREF(lz->keyfunc);
+        Py_CLEAR(self->keyfunc);
+        self->keyfunc = keyfunc;
+        Py_INCREF(self->keyfunc);
     }
 
-    lz->numactive = numactive;
-    lz->reverse = reverse;
+    self->numactive = numactive;
+    self->reverse = reverse;
     Py_RETURN_NONE;
 }
 
 /******************************************************************************
- *
  * Methods
- *
  *****************************************************************************/
 
 static PyMethodDef merge_methods[] = {
@@ -332,9 +333,7 @@ static PyMethodDef merge_methods[] = {
 };
 
 /******************************************************************************
- *
  * Docstring
- *
  *****************************************************************************/
 
 PyDoc_STRVAR(merge_doc, "merge(*iterable, /, key=None, reverse=False)\n\
@@ -401,51 +400,49 @@ However if the `iterabes` are not sorted the result will be unsorted\n\
     [0, 1, 2, 3, 4, 5, 6, 6, 1, 3, 2, 6, 1, 6, 7, 8, 9]");
 
 /******************************************************************************
- *
  * Type
- *
  *****************************************************************************/
 
 static PyTypeObject PyIUType_Merge = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.merge",        /* tp_name */
-    sizeof(PyIUObject_Merge),           /* tp_basicsize */
-    0,                                  /* tp_itemsize */
+    "iteration_utilities.merge",                        /* tp_name */
+    sizeof(PyIUObject_Merge),                           /* tp_basicsize */
+    0,                                                  /* tp_itemsize */
     /* methods */
-    (destructor)merge_dealloc,          /* tp_dealloc */
-    0,                                  /* tp_print */
-    0,                                  /* tp_getattr */
-    0,                                  /* tp_setattr */
-    0,                                  /* tp_reserved */
-    0,                                  /* tp_repr */
-    0,                                  /* tp_as_number */
-    0,                                  /* tp_as_sequence */
-    0,                                  /* tp_as_mapping */
-    0,                                  /* tp_hash */
-    0,                                  /* tp_call */
-    0,                                  /* tp_str */
-    PyObject_GenericGetAttr,            /* tp_getattro */
-    0,                                  /* tp_setattro */
-    0,                                  /* tp_as_buffer */
+    (destructor)merge_dealloc,                          /* tp_dealloc */
+    0,                                                  /* tp_print */
+    0,                                                  /* tp_getattr */
+    0,                                                  /* tp_setattr */
+    0,                                                  /* tp_reserved */
+    0,                                                  /* tp_repr */
+    0,                                                  /* tp_as_number */
+    0,                                                  /* tp_as_sequence */
+    0,                                                  /* tp_as_mapping */
+    0,                                                  /* tp_hash */
+    0,                                                  /* tp_call */
+    0,                                                  /* tp_str */
+    PyObject_GenericGetAttr,                            /* tp_getattro */
+    0,                                                  /* tp_setattro */
+    0,                                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
-        Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    merge_doc,                          /* tp_doc */
-    (traverseproc)merge_traverse,       /* tp_traverse */
-    0,                                  /* tp_clear */
-    0,                                  /* tp_richcompare */
-    0,                                  /* tp_weaklistoffset */
-    PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)merge_next,           /* tp_iternext */
-    merge_methods,                      /* tp_methods */
-    0,                                  /* tp_members */
-    0,                                  /* tp_getset */
-    0,                                  /* tp_base */
-    0,                                  /* tp_dict */
-    0,                                  /* tp_descr_get */
-    0,                                  /* tp_descr_set */
-    0,                                  /* tp_dictoffset */
-    0,                                  /* tp_init */
-    PyType_GenericAlloc,                /* tp_alloc */
-    merge_new,                          /* tp_new */
-    PyObject_GC_Del,                    /* tp_free */
+        Py_TPFLAGS_BASETYPE,                            /* tp_flags */
+    merge_doc,                                          /* tp_doc */
+    (traverseproc)merge_traverse,                       /* tp_traverse */
+    0,                                                  /* tp_clear */
+    0,                                                  /* tp_richcompare */
+    0,                                                  /* tp_weaklistoffset */
+    PyObject_SelfIter,                                  /* tp_iter */
+    (iternextfunc)merge_next,                           /* tp_iternext */
+    merge_methods,                                      /* tp_methods */
+    0,                                                  /* tp_members */
+    0,                                                  /* tp_getset */
+    0,                                                  /* tp_base */
+    0,                                                  /* tp_dict */
+    0,                                                  /* tp_descr_get */
+    0,                                                  /* tp_descr_set */
+    0,                                                  /* tp_dictoffset */
+    0,                                                  /* tp_init */
+    PyType_GenericAlloc,                                /* tp_alloc */
+    merge_new,                                          /* tp_new */
+    PyObject_GC_Del,                                    /* tp_free */
 };
