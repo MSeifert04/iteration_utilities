@@ -2,8 +2,12 @@
  * Licensed under Apache License Version 2.0 - see LICENSE.rst
  *****************************************************************************/
 
-static PyObject * argminmax(PyObject *m, PyObject *args, PyObject *kwargs,
-                            int cmpop){
+static PyObject *
+argminmax(PyObject *m,
+          PyObject *args,
+          PyObject *kwargs,
+          int cmpop)
+{
     PyObject *sequence, *defaultvalue, *keyfunc=NULL, *iterator=NULL;
     PyObject *item=NULL, *val=NULL, *maxval=NULL, *funcargs=NULL, *tmp=NULL;
     Py_ssize_t defaultitem=0, idx=-1, maxidx=-1, nkwargs=0;
@@ -27,8 +31,9 @@ static PyObject * argminmax(PyObject *m, PyObject *args, PyObject *kwargs,
         if (defaultvalue != NULL) {
             nkwargs++;
 #if PY_MAJOR_VERSION == 2
-            // This will convert the value to an integer first so this differs
-            // from the Py3 case.
+            /* This will convert the value to an integer first so this differs
+               from the Py3 case.
+               */
             defaultitem = PyInt_AsSsize_t(defaultvalue);
 #else
             defaultitem = PyLong_AsSsize_t(defaultvalue);
@@ -65,11 +70,10 @@ static PyObject * argminmax(PyObject *m, PyObject *args, PyObject *kwargs,
         goto Fail;
     }
 
-    // Iterate over the sequence
     while ( (item=(*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
         idx++;
 
-        // Use the item itself or keyfunc(item)
+        /* Use the item itself or keyfunc(item). */
         if (keyfunc != NULL) {
             PYIU_RECYCLE_ARG_TUPLE(funcargs, item, tmp, goto Fail)
             val = PyObject_Call(keyfunc, funcargs, NULL);
@@ -81,12 +85,12 @@ static PyObject * argminmax(PyObject *m, PyObject *args, PyObject *kwargs,
             Py_INCREF(val);
         }
 
-        // maximum value and item are unset; set them
+        /* maximum value and item are unset; set them. */
         if (maxval == NULL) {
             maxval = val;
             maxidx = idx;
 
-        // maximum value and item are set; update them as necessary
+        /* maximum value and item are set; update them as necessary. */
         } else {
             int cmpres = PyObject_RichCompareBool(val, maxval, cmpop);
             if (cmpres < 0) {
@@ -139,29 +143,31 @@ Fail:
 }
 
 /******************************************************************************
- *
  * Argmin
- *
  *****************************************************************************/
 
-static PyObject * PyIU_Argmin(PyObject *self, PyObject *args, PyObject *kwargs) {
+static PyObject *
+PyIU_Argmin(PyObject *self,
+            PyObject *args,
+            PyObject *kwargs)
+{
     return argminmax(self, args, kwargs, Py_LT);
 }
 
 /******************************************************************************
- *
  * Argmax
- *
  *****************************************************************************/
 
-static PyObject * PyIU_Argmax(PyObject *self, PyObject *args, PyObject *kwargs) {
+static PyObject *
+PyIU_Argmax(PyObject *self,
+            PyObject *args,
+            PyObject *kwargs)
+{
     return argminmax(self, args, kwargs, Py_GT);
 }
 
 /******************************************************************************
- *
  * Docstring
- *
  *****************************************************************************/
 
 PyDoc_STRVAR(PyIU_Argmin_doc, "argmin(iterable, /, key=None, default=None)\n\

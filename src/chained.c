@@ -10,17 +10,18 @@ typedef struct {
     PyObject *funcargs;
 } PyIUObject_Chained;
 
-static PyTypeObject PyIUType_Chained;
+PyTypeObject PyIUType_Chained;
 
 /******************************************************************************
- *
  * New
- *
  *****************************************************************************/
 
-static PyObject * chained_new(PyTypeObject *type, PyObject *funcs,
-                              PyObject *kwargs) {
-    PyIUObject_Chained *lz;
+static PyObject *
+chained_new(PyTypeObject *type,
+            PyObject *funcs,
+            PyObject *kwargs)
+{
+    PyIUObject_Chained *self;
 
     PyObject *kwarg, *funcargs=NULL;
     Py_ssize_t nkwargs;
@@ -60,61 +61,63 @@ static PyObject * chained_new(PyTypeObject *type, PyObject *funcs,
         return NULL;
     }
     /* Create struct */
-    lz = (PyIUObject_Chained *)type->tp_alloc(type, 0);
-    if (lz == NULL) {
+    self = (PyIUObject_Chained *)type->tp_alloc(type, 0);
+    if (self == NULL) {
         Py_DECREF(funcargs);
         return NULL;
     }
     Py_INCREF(funcs);
-    lz->funcs = funcs;
-    lz->reverse = reverse;
-    lz->all = all;
-    lz->funcargs = funcargs;
-    return (PyObject *)lz;
+    self->funcs = funcs;
+    self->reverse = reverse;
+    self->all = all;
+    self->funcargs = funcargs;
+    return (PyObject *)self;
 }
 
 /******************************************************************************
- *
  * Destructor
- *
  *****************************************************************************/
 
-static void chained_dealloc(PyIUObject_Chained *lz) {
-    PyObject_GC_UnTrack(lz);
-    Py_XDECREF(lz->funcs);
-    Py_XDECREF(lz->funcargs);
-    Py_TYPE(lz)->tp_free(lz);
+static void
+chained_dealloc(PyIUObject_Chained *self)
+{
+    PyObject_GC_UnTrack(self);
+    Py_XDECREF(self->funcs);
+    Py_XDECREF(self->funcargs);
+    Py_TYPE(self)->tp_free(self);
 }
 
 /******************************************************************************
- *
  * Traverse
- *
  *****************************************************************************/
 
-static int chained_traverse(PyIUObject_Chained *lz, visitproc visit,
-                            void *arg) {
-    Py_VISIT(lz->funcs);
-    Py_VISIT(lz->funcargs);
+static int
+chained_traverse(PyIUObject_Chained *self,
+                 visitproc visit,
+                 void *arg)
+{
+    Py_VISIT(self->funcs);
+    Py_VISIT(self->funcargs);
     return 0;
 }
 
 /******************************************************************************
- *
  * Call
- *
  *****************************************************************************/
 
-static PyObject * chained_call(PyIUObject_Chained *lz, PyObject *args,
-                               PyObject *kwargs) {
+static PyObject *
+chained_call(PyIUObject_Chained *self,
+             PyObject *args,
+             PyObject *kwargs)
+{
     PyObject *func, *temp, *oldtemp, *result=NULL, *tmp=NULL;
     Py_ssize_t tuplesize, idx;
 
-    tuplesize = PyTuple_Size(lz->funcs);
+    tuplesize = PyTuple_Size(self->funcs);
     temp = NULL;
 
-    // Create a placeholder tuple for "all=True"
-    if (lz->all) {
+    /* Create a placeholder tuple for "all=True".  */
+    if (self->all) {
         result = PyTuple_New(tuplesize);
         if (result == NULL) {
             return NULL;
@@ -123,38 +126,38 @@ static PyObject * chained_call(PyIUObject_Chained *lz, PyObject *args,
 
     for (idx=0 ; idx<tuplesize ; idx++) {
 
-        // Get the function
-        if (lz->reverse) {
-            func = PyTuple_GET_ITEM(lz->funcs, tuplesize - idx - 1);
+        /* Get the function. */
+        if (self->reverse) {
+            func = PyTuple_GET_ITEM(self->funcs, tuplesize - idx - 1);
         } else {
-            func = PyTuple_GET_ITEM(lz->funcs, idx);
+            func = PyTuple_GET_ITEM(self->funcs, idx);
         }
 
-        // Call the function and process the result
-        if (temp == NULL || lz->all) {
+        /* Call the function and process the result. */
+        if (temp == NULL || self->all) {
             temp = PyObject_Call(func, args, kwargs);
-            if (lz->all) {
+            if (self->all) {
                 PyTuple_SET_ITEM(result, idx, temp);
             }
         } else {
             oldtemp = temp;
-            PYIU_RECYCLE_ARG_TUPLE(lz->funcargs, temp, tmp, Py_DECREF(result);
-                                                            Py_DECREF(oldtemp);
-                                                            return NULL)
-            temp = PyObject_Call(func, lz->funcargs, NULL);
+            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, temp, tmp, Py_DECREF(result);
+                                                              Py_DECREF(oldtemp);
+                                                              return NULL)
+            temp = PyObject_Call(func, self->funcargs, NULL);
             Py_DECREF(oldtemp);
         }
 
-        // In case something went wrong when calling the function
+        /* In case something went wrong when calling the function. */
         if (temp == NULL) {
-            if (lz->all) {
+            if (self->all) {
                 Py_DECREF(result);
             }
             return NULL;
         }
     }
 
-    if (lz->all) {
+    if (self->all) {
         return result;
     } else {
         return temp;
@@ -162,39 +165,39 @@ static PyObject * chained_call(PyIUObject_Chained *lz, PyObject *args,
 }
 
 /******************************************************************************
- *
  * Reduce
- *
  *****************************************************************************/
 
-static PyObject * chained_reduce(PyIUObject_Chained *lz, PyObject *unused) {
-    return Py_BuildValue("OO(ii)", Py_TYPE(lz),
-                         lz->funcs,
-                         lz->reverse, lz->all);
+static PyObject *
+chained_reduce(PyIUObject_Chained *self,
+               PyObject *unused)
+{
+    return Py_BuildValue("OO(ii)", Py_TYPE(self),
+                         self->funcs,
+                         self->reverse, self->all);
 }
 
 /******************************************************************************
- *
  * Setstate
- *
  *****************************************************************************/
 
-static PyObject * chained_setstate(PyIUObject_Chained *lz, PyObject *state) {
+static PyObject *
+chained_setstate(PyIUObject_Chained *self,
+                 PyObject *state)
+{
     int reverse, all;
 
     if (!PyArg_ParseTuple(state, "ii", &reverse, &all)) {
         return NULL;
     }
 
-    lz->reverse = reverse;
-    lz->all = all;
+    self->reverse = reverse;
+    self->all = all;
     Py_RETURN_NONE;
 }
 
 /******************************************************************************
- *
  * Methods
- *
  *****************************************************************************/
 
 static PyMethodDef chained_methods[] = {
@@ -204,9 +207,7 @@ static PyMethodDef chained_methods[] = {
 };
 
 /******************************************************************************
- *
  * Docstring
- *
  *****************************************************************************/
 
 PyDoc_STRVAR(chained_doc, "chained(*funcs, /, reverse=False, all=False)\n\
@@ -263,51 +264,49 @@ Or apply all of them on the input::\n\
     (20, 11)");
 
 /******************************************************************************
- *
  * Type
- *
  *****************************************************************************/
 
-static PyTypeObject PyIUType_Chained = {
+PyTypeObject PyIUType_Chained = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.chained",      /* tp_name */
-    sizeof(PyIUObject_Chained),         /* tp_basicsize */
-    0,                                  /* tp_itemsize */
+    "iteration_utilities.chained",                      /* tp_name */
+    sizeof(PyIUObject_Chained),                         /* tp_basicsize */
+    0,                                                  /* tp_itemsize */
     /* methods */
-    (destructor)chained_dealloc,        /* tp_dealloc */
-    0,                                  /* tp_print */
-    0,                                  /* tp_getattr */
-    0,                                  /* tp_setattr */
-    0,                                  /* tp_reserved */
-    0,                                  /* tp_repr */
-    0,                                  /* tp_as_number */
-    0,                                  /* tp_as_sequence */
-    0,                                  /* tp_as_mapping */
-    0,                                  /* tp_hash */
-    (ternaryfunc)chained_call,          /* tp_call */
-    0,                                  /* tp_str */
-    PyObject_GenericGetAttr,            /* tp_getattro */
-    0,                                  /* tp_setattro */
-    0,                                  /* tp_as_buffer */
+    (destructor)chained_dealloc,                        /* tp_dealloc */
+    0,                                                  /* tp_print */
+    0,                                                  /* tp_getattr */
+    0,                                                  /* tp_setattr */
+    0,                                                  /* tp_reserved */
+    0,                                                  /* tp_repr */
+    0,                                                  /* tp_as_number */
+    0,                                                  /* tp_as_sequence */
+    0,                                                  /* tp_as_mapping */
+    0,                                                  /* tp_hash */
+    (ternaryfunc)chained_call,                          /* tp_call */
+    0,                                                  /* tp_str */
+    PyObject_GenericGetAttr,                            /* tp_getattro */
+    0,                                                  /* tp_setattro */
+    0,                                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
-        Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    chained_doc,                        /* tp_doc */
-    (traverseproc)chained_traverse,     /* tp_traverse */
-    0,                                  /* tp_clear */
-    0,                                  /* tp_richcompare */
-    0,                                  /* tp_weaklistoffset */
-    0,                                  /* tp_iter */
-    0,                                  /* tp_iternext */
-    chained_methods,                    /* tp_methods */
-    0,                                  /* tp_members */
-    0,                                  /* tp_getset */
-    0,                                  /* tp_base */
-    0,                                  /* tp_dict */
-    0,                                  /* tp_descr_get */
-    0,                                  /* tp_descr_set */
-    0,                                  /* tp_dictoffset */
-    0,                                  /* tp_init */
-    0,                                  /* tp_alloc */
-    chained_new,                        /* tp_new */
-    PyObject_GC_Del,                    /* tp_free */
+        Py_TPFLAGS_BASETYPE,                            /* tp_flags */
+    chained_doc,                                        /* tp_doc */
+    (traverseproc)chained_traverse,                     /* tp_traverse */
+    0,                                                  /* tp_clear */
+    0,                                                  /* tp_richcompare */
+    0,                                                  /* tp_weaklistoffset */
+    0,                                                  /* tp_iter */
+    0,                                                  /* tp_iternext */
+    chained_methods,                                    /* tp_methods */
+    0,                                                  /* tp_members */
+    0,                                                  /* tp_getset */
+    0,                                                  /* tp_base */
+    0,                                                  /* tp_dict */
+    0,                                                  /* tp_descr_get */
+    0,                                                  /* tp_descr_set */
+    0,                                                  /* tp_dictoffset */
+    0,                                                  /* tp_init */
+    0,                                                  /* tp_alloc */
+    chained_new,                                        /* tp_new */
+    PyObject_GC_Del,                                    /* tp_free */
 };

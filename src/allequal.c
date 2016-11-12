@@ -2,7 +2,10 @@
  * Licensed under Apache License Version 2.0 - see LICENSE.rst
  *****************************************************************************/
 
-static PyObject * PyIU_AllEqual(PyObject *m, PyObject *iterable) {
+static PyObject *
+PyIU_AllEqual(PyObject *m,
+              PyObject *iterable)
+{
     PyObject *iterator, *item, *first=NULL;
     int ok;
 
@@ -41,9 +44,7 @@ Found:
 }
 
 /******************************************************************************
- *
  * Docstring
- *
  *****************************************************************************/
 
 PyDoc_STRVAR(PyIU_AllEqual_doc, "all_equal(iterable, /)\n\

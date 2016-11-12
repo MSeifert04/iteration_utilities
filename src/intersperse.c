@@ -10,18 +10,19 @@ typedef struct {
     int started;
 } PyIUObject_Intersperse;
 
-static PyTypeObject PyIUType_Intersperse;
+PyTypeObject PyIUType_Intersperse;
 
 /******************************************************************************
- *
  * New
- *
  *****************************************************************************/
 
-static PyObject * intersperse_new(PyTypeObject *type, PyObject *args,
-                                  PyObject *kwargs) {
+static PyObject *
+intersperse_new(PyTypeObject *type,
+                PyObject *args,
+                PyObject *kwargs)
+{
     static char *kwlist[] = {"iterable", "e", NULL};
-    PyIUObject_Intersperse *lz;
+    PyIUObject_Intersperse *self;
 
     PyObject *iterable, *iterator, *filler;
 
@@ -36,111 +37,113 @@ static PyObject * intersperse_new(PyTypeObject *type, PyObject *args,
     if (iterator == NULL) {
         return NULL;
     }
-    lz = (PyIUObject_Intersperse *)type->tp_alloc(type, 0);
-    if (lz == NULL) {
+    self = (PyIUObject_Intersperse *)type->tp_alloc(type, 0);
+    if (self == NULL) {
         Py_DECREF(iterator);
         return NULL;
     }
     Py_XINCREF(filler);
-    lz->iterator = iterator;
-    lz->filler = filler;
-    lz->nextitem = NULL;
-    lz->started = 0;
-    return (PyObject *)lz;
+    self->iterator = iterator;
+    self->filler = filler;
+    self->nextitem = NULL;
+    self->started = 0;
+    return (PyObject *)self;
 }
 
 /******************************************************************************
- *
  * Destructor
- *
  *****************************************************************************/
 
-static void intersperse_dealloc(PyIUObject_Intersperse *lz) {
-    PyObject_GC_UnTrack(lz);
-    Py_XDECREF(lz->iterator);
-    Py_XDECREF(lz->filler);
-    Py_XDECREF(lz->nextitem);
-    Py_TYPE(lz)->tp_free(lz);
+static void
+intersperse_dealloc(PyIUObject_Intersperse *self)
+{
+    PyObject_GC_UnTrack(self);
+    Py_XDECREF(self->iterator);
+    Py_XDECREF(self->filler);
+    Py_XDECREF(self->nextitem);
+    Py_TYPE(self)->tp_free(self);
 }
 
 /******************************************************************************
- *
  * Traverse
- *
  *****************************************************************************/
 
-static int intersperse_traverse(PyIUObject_Intersperse *lz, visitproc visit,
-                                void *arg) {
-    Py_VISIT(lz->iterator);
-    Py_VISIT(lz->filler);
-    Py_VISIT(lz->nextitem);
+static int
+intersperse_traverse(PyIUObject_Intersperse *self,
+                     visitproc visit,
+                     void *arg)
+{
+    Py_VISIT(self->iterator);
+    Py_VISIT(self->filler);
+    Py_VISIT(self->nextitem);
     return 0;
 }
 
 /******************************************************************************
- *
  * Next
- *
  *****************************************************************************/
 
-static PyObject * intersperse_next(PyIUObject_Intersperse *lz) {
+static PyObject *
+intersperse_next(PyIUObject_Intersperse *self)
+{
     PyObject *item;
 
-    if (lz->nextitem == NULL) {
-        item = (*Py_TYPE(lz->iterator)->tp_iternext)(lz->iterator);
+    if (self->nextitem == NULL) {
+        item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator);
         if (item == NULL) {
             PYIU_CLEAR_STOPITERATION;
             return NULL;
         }
-        // If we haven't started we return the first item, otherwise we set
-        // the nextitem but return the filler.
-        if (lz->started == 0) {
-            lz->started = 1;
+        /* If we haven't started we return the first item, otherwise we set
+           the nextitem but return the filler.
+           */
+        if (self->started == 0) {
+            self->started = 1;
             return item;
         }
-        lz->nextitem = item;
-        Py_INCREF(lz->filler);
-        return lz->filler;
+        self->nextitem = item;
+        Py_INCREF(self->filler);
+        return self->filler;
 
-    // There was a next item, return it and reset nextitem.
+    /* There was a next item, return it and reset nextitem. */
     } else {
-        item = lz->nextitem;
-        lz->nextitem = NULL;
+        item = self->nextitem;
+        self->nextitem = NULL;
         return item;
     }
 }
 
 /******************************************************************************
- *
  * Reduce
- *
  *****************************************************************************/
 
-static PyObject * intersperse_reduce(PyIUObject_Intersperse *lz) {
+static PyObject *
+intersperse_reduce(PyIUObject_Intersperse *self)
+{
     PyObject *value;
-    if (lz->nextitem == NULL) {
-        value = Py_BuildValue("O(OO)(i)", Py_TYPE(lz),
-                              lz->iterator,
-                              lz->filler,
-                              lz->started);
+    if (self->nextitem == NULL) {
+        value = Py_BuildValue("O(OO)(i)", Py_TYPE(self),
+                              self->iterator,
+                              self->filler,
+                              self->started);
     } else {
-        value = Py_BuildValue("O(OO)(Oi)", Py_TYPE(lz),
-                              lz->iterator,
-                              lz->filler,
-                              lz->nextitem,
-                              lz->started);
+        value = Py_BuildValue("O(OO)(Oi)", Py_TYPE(self),
+                              self->iterator,
+                              self->filler,
+                              self->nextitem,
+                              self->started);
     }
     return value;
 }
 
 /******************************************************************************
- *
  * Setstate
- *
  *****************************************************************************/
 
-static PyObject * intersperse_setstate(PyIUObject_Intersperse *lz,
-                                       PyObject *state) {
+static PyObject *
+intersperse_setstate(PyIUObject_Intersperse *self,
+                     PyObject *state)
+{
     int started;
     PyObject *nextitem;
 
@@ -148,25 +151,23 @@ static PyObject * intersperse_setstate(PyIUObject_Intersperse *lz,
         if (!PyArg_ParseTuple(state, "i", &started)) {
             return NULL;
         }
-        lz->started = started;
+        self->started = started;
     } else {
         if (!PyArg_ParseTuple(state, "Oi", &nextitem, &started)) {
             return NULL;
         }
-        lz->started = started;
+        self->started = started;
 
-        Py_CLEAR(lz->nextitem);
-        lz->nextitem = nextitem;
-        Py_INCREF(lz->nextitem);
+        Py_CLEAR(self->nextitem);
+        self->nextitem = nextitem;
+        Py_INCREF(self->nextitem);
     }
 
     Py_RETURN_NONE;
 }
 
 /******************************************************************************
- *
  * Methods
- *
  *****************************************************************************/
 
 static PyMethodDef intersperse_methods[] = {
@@ -176,9 +177,7 @@ static PyMethodDef intersperse_methods[] = {
 };
 
 /******************************************************************************
- *
  * Docstring
- *
  *****************************************************************************/
 
 PyDoc_STRVAR(intersperse_doc, "intersperse(iterable, e)\n\
@@ -223,51 +222,49 @@ References\n\
 .. [0] https://github.com/erikrose/more-itertools");
 
 /******************************************************************************
- *
  * Type
- *
  *****************************************************************************/
 
-static PyTypeObject PyIUType_Intersperse = {
+PyTypeObject PyIUType_Intersperse = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.intersperse",  /* tp_name */
-    sizeof(PyIUObject_Intersperse),     /* tp_basicsize */
-    0,                                  /* tp_itemsize */
+    "iteration_utilities.intersperse",                  /* tp_name */
+    sizeof(PyIUObject_Intersperse),                     /* tp_basicsize */
+    0,                                                  /* tp_itemsize */
     /* methods */
-    (destructor)intersperse_dealloc,    /* tp_dealloc */
-    0,                                  /* tp_print */
-    0,                                  /* tp_getattr */
-    0,                                  /* tp_setattr */
-    0,                                  /* tp_reserved */
-    0,                                  /* tp_repr */
-    0,                                  /* tp_as_number */
-    0,                                  /* tp_as_sequence */
-    0,                                  /* tp_as_mapping */
-    0,                                  /* tp_hash */
-    0,                                  /* tp_call */
-    0,                                  /* tp_str */
-    PyObject_GenericGetAttr,            /* tp_getattro */
-    0,                                  /* tp_setattro */
-    0,                                  /* tp_as_buffer */
+    (destructor)intersperse_dealloc,                    /* tp_dealloc */
+    0,                                                  /* tp_print */
+    0,                                                  /* tp_getattr */
+    0,                                                  /* tp_setattr */
+    0,                                                  /* tp_reserved */
+    0,                                                  /* tp_repr */
+    0,                                                  /* tp_as_number */
+    0,                                                  /* tp_as_sequence */
+    0,                                                  /* tp_as_mapping */
+    0,                                                  /* tp_hash */
+    0,                                                  /* tp_call */
+    0,                                                  /* tp_str */
+    PyObject_GenericGetAttr,                            /* tp_getattro */
+    0,                                                  /* tp_setattro */
+    0,                                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
-        Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    intersperse_doc,                    /* tp_doc */
-    (traverseproc)intersperse_traverse, /* tp_traverse */
-    0,                                  /* tp_clear */
-    0,                                  /* tp_richcompare */
-    0,                                  /* tp_weaklistoffset */
-    PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)intersperse_next,     /* tp_iternext */
-    intersperse_methods,                /* tp_methods */
-    0,                                  /* tp_members */
-    0,                                  /* tp_getset */
-    0,                                  /* tp_base */
-    0,                                  /* tp_dict */
-    0,                                  /* tp_descr_get */
-    0,                                  /* tp_descr_set */
-    0,                                  /* tp_dictoffset */
-    0,                                  /* tp_init */
-    0,                                  /* tp_alloc */
-    intersperse_new,                    /* tp_new */
-    PyObject_GC_Del,                    /* tp_free */
+        Py_TPFLAGS_BASETYPE,                            /* tp_flags */
+    intersperse_doc,                                    /* tp_doc */
+    (traverseproc)intersperse_traverse,                 /* tp_traverse */
+    0,                                                  /* tp_clear */
+    0,                                                  /* tp_richcompare */
+    0,                                                  /* tp_weaklistoffset */
+    PyObject_SelfIter,                                  /* tp_iter */
+    (iternextfunc)intersperse_next,                     /* tp_iternext */
+    intersperse_methods,                                /* tp_methods */
+    0,                                                  /* tp_members */
+    0,                                                  /* tp_getset */
+    0,                                                  /* tp_base */
+    0,                                                  /* tp_dict */
+    0,                                                  /* tp_descr_get */
+    0,                                                  /* tp_descr_set */
+    0,                                                  /* tp_dictoffset */
+    0,                                                  /* tp_init */
+    0,                                                  /* tp_alloc */
+    intersperse_new,                                    /* tp_new */
+    PyObject_GC_Del,                                    /* tp_free */
 };

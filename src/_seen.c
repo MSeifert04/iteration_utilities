@@ -1,27 +1,23 @@
 /******************************************************************************
  * Licensed under Apache License Version 2.0 - see LICENSE.rst
  *
- * Helper class that contains a set and list used for "contains" checks that
- * add the element to the set or insert it into the list if it wasn't found.
+ * Helper class that wraps a set and list. This class is simply for convenience
+ * so "contains and add if not contained"-operations are seperated from the
+ * logic of "uniques_everseen", "all_distinct" doesn't need to contain it.
  *
- * Public object/types:
- * - PyIUObject_Seen
- * - PyIUType_Seen
+ * TODO: This refactoring slowed down the code a bit (not-negligable in my
+ *       opinion) but it makes it much more concise. Need to check for
+ *       possibilities to improve performance.
  *
  * Public macros:
  * - PyIUSeen_Check(PyObject*)
  * - PyIUSeen_CheckExact(PyObject*)
  *
  * Public functions:
- * - PyIUSeen_New() -> PyObject*
+ * - PyIUSeen_New(void) -> PyObject*
  * - PyIUSeen_Size(PyIUObject_Seen*) -> Py_ssize_t
  * - PyIUSeen_Contains(PyIUObject_Seen*, PyObject*) -> int
- *
- * Used for:
- * - all_distinct
- * - duplicates
- * - unique_everseen
- *
+ *          (-1 failure, 0 not contained, 1 contained)
  *****************************************************************************/
 
 typedef struct {
@@ -30,22 +26,20 @@ typedef struct {
     PyObject *seenlist;
 } PyIUObject_Seen;
 
-static PyTypeObject PyIUType_Seen;
+PyTypeObject PyIUType_Seen;
 
 #define PyIUSeen_Check(obj) (PyObject_IsInstance(obj, (PyObject*) &PyIUType_Seen))
 #define PyIUSeen_CheckExact(op) (Py_TYPE(op) == &PyIUType_Seen)
 
 /******************************************************************************
- *
- * New (public)
- *
  * Creates a new PyIUSeen objects with empty seenset and seenlist.
  * Returns ``NULL`` on failure with the appropriate exception.
- *
  *****************************************************************************/
 
-static PyObject * PyIUSeen_New(void) {
-    // Create and fill new object
+PyObject *
+PyIUSeen_New(void)
+{
+    /* Create and fill new object. */
     PyObject *seenset;
     PyIUObject_Seen *self;
     seenset = PySet_New(NULL);
@@ -64,13 +58,14 @@ static PyObject * PyIUSeen_New(void) {
 }
 
 /******************************************************************************
- *
  * New
- *
  *****************************************************************************/
 
-static PyObject * seen_new(PyTypeObject *type, PyObject *args,
-                           PyObject *kwargs) {
+static PyObject *
+seen_new(PyTypeObject *type,
+         PyObject *args,
+         PyObject *kwargs)
+{
     static char *kwlist[] = {"seenset", "seenlist", NULL};
     PyIUObject_Seen *self;
 
@@ -116,36 +111,38 @@ static PyObject * seen_new(PyTypeObject *type, PyObject *args,
 }
 
 /******************************************************************************
- *
  * Destructor
- *
  *****************************************************************************/
 
-static void seen_dealloc(PyIUObject_Seen *self) {
+static void
+seen_dealloc(PyIUObject_Seen *self)
+{
     Py_XDECREF(self->seenset);
     Py_XDECREF(self->seenlist);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 /******************************************************************************
- *
  * Traverse
- *
  *****************************************************************************/
 
-static int seen_traverse(PyIUObject_Seen *self, visitproc visit, void *arg) {
+static int
+seen_traverse(PyIUObject_Seen *self,
+              visitproc visit,
+              void *arg)
+{
     Py_VISIT(self->seenset);
     Py_VISIT(self->seenlist);
     return 0;
 }
 
 /******************************************************************************
- *
  * Representation
- *
  *****************************************************************************/
 
-static PyObject * seen_repr(PyIUObject_Seen *self) {
+static PyObject *
+seen_repr(PyIUObject_Seen *self)
+{
     if (self->seenlist != NULL && PyList_Size(self->seenlist) > 0) {
         return PyUnicode_FromFormat("Seen(%R, unhashable=%R)",
                                     self->seenset, self->seenlist);
@@ -156,16 +153,18 @@ static PyObject * seen_repr(PyIUObject_Seen *self) {
 }
 
 /******************************************************************************
- *
  * Rich comparison
- *
  *****************************************************************************/
 
-static PyObject * seen_richcompare(PyObject *v, PyObject *w, int op) {
+static PyObject *
+seen_richcompare(PyObject *v,
+                 PyObject *w,
+                 int op)
+{
     PyIUObject_Seen *l, *r;
     int ok;
 
-    // Only allow == and != for now
+    /* Only allow == and != for now.  */
     switch (op) {
         case Py_EQ: break;
         case Py_NE: break;
@@ -179,7 +178,7 @@ static PyObject * seen_richcompare(PyObject *v, PyObject *w, int op) {
     l = (PyIUObject_Seen *)v;
     r = (PyIUObject_Seen *)w;
 
-    // Check if either both have seenlists or none
+    /* Check if either both have seenlists or none. */
     if ((l->seenlist == NULL && r->seenlist != NULL && PyList_Size(r->seenlist)) ||
             (r->seenlist == NULL && l->seenlist != NULL && PyList_Size(l->seenlist))) {
         if (op == Py_NE) {
@@ -187,7 +186,7 @@ static PyObject * seen_richcompare(PyObject *v, PyObject *w, int op) {
         } else {
             Py_RETURN_FALSE;
         }
-    // If both have seenlists then compare them
+    /* If both have seenlists then compare them. */
     } else if (l->seenlist != NULL && r->seenlist != NULL) {
         ok = PyObject_RichCompareBool(l->seenlist, r->seenlist, op);
         if (op == Py_EQ && ok == 0) {
@@ -209,26 +208,26 @@ static PyObject * seen_richcompare(PyObject *v, PyObject *w, int op) {
 }
 
 /******************************************************************************
- *
  * Reduce
- *
  *****************************************************************************/
 
-static PyObject * seen_reduce(PyIUObject_Seen *self) {
+static PyObject *
+seen_reduce(PyIUObject_Seen *self)
+{
     return Py_BuildValue("O(OO)", Py_TYPE(self),
                          self->seenset,
                          self->seenlist ? self->seenlist : Py_None);
 }
 
 /******************************************************************************
- *
  * Len
  *
  * May be not overflow safe ...
- *
  *****************************************************************************/
 
-static Py_ssize_t PyIUSeen_Size(PyIUObject_Seen *self) {
+Py_ssize_t
+PyIUSeen_Size(PyIUObject_Seen *self)
+{
     if (self->seenlist != NULL) {
         return PySet_Size(self->seenset) + PyList_Size(self->seenlist);
     } else {
@@ -236,36 +235,41 @@ static Py_ssize_t PyIUSeen_Size(PyIUObject_Seen *self) {
     }
 }
 
-static Py_ssize_t seen_len(PyObject *self) {
+static Py_ssize_t
+seen_len(PyObject *self)
+{
     return PyIUSeen_Size((PyIUObject_Seen *)self);
 }
 
 /******************************************************************************
- *
- * Contains
+ * ContainsAdd
  *
  * Checks if the object is contained in seenset or seenlist and returns
  * 1  - if the item was found
  * 0  - if the item was not found
  * -1 - if some exception happened.
- *
  *****************************************************************************/
 
-static int seen_containsadd_direct(PyIUObject_Seen *self, PyObject *o) {
+static int
+seen_containsadd_direct(PyIUObject_Seen *self,
+                        PyObject *o)
+{
     int ok;
     ok = PySet_Contains(self->seenset, o);
-    // Hashable, found
+    /* Hashable, found */
     if (ok == 1) {
         return 1;
-    // Hashable, not found
+    /* Hashable, not found */
     } else if (ok == 0) {
         if (PySet_Add(self->seenset, o) != 0) {
             return -1;
         }
         return 0;
-    // Not hashable or some other error
+    /* Not hashable or some other error */
     } else {
-        // Clear TypeErrors because they are thrown if the object is unhashable
+        /* Clear TypeErrors because they are thrown if the object is
+           unhashable.
+           */
         if (PyErr_Occurred()) {
             if (PyErr_ExceptionMatches(PyExc_TypeError)) {
                 PyErr_Clear();
@@ -277,16 +281,16 @@ static int seen_containsadd_direct(PyIUObject_Seen *self, PyObject *o) {
             return -1;
         }
         ok = PySequence_Contains(self->seenlist, o);
-        // Unhashable, found
+        /* Unhashable, found */
         if (ok == 1) {
             return 1;
-        // Unhashable, not found
+        /* Unhashable, not found */
         } else if (ok == 0) {
             if (PyList_Append(self->seenlist, o) == -1) {
                 return -1;
             }
             return 0;
-        // Unhashable and exception when looking it up in the list.
+        /* Unhashable and exception when looking it up in the list. */
         } else {
             return -1;
         }
@@ -294,14 +298,17 @@ static int seen_containsadd_direct(PyIUObject_Seen *self, PyObject *o) {
 }
 
 static int
-seen_containsnoadd_direct(PyIUObject_Seen *self, PyObject *o)
+seen_containsnoadd_direct(PyIUObject_Seen *self,
+                          PyObject *o)
 {
     int ok;
     ok = PySet_Contains(self->seenset, o);
     if (ok != -1) {
         return ok;
     } else {
-        // Clear TypeErrors because they are thrown if the object is unhashable
+        /* Clear TypeErrors because they are thrown if the object is
+           unhashable.
+           */
         if (PyErr_Occurred()) {
             if (PyErr_ExceptionMatches(PyExc_TypeError)) {
                 PyErr_Clear();
@@ -316,11 +323,17 @@ seen_containsnoadd_direct(PyIUObject_Seen *self, PyObject *o)
     }
 }
 
-static int PyIUSeen_ContainsAdd(PyObject *self, PyObject *o) {
+int
+PyIUSeen_ContainsAdd(PyObject *self,
+                     PyObject *o)
+{
     return seen_containsadd_direct((PyIUObject_Seen *)self, o);
 }
 
-static PyObject * seen_containsadd(PyObject *self, PyObject *o) {
+static PyObject *
+seen_containsadd(PyObject *self,
+                 PyObject *o)
+{
     int ok;
     if (!PyIUSeen_CheckExact(self)) {
         PyErr_Format(PyExc_TypeError, "only works for `Seen` instances.");
@@ -337,9 +350,7 @@ static PyObject * seen_containsadd(PyObject *self, PyObject *o) {
 }
 
 /******************************************************************************
- *
  * Docstring
- *
  *****************************************************************************/
 
 PyDoc_STRVAR(seen_containsadd_doc, "contains_add(o)\n\
@@ -377,9 +388,7 @@ A simple example::\n\
     Seen({10})");
 
 /******************************************************************************
- *
  * Methods
- *
  *****************************************************************************/
 
 static PyMethodDef seen_methods[] = {
@@ -389,26 +398,22 @@ static PyMethodDef seen_methods[] = {
 };
 
 /******************************************************************************
- *
  * Sequence
- *
  *****************************************************************************/
 
 static PySequenceMethods seen_as_sequence = {
-    seen_len,                           /* sq_length */
-    0,                                  /* sq_concat */
-    0,                                  /* sq_repeat */
-    0,                                  /* sq_item */
-    0,                                  /* sq_slice */
-    0,                                  /* sq_ass_item */
-    0,                                  /* sq_ass_slice */
-    (objobjproc)seen_containsnoadd_direct, /* sq_contains */
+    seen_len,                                                /* sq_length */
+    0,                                                       /* sq_concat */
+    0,                                                       /* sq_repeat */
+    0,                                                       /* sq_item */
+    0,                                                       /* sq_slice */
+    0,                                                       /* sq_ass_item */
+    0,                                                       /* sq_ass_slice */
+    (objobjproc)seen_containsnoadd_direct,                   /* sq_contains */
 };
 
 /******************************************************************************
- *
  * Docstring
- *
  *****************************************************************************/
 
 PyDoc_STRVAR(seen_doc, "Seen(seenset, seenlist)\n\
@@ -461,50 +466,49 @@ It is mostly included because it unified the code in `duplicates`,\n\
 applications.");
 
 /******************************************************************************
- *
  * Type
- *
  *****************************************************************************/
 
-static PyTypeObject PyIUType_Seen = {
+PyTypeObject PyIUType_Seen = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.Seen", /* tp_name */
-    sizeof(PyIUObject_Seen),   /* tp_basicsize */
-    0,                         /* tp_itemsize */
-    (destructor)seen_dealloc,  /* tp_dealloc */
-    0,                         /* tp_print */
-    0,                         /* tp_getattr */
-    0,                         /* tp_setattr */
-    0,                         /* tp_reserved */
-    (reprfunc)seen_repr,       /* tp_repr */
-    0,                         /* tp_as_number */
-    &seen_as_sequence,         /* tp_as_sequence */
-    0,                         /* tp_as_mapping */
-    0,                         /* tp_hash  */
-    0,                         /* tp_call */
-    0,                         /* tp_str */
-    0,                         /* tp_getattro */
-    0,                         /* tp_setattro */
-    0,                         /* tp_as_buffer */
+    "iteration_utilities.Seen",                         /* tp_name */
+    sizeof(PyIUObject_Seen),                            /* tp_basicsize */
+    0,                                                  /* tp_itemsize */
+    /* methods */
+    (destructor)seen_dealloc,                           /* tp_dealloc */
+    0,                                                  /* tp_print */
+    0,                                                  /* tp_getattr */
+    0,                                                  /* tp_setattr */
+    0,                                                  /* tp_reserved */
+    (reprfunc)seen_repr,                                /* tp_repr */
+    0,                                                  /* tp_as_number */
+    &seen_as_sequence,                                  /* tp_as_sequence */
+    0,                                                  /* tp_as_mapping */
+    0,                                                  /* tp_hash  */
+    0,                                                  /* tp_call */
+    0,                                                  /* tp_str */
+    0,                                                  /* tp_getattro */
+    0,                                                  /* tp_setattro */
+    0,                                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
-        Py_TPFLAGS_BASETYPE,   /* tp_flags */
-    seen_doc,                  /* tp_doc */
-    (traverseproc)seen_traverse, /* tp_traverse */
-    0,                         /* tp_clear */
-    seen_richcompare,          /* tp_richcompare */
-    0,                         /* tp_weaklistoffset */
-    0,                         /* tp_iter */
-    0,                         /* tp_iternext */
-    seen_methods,              /* tp_methods */
-    0,                         /* tp_members */
-    0,                         /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,                         /* tp_init */
-    0,                         /* tp_alloc */
-    seen_new,                  /* tp_new */
-    PyObject_GC_Del,           /* tp_free */
+        Py_TPFLAGS_BASETYPE,                            /* tp_flags */
+    seen_doc,                                           /* tp_doc */
+    (traverseproc)seen_traverse,                        /* tp_traverse */
+    0,                                                  /* tp_clear */
+    seen_richcompare,                                   /* tp_richcompare */
+    0,                                                  /* tp_weaklistoffset */
+    0,                                                  /* tp_iter */
+    0,                                                  /* tp_iternext */
+    seen_methods,                                       /* tp_methods */
+    0,                                                  /* tp_members */
+    0,                                                  /* tp_getset */
+    0,                                                  /* tp_base */
+    0,                                                  /* tp_dict */
+    0,                                                  /* tp_descr_get */
+    0,                                                  /* tp_descr_set */
+    0,                                                  /* tp_dictoffset */
+    0,                                                  /* tp_init */
+    0,                                                  /* tp_alloc */
+    seen_new,                                           /* tp_new */
+    PyObject_GC_Del,                                    /* tp_free */
 };

@@ -10,18 +10,19 @@ typedef struct {
     int inclusive;
 } PyIUObject_Clamp;
 
-static PyTypeObject PyIUType_Clamp;
+PyTypeObject PyIUType_Clamp;
 
 /******************************************************************************
- *
  * New
- *
  *****************************************************************************/
 
-static PyObject * clamp_new(PyTypeObject *type, PyObject *args,
-                            PyObject *kwargs) {
+static PyObject *
+clamp_new(PyTypeObject *type,
+          PyObject *args,
+          PyObject *kwargs)
+{
     static char *kwlist[] = {"iterable", "low", "high", "inclusive", NULL};
-    PyIUObject_Clamp *lz;
+    PyIUObject_Clamp *self;
 
     PyObject *iterable, *iterator, *low=NULL, *high=NULL;
     int inclusive = 0;
@@ -37,63 +38,64 @@ static PyObject * clamp_new(PyTypeObject *type, PyObject *args,
     if (iterator == NULL) {
         return NULL;
     }
-    lz = (PyIUObject_Clamp *)type->tp_alloc(type, 0);
-    if (lz == NULL) {
+    self = (PyIUObject_Clamp *)type->tp_alloc(type, 0);
+    if (self == NULL) {
         Py_DECREF(iterator);
         return NULL;
     }
     Py_XINCREF(low);
     Py_XINCREF(high);
-    lz->iterator = iterator;
-    lz->low = low;
-    lz->high = high;
-    lz->inclusive = inclusive;
-    return (PyObject *)lz;
+    self->iterator = iterator;
+    self->low = low;
+    self->high = high;
+    self->inclusive = inclusive;
+    return (PyObject *)self;
 }
 
 /******************************************************************************
- *
  * Destructor
- *
  *****************************************************************************/
 
-static void clamp_dealloc(PyIUObject_Clamp *lz) {
-    PyObject_GC_UnTrack(lz);
-    Py_XDECREF(lz->iterator);
-    Py_XDECREF(lz->low);
-    Py_XDECREF(lz->high);
-    Py_TYPE(lz)->tp_free(lz);
+static void
+clamp_dealloc(PyIUObject_Clamp *self)
+{
+    PyObject_GC_UnTrack(self);
+    Py_XDECREF(self->iterator);
+    Py_XDECREF(self->low);
+    Py_XDECREF(self->high);
+    Py_TYPE(self)->tp_free(self);
 }
 
 /******************************************************************************
- *
  * Traverse
- *
  *****************************************************************************/
 
-static int clamp_traverse(PyIUObject_Clamp *lz, visitproc visit, void *arg) {
-    Py_VISIT(lz->iterator);
-    Py_VISIT(lz->low);
-    Py_VISIT(lz->high);
+static int
+clamp_traverse(PyIUObject_Clamp *self,
+               visitproc visit,
+               void *arg)
+{
+    Py_VISIT(self->iterator);
+    Py_VISIT(self->low);
+    Py_VISIT(self->high);
     return 0;
 }
 
 /******************************************************************************
- *
  * Next
- *
  *****************************************************************************/
 
-static PyObject * clamp_next(PyIUObject_Clamp *lz) {
-
+static PyObject *
+clamp_next(PyIUObject_Clamp *self)
+{
     PyObject *item;
     int res;
 
-    while ( (item = (*Py_TYPE(lz->iterator)->tp_iternext)(lz->iterator)) ) {
-        // Check if it's smaller than the lower bound
-        if (lz->low != NULL) {
-            res = PyObject_RichCompareBool(item, lz->low,
-                                           lz->inclusive ? Py_LE : Py_LT);
+    while ( (item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator)) ) {
+        /* Check if it's smaller than the lower bound. */
+        if (self->low != NULL) {
+            res = PyObject_RichCompareBool(item, self->low,
+                                           self->inclusive ? Py_LE : Py_LT);
             if (res == 1) {
                 Py_DECREF(item);
                 continue;
@@ -102,10 +104,10 @@ static PyObject * clamp_next(PyIUObject_Clamp *lz) {
                 return NULL;
             }
         }
-        // Check if it's bigger than the upper bound
-        if (lz->high != NULL) {
-            res = PyObject_RichCompareBool(item, lz->high,
-                                           lz->inclusive ? Py_GE : Py_GT);
+        /* Check if it's bigger than the upper bound. */
+        if (self->high != NULL) {
+            res = PyObject_RichCompareBool(item, self->high,
+                                           self->inclusive ? Py_GE : Py_GT);
             if (res == 1) {
                 Py_DECREF(item);
                 continue;
@@ -114,7 +116,7 @@ static PyObject * clamp_next(PyIUObject_Clamp *lz) {
                 return NULL;
             }
         }
-        // Still here? Return the item!
+        /* Still here? Return the item! */
         return item;
     }
     PYIU_CLEAR_STOPITERATION;
@@ -122,34 +124,35 @@ static PyObject * clamp_next(PyIUObject_Clamp *lz) {
 }
 
 /******************************************************************************
- *
  * Reduce
- *
  *****************************************************************************/
 
-static PyObject * clamp_reduce(PyIUObject_Clamp *lz) {
-    if (lz->low == NULL && lz->high == NULL) {
-        return Py_BuildValue("O(O)(i)", Py_TYPE(lz),
-                             lz->iterator, lz->inclusive);
-    } else if (lz->high == NULL) {
-        return Py_BuildValue("O(OO)(i)", Py_TYPE(lz),
-                             lz->iterator, lz->low, lz->inclusive);
-    } else if (lz->low == NULL) {
-        return Py_BuildValue("O(O)(Oi)", Py_TYPE(lz),
-                             lz->iterator, lz->high, lz->inclusive);
+static PyObject *
+clamp_reduce(PyIUObject_Clamp *self)
+{
+    if (self->low == NULL && self->high == NULL) {
+        return Py_BuildValue("O(O)(i)", Py_TYPE(self),
+                             self->iterator, self->inclusive);
+    } else if (self->high == NULL) {
+        return Py_BuildValue("O(OO)(i)", Py_TYPE(self),
+                             self->iterator, self->low, self->inclusive);
+    } else if (self->low == NULL) {
+        return Py_BuildValue("O(O)(Oi)", Py_TYPE(self),
+                             self->iterator, self->high, self->inclusive);
     } else {
-        return Py_BuildValue("O(OOOi)", Py_TYPE(lz),
-                             lz->iterator, lz->low, lz->high, lz->inclusive);
+        return Py_BuildValue("O(OOOi)", Py_TYPE(self),
+                             self->iterator, self->low, self->high, self->inclusive);
     }
 }
 
 /******************************************************************************
- *
  * Setstate
- *
  *****************************************************************************/
 
-static PyObject * clamp_setstate(PyIUObject_Clamp *lz, PyObject *state) {
+static PyObject *
+clamp_setstate(PyIUObject_Clamp *self,
+               PyObject *state)
+{
     PyObject *high=NULL;
     int inclusive;
 
@@ -163,18 +166,16 @@ static PyObject * clamp_setstate(PyIUObject_Clamp *lz, PyObject *state) {
         }
     }
     if (high != NULL) {
-        Py_CLEAR(lz->high);
+        Py_CLEAR(self->high);
         Py_XINCREF(high);
-        lz->high = high;
+        self->high = high;
     }
-    lz->inclusive = inclusive;
+    self->inclusive = inclusive;
     Py_RETURN_NONE;
 }
 
 /******************************************************************************
- *
  * Methods
- *
  *****************************************************************************/
 
 static PyMethodDef clamp_methods[] = {
@@ -184,9 +185,7 @@ static PyMethodDef clamp_methods[] = {
 };
 
 /******************************************************************************
- *
  * Docstring
- *
  *****************************************************************************/
 
 PyDoc_STRVAR(clamp_doc, "clamp(iterable, low=None, high=None, inclusive=False)\n\
@@ -233,51 +232,49 @@ Some simple examples::\n\
     [3, 4, 5, 6, 7]");
 
 /******************************************************************************
- *
  * Type
- *
  *****************************************************************************/
 
-static PyTypeObject PyIUType_Clamp = {
+PyTypeObject PyIUType_Clamp = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.clamp",        /* tp_name */
-    sizeof(PyIUObject_Clamp),           /* tp_basicsize */
-    0,                                  /* tp_itemsize */
+    "iteration_utilities.clamp",                        /* tp_name */
+    sizeof(PyIUObject_Clamp),                           /* tp_basicsize */
+    0,                                                  /* tp_itemsize */
     /* methods */
-    (destructor)clamp_dealloc,          /* tp_dealloc */
-    0,                                  /* tp_print */
-    0,                                  /* tp_getattr */
-    0,                                  /* tp_setattr */
-    0,                                  /* tp_reserved */
-    0,                                  /* tp_repr */
-    0,                                  /* tp_as_number */
-    0,                                  /* tp_as_sequence */
-    0,                                  /* tp_as_mapping */
-    0,                                  /* tp_hash */
-    0,                                  /* tp_call */
-    0,                                  /* tp_str */
-    PyObject_GenericGetAttr,            /* tp_getattro */
-    0,                                  /* tp_setattro */
-    0,                                  /* tp_as_buffer */
+    (destructor)clamp_dealloc,                          /* tp_dealloc */
+    0,                                                  /* tp_print */
+    0,                                                  /* tp_getattr */
+    0,                                                  /* tp_setattr */
+    0,                                                  /* tp_reserved */
+    0,                                                  /* tp_repr */
+    0,                                                  /* tp_as_number */
+    0,                                                  /* tp_as_sequence */
+    0,                                                  /* tp_as_mapping */
+    0,                                                  /* tp_hash */
+    0,                                                  /* tp_call */
+    0,                                                  /* tp_str */
+    PyObject_GenericGetAttr,                            /* tp_getattro */
+    0,                                                  /* tp_setattro */
+    0,                                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
-        Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    clamp_doc,                          /* tp_doc */
-    (traverseproc)clamp_traverse,       /* tp_traverse */
-    0,                                  /* tp_clear */
-    0,                                  /* tp_richcompare */
-    0,                                  /* tp_weaklistoffset */
-    PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)clamp_next,           /* tp_iternext */
-    clamp_methods,                      /* tp_methods */
-    0,                                  /* tp_members */
-    0,                                  /* tp_getset */
-    0,                                  /* tp_base */
-    0,                                  /* tp_dict */
-    0,                                  /* tp_descr_get */
-    0,                                  /* tp_descr_set */
-    0,                                  /* tp_dictoffset */
-    0,                                  /* tp_init */
-    PyType_GenericAlloc,                /* tp_alloc */
-    clamp_new,                          /* tp_new */
-    PyObject_GC_Del,                    /* tp_free */
+        Py_TPFLAGS_BASETYPE,                            /* tp_flags */
+    clamp_doc,                                          /* tp_doc */
+    (traverseproc)clamp_traverse,                       /* tp_traverse */
+    0,                                                  /* tp_clear */
+    0,                                                  /* tp_richcompare */
+    0,                                                  /* tp_weaklistoffset */
+    PyObject_SelfIter,                                  /* tp_iter */
+    (iternextfunc)clamp_next,                           /* tp_iternext */
+    clamp_methods,                                      /* tp_methods */
+    0,                                                  /* tp_members */
+    0,                                                  /* tp_getset */
+    0,                                                  /* tp_base */
+    0,                                                  /* tp_dict */
+    0,                                                  /* tp_descr_get */
+    0,                                                  /* tp_descr_set */
+    0,                                                  /* tp_dictoffset */
+    0,                                                  /* tp_init */
+    PyType_GenericAlloc,                                /* tp_alloc */
+    clamp_new,                                          /* tp_new */
+    PyObject_GC_Del,                                    /* tp_free */
 };

@@ -3,24 +3,31 @@
  *****************************************************************************/
 
 /******************************************************************************
- * return_identity : equivalent to:
- *
- * lambda o: o
+ * return_identity : lambda o: o
+ * return_called : lambda o: o()
+ * return_first_arg : (roughly) lambda *args, **kwargs: args[0]
  *****************************************************************************/
 
-static PyObject* PyIU_ReturnIdentity(PyObject *m, PyObject *o) {
+static PyObject *
+PyIU_ReturnIdentity(PyObject *m,
+                    PyObject *o)
+{
     Py_INCREF(o);
     return o;
 }
 
-/******************************************************************************
- * return_first_arg : _roughly_ equivalent to:
- *
- * lambda *args, **kwargs: args[0]
- *****************************************************************************/
+static PyObject *
+PyIU_ReturnCalled(PyObject *m,
+                  PyObject *o)
+{
+    return PyObject_CallFunctionObjArgs(o, NULL);
+}
 
-static PyObject* PyIU_ReturnFirstArg(PyObject *m, PyObject *args,
-                                     PyObject *kwargs) {
+static PyObject *
+PyIU_ReturnFirstArg(PyObject *m,
+                    PyObject *args,
+                    PyObject *kwargs)
+{
     PyObject *first;
 
     if (!PyTuple_Check(args) || PyTuple_Size(args) == 0) {
@@ -35,19 +42,7 @@ static PyObject* PyIU_ReturnFirstArg(PyObject *m, PyObject *args,
 }
 
 /******************************************************************************
- * return_called : equivalent to:
- *
- * lambda o: o()
- *****************************************************************************/
-
-static PyObject* PyIU_ReturnCalled(PyObject *m, PyObject *o) {
-    return PyObject_CallFunctionObjArgs(o, NULL);
-}
-
-/******************************************************************************
- *
  * Documentation
- *
  *****************************************************************************/
 
 PyDoc_STRVAR(PyIU_ReturnIdentity_doc, "return_identity(obj, /)\n\
@@ -75,30 +70,6 @@ This function is equivalent to ``lambda x: x`` but significantly faster::\n\
     >>> return_identity('abc')\n\
     'abc'");
 
-PyDoc_STRVAR(PyIU_ReturnFirstArg_doc, "return_first_arg(*args, **kwargs)\n\
---\n\
-\n\
-Always return the first positional argument given to the function.\n\
-\n\
-Parameters\n\
-----------\n\
-args, kwargs \n\
-    any number of positional or keyword parameter.\n\
-\n\
-Returns\n\
--------\n\
-first_positional_argument : any type\n\
-    Always returns the first positional argument given to the function.\n\
-\n\
-Examples\n\
---------\n\
-This function is equivalent to ``lambda *args, **kwargs: args[0]`` but\n\
-significantly faster::\n\
-\n\
-    >>> from iteration_utilities import return_first_arg\n\
-    >>> return_first_arg(1, 2, 3, 4, a=100)\n\
-    1");
-
 PyDoc_STRVAR(PyIU_ReturnCalled_doc, "return_called(func, /)\n\
 --\n\
 \n\
@@ -122,3 +93,27 @@ faster::\n\
     >>> from iteration_utilities import return_called\n\
     >>> return_called(int)\n\
     0");
+
+PyDoc_STRVAR(PyIU_ReturnFirstArg_doc, "return_first_arg(*args, **kwargs)\n\
+--\n\
+\n\
+Always return the first positional argument given to the function.\n\
+\n\
+Parameters\n\
+----------\n\
+args, kwargs \n\
+    any number of positional or keyword parameter.\n\
+\n\
+Returns\n\
+-------\n\
+first_positional_argument : any type\n\
+    Always returns the first positional argument given to the function.\n\
+\n\
+Examples\n\
+--------\n\
+This function is equivalent to ``lambda *args, **kwargs: args[0]`` but\n\
+significantly faster::\n\
+\n\
+    >>> from iteration_utilities import return_first_arg\n\
+    >>> return_first_arg(1, 2, 3, 4, a=100)\n\
+    1");

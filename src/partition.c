@@ -2,11 +2,14 @@
  * Licensed under Apache License Version 2.0 - see LICENSE.rst
  *****************************************************************************/
 
-static PyObject * PyIU_Partition(PyObject *m, PyObject *args,
-                                 PyObject *kwargs) {
+static PyObject *
+PyIU_Partition(PyObject *m,
+               PyObject *args,
+               PyObject *kwargs)
+{
     static char *kwlist[] = {"iterable", "func", NULL};
     PyObject *iterable=NULL, *func=Py_None;
-    PyObject *iterator, *item, *result1, *result2, *result, *temp;
+    PyObject *iterator, *item, *result1, *result2, *result, *temp=NULL;
     PyObject *funcargs=NULL, *tmp=NULL;
     long ok;
 
@@ -67,7 +70,7 @@ static PyObject * PyIU_Partition(PyObject *m, PyObject *args,
                 goto Fail;
             }
         } else if (ok < 0) {
-            goto Fail; // Maybe need to set an exception here...
+            goto Fail;
         }
         Py_DECREF(item);
     }
@@ -102,9 +105,7 @@ Fail:
 }
 
 /******************************************************************************
- *
  * Docstring
- *
  *****************************************************************************/
 
 PyDoc_STRVAR(PyIU_Partition_doc, "partition(iterable, func=None)\n\

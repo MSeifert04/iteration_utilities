@@ -7,17 +7,18 @@ typedef struct {
     PyObject *item;
 } PyIUObject_Constant;
 
-static PyTypeObject PyIUType_Constant;
+PyTypeObject PyIUType_Constant;
 
 /******************************************************************************
- *
  * New
- *
  *****************************************************************************/
 
-static PyObject * constant_new(PyTypeObject *type, PyObject *args,
-                               PyObject *kwargs) {
-    PyIUObject_Constant *lz;
+static PyObject *
+constant_new(PyTypeObject *type,
+             PyObject *args,
+             PyObject *kwargs)
+{
+    PyIUObject_Constant *self;
 
     PyObject *item;
 
@@ -27,65 +28,66 @@ static PyObject * constant_new(PyTypeObject *type, PyObject *args,
     }
 
     /* Create struct */
-    lz = (PyIUObject_Constant *)type->tp_alloc(type, 0);
-    if (lz == NULL) {
+    self = (PyIUObject_Constant *)type->tp_alloc(type, 0);
+    if (self == NULL) {
         return NULL;
     }
     Py_INCREF(item);
-    lz->item = item;
-    return (PyObject *)lz;
+    self->item = item;
+    return (PyObject *)self;
 }
 
 /******************************************************************************
- *
  * Destructor
- *
  *****************************************************************************/
 
-static void constant_dealloc(PyIUObject_Constant *lz) {
-    PyObject_GC_UnTrack(lz);
-    Py_XDECREF(lz->item);
-    Py_TYPE(lz)->tp_free(lz);
+static void
+constant_dealloc(PyIUObject_Constant *self)
+{
+    PyObject_GC_UnTrack(self);
+    Py_XDECREF(self->item);
+    Py_TYPE(self)->tp_free(self);
 }
 
 /******************************************************************************
- *
  * Traverse
- *
  *****************************************************************************/
 
-static int constant_traverse(PyIUObject_Constant *lz, visitproc visit,
-                             void *arg) {
-    Py_VISIT(lz->item);
+static int
+constant_traverse(PyIUObject_Constant *self,
+                  visitproc visit,
+                  void *arg)
+{
+    Py_VISIT(self->item);
     return 0;
 }
 
 /******************************************************************************
- *
  * Call
- *
  *****************************************************************************/
 
-static PyObject * constant_call(PyIUObject_Constant *lz, PyObject *args,
-                                PyObject *kwargs) {
-    Py_INCREF(lz->item);
-    return lz->item;
+static PyObject *
+constant_call(PyIUObject_Constant *self,
+              PyObject *args,
+              PyObject *kwargs)
+{
+    Py_INCREF(self->item);
+    return self->item;
 }
 
 /******************************************************************************
- *
  * Reduce
- *
  *****************************************************************************/
 
-static PyObject * constant_reduce(PyIUObject_Constant *lz, PyObject *unused) {
-    return Py_BuildValue("O(O)", Py_TYPE(lz), lz->item);
+static PyObject *
+constant_reduce(PyIUObject_Constant *self,
+                PyObject *unused)
+{
+    return Py_BuildValue("O(O)", Py_TYPE(self), self->item);
 }
 
 /******************************************************************************
- *
  * Methods
- *
  *****************************************************************************/
 
 static PyMethodDef constant_methods[] = {
@@ -94,9 +96,7 @@ static PyMethodDef constant_methods[] = {
 };
 
 /******************************************************************************
- *
  * Docstring
- *
  *****************************************************************************/
 
 PyDoc_STRVAR(constant_doc, "constant(x)\n\
@@ -145,51 +145,49 @@ For example::\n\
     True");
 
 /******************************************************************************
- *
  * Type
- *
  *****************************************************************************/
 
-static PyTypeObject PyIUType_Constant = {
+PyTypeObject PyIUType_Constant = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.constant",     /* tp_name */
-    sizeof(PyIUObject_Constant),        /* tp_basicsize */
-    0,                                  /* tp_itemsize */
+    "iteration_utilities.constant",                     /* tp_name */
+    sizeof(PyIUObject_Constant),                        /* tp_basicsize */
+    0,                                                  /* tp_itemsize */
     /* methods */
-    (destructor)constant_dealloc,       /* tp_dealloc */
-    0,                                  /* tp_print */
-    0,                                  /* tp_getattr */
-    0,                                  /* tp_setattr */
-    0,                                  /* tp_reserved */
-    0,                                  /* tp_repr */
-    0,                                  /* tp_as_number */
-    0,                                  /* tp_as_sequence */
-    0,                                  /* tp_as_mapping */
-    0,                                  /* tp_hash */
-    (ternaryfunc)constant_call,         /* tp_call */
-    0,                                  /* tp_str */
-    PyObject_GenericGetAttr,            /* tp_getattro */
-    0,                                  /* tp_setattro */
-    0,                                  /* tp_as_buffer */
+    (destructor)constant_dealloc,                       /* tp_dealloc */
+    0,                                                  /* tp_print */
+    0,                                                  /* tp_getattr */
+    0,                                                  /* tp_setattr */
+    0,                                                  /* tp_reserved */
+    0,                                                  /* tp_repr */
+    0,                                                  /* tp_as_number */
+    0,                                                  /* tp_as_sequence */
+    0,                                                  /* tp_as_mapping */
+    0,                                                  /* tp_hash */
+    (ternaryfunc)constant_call,                         /* tp_call */
+    0,                                                  /* tp_str */
+    PyObject_GenericGetAttr,                            /* tp_getattro */
+    0,                                                  /* tp_setattro */
+    0,                                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
-        Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    constant_doc,                       /* tp_doc */
-    (traverseproc)constant_traverse,    /* tp_traverse */
-    0,                                  /* tp_clear */
-    0,                                  /* tp_richcompare */
-    0,                                  /* tp_weaklistoffset */
-    0,                                  /* tp_iter */
-    0,                                  /* tp_iternext */
-    constant_methods,                   /* tp_methods */
-    0,                                  /* tp_members */
-    0,                                  /* tp_getset */
-    0,                                  /* tp_base */
-    0,                                  /* tp_dict */
-    0,                                  /* tp_descr_get */
-    0,                                  /* tp_descr_set */
-    0,                                  /* tp_dictoffset */
-    0,                                  /* tp_init */
-    0,                                  /* tp_alloc */
-    constant_new,                       /* tp_new */
-    PyObject_GC_Del,                    /* tp_free */
+        Py_TPFLAGS_BASETYPE,                            /* tp_flags */
+    constant_doc,                                       /* tp_doc */
+    (traverseproc)constant_traverse,                    /* tp_traverse */
+    0,                                                  /* tp_clear */
+    0,                                                  /* tp_richcompare */
+    0,                                                  /* tp_weaklistoffset */
+    0,                                                  /* tp_iter */
+    0,                                                  /* tp_iternext */
+    constant_methods,                                   /* tp_methods */
+    0,                                                  /* tp_members */
+    0,                                                  /* tp_getset */
+    0,                                                  /* tp_base */
+    0,                                                  /* tp_dict */
+    0,                                                  /* tp_descr_get */
+    0,                                                  /* tp_descr_set */
+    0,                                                  /* tp_dictoffset */
+    0,                                                  /* tp_init */
+    0,                                                  /* tp_alloc */
+    constant_new,                                       /* tp_new */
+    PyObject_GC_Del,                                    /* tp_free */
 };

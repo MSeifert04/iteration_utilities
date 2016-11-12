@@ -2,7 +2,10 @@
  * Licensed under Apache License Version 2.0 - see LICENSE.rst
  *****************************************************************************/
 
-static PyObject * PyIU_AllDistinct(PyObject *m, PyObject *iterable) {
+static PyObject *
+PyIU_AllDistinct(PyObject *m,
+                 PyObject *iterable)
+{
     PyObject *iterator=NULL, *item=NULL, *seen=NULL;
     int ok;
 
@@ -15,14 +18,14 @@ static PyObject * PyIU_AllDistinct(PyObject *m, PyObject *iterable) {
         goto Fail;
     }
 
-    // Almost identical to unique_everseen so no inline commments.
+    /* Almost identical to unique_everseen so no inline commments. */
     while ( (item = (*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
 
-        // Check if the item is in seen
+        /* Check if the item is in seen. */
         ok = PyIUSeen_ContainsAdd(seen, item);
         if (ok == 1) {
             goto Found;
-        // Failure when looking if item is in the set
+        /* Failure when looking for item.  */
         } else if (ok == -1) {
             goto Fail;
         }
@@ -50,9 +53,7 @@ Found:
 }
 
 /******************************************************************************
- *
  * Docstring
- *
  *****************************************************************************/
 
 PyDoc_STRVAR(PyIU_AllDistinct_doc, "all_distinct(iterable, /)\n\

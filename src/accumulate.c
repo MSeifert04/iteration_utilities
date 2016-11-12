@@ -1,14 +1,10 @@
 /******************************************************************************
  * Licensed under PSF license - see licenses/LICENSE_PYTHON.rst
- *****************************************************************************/
 
-/******************************************************************************
- *
- * IMPORTANT NOTE:
+ * IMPORTANT NOTE (other license!):
  *
  * This function is _roughly_ identical to the one in "itertoolsmodule.c" in
  * CPython. This class is inlcuded _mostly_ for Python2 compatibility!
- *
  *****************************************************************************/
 
 typedef struct {
@@ -19,18 +15,19 @@ typedef struct {
     PyObject *funcargs;
 } PyIUObject_Accumulate;
 
-static PyTypeObject PyIUType_Accumulate;
+PyTypeObject PyIUType_Accumulate;
 
 /******************************************************************************
- *
  * New
- *
  *****************************************************************************/
 
-static PyObject * accumulate_new(PyTypeObject *type, PyObject *args,
-                                 PyObject *kwargs) {
+static PyObject *
+accumulate_new(PyTypeObject *type,
+               PyObject *args,
+               PyObject *kwargs)
+{
     static char *kwlist[] = {"iterable", "func", "start", NULL};
-    PyIUObject_Accumulate *lz;
+    PyIUObject_Accumulate *self;
 
     PyObject *iterator, *iterable, *binop=NULL, *start=NULL, *funcargs=NULL;
 
@@ -53,121 +50,122 @@ static PyObject * accumulate_new(PyTypeObject *type, PyObject *args,
         Py_DECREF(iterator);
         return NULL;
     }
-    lz = (PyIUObject_Accumulate *)type->tp_alloc(type, 0);
-    if (lz == NULL) {
+    self = (PyIUObject_Accumulate *)type->tp_alloc(type, 0);
+    if (self == NULL) {
         Py_DECREF(iterator);
         return NULL;
     }
     Py_XINCREF(binop);
     Py_XINCREF(start);
-    lz->binop = binop;
-    lz->iterator = iterator;
-    lz->total = start;
-    lz->funcargs = funcargs;
-    return (PyObject *)lz;
+    self->binop = binop;
+    self->iterator = iterator;
+    self->total = start;
+    self->funcargs = funcargs;
+    return (PyObject *)self;
 }
 
 /******************************************************************************
- *
  * Destructor
- *
  *****************************************************************************/
 
-static void accumulate_dealloc(PyIUObject_Accumulate *lz) {
-    PyObject_GC_UnTrack(lz);
-    Py_XDECREF(lz->iterator);
-    Py_XDECREF(lz->binop);
-    Py_XDECREF(lz->total);
-    Py_XDECREF(lz->funcargs);
-    Py_TYPE(lz)->tp_free(lz);
+static void
+accumulate_dealloc(PyIUObject_Accumulate *self)
+{
+    PyObject_GC_UnTrack(self);
+    Py_XDECREF(self->iterator);
+    Py_XDECREF(self->binop);
+    Py_XDECREF(self->total);
+    Py_XDECREF(self->funcargs);
+    Py_TYPE(self)->tp_free(self);
 }
 
 /******************************************************************************
- *
  * Traverse
- *
  *****************************************************************************/
 
-static int accumulate_traverse(PyIUObject_Accumulate *lz, visitproc visit,
-                               void *arg) {
-    Py_VISIT(lz->iterator);
-    Py_VISIT(lz->binop);
-    Py_VISIT(lz->total);
-    Py_VISIT(lz->funcargs);
+static int
+accumulate_traverse(PyIUObject_Accumulate *self,
+                    visitproc visit,
+                    void *arg)
+{
+    Py_VISIT(self->iterator);
+    Py_VISIT(self->binop);
+    Py_VISIT(self->total);
+    Py_VISIT(self->funcargs);
     return 0;
 }
 
 /******************************************************************************
- *
  * Next
- *
  *****************************************************************************/
 
-static PyObject * accumulate_next(PyIUObject_Accumulate *lz) {
+static PyObject *
+accumulate_next(PyIUObject_Accumulate *self)
+{
     PyObject *item, *oldtotal, *newtotal;
     PyObject *tmp1=NULL, *tmp2=NULL;
 
-    // Get next item from iterator
-    item = (*Py_TYPE(lz->iterator)->tp_iternext)(lz->iterator);
+    /* Get next item from iterator.  */
+    item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator);
     if (item == NULL) {
         PYIU_CLEAR_STOPITERATION;
         return NULL;
     }
 
-    // If it's the first element the total is yet unset and we simply return
-    // the item.
-    if (lz->total == NULL) {
+    /* If it's the first element the total is yet unset and we simply return
+       the item.
+       */
+    if (self->total == NULL) {
         Py_INCREF(item);
-        lz->total = item;
-        return lz->total;
+        self->total = item;
+        return self->total;
     }
 
-    // Apply the binop to the old total and the item defaulting to add if the
-    // binop is not set or set to None.
-    if (lz->binop == NULL) {
-        newtotal = PyNumber_Add(lz->total, item);
+    /* Apply the binop to the old total and the item defaulting to add if the
+       binop is not set or set to None.
+       */
+    if (self->binop == NULL) {
+        newtotal = PyNumber_Add(self->total, item);
     } else {
-        PYIU_RECYCLE_ARG_TUPLE_BINOP(lz->funcargs, lz->total, item, tmp1, tmp2, Py_DECREF(item); return NULL)
-        newtotal = PyObject_Call(lz->binop, lz->funcargs, NULL);
+        PYIU_RECYCLE_ARG_TUPLE_BINOP(self->funcargs, self->total, item, tmp1, tmp2, Py_DECREF(item); return NULL)
+        newtotal = PyObject_Call(self->binop, self->funcargs, NULL);
     }
     Py_DECREF(item);
     if (newtotal == NULL) {
         return NULL;
     }
 
-    // Update the total and return it
-    oldtotal = lz->total;
-    lz->total = newtotal;
+    /* Update the total and return it. */
+    oldtotal = self->total;
+    self->total = newtotal;
     Py_DECREF(oldtotal);
     Py_INCREF(newtotal);
     return newtotal;
 }
 
 /******************************************************************************
- *
  * Reduce
- *
  *****************************************************************************/
 
-static PyObject * accumulate_reduce(PyIUObject_Accumulate *lz) {
-    if (lz->total != NULL) {
+static PyObject *
+accumulate_reduce(PyIUObject_Accumulate *self)
+{
+    if (self->total != NULL) {
         return Py_BuildValue("O(OOO)",
-                             Py_TYPE(lz),
-                             lz->iterator,
-                             lz->binop ? lz->binop : Py_None,
-                             lz->total);
+                             Py_TYPE(self),
+                             self->iterator,
+                             self->binop ? self->binop : Py_None,
+                             self->total);
     } else {
         return Py_BuildValue("O(OO)",
-                             Py_TYPE(lz),
-                             lz->iterator,
-                             lz->binop ? lz->binop : Py_None);
+                             Py_TYPE(self),
+                             self->iterator,
+                             self->binop ? self->binop : Py_None);
     }
 }
 
 /******************************************************************************
- *
  * Methods
- *
  *****************************************************************************/
 
 static PyMethodDef accumulate_methods[] = {
@@ -176,9 +174,7 @@ static PyMethodDef accumulate_methods[] = {
 };
 
 /******************************************************************************
- *
  * Docstring
- *
  *****************************************************************************/
 
 PyDoc_STRVAR(accumulate_doc, "accumulate(iterable, func=None, start=None)\n\
@@ -262,51 +258,49 @@ References\n\
 .. [1] https://en.wikipedia.org/wiki/Logistic_map");
 
 /******************************************************************************
- *
  * Type
- *
  *****************************************************************************/
 
-static PyTypeObject PyIUType_Accumulate = {
+PyTypeObject PyIUType_Accumulate = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.accumulate",   /* tp_name */
-    sizeof(PyIUObject_Accumulate),      /* tp_basicsize */
-    0,                                  /* tp_itemsize */
+    "iteration_utilities.accumulate",                   /* tp_name */
+    sizeof(PyIUObject_Accumulate),                      /* tp_basicsize */
+    0,                                                  /* tp_itemsize */
     /* methods */
-    (destructor)accumulate_dealloc,     /* tp_dealloc */
-    0,                                  /* tp_print */
-    0,                                  /* tp_getattr */
-    0,                                  /* tp_setattr */
-    0,                                  /* tp_reserved */
-    0,                                  /* tp_repr */
-    0,                                  /* tp_as_number */
-    0,                                  /* tp_as_sequence */
-    0,                                  /* tp_as_mapping */
-    0,                                  /* tp_hash */
-    0,                                  /* tp_call */
-    0,                                  /* tp_str */
-    PyObject_GenericGetAttr,            /* tp_getattro */
-    0,                                  /* tp_setattro */
-    0,                                  /* tp_as_buffer */
+    (destructor)accumulate_dealloc,                     /* tp_dealloc */
+    0,                                                  /* tp_print */
+    0,                                                  /* tp_getattr */
+    0,                                                  /* tp_setattr */
+    0,                                                  /* tp_reserved */
+    0,                                                  /* tp_repr */
+    0,                                                  /* tp_as_number */
+    0,                                                  /* tp_as_sequence */
+    0,                                                  /* tp_as_mapping */
+    0,                                                  /* tp_hash */
+    0,                                                  /* tp_call */
+    0,                                                  /* tp_str */
+    PyObject_GenericGetAttr,                            /* tp_getattro */
+    0,                                                  /* tp_setattro */
+    0,                                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
-        Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    accumulate_doc,                     /* tp_doc */
-    (traverseproc)accumulate_traverse,  /* tp_traverse */
-    0,                                  /* tp_clear */
-    0,                                  /* tp_richcompare */
-    0,                                  /* tp_weaklistoffset */
-    PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)accumulate_next,      /* tp_iternext */
-    accumulate_methods,                 /* tp_methods */
-    0,                                  /* tp_members */
-    0,                                  /* tp_getset */
-    0,                                  /* tp_base */
-    0,                                  /* tp_dict */
-    0,                                  /* tp_descr_get */
-    0,                                  /* tp_descr_set */
-    0,                                  /* tp_dictoffset */
-    0,                                  /* tp_init */
-    0,                                  /* tp_alloc */
-    accumulate_new,                     /* tp_new */
-    PyObject_GC_Del,                    /* tp_free */
+        Py_TPFLAGS_BASETYPE,                            /* tp_flags */
+    accumulate_doc,                                     /* tp_doc */
+    (traverseproc)accumulate_traverse,                  /* tp_traverse */
+    0,                                                  /* tp_clear */
+    0,                                                  /* tp_richcompare */
+    0,                                                  /* tp_weaklistoffset */
+    PyObject_SelfIter,                                  /* tp_iter */
+    (iternextfunc)accumulate_next,                      /* tp_iternext */
+    accumulate_methods,                                 /* tp_methods */
+    0,                                                  /* tp_members */
+    0,                                                  /* tp_getset */
+    0,                                                  /* tp_base */
+    0,                                                  /* tp_dict */
+    0,                                                  /* tp_descr_get */
+    0,                                                  /* tp_descr_set */
+    0,                                                  /* tp_dictoffset */
+    0,                                                  /* tp_init */
+    0,                                                  /* tp_alloc */
+    accumulate_new,                                     /* tp_new */
+    PyObject_GC_Del,                                    /* tp_free */
 };

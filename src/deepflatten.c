@@ -11,18 +11,19 @@ typedef struct {
     Py_ssize_t currentdepth;
 } PyIUObject_DeepFlatten;
 
-static PyTypeObject PyIUType_DeepFlatten;
+PyTypeObject PyIUType_DeepFlatten;
 
 /******************************************************************************
- *
  * New
- *
  *****************************************************************************/
 
-static PyObject * deepflatten_new(PyTypeObject *type, PyObject *args,
-                              PyObject *kwargs) {
+static PyObject *
+deepflatten_new(PyTypeObject *type,
+                PyObject *args,
+                PyObject *kwargs)
+{
     static char *kwlist[] = {"iterable", "depth", "types", "ignore", NULL};
-    PyIUObject_DeepFlatten *lz;
+    PyIUObject_DeepFlatten *self;
 
     PyObject *iterable, *iterator, *iteratorlist, *types=NULL, *ignore=NULL;
     Py_ssize_t depth=-1, i;
@@ -52,68 +53,70 @@ static PyObject * deepflatten_new(PyTypeObject *type, PyObject *args,
         Py_INCREF(Py_None);
         PyList_SET_ITEM(iteratorlist, i, Py_None);
     }
-    lz = (PyIUObject_DeepFlatten *)type->tp_alloc(type, 0);
-    if (lz == NULL) {
+    self = (PyIUObject_DeepFlatten *)type->tp_alloc(type, 0);
+    if (self == NULL) {
         Py_DECREF(iteratorlist);
         return NULL;
     }
     Py_XINCREF(types);
     Py_XINCREF(ignore);
-    lz->iteratorlist = iteratorlist;
-    lz->types = types;
-    lz->ignore = ignore;
-    lz->depth = depth;
-    lz->currentdepth = 0;
-    return (PyObject *)lz;
+    self->iteratorlist = iteratorlist;
+    self->types = types;
+    self->ignore = ignore;
+    self->depth = depth;
+    self->currentdepth = 0;
+    return (PyObject *)self;
 }
 
 /******************************************************************************
- *
  * Destructor
- *
  *****************************************************************************/
 
-static void deepflatten_dealloc(PyIUObject_DeepFlatten *lz) {
-    PyObject_GC_UnTrack(lz);
-    Py_XDECREF(lz->iteratorlist);
-    Py_XDECREF(lz->types);
-    Py_XDECREF(lz->ignore);
-    Py_TYPE(lz)->tp_free(lz);
+static void
+deepflatten_dealloc(PyIUObject_DeepFlatten *self)
+{
+    PyObject_GC_UnTrack(self);
+    Py_XDECREF(self->iteratorlist);
+    Py_XDECREF(self->types);
+    Py_XDECREF(self->ignore);
+    Py_TYPE(self)->tp_free(self);
 }
 
 /******************************************************************************
- *
  * Traverse
- *
  *****************************************************************************/
 
-static int deepflatten_traverse(PyIUObject_DeepFlatten *lz, visitproc visit,
-                                void *arg) {
-    Py_VISIT(lz->iteratorlist);
-    Py_VISIT(lz->types);
-    Py_VISIT(lz->ignore);
+static int
+deepflatten_traverse(PyIUObject_DeepFlatten *self,
+                     visitproc visit,
+                     void *arg)
+{
+    Py_VISIT(self->iteratorlist);
+    Py_VISIT(self->types);
+    Py_VISIT(self->ignore);
     return 0;
 }
 
 /******************************************************************************
- *
  * Next
- *
  *****************************************************************************/
 
-static PyObject * deepflatten_next(PyIUObject_DeepFlatten *lz) {
+static PyObject *
+deepflatten_next(PyIUObject_DeepFlatten *self)
+{
     PyObject *activeiterator, *item, *temp;
 
-    if (lz->currentdepth < 0) {
+    if (self->currentdepth < 0) {
         return NULL;
     }
 
-    // TODO: This is likely a problem when using copy because currentdepth
-    //       might be changed by the copy. However deepcopy should work as
-    //       as expected.
-    activeiterator = PyList_GET_ITEM(lz->iteratorlist, lz->currentdepth);
+    /* TODO: This is likely a problem when using copy because currentdepth
+             might be changed by the copy. However deepcopy should work as
+             as expected.
+       */
+    activeiterator = PyList_GET_ITEM(self->iteratorlist, self->currentdepth);
 
-    while (lz->currentdepth >= 0) {
+    while (self->currentdepth >= 0) {
         item = (*Py_TYPE(activeiterator)->tp_iternext)(activeiterator);
 
         /* The active iterator finished, remove it from the list and take
@@ -121,32 +124,32 @@ static PyObject * deepflatten_next(PyIUObject_DeepFlatten *lz) {
         if (item == NULL) {
             PYIU_CLEAR_STOPITERATION;
             Py_INCREF(Py_None);
-            PyList_SET_ITEM(lz->iteratorlist, lz->currentdepth, Py_None);
-            lz->currentdepth--;
+            PyList_SET_ITEM(self->iteratorlist, self->currentdepth, Py_None);
+            self->currentdepth--;
             Py_DECREF(activeiterator);
-            if (lz->currentdepth < 0) {
+            if (self->currentdepth < 0) {
                 break;
             }
-            activeiterator = PyList_GET_ITEM(lz->iteratorlist,
-                                             lz->currentdepth);
+            activeiterator = PyList_GET_ITEM(self->iteratorlist,
+                                             self->currentdepth);
             continue;
         }
 
         /* If the currentdepth exceeds the specified depth just return. */
-        if (lz->depth >= 0 && lz->currentdepth >= lz->depth) {
+        if (self->depth >= 0 && self->currentdepth >= self->depth) {
             return item;
 
         /* First check if the item is an instance of the ignored types, if
            it is, then simply return it. */
-        } else if (lz->ignore && lz->ignore != Py_None &&
-                PyObject_IsInstance(item, lz->ignore)) {
+        } else if (self->ignore && self->ignore != Py_None &&
+                PyObject_IsInstance(item, self->ignore)) {
             return item;
 
         /* If types is given then check if it's an instance thereof and if
            so replace activeiterator, otherwise return the item. */
-        } else if (lz->types && lz->types != Py_None) {
-            if (PyObject_IsInstance(item, lz->types)) {
-                lz->currentdepth++;
+        } else if (self->types && self->types != Py_None) {
+            if (PyObject_IsInstance(item, self->types)) {
+                self->currentdepth++;
                 activeiterator = PyObject_GetIter(item);
                 Py_DECREF(item);
                 if (activeiterator == NULL) {
@@ -171,7 +174,7 @@ static PyObject * deepflatten_next(PyIUObject_DeepFlatten *lz) {
                     return NULL;
                 }
             } else {
-                lz->currentdepth++;
+                self->currentdepth++;
                 activeiterator = temp;
                 temp = NULL;
                 Py_DECREF(item);
@@ -182,14 +185,14 @@ static PyObject * deepflatten_next(PyIUObject_DeepFlatten *lz) {
            Make sure we can save the new iterator (if necessary increase
            the list size)
            */
-        if (lz->currentdepth >= PyList_Size(lz->iteratorlist)) {
-            if (PyList_Append(lz->iteratorlist, activeiterator) == -1) {
+        if (self->currentdepth >= PyList_Size(self->iteratorlist)) {
+            if (PyList_Append(self->iteratorlist, activeiterator) == -1) {
                 Py_DECREF(activeiterator);
                 return NULL;
             }
             Py_DECREF(activeiterator);
         } else {
-            PyList_SET_ITEM(lz->iteratorlist, lz->currentdepth, activeiterator);
+            PyList_SET_ITEM(self->iteratorlist, self->currentdepth, activeiterator);
         }
 
     }
@@ -199,29 +202,29 @@ static PyObject * deepflatten_next(PyIUObject_DeepFlatten *lz) {
 }
 
 /******************************************************************************
- *
  * Reduce
- *
  *****************************************************************************/
 
-static PyObject * deepflatten_reduce(PyIUObject_DeepFlatten *lz) {
-    return Py_BuildValue("O(OnOO)(On)", Py_TYPE(lz),
-                         PyList_GET_ITEM(lz->iteratorlist, 0),  // stub
-                         lz->depth,
-                         lz->types ? lz->types : Py_None,
-                         lz->ignore ? lz->ignore : Py_None,
-                         lz->iteratorlist,
-                         lz->currentdepth);
+static PyObject *
+deepflatten_reduce(PyIUObject_DeepFlatten *self)
+{
+    return Py_BuildValue("O(OnOO)(On)", Py_TYPE(self),
+                         PyList_GET_ITEM(self->iteratorlist, 0),  /* stub */
+                         self->depth,
+                         self->types ? self->types : Py_None,
+                         self->ignore ? self->ignore : Py_None,
+                         self->iteratorlist,
+                         self->currentdepth);
 }
 
 /******************************************************************************
- *
  * Setstate
- *
  *****************************************************************************/
 
-static PyObject * deepflatten_setstate(PyIUObject_DeepFlatten *lz,
-                                       PyObject *state) {
+static PyObject *
+deepflatten_setstate(PyIUObject_DeepFlatten *self,
+                     PyObject *state)
+{
     PyObject *iteratorlist;
     Py_ssize_t currentdepth;
 
@@ -229,17 +232,15 @@ static PyObject * deepflatten_setstate(PyIUObject_DeepFlatten *lz,
         return NULL;
     }
 
-    Py_CLEAR(lz->iteratorlist);
+    Py_CLEAR(self->iteratorlist);
     Py_XINCREF(iteratorlist);
-    lz->iteratorlist = iteratorlist;
-    lz->currentdepth = currentdepth;
+    self->iteratorlist = iteratorlist;
+    self->currentdepth = currentdepth;
     Py_RETURN_NONE;
 }
 
 /******************************************************************************
- *
  * Methods
- *
  *****************************************************************************/
 
 static PyMethodDef deepflatten_methods[] = {
@@ -249,9 +250,7 @@ static PyMethodDef deepflatten_methods[] = {
 };
 
 /******************************************************************************
- *
  * Docstring
- *
  *****************************************************************************/
 
 PyDoc_STRVAR(deepflatten_doc, "deepflatten(iterable, depth=-1, types=None, ignore=None)\n\
@@ -357,51 +356,49 @@ This function is roughly equivalent to this python function:\n\
                         yield item");
 
 /******************************************************************************
- *
  * Type
- *
  *****************************************************************************/
 
-static PyTypeObject PyIUType_DeepFlatten = {
+PyTypeObject PyIUType_DeepFlatten = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.deepflatten",  /* tp_name */
-    sizeof(PyIUObject_DeepFlatten),     /* tp_basicsize */
-    0,                                  /* tp_itemsize */
+    "iteration_utilities.deepflatten",                  /* tp_name */
+    sizeof(PyIUObject_DeepFlatten),                     /* tp_basicsize */
+    0,                                                  /* tp_itemsize */
     /* methods */
-    (destructor)deepflatten_dealloc,    /* tp_dealloc */
-    0,                                  /* tp_print */
-    0,                                  /* tp_getattr */
-    0,                                  /* tp_setattr */
-    0,                                  /* tp_reserved */
-    0,                                  /* tp_repr */
-    0,                                  /* tp_as_number */
-    0,                                  /* tp_as_sequence */
-    0,                                  /* tp_as_mapping */
-    0,                                  /* tp_hash */
-    0,                                  /* tp_call */
-    0,                                  /* tp_str */
-    PyObject_GenericGetAttr,            /* tp_getattro */
-    0,                                  /* tp_setattro */
-    0,                                  /* tp_as_buffer */
+    (destructor)deepflatten_dealloc,                    /* tp_dealloc */
+    0,                                                  /* tp_print */
+    0,                                                  /* tp_getattr */
+    0,                                                  /* tp_setattr */
+    0,                                                  /* tp_reserved */
+    0,                                                  /* tp_repr */
+    0,                                                  /* tp_as_number */
+    0,                                                  /* tp_as_sequence */
+    0,                                                  /* tp_as_mapping */
+    0,                                                  /* tp_hash */
+    0,                                                  /* tp_call */
+    0,                                                  /* tp_str */
+    PyObject_GenericGetAttr,                            /* tp_getattro */
+    0,                                                  /* tp_setattro */
+    0,                                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
-        Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    deepflatten_doc,                    /* tp_doc */
-    (traverseproc)deepflatten_traverse, /* tp_traverse */
-    0,                                  /* tp_clear */
-    0,                                  /* tp_richcompare */
-    0,                                  /* tp_weaklistoffset */
-    PyObject_SelfIter,                  /* tp_iter */
-    (iternextfunc)deepflatten_next,     /* tp_iternext */
-    deepflatten_methods,                /* tp_methods */
-    0,                                  /* tp_members */
-    0,                                  /* tp_getset */
-    0,                                  /* tp_base */
-    0,                                  /* tp_dict */
-    0,                                  /* tp_descr_get */
-    0,                                  /* tp_descr_set */
-    0,                                  /* tp_dictoffset */
-    0,                                  /* tp_init */
-    PyType_GenericAlloc,                /* tp_alloc */
-    deepflatten_new,                    /* tp_new */
-    PyObject_GC_Del,                    /* tp_free */
+        Py_TPFLAGS_BASETYPE,                            /* tp_flags */
+    deepflatten_doc,                                    /* tp_doc */
+    (traverseproc)deepflatten_traverse,                 /* tp_traverse */
+    0,                                                  /* tp_clear */
+    0,                                                  /* tp_richcompare */
+    0,                                                  /* tp_weaklistoffset */
+    PyObject_SelfIter,                                  /* tp_iter */
+    (iternextfunc)deepflatten_next,                     /* tp_iternext */
+    deepflatten_methods,                                /* tp_methods */
+    0,                                                  /* tp_members */
+    0,                                                  /* tp_getset */
+    0,                                                  /* tp_base */
+    0,                                                  /* tp_dict */
+    0,                                                  /* tp_descr_get */
+    0,                                                  /* tp_descr_set */
+    0,                                                  /* tp_dictoffset */
+    0,                                                  /* tp_init */
+    PyType_GenericAlloc,                                /* tp_alloc */
+    deepflatten_new,                                    /* tp_new */
+    PyObject_GC_Del,                                    /* tp_free */
 };

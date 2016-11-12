@@ -3,42 +3,50 @@
  *****************************************************************************/
 
 /******************************************************************************
- * square : equivalent to:
+ * partial-like functions:
  *
- * lambda value: value ** 2
+ * square     : lambda value: value ** 2
+ * double     : lambda value: value * 2
+ * reciprocal : lambda value: 1 / value
  *****************************************************************************/
 
-static PyObject* PyIU_MathSquare(PyObject *m, PyObject *o) {
+static PyObject *
+PyIU_MathSquare(PyObject *m,
+                PyObject *o)
+{
     return PyNumber_Power(o, PyIU_Long_2(), Py_None);
 }
 
-/******************************************************************************
- * double : equivalent to:
- *
- * lambda value: value * 2
- *****************************************************************************/
-
-static PyObject* PyIU_MathDouble(PyObject *m, PyObject *o) {
+static PyObject *
+PyIU_MathDouble(PyObject *m,
+                PyObject *o)
+{
     return PyNumber_Multiply(o, PyIU_Long_2());
 }
 
-/******************************************************************************
- * reciprocal : equivalent to:
- *
- * lambda value: 1 / value
- *****************************************************************************/
-
-static PyObject* PyIU_MathReciprocal(PyObject *m, PyObject *o) {
+static PyObject *
+PyIU_MathReciprocal(PyObject *m,
+                    PyObject *o)
+{
     return PyNumber_TrueDivide(PyIU_Long_1(), o);
 }
 
 /******************************************************************************
- * radd : equivalent to:
+ * Reverse arithmetic operators:
  *
- * lambda o1, o2: o2 + o1
+ * radd  : lambda o1, o2: o2 + o1
+ * rsub  : lambda o1, o2: o2 - o1
+ * rmul  : lambda o1, o2: o2 * o1
+ * rdiv  : lambda o1, o2: o2 / o1
+ * rfdiv : lambda o1, o2: o2 // o1
+ * rpow  : lambda o1, o2: o2 ** o1
+ * rmod  : lambda o1, o2: o2 % o1
  *****************************************************************************/
 
-static PyObject* PyIU_MathRadd(PyObject *m, PyObject *args) {
+static PyObject *
+PyIU_MathRadd(PyObject *m,
+              PyObject *args)
+{
     PyObject *op1, *op2;
     if (PyArg_UnpackTuple(args, "radd", 2, 2, &op1, &op2)) {
         return PyNumber_Add(op2, op1);
@@ -47,13 +55,10 @@ static PyObject* PyIU_MathRadd(PyObject *m, PyObject *args) {
     }
 }
 
-/******************************************************************************
- * rsub : equivalent to:
- *
- * lambda o1, o2: o2 - o1
- *****************************************************************************/
-
-static PyObject* PyIU_MathRsub(PyObject *m, PyObject *args) {
+static PyObject *
+PyIU_MathRsub(PyObject *m,
+              PyObject *args)
+{
     PyObject *op1, *op2;
     if (PyArg_UnpackTuple(args, "rsub", 2, 2, &op1, &op2)) {
         return PyNumber_Subtract(op2, op1);
@@ -62,13 +67,10 @@ static PyObject* PyIU_MathRsub(PyObject *m, PyObject *args) {
     }
 }
 
-/******************************************************************************
- * rmul : equivalent to:
- *
- * lambda o1, o2: o2 * o1
- *****************************************************************************/
-
-static PyObject* PyIU_MathRmul(PyObject *m, PyObject *args) {
+static PyObject *
+PyIU_MathRmul(PyObject *m,
+              PyObject *args)
+{
     PyObject *op1, *op2;
     if (PyArg_UnpackTuple(args, "rmul", 2, 2, &op1, &op2)) {
         return PyNumber_Multiply(op2, op1);
@@ -77,13 +79,10 @@ static PyObject* PyIU_MathRmul(PyObject *m, PyObject *args) {
     }
 }
 
-/******************************************************************************
- * rdiv : equivalent to:
- *
- * lambda o1, o2: o2 / o1
- *****************************************************************************/
-
-static PyObject* PyIU_MathRdiv(PyObject *m, PyObject *args) {
+static PyObject *
+PyIU_MathRdiv(PyObject *m,
+              PyObject *args)
+{
     PyObject *op1, *op2;
     if (PyArg_UnpackTuple(args, "rdiv", 2, 2, &op1, &op2)) {
         return PyNumber_TrueDivide(op2, op1);
@@ -92,13 +91,10 @@ static PyObject* PyIU_MathRdiv(PyObject *m, PyObject *args) {
     }
 }
 
-/******************************************************************************
- * rfdiv : equivalent to:
- *
- * lambda o1, o2: o2 // o1
- *****************************************************************************/
-
-static PyObject* PyIU_MathRfdiv(PyObject *m, PyObject *args) {
+static PyObject *
+PyIU_MathRfdiv(PyObject *m,
+               PyObject *args)
+{
     PyObject *op1, *op2;
     if (PyArg_UnpackTuple(args, "rfdiv", 2, 2, &op1, &op2)) {
         return PyNumber_FloorDivide(op2, op1);
@@ -107,13 +103,10 @@ static PyObject* PyIU_MathRfdiv(PyObject *m, PyObject *args) {
     }
 }
 
-/******************************************************************************
- * rpow : equivalent to:
- *
- * lambda o1, o2: o2 ** o1
- *****************************************************************************/
-
-static PyObject* PyIU_MathRpow(PyObject *m, PyObject *args) {
+static PyObject *
+PyIU_MathRpow(PyObject *m,
+              PyObject *args)
+{
     PyObject *op1, *op2;
     if (PyArg_UnpackTuple(args, "rpow", 2, 2, &op1, &op2)) {
         return PyNumber_Power(op2, op1, Py_None);
@@ -122,13 +115,10 @@ static PyObject* PyIU_MathRpow(PyObject *m, PyObject *args) {
     }
 }
 
-/******************************************************************************
- * rmod : equivalent to:
- *
- * lambda o1, o2: o2 % o1
- *****************************************************************************/
-
-static PyObject* PyIU_MathRmod(PyObject *m, PyObject *args) {
+static PyObject *
+PyIU_MathRmod(PyObject *m,
+              PyObject *args)
+{
     PyObject *op1, *op2;
     if (PyArg_UnpackTuple(args, "rmod", 2, 2, &op1, &op2)) {
         return PyNumber_Remainder(op2, op1);
@@ -138,9 +128,7 @@ static PyObject* PyIU_MathRmod(PyObject *m, PyObject *args) {
 }
 
 /******************************************************************************
- *
  * Documentation
- *
  *****************************************************************************/
 
 PyDoc_STRVAR(PyIU_MathSquare_doc, "square(value, /)\n\

@@ -2,8 +2,11 @@
  * Licensed under Apache License Version 2.0 - see LICENSE.rst
  *****************************************************************************/
 
-static PyObject * PyIU_Count(PyObject *m, PyObject *args,
-                             PyObject *kwargs) {
+static PyObject *
+PyIU_Count(PyObject *m,
+           PyObject *args,
+           PyObject *kwargs)
+{
     static char *kwlist[] = {"iterable", "pred", "eq", NULL};
 
     PyObject *iterable, *iterator, *item, *val=NULL, *pred=NULL;
@@ -32,23 +35,24 @@ static PyObject * PyIU_Count(PyObject *m, PyObject *args,
     }
 
     while ((item = (*Py_TYPE(iterator)->tp_iternext)(iterator))) {
-        // Always check for equality if "eq=1".
+        /* Always check for equality if "eq=1". */
         if (eq) {
             ok = PyObject_RichCompareBool(pred, item, Py_EQ);
             Py_DECREF(item);
 
-        // No predicate given just set ok == 1 so the element is counted
+        /* No predicate given just set ok == 1 so the element is counted. */
         } else if (pred == NULL || pred == Py_None) {
             ok = 1;
             Py_DECREF(item);
 
-        // Predicate is bool, so we can skip the function call and just
-        // evaluate if the object is truthy.
+        /* Predicate is bool, so we can skip the function call and just
+           evaluate if the object is truthy.
+           */
         } else if (pred == (PyObject *)&PyBool_Type) {
             ok = PyObject_IsTrue(item);
             Py_DECREF(item);
 
-        // Call the function and check if the returned value is truthy.
+        /* Call the function and check if the returned value is truthy. */
         } else {
             PYIU_RECYCLE_ARG_TUPLE(funcargs, item, tmp, goto Fail)
             val = PyObject_Call(pred, funcargs, NULL);
@@ -60,16 +64,18 @@ static PyObject * PyIU_Count(PyObject *m, PyObject *args,
             Py_DECREF(val);
         }
 
-        // If we found a match increment the counter, if we encountered an
-        // Exception throw it here.
+        /* If we found a match increment the counter, if we encountered an
+           Exception throw it here.
+           */
         if (ok == 1) {
             sum_int++;
         } else if (ok < 0) {
             goto Fail;
         }
 
-        // check for overflow, no fallback because it's unlikely that we should
-        // process some iterable that's longer than the maximum py_ssize_t...
+        /* check for overflow, no fallback because it's unlikely that we should
+           process some iterable that's longer than the maximum py_ssize_t...
+           */
         if (sum_int == PY_SSIZE_T_MAX) {
             Py_DECREF(iterator);
             PyErr_Format(PyExc_TypeError,
@@ -95,9 +101,7 @@ Fail:
 }
 
 /******************************************************************************
- *
  * Docstring
- *
  *****************************************************************************/
 
 PyDoc_STRVAR(PyIU_Count_doc, "count_items(iterable, pred=None, eq=False)\n\

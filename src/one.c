@@ -2,7 +2,10 @@
  * Licensed under Apache License Version 2.0 - see LICENSE.rst
  *****************************************************************************/
 
-static PyObject * PyIU_One(PyObject *m, PyObject *iterable) {
+static PyObject *
+PyIU_One(PyObject *m,
+         PyObject *iterable)
+{
     PyObject *iterator, *item1, *item2;
 
     iterator = PyObject_GetIter(iterable);
@@ -34,9 +37,7 @@ static PyObject * PyIU_One(PyObject *m, PyObject *iterable) {
 }
 
 /******************************************************************************
- *
  * Docstring
- *
  *****************************************************************************/
 
 PyDoc_STRVAR(PyIU_One_doc, "one(iterable, /)\n\
