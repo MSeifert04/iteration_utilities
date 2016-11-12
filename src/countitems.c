@@ -11,11 +11,6 @@ static PyObject * PyIU_Count(PyObject *m, PyObject *args,
     Py_ssize_t sum_int = 0;
     int ok, eq=0;
 
-    funcargs = PyTuple_New(1);
-    if (funcargs == NULL) {
-        return NULL;
-    }
-
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|Oi:count", kwlist,
                                      &iterable, &pred, &eq)) {
         return NULL;
@@ -25,8 +20,14 @@ static PyObject * PyIU_Count(PyObject *m, PyObject *args,
         return NULL;
     }
 
+    funcargs = PyTuple_New(1);
+    if (funcargs == NULL) {
+        return NULL;
+    }
+
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
+        Py_XDECREF(funcargs);
         return NULL;
     }
 
