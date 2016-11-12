@@ -16,6 +16,7 @@ typedef struct {
     PyObject *iterator;
     PyObject *binop;
     PyObject *total;
+    PyObject *funcargs;
 } PyIUObject_Accumulate;
 
 static PyTypeObject PyIUType_Accumulate;
@@ -31,7 +32,7 @@ static PyObject * accumulate_new(PyTypeObject *type, PyObject *args,
     static char *kwlist[] = {"iterable", "func", "start", NULL};
     PyIUObject_Accumulate *lz;
 
-    PyObject *iterator, *iterable, *binop=NULL, *start=NULL;
+    PyObject *iterator, *iterable, *binop=NULL, *start=NULL, *funcargs=NULL;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OO:accumulate", kwlist,
@@ -47,6 +48,11 @@ static PyObject * accumulate_new(PyTypeObject *type, PyObject *args,
     if (iterator == NULL) {
         return NULL;
     }
+    funcargs = PyTuple_New(2);
+    if (funcargs == NULL) {
+        Py_DECREF(iterator);
+        return NULL;
+    }
     lz = (PyIUObject_Accumulate *)type->tp_alloc(type, 0);
     if (lz == NULL) {
         Py_DECREF(iterator);
@@ -57,6 +63,7 @@ static PyObject * accumulate_new(PyTypeObject *type, PyObject *args,
     lz->binop = binop;
     lz->iterator = iterator;
     lz->total = start;
+    lz->funcargs = funcargs;
     return (PyObject *)lz;
 }
 
@@ -71,6 +78,7 @@ static void accumulate_dealloc(PyIUObject_Accumulate *lz) {
     Py_XDECREF(lz->iterator);
     Py_XDECREF(lz->binop);
     Py_XDECREF(lz->total);
+    Py_XDECREF(lz->funcargs);
     Py_TYPE(lz)->tp_free(lz);
 }
 
@@ -85,6 +93,7 @@ static int accumulate_traverse(PyIUObject_Accumulate *lz, visitproc visit,
     Py_VISIT(lz->iterator);
     Py_VISIT(lz->binop);
     Py_VISIT(lz->total);
+    Py_VISIT(lz->funcargs);
     return 0;
 }
 
@@ -96,6 +105,7 @@ static int accumulate_traverse(PyIUObject_Accumulate *lz, visitproc visit,
 
 static PyObject * accumulate_next(PyIUObject_Accumulate *lz) {
     PyObject *item, *oldtotal, *newtotal;
+    PyObject *tmp1=NULL, *tmp2=NULL;
 
     // Get next item from iterator
     item = (*Py_TYPE(lz->iterator)->tp_iternext)(lz->iterator);
@@ -117,7 +127,8 @@ static PyObject * accumulate_next(PyIUObject_Accumulate *lz) {
     if (lz->binop == NULL) {
         newtotal = PyNumber_Add(lz->total, item);
     } else {
-        newtotal = PyObject_CallFunctionObjArgs(lz->binop, lz->total, item, NULL);
+        PYIU_RECYCLE_ARG_TUPLE_BINOP(lz->funcargs, lz->total, item, tmp1, tmp2, Py_DECREF(item); return NULL)
+        newtotal = PyObject_Call(lz->binop, lz->funcargs, NULL);
     }
     Py_DECREF(item);
     if (newtotal == NULL) {

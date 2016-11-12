@@ -7,7 +7,7 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
 
     PyObject *iterable, *key1, *key2=NULL, *iterator, *item, *val, *lst, *keep;
     PyObject *reduce=NULL, *reducestart=NULL, *reducetmp=NULL, *resdict;
-    PyObject *funcargs=NULL, *tmp=NULL;
+    PyObject *funcargs1=NULL, *funcargs2=NULL, *tmp1=NULL, *tmp2=NULL;
     int ok;
 #if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 5
     Py_hash_t hash;
@@ -33,16 +33,22 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
         Py_DECREF(iterator);
         return NULL;
     }
-    funcargs = PyTuple_New(1);
-    if (funcargs == NULL) {
+    funcargs1 = PyTuple_New(1);
+    if (funcargs1 == NULL) {
+        Py_DECREF(iterator);
+        Py_DECREF(resdict);
+    }
+    funcargs2 = PyTuple_New(2);
+    if (funcargs2 == NULL) {
+        Py_DECREF(funcargs1);
         Py_DECREF(iterator);
         Py_DECREF(resdict);
     }
 
     while ( (item = (*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
         // Calculate the key for the dictionary (val)
-        PYIU_RECYCLE_ARG_TUPLE(funcargs, item, tmp, Py_DECREF(item); goto Fail)
-        val = PyObject_Call(key1, funcargs, NULL);
+        PYIU_RECYCLE_ARG_TUPLE(funcargs1, item, tmp1, Py_DECREF(item); goto Fail)
+        val = PyObject_Call(key1, funcargs1, NULL);
         if (val == NULL) {
             Py_DECREF(item);
             goto Fail;
@@ -54,8 +60,8 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
         } else {
             /* We use the same item again to calculate the keep so we don't need
                to replace. */
-            //PYIU_RECYCLE_ARG_TUPLE(funcargs, item, tmp, Py_DECREF(item); goto Fail)
-            keep = PyObject_Call(key2, funcargs, NULL);
+            //PYIU_RECYCLE_ARG_TUPLE(funcargs1, item, tmp1, Py_DECREF(item); goto Fail)
+            keep = PyObject_Call(key2, funcargs1, NULL);
             Py_DECREF(item);
             if (keep == NULL) {
                 Py_DECREF(val);
@@ -135,9 +141,14 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
             // Already an item present so use the binary operation.
             } else {
                 if (lst == NULL) {
-                    reducetmp = PyObject_CallFunctionObjArgs(reduce, reducestart, keep, NULL);
+                    PYIU_RECYCLE_ARG_TUPLE_BINOP(funcargs2, reducestart, keep, tmp1, tmp2, Py_DECREF(keep);
+                                                                                           goto Fail)
+                    reducetmp = PyObject_Call(reduce, funcargs2, NULL);
                 } else {
-                    reducetmp = PyObject_CallFunctionObjArgs(reduce, lst, keep, NULL);
+                    PYIU_RECYCLE_ARG_TUPLE_BINOP(funcargs2, lst, keep, tmp1, tmp2, Py_DECREF(keep);
+                                                                                   Py_DECREF(lst);
+                                                                                   goto Fail)
+                    reducetmp = PyObject_Call(reduce, funcargs2, NULL);
                     Py_DECREF(lst);
                 }
                 Py_DECREF(keep);
@@ -159,7 +170,8 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
         }
     }
 
-    Py_DECREF(funcargs);
+    Py_DECREF(funcargs1);
+    Py_DECREF(funcargs2);
 
     PYIU_CLEAR_STOPITERATION;
     Py_DECREF(iterator);
@@ -172,8 +184,8 @@ static PyObject * PyIU_Groupby(PyObject *m, PyObject *args, PyObject *kwargs) {
     return resdict;
 
 Fail:
-    Py_XDECREF(funcargs);
-    Py_XDECREF(funcargs);
+    Py_XDECREF(funcargs1);
+    Py_XDECREF(funcargs2);
     Py_XDECREF(iterator);
     Py_XDECREF(resdict);
     return NULL;
