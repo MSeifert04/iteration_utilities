@@ -31,8 +31,10 @@ setup(name='iteration_utilities',
 
       description='Functional programming utilities for Python 2 and 3.',
       long_description=readme(),
-      keywords=('functional functools generator itertools iteration iterator '
-                'operators performance reduce utility').split(' '),
+      # Somehow the keywords get lost if I use a list of strings so this is
+      # just a longish string...
+      keywords='functional functools generator itertools iteration iterator '
+               'operators performance reduce utility',
       platforms=["Windows Linux"],  # maybe sometime also "Mac OS-X", "Unix"
 
       classifiers=[
