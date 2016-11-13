@@ -9,7 +9,6 @@ from __future__ import absolute_import, division, print_function
 from collections import deque
 from copy import copy
 from itertools import islice, chain, repeat, starmap, tee, combinations
-from operator import mul
 from random import choice, sample, randrange
 
 # This module
@@ -18,15 +17,13 @@ from .. import PY2
 # Replace list-generating functions by generator functions
 if PY2:
     from itertools import (ifilter as filter,
-                           ifilterfalse as filterfalse,
-                           imap as map)
+                           ifilterfalse as filterfalse)
     range = xrange
 else:
     from itertools import filterfalse
 
 
 __all__ = ['consume',
-           'dotproduct',
            'flatten',
            'ipartition',
            'ncycles',
@@ -120,28 +117,6 @@ def ncycles(iterable, n):
     [1, 2, 3, 1, 2, 3, 1, 2, 3]
     """
     return chain.from_iterable(repeat(tuple(iterable), n))
-
-
-def dotproduct(vec1, vec2):
-    """Dot product (matrix multiplication) of two vectors.
-
-    Parameters
-    ----------
-    vec1, vec2 : iterable
-        Any `iterables` to calculate the dot product.
-
-    Returns
-    -------
-    dotproduct : number
-        The dot product - the sum of the element-wise multiplication.
-
-    Examples
-    --------
-    >>> from iteration_utilities import dotproduct
-    >>> dotproduct([1,2,3,4], [1,2,3,4])
-    30
-    """
-    return sum(map(mul, vec1, vec2))
 
 
 def flatten(iterable):

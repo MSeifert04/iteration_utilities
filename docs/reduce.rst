@@ -94,7 +94,7 @@ alternatives:
   the iterable to the truthiness of isinstance applied to all items.
 - :py:func:`~iteration_utilities._helpers._performance.any_isinstance`, reduces
   the iterable to the truthiness of isinstance applied to all items.
-- :py:func:`~iteration_utilities._recipes._core.dotproduct`, reduces two
+- :py:func:`~iteration_utilities._cfuncs.dotproduct`, reduces two
   iterables to the result of the dotproduct.
 
 
