@@ -258,7 +258,7 @@ static PyMethodDef split_methods[] = {
 PyDoc_STRVAR(split_doc, "split(iterable, key, maxsplit=-1, keep=False, eq=False)\n\
 --\n\
 \n\
-Splits an `iterable` by a `key`.\n\
+Splits an `iterable` by a `key` function or delimiter.\n\
 \n\
 Parameters\n\
 ----------\n\
@@ -279,14 +279,14 @@ keep : bool\n\
 \n\
 eq : bool\n\
     If ``True`` split the `iterable` where ``key == item`` instead of\n\
-    ``key(item) == True``. This can significantly speedup the function is a\n\
-    simple delimiter is used.\n\
+    ``key(item) == True``. This can significantly speed up the function if a\n\
+    single delimiter is used.\n\
     Default is ``False``.\n\
 \n\
 Returns\n\
 -------\n\
 splitted_iterable : generator\n\
-    Generator containing the split `iterable` as lists.\n\
+    Generator containing the splitted `iterable` (lists).\n\
 \n\
 Examples\n\
 --------\n\
