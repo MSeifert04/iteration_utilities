@@ -843,7 +843,9 @@ class _Base(object):
         """
         return self._call(replicate, 0, times=times)
 
-    def split(self, key, maxsplit=_default, keep=_default, eq=_default):
+    def split(self, key, maxsplit=_default,
+              keep=_default, keep_before=_default, keep_after=_default,
+              eq=_default):
         """See :py:func:`~iteration_utilities.split`.
 
         Examples
@@ -855,14 +857,21 @@ class _Base(object):
         >>> Iterable(range(1, 10)).split(is_even, 2).as_list()
         [[1], [3], [5, 6, 7, 8, 9]]
 
-        >>> Iterable(range(1, 10)).split(3, 1, True, True).as_list()
+        >>> Iterable(range(1, 10)).split(3, 1, True, False, False, True).as_list()
         [[1, 2], [3], [4, 5, 6, 7, 8, 9]]
+
+        >>> Iterable(range(1, 10)).split(3, 1, False, True, False, True).as_list()
+        [[1, 2, 3], [4, 5, 6, 7, 8, 9]]
+
+        >>> Iterable(range(1, 10)).split(3, 1, False, False, True, True).as_list()
+        [[1, 2], [3, 4, 5, 6, 7, 8, 9]]
 
         >>> Iterable(range(1, 10)).split(key=2, maxsplit=1,
         ...                              keep=True, eq=True).as_list()
         [[1], [2], [3, 4, 5, 6, 7, 8, 9]]
         """
         return self._call(split, 0, key=key, maxsplit=maxsplit, keep=keep,
+                          keep_before=keep_before, keep_after=keep_after,
                           eq=eq)
 
     def starmap(self, function):

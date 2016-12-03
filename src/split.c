@@ -8,6 +8,8 @@ typedef struct {
     PyObject *delimiter;
     Py_ssize_t maxsplit;
     int keep_delimiter;
+    int keep_before;
+    int keep_after;
     int cmp;
     PyObject *next;
     PyObject *funcargs;
@@ -24,22 +26,29 @@ split_new(PyTypeObject *type,
           PyObject *args,
           PyObject *kwargs)
 {
-    static char *kwlist[] = {"iterable", "key", "maxsplit", "keep", "eq", NULL};
+    static char *kwlist[] = {"iterable", "key", "maxsplit",
+                             "keep", "keep_before", "keep_after", "eq", NULL};
     PyIUObject_Split *self;
 
     PyObject *iterable, *iterator, *delimiter, *funcargs=NULL;
     Py_ssize_t maxsplit = -1;  /* -1 means no maxsplit! */
-    int keep_delimiter = 0, cmp = 0;
+    int keep_delimiter = 0, keep_before = 0, keep_after = 0, cmp = 0;
 
     /* Parse arguments */
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|nii:split", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|niiii:split", kwlist,
                                      &iterable, &delimiter,
-                                     &maxsplit, &keep_delimiter, &cmp)) {
+                                     &maxsplit, &keep_delimiter,
+                                     &keep_before, &keep_after, &cmp)) {
         return NULL;
     }
     if (maxsplit <= -2) {
         PyErr_Format(PyExc_ValueError,
                      "`maxsplit` must be -1 or greater.");
+        return NULL;
+    }
+    if (keep_delimiter && keep_before && keep_after) {
+        PyErr_Format(PyExc_ValueError,
+                     "only one or none of `keep`, `keep_before`, `keep_after` may be set.");
         return NULL;
     }
 
@@ -64,6 +73,8 @@ split_new(PyTypeObject *type,
     self->delimiter = delimiter;
     self->maxsplit = maxsplit;
     self->keep_delimiter = keep_delimiter;
+    self->keep_before = keep_before;
+    self->keep_after = keep_after;
     self->cmp = cmp;
     self->next = NULL;
     self->funcargs = funcargs;
@@ -125,7 +136,9 @@ split_next(PyIUObject_Split *self)
         Py_DECREF(self->next);
         self->next = NULL;
         if (ok == 0) {
-            return result;
+            if ( !self->keep_after ) {
+                return result;
+            }
         } else {
             goto Fail;
         }
@@ -160,17 +173,23 @@ split_next(PyIUObject_Split *self)
 
         /* Split here. */
         } else if (ok == 1) {
-            Py_XDECREF(val);
             /* Decrement maxsplit */
             if (self->maxsplit != -1) {
                 self->maxsplit--;
             }
             /* Keep the delimiter (if requested) as next item. */
-            if (self->keep_delimiter) {
+            if (self->keep_delimiter || self->keep_after) {
                 self->next = item;
+            } else if (self->keep_before) {
+                ok = PyList_Append(result, item);
+                if (ok != 0) {
+                    goto Fail;
+                }
+                Py_DECREF(item);
             } else {
                 Py_DECREF(item);
             }
+            Py_XDECREF(val);
             return result;
 
         } else {
@@ -204,18 +223,22 @@ static PyObject *
 split_reduce(PyIUObject_Split *self)
 {
     if (self->next == NULL) {
-        return Py_BuildValue("O(OOnii)", Py_TYPE(self),
+        return Py_BuildValue("O(OOniiii)", Py_TYPE(self),
                              self->iterator,
                              self->delimiter,
                              self->maxsplit,
                              self->keep_delimiter,
+                             self->keep_before,
+                             self->keep_after,
                              self->cmp);
     } else {
-        return Py_BuildValue("O(OOnii)(O)", Py_TYPE(self),
+        return Py_BuildValue("O(OOniiii)(O)", Py_TYPE(self),
                              self->iterator,
                              self->delimiter,
                              self->maxsplit,
                              self->keep_delimiter,
+                             self->keep_before,
+                             self->keep_after,
                              self->cmp,
                              self->next);
     }
@@ -255,7 +278,7 @@ static PyMethodDef split_methods[] = {
  * Docstring
  *****************************************************************************/
 
-PyDoc_STRVAR(split_doc, "split(iterable, key, maxsplit=-1, keep=False, eq=False)\n\
+PyDoc_STRVAR(split_doc, "split(iterable, key, maxsplit=-1, keep=False, keep_before=False, keep_after=False, eq=False)\n\
 --\n\
 \n\
 Splits an `iterable` by a `key` function or delimiter.\n\
@@ -274,7 +297,15 @@ maxsplit : int, optional\n\
     Default is ``-1``.\n\
 \n\
 keep : bool\n\
-    If ``True`` also include the items where ``key(item)=True``.\n\
+    If ``True`` also include the items where ``key(item)=True`` as seperate list.\n\
+    Default is ``False``.\n\
+\n\
+keep_before : bool\n\
+    If ``True`` also include the items where ``key(item)=True`` in the list before splitting.\n\
+    Default is ``False``.\n\
+\n\
+keep_after : bool\n\
+    If ``True`` also include the items where ``key(item)=True`` as first item in the list after splitting.\n\
     Default is ``False``.\n\
 \n\
 eq : bool\n\
@@ -287,6 +318,12 @@ Returns\n\
 -------\n\
 splitted_iterable : generator\n\
     Generator containing the splitted `iterable` (lists).\n\
+\n\
+Raises\n\
+-------\n\
+TypeError\n\
+    If ``maxsplit`` is smaller than ``-2``. If more than one of the ``keep``\n\
+    arguments is ``True``.\n\
 \n\
 Examples\n\
 --------\n\
