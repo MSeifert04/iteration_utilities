@@ -35,10 +35,10 @@ setup(name='iteration_utilities',
       # just a longish string...
       keywords='functional functools generator itertools iteration iterator '
                'operators performance reduce utility',
-      platforms=["Windows Linux"],  # maybe sometime also "Mac OS-X", "Unix"
+      platforms=["Windows Linux Mac OS-X"],
 
       classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
@@ -46,7 +46,11 @@ setup(name='iteration_utilities',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: Microsoft :: Windows',
+        'Operating System :: POSIX :: Linux',
         'Programming Language :: Python :: Implementation :: CPython',
+        'Topic :: Utilities',
       ],
 
       license='Apache License Version 2.0',
