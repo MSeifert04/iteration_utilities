@@ -51,6 +51,30 @@ def test_split_keep2():
 
 
 @memory_leak_decorator()
+def test_split_keep_before1():
+    assert list(split([T(1), T(2), T(3), T(4)], lambda x: x.value == 3,
+                      keep_before=True)) == [[T(1), T(2), T(3)], [T(4)]]
+
+
+@memory_leak_decorator()
+def test_split_keep_before2():
+    assert list(split([T(1), T(2), T(3)], lambda x: x.value == 3,
+                      keep_before=True)) == [[T(1), T(2), T(3)]]
+
+
+@memory_leak_decorator()
+def test_split_keep_after1():
+    assert list(split([T(1), T(2), T(3), T(4)], lambda x: x.value == 3,
+                      keep_after=True)) == [[T(1), T(2)], [T(3), T(4)]]
+
+
+@memory_leak_decorator()
+def test_split_keep_after2():
+    assert list(split([T(1), T(2), T(3)], lambda x: x.value == 3,
+                      keep_after=True)) == [[T(1), T(2)], [T(3)]]
+
+
+@memory_leak_decorator()
 def test_split_maxsplit1():
     assert list(split([T(1), T(2), T(3), T(4), T(5)],
                       lambda x: x.value % 2 == 0,
@@ -89,6 +113,28 @@ def test_split_failure3():
     # cmp fails
     with pytest.raises(TypeError):
         list(split([T(1), T(2), T(3)], T('a'), eq=True))
+
+
+@memory_leak_decorator(collect=True)
+def test_split_failure4():
+    # more than one of the keeps is specified
+    with pytest.raises(TypeError):
+        list(split([T(1), T(2), T(3)], T('a'), keep=True, keep_before=True))
+
+
+@memory_leak_decorator(collect=True)
+def test_split_failure5():
+    # more than one of the keeps is specified
+    with pytest.raises(TypeError):
+        list(split([T(1), T(2), T(3)], T('a'), keep=True, keep_after=True))
+
+
+@memory_leak_decorator(collect=True)
+def test_split_failure6():
+    # more than one of the keeps is specified
+    with pytest.raises(TypeError):
+        list(split([T(1), T(2), T(3)], T('a'),
+                   keep_before=True, keep_after=True))
 
 
 @pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
