@@ -334,6 +334,12 @@ Examples\n\
 >>> list(split(range(1, 10), lambda x: x%3==0, keep=True))\n\
 [[1, 2], [3], [4, 5], [6], [7, 8], [9]]\n\
 \n\
+>>> list(split(range(1, 10), lambda x: x%3==0, keep_before=True))\n\
+[[1, 2, 3], [4, 5, 6], [7, 8, 9]]\n\
+\n\
+>>> list(split(range(1, 10), lambda x: x%3==0, keep_after=True))\n\
+[[1, 2], [3, 4, 5], [6, 7, 8], [9]]\n\
+\n\
 >>> list(split(range(1, 10), lambda x: x%3==0, maxsplit=1))\n\
 [[1, 2], [4, 5, 6, 7, 8, 9]]\n\
 \n\
