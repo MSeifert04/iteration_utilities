@@ -583,8 +583,8 @@ class _Base(object):
             >>> it[-6::2].as_list()
             [4, 6, 8]
 
-        It's also possible to use ``get``, you have to pass in the appropriate
-        value or :py:class:`slice`::
+        It's also possible to use ``getitem`` method directly, but you have to
+        pass in the appropriate value(s) or :py:class:`slice`::
 
             >>> Iterable(range(10)).getitem(3)
             3
