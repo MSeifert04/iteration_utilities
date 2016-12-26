@@ -12,7 +12,7 @@ PyIU_Monotone(PyObject *m,
     PyObject *iterable, *iterator, *item, *last=NULL;
     int decreasing=0, strict=0, op, ok;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|ii:groupby", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|ii:all_monotone", kwlist,
                                      &iterable, &decreasing, &strict)) {
         return NULL;
     }
@@ -61,8 +61,8 @@ Found:
 PyDoc_STRVAR(PyIU_Monotone_doc, "all_monotone(iterable, decreasing=False, strict=False)\n\
 --\n\
 \n\
-Checks if the elements in `iterable` are (strictly) monotone \n\
-increasing/decreasing.\n\
+Checks if the elements in `iterable` are (strictly) monotonic \n\
+increasing or decreasing.\n\
 \n\
 Parameters\n\
 ----------\n\
@@ -80,8 +80,8 @@ strict : bool, optional\n\
 \n\
 Returns\n\
 -------\n\
-monotonoic : :py:class:`bool`\n\
-    ``True`` if all elements in `iterable` are mononic or ``False`` if not.\n\
+monotonic : :py:class:`bool`\n\
+    ``True`` if all elements in `iterable` are monotonic or ``False`` if not.\n\
 \n\
 Notes\n\
 -----\n\
