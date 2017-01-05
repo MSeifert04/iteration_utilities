@@ -255,17 +255,12 @@ seen_containsadd_direct(PyIUObject_Seen *self,
                         PyObject *o)
 {
     int ok;
-    ok = PySet_Contains(self->seenset, o);
-    /* Hashable, found */
-    if (ok == 1) {
-        return 1;
-    /* Hashable, not found */
-    } else if (ok == 0) {
-        if (PySet_Add(self->seenset, o) != 0) {
-            return -1;
-        }
-        return 0;
-    /* Not hashable or some other error */
+    Py_ssize_t oldsize = PySet_GET_SIZE(self->seenset);
+    ok = PySet_Add(self->seenset, o);
+    if (ok == 0) {
+        /* No error: If the size of the set hasn't changed then the item was
+          contained in the set already. */
+        return PySet_GET_SIZE(self->seenset) == oldsize ? 1 : 0;
     } else {
         /* Clear TypeErrors because they are thrown if the object is
            unhashable.
