@@ -6,7 +6,7 @@ API: Additional recipes
 
 # Built-ins
 from __future__ import absolute_import, division, print_function
-from itertools import chain, islice, repeat
+from itertools import chain, islice, repeat, product, combinations
 from operator import itemgetter
 
 # This module
@@ -18,8 +18,8 @@ if PY2:
     from itertools import imap as map
 
 
-__all__ = ['argsorted', 'getitem', 'insert', 'itersubclasses', 'pad', 'remove',
-           'replace', 'replicate']
+__all__ = ['argsorted', 'combinations_from_equivalence_relations', 'getitem',
+           'insert', 'itersubclasses', 'pad', 'remove', 'replace', 'replicate']
 
 
 def argsorted(iterable, key=None, reverse=False):
@@ -73,6 +73,72 @@ def argsorted(iterable, key=None, reverse=False):
         key = chained(itemgetter(1), key)
     return [i[0] for i in sorted(enumerate(iterable),
                                  key=key, reverse=reverse)]
+
+
+def combinations_from_equivalence_relations(dictionary, r, key=None):
+    """Yield combinations where only one item (or None) of each equivalence
+    class is present.
+
+    Parameters
+    ----------
+    dictionary : dict with iterable values
+        A dictionary defining the equivalence classes, each key should contain
+        all equivalent items as it's value.
+
+        .. warning::
+            Each ``value`` in the `dictionary` must be iterable.
+
+        .. note::
+            If the dictionary isn't ordered then the order in the
+            combinations and their order of appearance is not-deterministic.
+
+    r : int or None, optional
+        The number of combinations, if ``None`` it defaults to the length of
+        the `dictionary`.
+
+    Returns
+    -------
+    combinations : generator
+        The combinations from the dictionary.
+
+    Examples
+    --------
+    In general the :py:class:`collections.OrderedDict` should be used to call
+    the function::
+
+        >>> from iteration_utilities import combinations_from_equivalence_relations
+        >>> from collections import OrderedDict
+
+        >>> odct = OrderedDict([('a', [1, 2]), ('b', [3, 4]), ('c', [5, 6])])
+        >>> for comb in combinations_from_equivalence_relations(odct, 2):
+        ...     print(comb)
+        (1, 3)
+        (1, 4)
+        (2, 3)
+        (2, 4)
+        (1, 5)
+        (1, 6)
+        (2, 5)
+        (2, 6)
+        (3, 5)
+        (3, 6)
+        (4, 5)
+        (4, 6)
+
+        >>> for comb in combinations_from_equivalence_relations(odct, 3):
+        ...     print(comb)
+        (1, 3, 5)
+        (1, 3, 6)
+        (1, 4, 5)
+        (1, 4, 6)
+        (2, 3, 5)
+        (2, 3, 6)
+        (2, 4, 5)
+        (2, 4, 6)
+    """
+    for keycomb in combinations(dictionary, r):
+        for valuecomb in product(*itemgetter(*keycomb)(dictionary)):
+            yield valuecomb
 
 
 def itersubclasses(cls, seen=None):
