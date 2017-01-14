@@ -9,176 +9,204 @@ PyIU_Groupby(PyObject *m,
 {
     static char *kwlist[] = {"iterable", "key", "keep", "reduce", "reducestart", NULL};
 
-    PyObject *iterable, *key1, *key2=NULL, *iterator, *item, *val, *lst, *keep;
-    PyObject *reduce=NULL, *reducestart=NULL, *reducetmp=NULL, *resdict;
-    PyObject *funcargs1=NULL, *funcargs2=NULL, *tmp1=NULL, *tmp2=NULL;
-    int ok;
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 5
-    Py_hash_t hash;
-#endif
+    PyObject *iterable;
+    PyObject *keyfunc;
+    PyObject *valuefunc = NULL;
+    PyObject *reducefunc = NULL;
+    PyObject *valuedefault = NULL;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|OOO:groupby", kwlist,
-                                     &iterable, &key1, &key2, &reduce,
-                                     &reducestart)) {
-        return NULL;
+    PyObject *iterator = NULL;
+    PyObject *resdict = NULL;
+    PyObject *funcargs1 = NULL;
+    PyObject *funcargs2 = NULL;
+    PyObject *tmp1 = NULL;
+    PyObject *tmp2 = NULL;
+    PyObject *item = NULL;
+    PyObject *key = NULL;
+    PyObject *value = NULL;
+    PyObject *valuetmp = NULL;
+#if PY_MAJOR_VERSION == 2
+    PyObject *setdefault = PyString_FromString("setdefault");
+#endif
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION < 4
+    PyObject *setdefault = PyUnicode_FromString("setdefault");
+#endif
+    int ok;
+
+    /* Parse and validate input */
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|OOO:groupby2", kwlist,
+                                     &iterable, &keyfunc,
+                                     &valuefunc, &reducefunc, &valuedefault)) {
+        goto Fail;
     }
-    if (reduce == NULL && reducestart != NULL) {
+    if (reducefunc == NULL && valuedefault != NULL) {
         PyErr_Format(PyExc_TypeError,
                      "cannot specify `reducestart` if no `reduce` is given.");
-        return NULL;
+        goto Fail;
     }
 
+    /* Create necessary values */
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
-        return NULL;
+        goto Fail;
     }
     resdict = PyDict_New();
     if (resdict == NULL) {
-        Py_DECREF(iterator);
-        return NULL;
+        goto Fail;
     }
     funcargs1 = PyTuple_New(1);
     if (funcargs1 == NULL) {
-        Py_DECREF(iterator);
-        Py_DECREF(resdict);
+        goto Fail;
     }
-    funcargs2 = PyTuple_New(2);
-    if (funcargs2 == NULL) {
-        Py_DECREF(funcargs1);
-        Py_DECREF(iterator);
-        Py_DECREF(resdict);
+    if (reducefunc != NULL) {
+        funcargs2 = PyTuple_New(2);
+        if (funcargs2 == NULL) {
+            goto Fail;
+        }
+    } else {
+        valuedefault = PyList_New(0);
+        if (valuedefault == NULL) {
+            goto Fail;
+        }
     }
 
     while ( (item = (*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
         /* Calculate the key for the dictionary (val). */
-        PYIU_RECYCLE_ARG_TUPLE(funcargs1, item, tmp1, Py_DECREF(item); goto Fail)
-        val = PyObject_Call(key1, funcargs1, NULL);
-        if (val == NULL) {
-            Py_DECREF(item);
+        PYIU_RECYCLE_ARG_TUPLE(funcargs1, item, tmp1, goto Fail)
+        key = PyObject_Call(keyfunc, funcargs1, NULL);
+        if (key == NULL) {
             goto Fail;
         }
 
         /* Calculate the value for the dictionary (keep).  */
-        if (key2 == NULL || key2 == Py_None) {
-            keep = item;
+        if (valuefunc == NULL || valuefunc == Py_None) {
+            value = item;
+            item = NULL;
         } else {
             /* We use the same item again to calculate the keep so we don't need
                to replace. */
-            //PYIU_RECYCLE_ARG_TUPLE(funcargs1, item, tmp1, Py_DECREF(item); goto Fail)
-            keep = PyObject_Call(key2, funcargs1, NULL);
+            //PYIU_RECYCLE_ARG_TUPLE(funcargs1, item, tmp1, goto Fail)
+            value = PyObject_Call(valuefunc, funcargs1, NULL);
             Py_DECREF(item);
-            if (keep == NULL) {
-                Py_DECREF(val);
+            item = NULL;
+            if (value == NULL) {
                 goto Fail;
             }
         }
 
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 5
-        /* Taken from dictobject.c CPython 3.5 */
-        if (!PyUnicode_CheckExact(val) ||
-                (hash = ((PyASCIIObject *) val)->hash) == -1) {
-            hash = PyObject_Hash(val);
-            if (hash == -1) {
-                Py_DECREF(keep);
-                Py_DECREF(val);
-                goto Fail;
-            }
-        }
+        /* groupby operation */
+        if (reducefunc == NULL) {
+#if PY_MAJOR_VERSION == 2 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION < 4)
+            valuetmp = PyObject_CallMethodObjArgs(resdict, setdefault,
+                                                  key, valuedefault, NULL);
+            Py_XDECREF(valuetmp);
+#else
+            valuetmp = PyDict_SetDefault(resdict, key, valuedefault);
 #endif
+            Py_DECREF(key);
+            key = NULL;
 
-        /* Keep all values as list.  */
-        if (reduce == NULL) {
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 5
-            lst = _PyDict_GetItem_KnownHash(resdict, val, hash);
-#else
-            lst = PyDict_GetItem(resdict, val);
-#endif
-            if (lst == NULL) {
-                lst = PyList_New(1);
-                if (lst == NULL) {
-                    Py_DECREF(keep);
-                    Py_DECREF(val);
-                    goto Fail;
-                }
-                PyList_SET_ITEM(lst, 0, keep);
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 5
-                ok = _PyDict_SetItem_KnownHash(resdict, val, lst, hash);
-#else
-                ok = PyDict_SetItem(resdict, val, lst);
-#endif
-                Py_DECREF(lst);
-                Py_DECREF(val);
-                if (ok == -1) {
+            if (valuetmp == NULL) {
+                goto Fail;
+            } else if (valuetmp == valuedefault) {
+                valuedefault = PyList_New(0);
+                if (valuedefault == NULL) {
                     goto Fail;
                 }
             } else {
-                Py_DECREF(val);
-                ok = PyList_Append(lst, keep);
-                Py_DECREF(keep);
+                Py_INCREF(valuetmp);
+            }
+
+            ok = PyList_Append(valuetmp, value);
+            Py_DECREF(valuetmp);
+            valuetmp = NULL;
+            Py_DECREF(value);
+            value = NULL;
+            if (ok < 0) {
+                goto Fail;
+            }
+
+        /* reduceby operation without default */
+        } else if (valuedefault == NULL) {
+#if PY_MAJOR_VERSION == 2 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION < 4)
+            valuetmp = PyObject_CallMethodObjArgs(resdict, setdefault,
+                                                  key, value, NULL);
+            Py_XDECREF(valuetmp);
+#else
+            valuetmp = PyDict_SetDefault(resdict, key, value);
+#endif
+
+            if (valuetmp == NULL) {
+                goto Fail;
+            } else if (valuetmp == value) {
+                Py_DECREF(value);
+                value = NULL;
+                Py_DECREF(key);
+                key = NULL;
+            } else {
+                /* In case of an error we need to incref valuetmp because it's
+                   only borrowed */
+                PYIU_RECYCLE_ARG_TUPLE_BINOP(funcargs2, valuetmp, value, tmp1, tmp2,
+                                             Py_INCREF(valuetmp); goto Fail)
+                valuetmp = PyObject_Call(reducefunc, funcargs2, NULL);
+                if (valuetmp == NULL) {
+                    goto Fail;
+                }
+                ok = PyDict_SetItem(resdict, key, valuetmp);
                 if (ok < 0) {
                     goto Fail;
                 }
+                Py_DECREF(value);
+                value = NULL;
+                Py_DECREF(valuetmp);
+                valuetmp = NULL;
+                Py_DECREF(key);
+                key = NULL;
             }
 
-        /* Reduce the values with a binary operation. */
+        /* reduceby operation with default */
         } else {
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 5
-            lst = _PyDict_GetItem_KnownHash(resdict, val, hash);
+#if PY_MAJOR_VERSION == 2 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION < 4)
+            valuetmp = PyObject_CallMethodObjArgs(resdict, setdefault,
+                                                  key, valuedefault, NULL);
+            Py_XDECREF(valuetmp);
 #else
-            lst = PyDict_GetItem(resdict, val);
+            valuetmp = PyDict_SetDefault(resdict, key, valuedefault);
 #endif
-            Py_XINCREF(lst);
 
-            /* No item yet and no starting value given: Keep the "keep". */
-            if (lst == NULL && reducestart == NULL) {
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 5
-                ok = _PyDict_SetItem_KnownHash(resdict, val, keep, hash);
-#else
-                ok = PyDict_SetItem(resdict, val, keep);
-#endif
-                Py_DECREF(val);
-                Py_DECREF(keep);
-                if (ok == -1) {
-                    goto Fail;
-                }
-
-            /* Already an item present so use the binary operation. */
+            if (valuetmp == NULL) {
+                goto Fail;
             } else {
-                if (lst == NULL) {
-                    PYIU_RECYCLE_ARG_TUPLE_BINOP(funcargs2, reducestart, keep, tmp1, tmp2, Py_DECREF(keep);
-                                                                                           goto Fail)
-                    reducetmp = PyObject_Call(reduce, funcargs2, NULL);
-                } else {
-                    PYIU_RECYCLE_ARG_TUPLE_BINOP(funcargs2, lst, keep, tmp1, tmp2, Py_DECREF(keep);
-                                                                                   Py_DECREF(lst);
-                                                                                   goto Fail)
-                    reducetmp = PyObject_Call(reduce, funcargs2, NULL);
-                    Py_DECREF(lst);
-                }
-                Py_DECREF(keep);
-                if (reducetmp == NULL) {
-                    Py_DECREF(val);
+                /* In case of an error we need to incref valuetmp because it's
+                   only borrowed */
+                PYIU_RECYCLE_ARG_TUPLE_BINOP(funcargs2, valuetmp, value, tmp1, tmp2,
+                                             Py_INCREF(valuetmp); goto Fail)
+                valuetmp = PyObject_Call(reducefunc, funcargs2, NULL);
+                if (valuetmp == NULL) {
                     goto Fail;
                 }
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 5
-                ok = _PyDict_SetItem_KnownHash(resdict, val, reducetmp, hash);
-#else
-                ok = PyDict_SetItem(resdict, val, reducetmp);
-#endif
-                Py_DECREF(val);
-                Py_DECREF(reducetmp);
-                if (ok == -1) {
+                ok = PyDict_SetItem(resdict, key, valuetmp);
+                if (ok < 0) {
                     goto Fail;
                 }
+                Py_DECREF(value);
+                value = NULL;
+                Py_DECREF(valuetmp);
+                valuetmp = NULL;
+                Py_DECREF(key);
+                key = NULL;
             }
         }
     }
 
+    if (reducefunc == NULL) {
+        Py_DECREF(valuedefault);
+    }
+    Py_DECREF(iterator);
     Py_DECREF(funcargs1);
-    Py_DECREF(funcargs2);
+    Py_XDECREF(funcargs2);
 
     PYIU_CLEAR_STOPITERATION;
-    Py_DECREF(iterator);
 
     if (PyErr_Occurred()) {
         Py_DECREF(resdict);
@@ -188,10 +216,19 @@ PyIU_Groupby(PyObject *m,
     return resdict;
 
 Fail:
-    Py_XDECREF(funcargs1);
-    Py_XDECREF(funcargs2);
+    if (reducefunc == NULL) {
+        Py_XDECREF(valuedefault);
+    }
     Py_XDECREF(iterator);
     Py_XDECREF(resdict);
+    Py_XDECREF(funcargs1);
+    Py_XDECREF(funcargs2);
+    Py_XDECREF(tmp1);
+    Py_XDECREF(tmp2);
+    Py_XDECREF(item);
+    Py_XDECREF(key);
+    Py_XDECREF(value);
+    Py_XDECREF(valuetmp);
     return NULL;
 }
 
