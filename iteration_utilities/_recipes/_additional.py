@@ -6,6 +6,7 @@ API: Additional recipes
 
 # Built-ins
 from __future__ import absolute_import, division, print_function
+from collections import OrderedDict
 from itertools import chain, islice, repeat, product, combinations
 from operator import itemgetter
 
@@ -81,7 +82,7 @@ def combinations_from_equivalence_relations(dictionary, r, key=None):
 
     Parameters
     ----------
-    dictionary : dict with iterable values
+    dictionary : dict with iterable values or convertible to one.
         A dictionary defining the equivalence classes, each key should contain
         all equivalent items as it's value.
 
@@ -91,6 +92,10 @@ def combinations_from_equivalence_relations(dictionary, r, key=None):
         .. note::
             If the dictionary isn't ordered then the order in the
             combinations and their order of appearance is not-deterministic.
+
+        .. note::
+            If the `dictionary` isn't dict-like it will be converted to an
+            OrderedDict.
 
     r : int or None, optional
         The number of combinations, if ``None`` it defaults to the length of
@@ -104,13 +109,13 @@ def combinations_from_equivalence_relations(dictionary, r, key=None):
     Examples
     --------
     In general the :py:class:`collections.OrderedDict` should be used to call
-    the function::
+    the function. But it will also be automatically converted to one if
+    one inserts an iterable that is convertible to a dict::
 
         >>> from iteration_utilities import combinations_from_equivalence_relations
-        >>> from collections import OrderedDict
 
-        >>> odct = OrderedDict([('a', [1, 2]), ('b', [3, 4]), ('c', [5, 6])])
-        >>> for comb in combinations_from_equivalence_relations(odct, 2):
+        >>> classes = [('a', [1, 2]), ('b', [3, 4]), ('c', [5, 6])]
+        >>> for comb in combinations_from_equivalence_relations(classes, 2):
         ...     print(comb)
         (1, 3)
         (1, 4)
@@ -125,6 +130,11 @@ def combinations_from_equivalence_relations(dictionary, r, key=None):
         (4, 5)
         (4, 6)
 
+    This is equivalent to creating the :py:class:`collections.OrderedDict`
+    manually::
+
+        >>> from collections import OrderedDict
+        >>> odct = OrderedDict(classes)
         >>> for comb in combinations_from_equivalence_relations(odct, 3):
         ...     print(comb)
         (1, 3, 5)
@@ -136,6 +146,9 @@ def combinations_from_equivalence_relations(dictionary, r, key=None):
         (2, 4, 5)
         (2, 4, 6)
     """
+    if not isinstance(dictionary, dict):
+        dictionary = OrderedDict(dictionary)
+
     for keycomb in combinations(dictionary, r):
         for valuecomb in product(*itemgetter(*keycomb)(dictionary)):
             yield valuecomb
