@@ -60,6 +60,13 @@ def test_empty_input():
 
     assert not iteration_utilities.any_isinstance(empty, float)
 
+    assert list(iteration_utilities
+                .combinations_from_equivalence_relations({}, 1)) == []
+
+    assert list(iteration_utilities
+                .combinations_from_equivalence_relations({'a': [1, 2, 3]},
+                                                         2)) == []
+
     assert iteration_utilities.consume(empty, 2) is None
 
     assert list(iteration_utilities.flatten(empty)) == []
