@@ -271,9 +271,9 @@ key : callable, None\n\
 \n\
 Notes\n\
 -----\n\
-The items in the `iterable` must implement equality. If the items are hashable\n\
-the function is much faster because the internally a ``set`` is used which\n\
-speeds up the lookup if a value was seen.\n\
+The items in the `iterable` should implement equality.\n\
+\n\
+If the items are hashable the function is much faster.\n\
 \n\
 Examples\n\
 --------\n\

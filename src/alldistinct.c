@@ -72,6 +72,12 @@ distinct : bool\n\
     ``True`` if no two values are equal and ``False`` if there is at least\n\
     one duplicate in `iterable`.\n\
 \n\
+Notes\n\
+-----\n\
+The items in the `iterable` should implement equality.\n\
+\n\
+If the items are hashable the function is much faster.\n\
+\n\
 Examples\n\
 --------\n\
 >>> from iteration_utilities import all_distinct\n\

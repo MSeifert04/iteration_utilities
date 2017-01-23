@@ -272,9 +272,9 @@ key : callable, None\n\
 \n\
 Notes\n\
 -----\n\
-The items in the `iterable` must implement equality. If the items are hashable\n\
-the function is much faster because the internally a ``set`` is used which\n\
-speeds up the lookup.\n\
+The items in the `iterable` should implement equality.\n\
+\n\
+If the items are hashable the function is much faster.\n\
 \n\
 Examples\n\
 --------\n\
@@ -290,6 +290,11 @@ Some simple examples::\n\
 Even unhashable values can be processed, like `list`::\n\
 \n\
     >>> list(unique_everseen([[1, 2], [1, 1], [1, 2]]))\n\
+    [[1, 2], [1, 1]]\n\
+    \n\
+However using ``key=tuple`` (to make them hashable) is faster::\n\
+\n\
+    >>> list(unique_everseen([[1, 2], [1, 1], [1, 2]], key=tuple))\n\
     [[1, 2], [1, 1]]\n\
     \n\
 One can access the already seen values by accessing the `seen` attribute.");
