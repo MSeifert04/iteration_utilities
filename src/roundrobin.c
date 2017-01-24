@@ -180,10 +180,31 @@ roundrobin_setstate(PyIUObject_Roundrobin *self,
 }
 
 /******************************************************************************
+ * LengthHint
+ *****************************************************************************/
+
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 4
+static PyObject *
+roundrobin_lengthhint(PyIUObject_Roundrobin *self)
+{
+    Py_ssize_t i, len = 0;
+
+    for (i=0 ; i<self->numactive ; i++) {
+        len = len + PyObject_LengthHint(PyTuple_GET_ITEM(self->iteratortuple, i), 0);
+    }
+
+    return PyLong_FromSsize_t(len);
+}
+#endif
+
+/******************************************************************************
  * Methods
  *****************************************************************************/
 
 static PyMethodDef roundrobin_methods[] = {
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 4
+    {"__length_hint__", (PyCFunction)roundrobin_lengthhint, METH_NOARGS, PYIU_lenhint_doc},
+#endif
     {"__reduce__", (PyCFunction)roundrobin_reduce, METH_NOARGS, PYIU_reduce_doc},
     {"__setstate__", (PyCFunction)roundrobin_setstate, METH_O, PYIU_setstate_doc},
     {NULL, NULL}
