@@ -167,10 +167,33 @@ intersperse_setstate(PyIUObject_Intersperse *self,
 }
 
 /******************************************************************************
+ * LengthHint
+ *****************************************************************************/
+
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 4
+static PyObject *
+intersperse_lengthhint(PyIUObject_Intersperse *self)
+{
+    Py_ssize_t len = PyObject_LengthHint(self->iterator, 0);
+    if (self->started == 0) {
+        return PyLong_FromSsize_t(len * 2 - 1);
+    } else if (self->nextitem == NULL) {
+        return PyLong_FromSsize_t(len * 2);
+    } else {
+        /* The iterator is always one step advanced! */
+        return PyLong_FromSsize_t(len * 2 + 1);
+    }
+}
+#endif
+
+/******************************************************************************
  * Methods
  *****************************************************************************/
 
 static PyMethodDef intersperse_methods[] = {
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 4
+    {"__length_hint__", (PyCFunction)intersperse_lengthhint, METH_NOARGS, PYIU_lenhint_doc},
+#endif
     {"__reduce__", (PyCFunction)intersperse_reduce, METH_NOARGS, PYIU_reduce_doc},
     {"__setstate__", (PyCFunction)intersperse_setstate, METH_O, PYIU_setstate_doc},
     {NULL,              NULL}

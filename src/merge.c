@@ -323,10 +323,40 @@ merge_setstate(PyIUObject_Merge *self,
 }
 
 /******************************************************************************
+ * LengthHint
+ *****************************************************************************/
+
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 4
+static PyObject *
+merge_lengthhint(PyIUObject_Merge *self)
+{
+    Py_ssize_t i, len = 0;
+    if (self->current == NULL || self->current == Py_None) {
+        for (i=0 ; i<PyTuple_Size(self->iteratortuple) ; i++) {
+            len = len + PyObject_LengthHint(PyTuple_GET_ITEM(self->iteratortuple, i), 0);
+        }
+    } else {
+        len = len + self->numactive;
+        for (i=0 ; i<self->numactive ; i++) {
+            len = len + PyObject_LengthHint(
+                  PyTuple_GET_ITEM(self->iteratortuple,
+                                   ((PyIUObject_ItemIdxKey *)PyTuple_GET_ITEM(self->current, i))->idx),
+                  0);
+        }
+    }
+
+    return PyLong_FromSsize_t(len);
+}
+#endif
+
+/******************************************************************************
  * Methods
  *****************************************************************************/
 
 static PyMethodDef merge_methods[] = {
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 4
+    {"__length_hint__", (PyCFunction)merge_lengthhint, METH_NOARGS, PYIU_lenhint_doc},
+#endif
     {"__reduce__", (PyCFunction)merge_reduce, METH_NOARGS, PYIU_reduce_doc},
     {"__setstate__", (PyCFunction)merge_setstate, METH_O, PYIU_setstate_doc},
     {NULL, NULL}

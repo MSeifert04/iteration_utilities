@@ -238,6 +238,10 @@ sideeffects_setstate(PyIUObject_Sideeffects *self,
     Py_RETURN_NONE;
 }
 
+/******************************************************************************
+ * LengthHint
+ *****************************************************************************/
+
 #if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 4
 static PyObject *
 sideeffects_lengthhint(PyIUObject_Sideeffects *self)
