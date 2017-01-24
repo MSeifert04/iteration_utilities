@@ -183,7 +183,8 @@ def test_merge_failure9():
         list(merge([T('a'), T('b')], [T(2), T(3)]))
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='cmp works on Python 2')
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='cmp works on Python 2')
 @memory_leak_decorator(collect=True)
 def test_merge_failure10():
     # comparison fails
@@ -191,7 +192,8 @@ def test_merge_failure10():
         list(merge([T(1), T('b')], [T(2), T(3)]))
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_merge_pickle1():
     mge = merge([T(0)], [T(1), T(2)], [T(2)])
@@ -200,7 +202,8 @@ def test_merge_pickle1():
     assert list(pickle.loads(x)) == toT([1, 2, 2])
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_merge_pickle2():
     mge = merge([T(1), T(2)], [T(0)], [T(-2)], key=abs)
@@ -209,10 +212,29 @@ def test_merge_pickle2():
     assert list(pickle.loads(x)) == toT([1, 2, -2])
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_merge_pickle3():
     mge = merge([T(2), T(1)], [T(0)], [T(3)], reverse=True)
     assert next(mge) == T(3)
     x = pickle.dumps(mge)
     assert list(pickle.loads(x)) == toT([2, 1, 0])
+
+
+@pytest.mark.xfail(not iteration_utilities.PY34,
+                   reason='length does not work before Python 3.4')
+@memory_leak_decorator()
+def test_merge_lengthhint1():
+    it = merge([0], [1, 2, 3], [1])
+    assert operator.length_hint(it) == 5
+    next(it)
+    assert operator.length_hint(it) == 4
+    next(it)
+    assert operator.length_hint(it) == 3
+    next(it)
+    assert operator.length_hint(it) == 2
+    next(it)
+    assert operator.length_hint(it) == 1
+    next(it)
+    assert operator.length_hint(it) == 0

@@ -246,10 +246,32 @@ grouper_setstate(PyIUObject_Grouper *self,
 }
 
 /******************************************************************************
+ * LengthHint
+ *****************************************************************************/
+
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 4
+static PyObject *
+grouper_lengthhint(PyIUObject_Grouper *self)
+{
+    Py_ssize_t len = PyObject_LengthHint(self->iterator, 0);
+    Py_ssize_t groups = len / self->times;
+    Py_ssize_t rem = len % self->times;
+    if (self->truncate || rem == 0) {
+        return PyLong_FromSsize_t(groups);
+    } else {
+        return PyLong_FromSsize_t(groups + 1);
+    }
+}
+#endif
+
+/******************************************************************************
  * Methods
  *****************************************************************************/
 
 static PyMethodDef grouper_methods[] = {
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 4
+    {"__length_hint__", (PyCFunction)grouper_lengthhint, METH_NOARGS, PYIU_lenhint_doc},
+#endif
     {"__reduce__", (PyCFunction)grouper_reduce, METH_NOARGS, PYIU_reduce_doc},
     {"__setstate__", (PyCFunction)grouper_setstate, METH_O, PYIU_setstate_doc},
     {NULL, NULL}

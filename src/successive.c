@@ -197,10 +197,36 @@ successive_setstate(PyIUObject_Successive *self,
 }
 
 /******************************************************************************
+ * LengthHint
+ *****************************************************************************/
+
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 4
+static PyObject *
+successive_lengthhint(PyIUObject_Successive *self)
+{
+    Py_ssize_t len = 0;
+    if (self->result == NULL) {
+        len = (PyObject_LengthHint(self->iterator, 0) - self->times) + 1;
+    } else {
+        len = PyObject_LengthHint(self->iterator, 0);
+    }
+
+    if (len < 0) {
+        len = 0;
+    }
+
+    return PyLong_FromSsize_t(len);
+}
+#endif
+
+/******************************************************************************
  * Methods
  *****************************************************************************/
 
 static PyMethodDef successive_methods[] = {
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 4
+    {"__length_hint__", (PyCFunction)successive_lengthhint, METH_NOARGS, PYIU_lenhint_doc},
+#endif
     {"__reduce__", (PyCFunction)successive_reduce, METH_NOARGS, PYIU_reduce_doc},
     {"__setstate__", (PyCFunction)successive_setstate, METH_O, PYIU_setstate_doc},
     {NULL, NULL}

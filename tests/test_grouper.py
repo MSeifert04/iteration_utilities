@@ -1,5 +1,6 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
+import operator
 import pickle
 
 # 3rd party
@@ -153,7 +154,8 @@ def test_grouper_failure3():
         grouper(T(1), 2)
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_grouper_pickle1():
     grp = grouper(toT(range(10)), 3)
@@ -163,7 +165,8 @@ def test_grouper_pickle1():
                                      (T(9), )]
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_grouper_pickle2():
     grp = grouper(toT(range(10)), 3, fillvalue=T(0))
@@ -173,10 +176,28 @@ def test_grouper_pickle2():
                                      (T(9), T(0), T(0))]
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_grouper_pickle3():
     grp = grouper(toT(range(10)), 3, truncate=True)
     assert next(grp) == (T(0), T(1), T(2))
     x = pickle.dumps(grp)
     assert list(pickle.loads(x)) == [(T(3), T(4), T(5)), (T(6), T(7), T(8))]
+
+
+@pytest.mark.xfail(not iteration_utilities.PY34,
+                   reason='length does not work before Python 3.4')
+@memory_leak_decorator()
+def test_grouper_lengthhint1():
+    assert operator.length_hint(grouper([1, 2, 3, 4, 5],
+                                        2, truncate=True)) == 2
+    assert operator.length_hint(grouper([1, 2, 3, 4, 5, 6],
+                                        2, truncate=True)) == 3
+    assert operator.length_hint(grouper([1, 2, 3, 4, 5], 2)) == 3
+    assert operator.length_hint(grouper([1, 2, 3, 4, 5, 6],
+                                        2)) == 3
+    assert operator.length_hint(grouper([1, 2, 3, 4, 5],
+                                        2, fillvalue=None)) == 3
+    assert operator.length_hint(grouper([1, 2, 3, 4, 5, 6],
+                                        2, fillvalue=None)) == 3
