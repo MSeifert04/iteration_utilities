@@ -121,7 +121,7 @@ def test_sideeffects_failure6():
         list(sideeffects([T(3), T(12), T(11)], raise_error_when_below10, 2))
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_sideeffects_pickle1():
@@ -131,7 +131,7 @@ def test_sideeffects_pickle1():
     assert list(pickle.loads(x)) == [T(2), T(3), T(4)]
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_sideeffects_pickle2():
@@ -140,7 +140,7 @@ def test_sideeffects_pickle2():
     assert list(pickle.loads(x)) == [T(1), T(2), T(3), T(4)]
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_sideeffects_pickle3():
@@ -149,7 +149,7 @@ def test_sideeffects_pickle3():
     assert list(pickle.loads(x)) == [T(1), T(2), T(3), T(4)]
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_sideeffects_pickle4():
@@ -159,7 +159,7 @@ def test_sideeffects_pickle4():
     assert list(pickle.loads(x)) == [T(2), T(3), T(4)]
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_sideeffects_pickle5():
@@ -169,7 +169,7 @@ def test_sideeffects_pickle5():
     assert list(pickle.loads(x)) == [T(2), T(3), T(4)]
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_sideeffects_pickle6():
@@ -180,7 +180,7 @@ def test_sideeffects_pickle6():
     assert list(pickle.loads(x)) == [T(3), T(4)]
 
 
-@pytest.mark.xfail(not iteration_utilities.PY34,
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
                    reason='length does not work before Python 3.4')
 @memory_leak_decorator()
 def test_sideeffects_lengthhint1():

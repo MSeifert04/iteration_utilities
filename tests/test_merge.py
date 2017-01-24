@@ -175,7 +175,7 @@ def test_merge_failure8():
                    key=operator.itemgetter(0)))
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='cmp works on Python 2')
+@pytest.mark.xfail(iteration_utilities.EQ_PY2, reason='cmp works on Python 2')
 @memory_leak_decorator(collect=True)
 def test_merge_failure9():
     # comparison fails
@@ -183,8 +183,7 @@ def test_merge_failure9():
         list(merge([T('a'), T('b')], [T(2), T(3)]))
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
-                   reason='cmp works on Python 2')
+@pytest.mark.xfail(iteration_utilities.EQ_PY2, reason='cmp works on Python 2')
 @memory_leak_decorator(collect=True)
 def test_merge_failure10():
     # comparison fails
@@ -192,7 +191,7 @@ def test_merge_failure10():
         list(merge([T(1), T('b')], [T(2), T(3)]))
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_merge_pickle1():
@@ -202,7 +201,7 @@ def test_merge_pickle1():
     assert list(pickle.loads(x)) == toT([1, 2, 2])
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_merge_pickle2():
@@ -212,7 +211,7 @@ def test_merge_pickle2():
     assert list(pickle.loads(x)) == toT([1, 2, -2])
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_merge_pickle3():
@@ -222,7 +221,7 @@ def test_merge_pickle3():
     assert list(pickle.loads(x)) == toT([2, 1, 0])
 
 
-@pytest.mark.xfail(not iteration_utilities.PY34,
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
                    reason='length does not work before Python 3.4')
 @memory_leak_decorator()
 def test_merge_lengthhint1():

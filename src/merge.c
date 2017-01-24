@@ -326,7 +326,7 @@ merge_setstate(PyIUObject_Merge *self,
  * LengthHint
  *****************************************************************************/
 
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 4
+#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
 static PyObject *
 merge_lengthhint(PyIUObject_Merge *self)
 {
@@ -354,7 +354,7 @@ merge_lengthhint(PyIUObject_Merge *self)
  *****************************************************************************/
 
 static PyMethodDef merge_methods[] = {
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 4
+#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
     {"__length_hint__", (PyCFunction)merge_lengthhint, METH_NOARGS, PYIU_lenhint_doc},
 #endif
     {"__reduce__", (PyCFunction)merge_reduce, METH_NOARGS, PYIU_reduce_doc},

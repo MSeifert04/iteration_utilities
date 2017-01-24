@@ -249,7 +249,7 @@ grouper_setstate(PyIUObject_Grouper *self,
  * LengthHint
  *****************************************************************************/
 
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 4
+#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
 static PyObject *
 grouper_lengthhint(PyIUObject_Grouper *self)
 {
@@ -269,7 +269,7 @@ grouper_lengthhint(PyIUObject_Grouper *self)
  *****************************************************************************/
 
 static PyMethodDef grouper_methods[] = {
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 4
+#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
     {"__length_hint__", (PyCFunction)grouper_lengthhint, METH_NOARGS, PYIU_lenhint_doc},
 #endif
     {"__reduce__", (PyCFunction)grouper_reduce, METH_NOARGS, PYIU_reduce_doc},

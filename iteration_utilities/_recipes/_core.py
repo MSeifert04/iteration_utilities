@@ -12,10 +12,10 @@ from itertools import islice, chain, repeat, starmap, tee, combinations
 from random import choice, sample, randrange
 
 # This module
-from .. import PY2
+from .. import EQ_PY2
 
 # Replace list-generating functions by generator functions
-if PY2:
+if EQ_PY2:
     from itertools import (ifilter as filter,
                            ifilterfalse as filterfalse)
     range = xrange
@@ -420,10 +420,10 @@ def tee_lookahead(tee, i):
 def _replace_docs(func, *args, **kwargs):
     func.__doc__ = func.__doc__.format(*args, **kwargs)
 
-if PY2:
+if EQ_PY2:
     _replace_repeatfunc = ('[0.6229016948897019, 0.7417869892607294, '
-                          '0.7951935655656966, 0.9424502837770503, '
-                          '0.7398985747399307]')
+                           '0.7951935655656966, 0.9424502837770503, '
+                           '0.7398985747399307]')
     _replace_docs(repeatfunc, _replace_repeatfunc)
     _replace_docs(random_combination, '(1, 3, 5, 5)')
     _replace_docs(random_permutation, '(6, 4, 5, 3, 1, 2)', '(4, 6, 5)')
@@ -433,8 +433,8 @@ if PY2:
 
 else:
     _replace_repeatfunc = ('[0.6229016948897019, 0.7417869892607294, '
-                          '0.7951935655656966, 0.9424502837770503, '
-                          '0.7398985747399307]')
+                           '0.7951935655656966, 0.9424502837770503, '
+                           '0.7398985747399307]')
     _replace_docs(repeatfunc, _replace_repeatfunc)
     _replace_docs(random_combination, '(2, 2, 4, 4)')
     _replace_docs(random_permutation, '(6, 2, 3, 4, 1, 5)', '(5, 3, 6)')

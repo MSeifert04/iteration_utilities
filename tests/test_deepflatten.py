@@ -12,7 +12,7 @@ import iteration_utilities
 from helper_leak import memory_leak_decorator
 from helper_cls import T, toT
 
-string_types = basestring if iteration_utilities.PY2 else str
+string_types = basestring if iteration_utilities.EQ_PY2 else str
 
 
 deepflatten = iteration_utilities.deepflatten
@@ -99,7 +99,8 @@ def test_deepflatten_failure1():
         list(deepflatten([T(1), T(2), T(3)], None, T('a')))
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_deepflatten_pickle1():
     dpflt = deepflatten([[T(1)], [T(2)], [T(3)], [T(4)]])

@@ -242,7 +242,7 @@ sideeffects_setstate(PyIUObject_Sideeffects *self,
  * LengthHint
  *****************************************************************************/
 
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 4
+#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
 static PyObject *
 sideeffects_lengthhint(PyIUObject_Sideeffects *self)
 {
@@ -255,7 +255,7 @@ sideeffects_lengthhint(PyIUObject_Sideeffects *self)
  *****************************************************************************/
 
 static PyMethodDef sideeffects_methods[] = {
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 4
+#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
     {"__length_hint__", (PyCFunction)sideeffects_lengthhint, METH_NOARGS, PYIU_lenhint_doc},
 #endif
     {"__reduce__", (PyCFunction)sideeffects_reduce, METH_NOARGS, PYIU_reduce_doc},

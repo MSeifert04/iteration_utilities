@@ -85,7 +85,8 @@ def test_uniqueeverseen_failure2():
         list(unique_everseen([T(1), T(2), T(3), T('a')], abs))
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_uniqueeverseen_pickle1():
     uqe = unique_everseen([T(1), T(2), T(1), T(2)])

@@ -200,7 +200,7 @@ successive_setstate(PyIUObject_Successive *self,
  * LengthHint
  *****************************************************************************/
 
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 4
+#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
 static PyObject *
 successive_lengthhint(PyIUObject_Successive *self)
 {
@@ -224,7 +224,7 @@ successive_lengthhint(PyIUObject_Successive *self)
  *****************************************************************************/
 
 static PyMethodDef successive_methods[] = {
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 4
+#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
     {"__length_hint__", (PyCFunction)successive_lengthhint, METH_NOARGS, PYIU_lenhint_doc},
 #endif
     {"__reduce__", (PyCFunction)successive_reduce, METH_NOARGS, PYIU_reduce_doc},

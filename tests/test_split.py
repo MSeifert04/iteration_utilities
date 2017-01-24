@@ -137,7 +137,8 @@ def test_split_failure6():
                    keep_before=True, keep_after=True))
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_split_pickle1():
     l = [T(1), T(2), T(3), T(4), T(5), T(3), T(7), T(8)]
@@ -146,7 +147,8 @@ def test_split_pickle1():
     assert list(pickle.loads(x)) == [[T(1), T(2)], [T(4), T(5)], [T(7), T(8)]]
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_split_pickle2():
     l = [T(1), T(2), T(3), T(4), T(5), T(3), T(7), T(8)]
@@ -156,7 +158,8 @@ def test_split_pickle2():
     assert list(pickle.loads(x)) == [toT([4, 5]), toT([7, 8])]
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_split_pickle3():
     l = [T(1), T(2), T(3), T(4), T(5), T(3), T(7), T(8)]
@@ -167,7 +170,8 @@ def test_split_pickle3():
                                      for i in [[3], [4, 5], [3], [7, 8]]]
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_split_pickle4():
     l = [T(1), T(2), T(3), T(4), T(5), T(3), T(7), T(8)]
@@ -177,7 +181,8 @@ def test_split_pickle4():
     assert list(pickle.loads(x)) == [toT([4, 5, 3, 7, 8])]
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_split_pickle5():
     l = [T(1), T(2), T(3), T(4), T(5), T(3), T(7), T(8)]

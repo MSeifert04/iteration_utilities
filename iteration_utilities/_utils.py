@@ -4,11 +4,14 @@
 from __future__ import absolute_import, division, print_function
 import sys
 
-__all__ = ['PY2', 'PY3', 'PY34', '_default']
+__all__ = ['EQ_PY2', 'GE_PY3', 'GE_PY34', 'GE_PY35', '_default']
 
-PY2 = sys.version_info.major == 2
-PY3 = sys.version_info.major == 3
-PY34 = PY3 and sys.version_info.minor >= 4
+EQ_PY2 = sys.version_info.major == 2
+GE_PY3 = sys.version_info.major >= 3
+GE_PY34 = GE_PY3 or (sys.version_info.major == 3 and
+                     sys.version_info.minor >= 4)
+GE_PY35 = GE_PY3 or (sys.version_info.major == 3 and
+                     sys.version_info.minor >= 5)
 
 
 class _SentinelFactory(object):

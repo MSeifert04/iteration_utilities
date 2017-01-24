@@ -170,7 +170,7 @@ intersperse_setstate(PyIUObject_Intersperse *self,
  * LengthHint
  *****************************************************************************/
 
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 4
+#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
 static PyObject *
 intersperse_lengthhint(PyIUObject_Intersperse *self)
 {
@@ -194,7 +194,7 @@ intersperse_lengthhint(PyIUObject_Intersperse *self)
  *****************************************************************************/
 
 static PyMethodDef intersperse_methods[] = {
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 4
+#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
     {"__length_hint__", (PyCFunction)intersperse_lengthhint, METH_NOARGS, PYIU_lenhint_doc},
 #endif
     {"__reduce__", (PyCFunction)intersperse_reduce, METH_NOARGS, PYIU_reduce_doc},

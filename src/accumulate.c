@@ -168,7 +168,7 @@ accumulate_reduce(PyIUObject_Accumulate *self)
  * LengthHint
  *****************************************************************************/
 
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 4
+#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
 static PyObject *
 accumulate_lengthhint(PyIUObject_Accumulate *self)
 {
@@ -181,7 +181,7 @@ accumulate_lengthhint(PyIUObject_Accumulate *self)
  *****************************************************************************/
 
 static PyMethodDef accumulate_methods[] = {
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 4
+#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
     {"__length_hint__", (PyCFunction)accumulate_lengthhint, METH_NOARGS, PYIU_lenhint_doc},
 #endif
     {"__reduce__", (PyCFunction)accumulate_reduce, METH_NOARGS, PYIU_reduce_doc},

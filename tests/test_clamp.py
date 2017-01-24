@@ -52,21 +52,24 @@ def test_applyfunc_normal5():
     assert list(clamp(toT(range(10)))) == toT([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='cmp works on Python 2')
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
+                   reason='cmp works on Python 2')
 @memory_leak_decorator(collect=True)
 def test_applyfunc_failure1():
     with pytest.raises(TypeError):
         list(clamp(toT(range(10)), T('a'), T(3)))
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='cmp works on Python 2')
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
+                   reason='cmp works on Python 2')
 @memory_leak_decorator(collect=True)
 def test_applyfunc_failure2():
     with pytest.raises(TypeError):
         list(clamp(map(T, range(10)), T(3), T('a')))
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_applyfunc_pickle1():
     clmp = clamp(toT(range(10)), T(2), T(7))
@@ -75,7 +78,8 @@ def test_applyfunc_pickle1():
     assert list(pickle.loads(x)) == toT([3, 4, 5, 6, 7])
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_applyfunc_pickle2():
     # inclusive
@@ -85,7 +89,8 @@ def test_applyfunc_pickle2():
     assert list(pickle.loads(x)) == toT([4, 5, 6])
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_applyfunc_pickle3():
     # only low
@@ -95,7 +100,8 @@ def test_applyfunc_pickle3():
     assert list(pickle.loads(x)) == toT([3, 4, 5, 6, 7, 8, 9])
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_applyfunc_pickle4():
     # only high
@@ -105,7 +111,8 @@ def test_applyfunc_pickle4():
     assert list(pickle.loads(x)) == toT([1, 2, 3, 4, 5, 6, 7])
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_applyfunc_pickle5():
     # only high, with inclusive
@@ -115,7 +122,8 @@ def test_applyfunc_pickle5():
     assert list(pickle.loads(x)) == toT([1, 2, 3, 4, 5, 6])
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_applyfunc_pickle6():
     # only low, with inclusive
@@ -125,7 +133,8 @@ def test_applyfunc_pickle6():
     assert list(pickle.loads(x)) == toT([4, 5, 6, 7, 8, 9])
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_applyfunc_pickle7():
     # no low no high

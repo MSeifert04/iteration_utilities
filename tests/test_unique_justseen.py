@@ -67,7 +67,8 @@ def test_unique_justseen_failure3():
         list(unique_justseen([T2(1), T2(2)]))
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_unique_justseen_pickle1():
     ujs = unique_justseen([T(1), T(2), T(3)])
@@ -75,7 +76,8 @@ def test_unique_justseen_pickle1():
     assert list(pickle.loads(x)) == toT([1, 2, 3])
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_unique_justseen_pickle2():
     ujs = unique_justseen([T(1), T(2), T(3)])
@@ -84,7 +86,8 @@ def test_unique_justseen_pickle2():
     assert list(pickle.loads(x)) == toT([2, 3])
 
 
-@pytest.mark.xfail(not iteration_utilities.PY34, reason='see method comments')
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
+                   reason='see method comments')
 @memory_leak_decorator(offset=1)
 def test_unique_justseen_pickle3():
     # Pickling a method descriptor is not possible for Python 3.3 and before
@@ -95,7 +98,8 @@ def test_unique_justseen_pickle3():
     assert list(pickle.loads(x)) == ['a']
 
 
-@pytest.mark.xfail(not iteration_utilities.PY34, reason='see method comments')
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
+                   reason='see method comments')
 @memory_leak_decorator(offset=1)
 def test_unique_justseen_pickle4():
     # Pickling a method descriptor is not possible for Python 3.3 and before

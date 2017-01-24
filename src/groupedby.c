@@ -13,7 +13,7 @@ PyIU_Groupby(PyObject *m,
     PyObject *reduce=NULL, *reducestart=NULL, *reducetmp=NULL, *resdict;
     PyObject *funcargs1=NULL, *funcargs2=NULL, *tmp1=NULL, *tmp2=NULL;
     int ok;
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 5
+#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 5)
     Py_hash_t hash;
 #endif
 
@@ -73,7 +73,7 @@ PyIU_Groupby(PyObject *m,
             }
         }
 
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 5
+#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 5)
         /* Taken from dictobject.c CPython 3.5 */
         if (!PyUnicode_CheckExact(val) ||
                 (hash = ((PyASCIIObject *) val)->hash) == -1) {
@@ -88,7 +88,7 @@ PyIU_Groupby(PyObject *m,
 
         /* Keep all values as list.  */
         if (reduce == NULL) {
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 5
+#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 5)
             lst = _PyDict_GetItem_KnownHash(resdict, val, hash);
 #else
             lst = PyDict_GetItem(resdict, val);
@@ -101,7 +101,7 @@ PyIU_Groupby(PyObject *m,
                     goto Fail;
                 }
                 PyList_SET_ITEM(lst, 0, keep);
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 5
+#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 5)
                 ok = _PyDict_SetItem_KnownHash(resdict, val, lst, hash);
 #else
                 ok = PyDict_SetItem(resdict, val, lst);
@@ -122,7 +122,7 @@ PyIU_Groupby(PyObject *m,
 
         /* Reduce the values with a binary operation. */
         } else {
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 5
+#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 5)
             lst = _PyDict_GetItem_KnownHash(resdict, val, hash);
 #else
             lst = PyDict_GetItem(resdict, val);
@@ -131,7 +131,7 @@ PyIU_Groupby(PyObject *m,
 
             /* No item yet and no starting value given: Keep the "keep". */
             if (lst == NULL && reducestart == NULL) {
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 5
+#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 5)
                 ok = _PyDict_SetItem_KnownHash(resdict, val, keep, hash);
 #else
                 ok = PyDict_SetItem(resdict, val, keep);
@@ -160,7 +160,7 @@ PyIU_Groupby(PyObject *m,
                     Py_DECREF(val);
                     goto Fail;
                 }
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 5
+#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 5)
                 ok = _PyDict_SetItem_KnownHash(resdict, val, reducetmp, hash);
 #else
                 ok = PyDict_SetItem(resdict, val, reducetmp);

@@ -1,6 +1,5 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
-import sys
 
 # 3rd party
 import pytest
@@ -38,7 +37,8 @@ def test_other_c_funcs():
     assert iteration_utilities.is_iterable([1])
 
 
-@pytest.mark.skipif(sys.version_info < (3, 5), reason="requires python3.5")
+@pytest.mark.skipif(not iteration_utilities.GE_PY35,
+                    reason="requires python3.5")
 def test_c_funcs_signatures():
     # Makes sure every user-facing C function has a valid signature.
     from iteration_utilities import Iterable, chained

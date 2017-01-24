@@ -20,7 +20,7 @@ from itertools import (chain, combinations, combinations_with_replacement,
 from math import fsum
 
 # This module
-from iteration_utilities import PY2, PY34, _default
+from iteration_utilities import EQ_PY2, GE_PY34, _default
 # - generators
 from iteration_utilities import (accumulate, applyfunc,
                                  clamp,
@@ -48,7 +48,7 @@ from iteration_utilities import all_isinstance, any_isinstance
 
 
 # Conditional imports
-if PY2:
+if EQ_PY2:
     from itertools import (ifilter as filter,
                            imap as map,
                            ifilterfalse as filterfalse,
@@ -57,7 +57,7 @@ if PY2:
 else:
     from itertools import filterfalse, zip_longest
 
-if PY34:
+if GE_PY34:
     import statistics
 
 
@@ -1304,7 +1304,7 @@ class Iterable(_Base):
         {0}
         """
         return self.as_(set)
-    as_set.__doc__ = as_set.__doc__.format('set([1])' if PY2 else '{1}')
+    as_set.__doc__ = as_set.__doc__.format('set([1])' if EQ_PY2 else '{1}')
 
     def as_frozenset(self):
         """See :py:meth:`as_`.
@@ -1316,7 +1316,8 @@ class Iterable(_Base):
         frozenset({0})
         """
         return self.as_(frozenset)
-    as_frozenset.__doc__ = as_frozenset.__doc__.format('[5]' if PY2 else '{5}')
+    as_frozenset.__doc__ = as_frozenset.__doc__.format('[5]' if EQ_PY2 else
+                                                       '{5}')
 
     def as_dict(self):
         """See :py:meth:`as_`.
@@ -1622,7 +1623,7 @@ strict=False)
                          retpred=retpred, retidx=retidx)
 
     # min and max had no default parameter before python 3.4
-    if PY2 or not PY34:
+    if not GE_PY34:
         def get_max(self, key=_default):
             """See :py:func:`max`.
 
@@ -1859,7 +1860,7 @@ strict=False)
                          retpred=retpred, retidx=retidx)
 
     # Statistics module is only avaiable since Python 3.4
-    if PY34:
+    if GE_PY34:
         def get_mean(self):
             """See :py:func:`statistics.mean`.
 
@@ -2174,7 +2175,7 @@ class ManyIterables(object):
         self._iterables = iterables
 
     __init__.__doc__ = __init__.__doc__.format(
-        'itertools.imap' if PY2 else 'map')
+        'itertools.imap' if EQ_PY2 else 'map')
 
     def _call(self, fn, infinitecheck, *args, **kwargs):
         iterables = self._iterables
