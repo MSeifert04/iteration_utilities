@@ -16,7 +16,7 @@ from helper_cls import T, toT
 groupedby = iteration_utilities.groupedby
 
 
-if iteration_utilities.PY2:
+if iteration_utilities.EQ_PY2:
     range = xrange
 
 

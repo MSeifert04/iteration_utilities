@@ -211,7 +211,7 @@ def test_minmax_failure7():
         minmax(T('a'), T(100), key=lambda x: x.value + '')
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='cmp works on Python 2')
+@pytest.mark.xfail(iteration_utilities.EQ_PY2, reason='cmp works on Python 2')
 @memory_leak_decorator(collect=True)
 def test_minmax_failure8():
     # unable to compare first and second
@@ -219,7 +219,7 @@ def test_minmax_failure8():
         minmax(T(100), T('a'))
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='cmp works on Python 2')
+@pytest.mark.xfail(iteration_utilities.EQ_PY2, reason='cmp works on Python 2')
 @memory_leak_decorator(collect=True)
 def test_minmax_failure9():
     # unable to compare third and fourth
@@ -227,7 +227,7 @@ def test_minmax_failure9():
         minmax(T(100), T(20), T(100), T('a'))
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='cmp works on Python 2')
+@pytest.mark.xfail(iteration_utilities.EQ_PY2, reason='cmp works on Python 2')
 @memory_leak_decorator(collect=True)
 def test_minmax_failure10():
     # unable to compare first and third
@@ -235,7 +235,7 @@ def test_minmax_failure10():
         minmax(T(1), T(20), T('a'), T('c'))
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='cmp works on Python 2')
+@pytest.mark.xfail(iteration_utilities.EQ_PY2, reason='cmp works on Python 2')
 @memory_leak_decorator(collect=True)
 def test_minmax_failure11():
     # unable to compare second and fourth

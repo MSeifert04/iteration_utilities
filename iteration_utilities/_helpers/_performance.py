@@ -9,10 +9,10 @@ from __future__ import absolute_import, division, print_function
 from itertools import repeat
 
 # This module
-from .. import PY2
+from .. import EQ_PY2
 
 
-if PY2:
+if EQ_PY2:
     from itertools import imap as map
 
 

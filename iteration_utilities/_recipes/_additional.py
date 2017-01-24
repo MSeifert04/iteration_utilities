@@ -11,11 +11,11 @@ from itertools import chain, islice, repeat, product, combinations
 from operator import itemgetter
 
 # This module
-from .. import PY2, nth, unique_justseen, chained
+from .. import EQ_PY2, nth, unique_justseen, chained
 from ._core import tail
 
 
-if PY2:
+if EQ_PY2:
     from itertools import imap as map
 
 

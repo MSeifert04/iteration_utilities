@@ -20,7 +20,7 @@ def test_doctests():
 
 def test_exceptions():
     # old-style classes don't have the subclasses special member.
-    if iteration_utilities.PY2:
+    if iteration_utilities.EQ_PY2:
         class A:
             pass
         with pytest.raises(TypeError):

@@ -38,7 +38,7 @@ def test_intersperse_failure1():
         intersperse(T(100), T(0))
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_intersperse_pickle1():
@@ -47,7 +47,7 @@ def test_intersperse_pickle1():
     assert list(pickle.loads(x)) == toT([1, 0, 2, 0, 3])
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_intersperse_pickle2():
@@ -57,7 +57,7 @@ def test_intersperse_pickle2():
     assert list(pickle.loads(x)) == toT([0, 2, 0, 3])
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_intersperse_pickle3():
@@ -68,7 +68,7 @@ def test_intersperse_pickle3():
     assert list(pickle.loads(x)) == toT([2, 0, 3])
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_intersperse_pickle4():
@@ -80,7 +80,7 @@ def test_intersperse_pickle4():
     assert list(pickle.loads(x)) == toT([0, 3])
 
 
-@pytest.mark.xfail(not iteration_utilities.PY34,
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
                    reason='length does not work before Python 3.4')
 @memory_leak_decorator()
 def test_intersperse_lengthhint1():

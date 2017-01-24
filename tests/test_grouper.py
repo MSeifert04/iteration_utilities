@@ -154,7 +154,7 @@ def test_grouper_failure3():
         grouper(T(1), 2)
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_grouper_pickle1():
@@ -165,7 +165,7 @@ def test_grouper_pickle1():
                                      (T(9), )]
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_grouper_pickle2():
@@ -176,7 +176,7 @@ def test_grouper_pickle2():
                                      (T(9), T(0), T(0))]
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_grouper_pickle3():
@@ -186,7 +186,7 @@ def test_grouper_pickle3():
     assert list(pickle.loads(x)) == [(T(3), T(4), T(5)), (T(6), T(7), T(8))]
 
 
-@pytest.mark.xfail(not iteration_utilities.PY34,
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
                    reason='length does not work before Python 3.4')
 @memory_leak_decorator()
 def test_grouper_lengthhint1():

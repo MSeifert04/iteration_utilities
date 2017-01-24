@@ -7,7 +7,7 @@ import weakref
 # This module
 import iteration_utilities
 
-if iteration_utilities.PY2:
+if iteration_utilities.EQ_PY2:
     range = xrange
 
 

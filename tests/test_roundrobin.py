@@ -62,7 +62,7 @@ def test_roundrobin_failure2():
         list(roundrobin([T(1)], T(1)))
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_roundrobin_pickle1():
@@ -72,7 +72,7 @@ def test_roundrobin_pickle1():
     assert list(pickle.loads(x)) == toT([1, 2, 2, 3, 3])
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_roundrobin_pickle2():
@@ -84,7 +84,7 @@ def test_roundrobin_pickle2():
     assert list(pickle.loads(x)) == [T(3)]
 
 
-@pytest.mark.xfail(not iteration_utilities.PY34,
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
                    reason='length does not work before Python 3.4')
 @memory_leak_decorator()
 def test_roundrobin_lengthhint1():

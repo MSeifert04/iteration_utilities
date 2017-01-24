@@ -73,7 +73,7 @@ def test_successive_failure2():
         successive([T(1), T(2), T(3)], 0)
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_successive_pickle1():
@@ -83,7 +83,7 @@ def test_successive_pickle1():
     assert list(pickle.loads(x)) == [(T(2), T(3)), (T(3), T(4))]
 
 
-@pytest.mark.xfail(iteration_utilities.PY2,
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_successive_pickle2():
@@ -93,7 +93,7 @@ def test_successive_pickle2():
                                      (T(3), T(4))]
 
 
-@pytest.mark.xfail(not iteration_utilities.PY34,
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
                    reason='length does not work before Python 3.4')
 @memory_leak_decorator()
 def test_successive_lengthhint1():
@@ -107,7 +107,7 @@ def test_successive_lengthhint1():
     assert operator.length_hint(it) == 0
 
 
-@pytest.mark.xfail(not iteration_utilities.PY34,
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
                    reason='length does not work before Python 3.4')
 @memory_leak_decorator()
 def test_successive_lengthhint2():
