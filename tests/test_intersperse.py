@@ -1,5 +1,6 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
+import operator
 import pickle
 
 # 3rd party
@@ -37,7 +38,8 @@ def test_intersperse_failure1():
         intersperse(T(100), T(0))
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_intersperse_pickle1():
     its = intersperse(toT([1, 2, 3]), T(0))
@@ -45,7 +47,8 @@ def test_intersperse_pickle1():
     assert list(pickle.loads(x)) == toT([1, 0, 2, 0, 3])
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_intersperse_pickle2():
     its = intersperse(toT([1, 2, 3]), T(0))
@@ -54,7 +57,8 @@ def test_intersperse_pickle2():
     assert list(pickle.loads(x)) == toT([0, 2, 0, 3])
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_intersperse_pickle3():
     its = intersperse([T(1), T(2), T(3)], T(0))
@@ -64,7 +68,8 @@ def test_intersperse_pickle3():
     assert list(pickle.loads(x)) == toT([2, 0, 3])
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_intersperse_pickle4():
     its = intersperse([T(1), T(2), T(3)], T(0))
@@ -73,3 +78,21 @@ def test_intersperse_pickle4():
     assert next(its) == T(2)
     x = pickle.dumps(its)
     assert list(pickle.loads(x)) == toT([0, 3])
+
+
+@pytest.mark.xfail(not iteration_utilities.PY34,
+                   reason='length does not work before Python 3.4')
+@memory_leak_decorator()
+def test_intersperse_lengthhint1():
+    it = intersperse([1, 2, 3], 2)
+    assert operator.length_hint(it) == 5
+    next(it)
+    assert operator.length_hint(it) == 4
+    next(it)
+    assert operator.length_hint(it) == 3
+    next(it)
+    assert operator.length_hint(it) == 2
+    next(it)
+    assert operator.length_hint(it) == 1
+    next(it)
+    assert operator.length_hint(it) == 0

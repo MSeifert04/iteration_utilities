@@ -1,5 +1,6 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
+import operator
 import pickle
 
 # 3rd party
@@ -72,7 +73,8 @@ def test_successive_failure2():
         successive([T(1), T(2), T(3)], 0)
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_successive_pickle1():
     suc = successive([T(1), T(2), T(3), T(4)])
@@ -81,9 +83,32 @@ def test_successive_pickle1():
     assert list(pickle.loads(x)) == [(T(2), T(3)), (T(3), T(4))]
 
 
-@pytest.mark.xfail(iteration_utilities.PY2, reason='pickle does not work on Python 2')
+@pytest.mark.xfail(iteration_utilities.PY2,
+                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_successive_pickle2():
     suc = successive([T(1), T(2), T(3), T(4)])
     x = pickle.dumps(suc)
-    assert list(pickle.loads(x)) == [(T(1), T(2)), (T(2), T(3)), (T(3), T(4))]
+    assert list(pickle.loads(x)) == [(T(1), T(2)), (T(2), T(3)),
+                                     (T(3), T(4))]
+
+
+@pytest.mark.xfail(not iteration_utilities.PY34,
+                   reason='length does not work before Python 3.4')
+@memory_leak_decorator()
+def test_successive_lengthhint1():
+    it = successive([0]*6, 4)
+    assert operator.length_hint(it) == 3
+    next(it)
+    assert operator.length_hint(it) == 2
+    next(it)
+    assert operator.length_hint(it) == 1
+    next(it)
+    assert operator.length_hint(it) == 0
+
+
+@pytest.mark.xfail(not iteration_utilities.PY34,
+                   reason='length does not work before Python 3.4')
+@memory_leak_decorator()
+def test_successive_lengthhint2():
+    assert operator.length_hint(successive([0]*6, 11)) == 0

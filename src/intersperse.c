@@ -176,6 +176,9 @@ intersperse_lengthhint(PyIUObject_Intersperse *self)
 {
     Py_ssize_t len = PyObject_LengthHint(self->iterator, 0);
     if (self->started == 0) {
+        if (len == 0) {
+            return  PyLong_FromLong(0);
+        }
         return PyLong_FromSsize_t(len * 2 - 1);
     } else if (self->nextitem == NULL) {
         return PyLong_FromSsize_t(len * 2);
