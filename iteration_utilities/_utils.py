@@ -8,10 +8,10 @@ __all__ = ['EQ_PY2', 'GE_PY3', 'GE_PY34', 'GE_PY35', '_default']
 
 EQ_PY2 = sys.version_info.major == 2
 GE_PY3 = sys.version_info.major >= 3
-GE_PY34 = GE_PY3 or (sys.version_info.major == 3 and
-                     sys.version_info.minor >= 4)
-GE_PY35 = GE_PY3 or (sys.version_info.major == 3 and
-                     sys.version_info.minor >= 5)
+GE_PY34 = sys.version_info.major > 3 or (sys.version_info.major == 3 and
+                                         sys.version_info.minor >= 4)
+GE_PY35 = sys.version_info.major > 3 or (sys.version_info.major == 3 and
+                                         sys.version_info.minor >= 5)
 
 
 class _SentinelFactory(object):
