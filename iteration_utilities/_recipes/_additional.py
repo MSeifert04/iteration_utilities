@@ -19,7 +19,7 @@ if PY2:
     from itertools import imap as map
 
 
-__all__ = ['argsorted', 'combinations_from_equivalence_relations', 'getitem',
+__all__ = ['argsorted', 'combinations_from_relations', 'getitem',
            'insert', 'itersubclasses', 'pad', 'remove', 'replace', 'replicate']
 
 
@@ -76,7 +76,7 @@ def argsorted(iterable, key=None, reverse=False):
                                  key=key, reverse=reverse)]
 
 
-def combinations_from_equivalence_relations(dictionary, r, key=None):
+def combinations_from_relations(dictionary, r, key=None):
     """Yield combinations where only one item (or None) of each equivalence
     class is present.
 
@@ -112,10 +112,10 @@ def combinations_from_equivalence_relations(dictionary, r, key=None):
     the function. But it will also be automatically converted to one if
     one inserts an iterable that is convertible to a dict::
 
-        >>> from iteration_utilities import combinations_from_equivalence_relations
+        >>> from iteration_utilities import combinations_from_relations
 
         >>> classes = [('a', [1, 2]), ('b', [3, 4]), ('c', [5, 6])]
-        >>> for comb in combinations_from_equivalence_relations(classes, 2):
+        >>> for comb in combinations_from_relations(classes, 2):
         ...     print(comb)
         (1, 3)
         (1, 4)
@@ -135,7 +135,7 @@ def combinations_from_equivalence_relations(dictionary, r, key=None):
 
         >>> from collections import OrderedDict
         >>> odct = OrderedDict(classes)
-        >>> for comb in combinations_from_equivalence_relations(odct, 3):
+        >>> for comb in combinations_from_relations(odct, 3):
         ...     print(comb)
         (1, 3, 5)
         (1, 3, 6)
