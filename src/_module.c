@@ -40,6 +40,7 @@
 #include "iterexcept.c"
 #include "merge.c"
 #include "roundrobin.c"
+#include "sideeffect.c"
 #include "split.c"
 #include "successive.c"
 #include "tabulate.c"
@@ -159,6 +160,7 @@ PyDoc_STRVAR(PyIU_module_doc, "API: C Functions\n----------------");
         &PyIUType_Iterexcept,
         &PyIUType_Merge,
         &PyIUType_Roundrobin,
+        &PyIUType_Sideeffects,
         &PyIUType_Split,
         &PyIUType_Successive,
         &PyIUType_Tabulate,
