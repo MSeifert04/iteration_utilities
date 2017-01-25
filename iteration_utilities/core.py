@@ -18,7 +18,6 @@ from itertools import (chain, combinations, combinations_with_replacement,
                        starmap,
                        takewhile)
 from math import fsum
-from operator import length_hint
 
 # This module
 from iteration_utilities import EQ_PY2, GE_PY34, _default
@@ -60,6 +59,7 @@ else:
 
 if GE_PY34:
     import statistics
+    from operator import length_hint
 
 
 __all__ = ['Iterable', 'InfiniteIterable', 'ManyIterables']
@@ -80,9 +80,6 @@ class _Base(object):
 
     def __iter__(self):
         return iter(self._iterable)
-
-    def __length_hint__(self):
-        return length_hint(self._iterable)
 
     def __getitem__(self, idx):
         """see `get`."""
@@ -1251,10 +1248,9 @@ class Iterable(_Base):
     """
     __slots__ = ('_iterable')
 
-    def __init__(self, iterable):
-        """
-        """
-        super(Iterable, self).__init__(iterable)
+    if GE_PY34:
+        def __length_hint__(self):
+            return length_hint(self._iterable)
 
     def as_(self, cls):
         """Convert `Iterable` to other class.
