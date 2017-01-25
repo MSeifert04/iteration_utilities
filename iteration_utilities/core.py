@@ -18,6 +18,7 @@ from itertools import (chain, combinations, combinations_with_replacement,
                        starmap,
                        takewhile)
 from math import fsum
+from operator import length_hint
 
 # This module
 from iteration_utilities import EQ_PY2, GE_PY34, _default
@@ -79,6 +80,9 @@ class _Base(object):
 
     def __iter__(self):
         return iter(self._iterable)
+
+    def __length_hint__(self):
+        return length_hint(self._iterable)
 
     def __getitem__(self, idx):
         """see `get`."""
