@@ -52,16 +52,12 @@ def test_applyfunc_normal5():
     assert list(clamp(toT(range(10)))) == toT([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='cmp works on Python 2')
 @memory_leak_decorator(collect=True)
 def test_applyfunc_failure1():
     with pytest.raises(TypeError):
         list(clamp(toT(range(10)), T('a'), T(3)))
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='cmp works on Python 2')
 @memory_leak_decorator(collect=True)
 def test_applyfunc_failure2():
     with pytest.raises(TypeError):

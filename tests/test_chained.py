@@ -83,8 +83,6 @@ def test_chained_pickle1():
     assert pickle.loads(x)(T(2)) == T(1/4)
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_chained_pickle2():
     cmp = chained(iteration_utilities.square, iteration_utilities.double,
@@ -94,8 +92,6 @@ def test_chained_pickle2():
     assert pickle.loads(x)(T(3)) == T(36)
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_chained_pickle3():
     cmp = chained(iteration_utilities.square, iteration_utilities.double,

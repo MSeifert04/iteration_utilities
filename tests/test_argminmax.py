@@ -87,8 +87,6 @@ def test_argmin_failure5():
         argmin([], key=lambda x: x + 1)
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='cmp works on Python 2')
 @memory_leak_decorator(collect=True)
 def test_argmin_failure6():
     # cmp failed

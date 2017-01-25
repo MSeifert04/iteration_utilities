@@ -175,7 +175,6 @@ def test_merge_failure8():
                    key=operator.itemgetter(0)))
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2, reason='cmp works on Python 2')
 @memory_leak_decorator(collect=True)
 def test_merge_failure9():
     # comparison fails
@@ -183,7 +182,6 @@ def test_merge_failure9():
         list(merge([T('a'), T('b')], [T(2), T(3)]))
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2, reason='cmp works on Python 2')
 @memory_leak_decorator(collect=True)
 def test_merge_failure10():
     # comparison fails

@@ -1,5 +1,6 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
+import operator
 
 # 3rd party
 import pytest
@@ -23,6 +24,14 @@ def test_sentinelfactory():
     as_repr = repr(iteration_utilities._default)
     assert as_str == as_repr
     assert as_str == "<default>"
+
+
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
+                   reason='length does not work before Python 3.4')
+def test_cls_length_hint():
+    assert operator.length_hint(Iterable([1, 2, 3])) == 3
+    assert operator.length_hint(Iterable([1, 2, 3]).accumulate()) == 3
+
 
 
 def test_cls_exception():
