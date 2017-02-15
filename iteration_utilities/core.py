@@ -332,7 +332,8 @@ class _Base(object):
         """
         return self._call(accumulate, 0, func=func, start=start)
 
-    def clamp(self, low=_default, high=_default, inclusive=_default):
+    def clamp(self, low=_default, high=_default, inclusive=_default,
+              remove=_default):
         """See :py:func:`~iteration_utilities.clamp`.
 
         Examples
@@ -343,8 +344,12 @@ class _Base(object):
 
         >>> Iterable(range(10)).clamp(low=2, high=7, inclusive=True).as_list()
         [3, 4, 5, 6]
+
+        >>> Iterable(range(10)).clamp(low=2, high=7, remove=False).as_list()
+        [2, 2, 2, 3, 4, 5, 6, 7, 7, 7]
         """
-        return self._call(clamp, 0, low=low, high=high, inclusive=inclusive)
+        return self._call(clamp, 0, low=low, high=high, inclusive=inclusive,
+                          remove=remove)
 
     def combinations(self, r):
         """See :py:func:`itertools.combinations`.

@@ -8,6 +8,7 @@ typedef struct {
     PyObject *low;
     PyObject *high;
     int inclusive;
+    int remove;
 } PyIUObject_Clamp;
 
 PyTypeObject PyIUType_Clamp;
@@ -21,15 +22,15 @@ clamp_new(PyTypeObject *type,
           PyObject *args,
           PyObject *kwargs)
 {
-    static char *kwlist[] = {"iterable", "low", "high", "inclusive", NULL};
+    static char *kwlist[] = {"iterable", "low", "high", "inclusive", "remove", NULL};
     PyIUObject_Clamp *self;
 
     PyObject *iterable, *iterator, *low=NULL, *high=NULL;
-    int inclusive = 0;
+    int inclusive=0, remove=1;
 
     /* Parse arguments */
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OOi:clamp", kwlist,
-                                     &iterable, &low, &high, &inclusive)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OOii:clamp", kwlist,
+                                     &iterable, &low, &high, &inclusive, &remove)) {
         return NULL;
     }
 
@@ -49,6 +50,7 @@ clamp_new(PyTypeObject *type,
     self->low = low;
     self->high = high;
     self->inclusive = inclusive;
+    self->remove = remove;
     return (PyObject *)self;
 }
 
@@ -98,6 +100,10 @@ clamp_next(PyIUObject_Clamp *self)
                                            self->inclusive ? Py_LE : Py_LT);
             if (res == 1) {
                 Py_DECREF(item);
+                if (!(self->remove)) {
+                    Py_INCREF(self->low);
+                    return self->low;
+                }
                 continue;
             } else if (res == -1) {
                 Py_DECREF(item);
@@ -110,6 +116,10 @@ clamp_next(PyIUObject_Clamp *self)
                                            self->inclusive ? Py_GE : Py_GT);
             if (res == 1) {
                 Py_DECREF(item);
+                if (!(self->remove)) {
+                    Py_INCREF(self->high);
+                    return self->high;
+                }
                 continue;
             } else if (res == -1) {
                 Py_DECREF(item);
@@ -131,17 +141,17 @@ static PyObject *
 clamp_reduce(PyIUObject_Clamp *self)
 {
     if (self->low == NULL && self->high == NULL) {
-        return Py_BuildValue("O(O)(i)", Py_TYPE(self),
-                             self->iterator, self->inclusive);
+        return Py_BuildValue("O(O)(ii)", Py_TYPE(self),
+                             self->iterator, self->inclusive, self->remove);
     } else if (self->high == NULL) {
-        return Py_BuildValue("O(OO)(i)", Py_TYPE(self),
-                             self->iterator, self->low, self->inclusive);
+        return Py_BuildValue("O(OO)(ii)", Py_TYPE(self),
+                             self->iterator, self->low, self->inclusive, self->remove);
     } else if (self->low == NULL) {
-        return Py_BuildValue("O(O)(Oi)", Py_TYPE(self),
-                             self->iterator, self->high, self->inclusive);
+        return Py_BuildValue("O(O)(Oii)", Py_TYPE(self),
+                             self->iterator, self->high, self->inclusive, self->remove);
     } else {
-        return Py_BuildValue("O(OOOi)", Py_TYPE(self),
-                             self->iterator, self->low, self->high, self->inclusive);
+        return Py_BuildValue("O(OOOii)", Py_TYPE(self),
+                             self->iterator, self->low, self->high, self->inclusive, self->remove);
     }
 }
 
@@ -154,14 +164,14 @@ clamp_setstate(PyIUObject_Clamp *self,
                PyObject *state)
 {
     PyObject *high=NULL;
-    int inclusive;
+    int inclusive, remove;
 
-    if (PyTuple_Size(state) == 2) {
-        if (!PyArg_ParseTuple(state, "Oi", &high, &inclusive)) {
+    if (PyTuple_Size(state) == 3) {
+        if (!PyArg_ParseTuple(state, "Oii", &high, &inclusive, &remove)) {
             return NULL;
         }
     } else {
-        if (!PyArg_ParseTuple(state, "i", &inclusive)) {
+        if (!PyArg_ParseTuple(state, "ii", &inclusive, &remove)) {
             return NULL;
         }
     }
@@ -171,6 +181,7 @@ clamp_setstate(PyIUObject_Clamp *self,
         self->high = high;
     }
     self->inclusive = inclusive;
+    self->remove = remove;
     Py_RETURN_NONE;
 }
 
@@ -188,7 +199,7 @@ static PyMethodDef clamp_methods[] = {
  * Docstring
  *****************************************************************************/
 
-PyDoc_STRVAR(clamp_doc, "clamp(iterable, low=None, high=None, inclusive=False)\n\
+PyDoc_STRVAR(clamp_doc, "clamp(iterable, low=None, high=None, inclusive=False, remove=True)\n\
 --\n\
 \n\
 Remove values which are not between `low` and `high`.\n\
@@ -207,6 +218,12 @@ high : any type, optional\n\
 inclusive : bool, optional\n\
     If ``True`` also remove values that are equal to `low` and `high`.\n\
     Default is ``False``.\n\
+\n\
+remove : bool, optional\n\
+    If ``True`` remove the items outside the range given by ``low`` and\n\
+    ``high``, otherwise replace them with ``low`` if they are lower or\n\
+    ``high`` if they are higher.\n\
+    Default is ``True``.\n\
 \n\
 Returns\n\
 -------\n\
@@ -229,7 +246,13 @@ Some simple examples::\n\
     >>> list(clamp(range(5), high=2))\n\
     [0, 1, 2]\n\
     >>> list(clamp(range(1000), low=2, high=8, inclusive=True))\n\
-    [3, 4, 5, 6, 7]");
+    [3, 4, 5, 6, 7]\n\
+\n\
+If ``remove=False`` the function will replace values instead::\n\
+\n\
+    >>> list(clamp(range(10), low=4, high=8, remove=False))\n\
+    [4, 4, 4, 4, 4, 5, 6, 7, 8, 8]\n\
+");
 
 /******************************************************************************
  * Type
