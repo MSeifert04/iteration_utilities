@@ -225,6 +225,8 @@ remove : bool, optional\n\
     ``high`` if they are higher.\n\
     Default is ``True``.\n\
 \n\
+    .. versionadded:: 0.2\n\
+\n\
 Returns\n\
 -------\n\
 clamped : generator\n\
