@@ -52,6 +52,27 @@ def test_applyfunc_normal5():
     assert list(clamp(toT(range(10)))) == toT([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
 
 
+@memory_leak_decorator()
+def test_applyfunc_normal6():
+    # only low without remove
+    assert list(clamp(toT(range(10)), T(2), remove=False)) == (
+            toT([2, 2, 2, 3, 4, 5, 6, 7, 8, 9]))
+
+
+@memory_leak_decorator()
+def test_applyfunc_normal7():
+    # only high without remove
+    assert list(clamp(toT(range(10)), high=T(7),
+                      remove=False)) == toT([0, 1, 2, 3, 4, 5, 6, 7, 7, 7])
+
+
+@memory_leak_decorator()
+def test_applyfunc_normal8():
+    # both without remove
+    assert list(clamp(toT(range(10)), low=T(2), high=T(7),
+                      remove=False)) == toT([2, 2, 2, 3, 4, 5, 6, 7, 7, 7])
+
+
 @memory_leak_decorator(collect=True)
 def test_applyfunc_failure1():
     with pytest.raises(TypeError):
@@ -138,3 +159,14 @@ def test_applyfunc_pickle7():
     assert next(clmp) == T(0)
     x = pickle.dumps(clmp)
     assert list(pickle.loads(x)) == toT([1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
+                   reason='pickle does not work on Python 2')
+@memory_leak_decorator(offset=1)
+def test_applyfunc_pickle8():
+    # only high but without remove
+    clmp = clamp(map(T, range(10)), high=T(7), remove=False)
+    assert next(clmp) == T(0)
+    x = pickle.dumps(clmp)
+    assert list(pickle.loads(x)) == toT([1, 2, 3, 4, 5, 6, 7, 7, 7])
