@@ -80,7 +80,7 @@ Contents:
 
 .. [0] https://docs.python.org/library/itertools.html
 .. [1] https://toolz.readthedocs.io
-.. [2] https://pythonhosted.org/more-itertools/
+.. [2] https://more-itertools.readthedocs.io/en/latest/
 .. [3] https://pydash.readthedocs.io/en/latest/
 
 Indices and tables
