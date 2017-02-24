@@ -108,7 +108,7 @@ class _Base(object):
     def _call(self, *args, **kwargs):
         fn = args[0]
         pos = args[1]
-        args = list(islice(args, 2, None))
+        args = list(args[2:])
         args.insert(pos, self)
         kwargs = filterkwargs(**kwargs)
         return self.__class__(fn(*args, **kwargs))
@@ -117,7 +117,7 @@ class _Base(object):
         res = self._call(*args, **kwargs)
         if isinstance(res, Iterable):
             return res
-        return Iterable(self._call(*args, **kwargs)._iterable)
+        return Iterable(res._iterable)
 
     def _call_infinite(self, *args, **kwargs):
         res = self._call(*args, **kwargs)
@@ -130,7 +130,7 @@ class _Base(object):
             # this Exception.
             raise TypeError('impossible to wrap an infinite iterable with '
                             'another infinite iterable.')
-        return InfiniteIterable(self._call(*args, **kwargs)._iterable)
+        return InfiniteIterable(res._iterable)
 
     @staticmethod
     def from_count(start=_default, step=_default):
@@ -151,7 +151,12 @@ class _Base(object):
         .. warning::
            This returns an `InfiniteIterable`.
         """
-        return InfiniteIterable(count(**filterkwargs(start=start, step=step)))
+        kwargs = {}
+        if start is not _default:
+            kwargs['start'] = start
+        if step is not _default:
+            kwargs['step'] = step
+        return InfiniteIterable(count(**kwargs))
 
     @staticmethod
     def from_repeat(object, times=_default):
@@ -252,6 +257,9 @@ class _Base(object):
         >>> class Func:
         ...     def __init__(self):
         ...         self.val = 0
+        ...     def setlim(self, val=3):
+        ...         self.val = val
+        ...         return 'init'
         ...     def __call__(self):
         ...         self.val += 1
         ...         if self.val < 8:
@@ -260,9 +268,15 @@ class _Base(object):
 
         >>> Iterable.from_iterfunc_exception(Func(), ValueError).as_list()
         [3, 3, 3, 3, 3, 3, 3]
+
+        >>> f = Func()
+        >>> Iterable.from_iterfunc_exception(f, ValueError, f.setlim).as_list()
+        ['init', 3, 3, 3, 3]
         """
-        return Iterable(iter_except(func, exception,
-                                    **filterkwargs(first=first)))
+        if first is _default:
+            return Iterable(iter_except(func, exception))
+        else:
+            return Iterable(iter_except(func, exception, first=first))
 
     @staticmethod
     def from_repeatfunc(func, *args, **times):
@@ -312,7 +326,10 @@ class _Base(object):
         .. warning::
            This returns an `InfiniteIterable`.
         """
-        return InfiniteIterable(tabulate(func, **filterkwargs(start=start)))
+        if start is _default:
+            return InfiniteIterable(tabulate(func))
+        else:
+            return InfiniteIterable(tabulate(func, start=start))
 
     def accumulate(self, func=_default, start=_default):
         """See :py:func:`~iteration_utilities.accumulate`.
@@ -1404,7 +1421,7 @@ class Iterable(_Base):
     def _get(self, *args, **kwargs):
         fn = args[0]
         pos = args[1]
-        args = list(islice(args, 2, None))
+        args = list(args[2:])
         args.insert(pos, self)
         kwargs = filterkwargs(**kwargs)
         return fn(*args, **kwargs)
@@ -1412,7 +1429,7 @@ class Iterable(_Base):
     def _get_iter(self, *args, **kwargs):
         fn = args[0]
         pos = args[1]
-        args = list(islice(args, 2, None))
+        args = list(args[2:])
         args.insert(pos, iter(self))
         kwargs = filterkwargs(**kwargs)
         return fn(*args, **kwargs)
