@@ -17,4 +17,6 @@ PyDoc_STRVAR(PYIU_reduce_doc, "Return state information for pickling.");
 
 PyDoc_STRVAR(PYIU_setstate_doc, "Set state information for unpickling.");
 
+#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
 PyDoc_STRVAR(PYIU_lenhint_doc, "Return a length hint if possible.");
+#endif
