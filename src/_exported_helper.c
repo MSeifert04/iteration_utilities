@@ -22,7 +22,7 @@ PyIU_TupleToList_and_InsertItemAtIndex(PyObject *m,
     PyObject *lst;
     PyObject *tmp;
 
-    if (!PyArg_ParseTuple(args, "OOn:funfun", &tup, &item, &index)) {
+    if (!PyArg_ParseTuple(args, "OOn:_parse_args", &tup, &item, &index)) {
         return NULL;
     }
 
@@ -69,7 +69,7 @@ PyIU_RemoveFromDictWhereValueIs(PyObject *m,
     Py_ssize_t i;
     Py_ssize_t j;
 
-    if (!PyArg_ParseTuple(args, "OO:funfunfun", &dct, &remvalue)) {
+    if (!PyArg_ParseTuple(args, "OO:_parse_kwargs", &dct, &remvalue)) {
         return NULL;
     }
     dctsize = PyDict_Size(dct);
