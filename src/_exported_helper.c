@@ -141,8 +141,7 @@ This is equivelant to:\n\
 .. code::\n\
 \n\
     def _parse_args(args, item, pos):\n\
-        return list(args[:pos]) + [item] + list(args[pos:])\n\
-");
+        return list(args[:pos]) + [item] + list(args[pos:])");
 
 
 PyDoc_STRVAR(PyIU_RemoveFromDictWhereValueIs_doc, "_parse_kwargs(dct, item, /)\n\
@@ -175,5 +174,4 @@ This is equivelant to:\n\
     def _parse_kwargs(dct, item):\n\
         keys_to_remove = [key for key in dct if dct[key] is item]\n\
         for key in keys_to_remove:\n\
-            del dct[key]\n\
-");
+            del dct[key]");
