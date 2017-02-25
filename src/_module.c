@@ -5,6 +5,7 @@
 #include <Python.h>
 #include <structmember.h>
 
+#include "_exported_helper.c"
 #include "_helper.c"
 #include "_globaldocs.c"
 #include "_seen.c"
@@ -74,6 +75,9 @@ static PyMethodDef PyIU_methods[] = {
     {"rfdiv",      (PyCFunction)PyIU_MathRfdiv,      METH_VARARGS, PyIU_MathRfdiv_doc},
     {"rpow",       (PyCFunction)PyIU_MathRpow,       METH_VARARGS, PyIU_MathRpow_doc},
     {"rmod",       (PyCFunction)PyIU_MathRmod,       METH_VARARGS, PyIU_MathRmod_doc},
+
+    {"_parse_args",   (PyCFunction)PyIU_TupleToList_and_InsertItemAtIndex,  METH_VARARGS, PyIU_TupleToList_and_InsertItemAtIndex_doc},
+    {"_parse_kwargs", (PyCFunction)PyIU_RemoveFromDictWhereValueIs,         METH_VARARGS, PyIU_RemoveFromDictWhereValueIs_doc},
 
     {"return_identity",  (PyCFunction)PyIU_ReturnIdentity, METH_O,                       PyIU_ReturnIdentity_doc},
     {"return_first_arg", (PyCFunction)PyIU_ReturnFirstArg, METH_VARARGS | METH_KEYWORDS, PyIU_ReturnFirstArg_doc},

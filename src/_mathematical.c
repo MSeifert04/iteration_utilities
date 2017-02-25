@@ -10,6 +10,7 @@
  * reciprocal : lambda value: 1 / value
  *****************************************************************************/
 
+
 static PyObject *
 PyIU_MathSquare(PyObject *m,
                 PyObject *o)

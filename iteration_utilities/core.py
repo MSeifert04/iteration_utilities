@@ -45,6 +45,8 @@ from iteration_utilities import (all_distinct, all_equal, all_monotone,
 from iteration_utilities import merge, roundrobin
 # - helper
 from iteration_utilities import all_isinstance, any_isinstance
+# - private helpers
+from iteration_utilities._cfuncs import _parse_args, _parse_kwargs
 
 
 # Conditional imports
@@ -63,10 +65,6 @@ if GE_PY34:
 
 
 __all__ = ['Iterable', 'InfiniteIterable', 'ManyIterables']
-
-
-def filterkwargs(**kwargs):
-    return {k: kwargs[k] for k in kwargs if kwargs[k] is not _default}
 
 
 class _Base(object):
@@ -105,19 +103,16 @@ class _Base(object):
     def __repr__(self):
         return '<{0.__class__.__name__}: {0._iterable!r}>'.format(self)
 
-    def _call(self, *args, **kwargs):
-        fn = args[0]
-        pos = args[1]
-        args = list(islice(args, 2, None))
-        args.insert(pos, self)
-        kwargs = filterkwargs(**kwargs)
+    def _call(self, fn, pos, *args, **kwargs):
+        args = _parse_args(args, self._iterable, pos)
+        _parse_kwargs(kwargs, _default)
         return self.__class__(fn(*args, **kwargs))
 
     def _call_finite(self, *args, **kwargs):
         res = self._call(*args, **kwargs)
         if isinstance(res, Iterable):
             return res
-        return Iterable(self._call(*args, **kwargs)._iterable)
+        return Iterable(res._iterable)
 
     def _call_infinite(self, *args, **kwargs):
         res = self._call(*args, **kwargs)
@@ -130,7 +125,7 @@ class _Base(object):
             # this Exception.
             raise TypeError('impossible to wrap an infinite iterable with '
                             'another infinite iterable.')
-        return InfiniteIterable(self._call(*args, **kwargs)._iterable)
+        return InfiniteIterable(res._iterable)
 
     @staticmethod
     def from_count(start=_default, step=_default):
@@ -151,7 +146,12 @@ class _Base(object):
         .. warning::
            This returns an `InfiniteIterable`.
         """
-        return InfiniteIterable(count(**filterkwargs(start=start, step=step)))
+        kwargs = {}
+        if start is not _default:
+            kwargs['start'] = start
+        if step is not _default:
+            kwargs['step'] = step
+        return InfiniteIterable(count(**kwargs))
 
     @staticmethod
     def from_repeat(object, times=_default):
@@ -252,6 +252,9 @@ class _Base(object):
         >>> class Func:
         ...     def __init__(self):
         ...         self.val = 0
+        ...     def setlim(self, val=3):
+        ...         self.val = val
+        ...         return 'init'
         ...     def __call__(self):
         ...         self.val += 1
         ...         if self.val < 8:
@@ -260,9 +263,15 @@ class _Base(object):
 
         >>> Iterable.from_iterfunc_exception(Func(), ValueError).as_list()
         [3, 3, 3, 3, 3, 3, 3]
+
+        >>> f = Func()
+        >>> Iterable.from_iterfunc_exception(f, ValueError, f.setlim).as_list()
+        ['init', 3, 3, 3, 3]
         """
-        return Iterable(iter_except(func, exception,
-                                    **filterkwargs(first=first)))
+        if first is _default:
+            return Iterable(iter_except(func, exception))
+        else:
+            return Iterable(iter_except(func, exception, first=first))
 
     @staticmethod
     def from_repeatfunc(func, *args, **times):
@@ -312,7 +321,10 @@ class _Base(object):
         .. warning::
            This returns an `InfiniteIterable`.
         """
-        return InfiniteIterable(tabulate(func, **filterkwargs(start=start)))
+        if start is _default:
+            return InfiniteIterable(tabulate(func))
+        else:
+            return InfiniteIterable(tabulate(func, start=start))
 
     def accumulate(self, func=_default, start=_default):
         """See :py:func:`~iteration_utilities.accumulate`.
@@ -1401,20 +1413,14 @@ class Iterable(_Base):
         """
         return self.__class__(reversed(self._iterable))
 
-    def _get(self, *args, **kwargs):
-        fn = args[0]
-        pos = args[1]
-        args = list(islice(args, 2, None))
-        args.insert(pos, self)
-        kwargs = filterkwargs(**kwargs)
+    def _get(self, fn, pos, *args, **kwargs):
+        args = _parse_args(args, self._iterable, pos)
+        _parse_kwargs(kwargs, _default)
         return fn(*args, **kwargs)
 
-    def _get_iter(self, *args, **kwargs):
-        fn = args[0]
-        pos = args[1]
-        args = list(islice(args, 2, None))
-        args.insert(pos, iter(self))
-        kwargs = filterkwargs(**kwargs)
+    def _get_iter(self, fn, pos, *args, **kwargs):
+        args = _parse_args(args, self._iterable, pos)
+        _parse_kwargs(kwargs, _default)
         return fn(*args, **kwargs)
 
     def get_all(self):
@@ -2192,7 +2198,8 @@ class ManyIterables(object):
             cls = Iterable
         if args:
             iterables = args + iterables
-        return cls(fn(*iterables, **filterkwargs(**kwargs)))
+        _parse_kwargs(kwargs, _default)
+        return cls(fn(*iterables, **kwargs))
 
     def chain(self):
         """See :py:func:`itertools.chain`.
