@@ -45,6 +45,8 @@ from iteration_utilities import (all_distinct, all_equal, all_monotone,
 from iteration_utilities import merge, roundrobin
 # - helper
 from iteration_utilities import all_isinstance, any_isinstance
+# - private helpers
+from iteration_utilities._cfuncs import _parse_args, _parse_kwargs
 
 
 # Conditional imports
@@ -63,10 +65,6 @@ if GE_PY34:
 
 
 __all__ = ['Iterable', 'InfiniteIterable', 'ManyIterables']
-
-
-def filterkwargs(**kwargs):
-    return {k: kwargs[k] for k in kwargs if kwargs[k] is not _default}
 
 
 class _Base(object):
@@ -105,12 +103,9 @@ class _Base(object):
     def __repr__(self):
         return '<{0.__class__.__name__}: {0._iterable!r}>'.format(self)
 
-    def _call(self, *args, **kwargs):
-        fn = args[0]
-        pos = args[1]
-        args = list(args[2:])
-        args.insert(pos, self)
-        kwargs = filterkwargs(**kwargs)
+    def _call(self, fn, pos, *args, **kwargs):
+        args = _parse_args(args, self._iterable, pos)
+        _parse_kwargs(kwargs, _default)
         return self.__class__(fn(*args, **kwargs))
 
     def _call_finite(self, *args, **kwargs):
@@ -1418,20 +1413,14 @@ class Iterable(_Base):
         """
         return self.__class__(reversed(self._iterable))
 
-    def _get(self, *args, **kwargs):
-        fn = args[0]
-        pos = args[1]
-        args = list(args[2:])
-        args.insert(pos, self)
-        kwargs = filterkwargs(**kwargs)
+    def _get(self, fn, pos, *args, **kwargs):
+        args = _parse_args(args, self._iterable, pos)
+        _parse_kwargs(kwargs, _default)
         return fn(*args, **kwargs)
 
-    def _get_iter(self, *args, **kwargs):
-        fn = args[0]
-        pos = args[1]
-        args = list(args[2:])
-        args.insert(pos, iter(self))
-        kwargs = filterkwargs(**kwargs)
+    def _get_iter(self, fn, pos, *args, **kwargs):
+        args = _parse_args(args, self._iterable, pos)
+        _parse_kwargs(kwargs, _default)
         return fn(*args, **kwargs)
 
     def get_all(self):
@@ -2209,7 +2198,8 @@ class ManyIterables(object):
             cls = Iterable
         if args:
             iterables = args + iterables
-        return cls(fn(*iterables, **filterkwargs(**kwargs)))
+        _parse_kwargs(kwargs, _default)
+        return cls(fn(*iterables, **kwargs))
 
     def chain(self):
         """See :py:func:`itertools.chain`.
