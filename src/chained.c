@@ -237,8 +237,8 @@ Methods\n\
 -------\n\
 __call__(\\*args, \\*\\*kwargs)\n\
    Returns ``func1(...(funcn(*args, **kwargs)))``.\n\
-   or ``funcn(...(func1(*args, **kwargs)))`` (if `reverse` is True).\n\
-   or ``func1(*args, **kwargs), ..., funcn(*args, **kwargs)`` if `all` is True.\n\
+   Or ``funcn(...(func1(*args, **kwargs)))`` (if `reverse` is True).\n\
+   Or ``func1(*args, **kwargs), ..., funcn(*args, **kwargs)`` if `all` is True.\n\
 \n\
 Examples\n\
 --------\n\
