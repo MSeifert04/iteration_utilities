@@ -9,6 +9,7 @@ typedef struct {
     PyObject *ignore;
     Py_ssize_t depth;
     Py_ssize_t currentdepth;
+    int isstring;
 } PyIUObject_DeepFlatten;
 
 PyTypeObject PyIUType_DeepFlatten;
@@ -65,6 +66,7 @@ deepflatten_new(PyTypeObject *type,
     self->ignore = ignore;
     self->depth = depth;
     self->currentdepth = 0;
+    self->isstring = 0;
     return (PyObject *)self;
 }
 
@@ -126,6 +128,8 @@ deepflatten_next(PyIUObject_DeepFlatten *self)
             Py_INCREF(Py_None);
             PyList_SET_ITEM(self->iteratorlist, self->currentdepth, Py_None);
             self->currentdepth--;
+            /* The iterator finished so we're not in a string anymore. */
+            self->isstring = 0;
             Py_DECREF(activeiterator);
             if (self->currentdepth < 0) {
                 break;
@@ -139,6 +143,10 @@ deepflatten_next(PyIUObject_DeepFlatten *self)
         if (self->depth >= 0 && self->currentdepth >= self->depth) {
             return item;
 
+        /* If we're in a built-in string/bytes or unicode simply return. */
+        } else if (self->isstring) {
+            return item;
+
         /* First check if the item is an instance of the ignored types, if
            it is, then simply return it. */
         } else if (self->ignore && self->ignore != Py_None &&
@@ -149,6 +157,17 @@ deepflatten_next(PyIUObject_DeepFlatten *self)
            so replace activeiterator, otherwise return the item. */
         } else if (self->types && self->types != Py_None) {
             if (PyObject_IsInstance(item, self->types)) {
+                /* Check if it's a builtin-string-type and if so set
+                   "isstring". Check for the exact type because sub types might
+                   have custom __iter__ methods, better not to interfere with
+                   these. */
+#if PY_MAJOR_VERSION == 2
+                if (PyString_CheckExact(item) || PyUnicode_CheckExact(item)) {
+#else
+                if (PyBytes_CheckExact(item) || PyUnicode_CheckExact(item)) {
+#endif
+                    self->isstring = 1;
+                }
                 self->currentdepth++;
                 activeiterator = PyObject_GetIter(item);
                 Py_DECREF(item);
@@ -174,6 +193,15 @@ deepflatten_next(PyIUObject_DeepFlatten *self)
                     return NULL;
                 }
             } else {
+                /* See comment above why the exact check is (probably)
+                   better. */
+#if PY_MAJOR_VERSION == 2
+                if (PyString_CheckExact(item) || PyUnicode_CheckExact(item)) {
+#else
+                if (PyBytes_CheckExact(item) || PyUnicode_CheckExact(item)) {
+#endif
+                    self->isstring = 1;
+                }
                 self->currentdepth++;
                 activeiterator = temp;
                 temp = NULL;
@@ -183,8 +211,21 @@ deepflatten_next(PyIUObject_DeepFlatten *self)
 
         /* Still here? That means we have a new activeiterator.
            Make sure we can save the new iterator (if necessary increase
-           the list size)
+           the list size).
+           However first make sure we are not in danger of being in an endless
+           recursion, to this means we "borrow" the recursion depth built into
+           Python as limit for the list length.
            */
+        if ((Py_ssize_t)Py_GetRecursionLimit() < self->currentdepth) {
+#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 5)
+            PyErr_Format(PyExc_RecursionError,
+#else
+            PyErr_Format(PyExc_RuntimeError,
+#endif
+                         "deepflatten reached maximum recursion depth.");
+            Py_DECREF(activeiterator);
+            return NULL;
+        }
         if (self->currentdepth >= PyList_Size(self->iteratorlist)) {
             if (PyList_Append(self->iteratorlist, activeiterator) == -1) {
                 Py_DECREF(activeiterator);
@@ -208,13 +249,14 @@ deepflatten_next(PyIUObject_DeepFlatten *self)
 static PyObject *
 deepflatten_reduce(PyIUObject_DeepFlatten *self)
 {
-    return Py_BuildValue("O(OnOO)(On)", Py_TYPE(self),
+    return Py_BuildValue("O(OnOO)(Oni)", Py_TYPE(self),
                          PyList_GET_ITEM(self->iteratorlist, 0),  /* stub */
                          self->depth,
                          self->types ? self->types : Py_None,
                          self->ignore ? self->ignore : Py_None,
                          self->iteratorlist,
-                         self->currentdepth);
+                         self->currentdepth,
+                         self->isstring);
 }
 
 /******************************************************************************
@@ -227,8 +269,10 @@ deepflatten_setstate(PyIUObject_DeepFlatten *self,
 {
     PyObject *iteratorlist;
     Py_ssize_t currentdepth;
+    int isstring;
 
-    if (!PyArg_ParseTuple(state, "On", &iteratorlist, &currentdepth)) {
+    if (!PyArg_ParseTuple(state, "Oni",
+                          &iteratorlist, &currentdepth, &isstring)) {
         return NULL;
     }
 
@@ -236,6 +280,7 @@ deepflatten_setstate(PyIUObject_DeepFlatten *self,
     Py_XINCREF(iteratorlist);
     self->iteratorlist = iteratorlist;
     self->currentdepth = currentdepth;
+    self->isstring = isstring;
     Py_RETURN_NONE;
 }
 
@@ -291,7 +336,7 @@ Examples\n\
 --------\n\
 To flatten a given depth::\n\
 \n\
-    >>> from iteration_utilities import deepflatten\n\
+    >>> from iteration_utilities import deepflatten, EQ_PY2\n\
     >>> list(deepflatten([1, [1,2], [[1,2]], [[[1,2]]]], depth=1))\n\
     [1, 1, 2, [1, 2], [[1, 2]]]\n\
 \n\
@@ -314,21 +359,31 @@ In this case we could have also chosen only to flatten the lists::\n\
     [1, 2, 1, 2, {1: 10, 2: 10}]\n\
 \n\
 .. warning::\n\
-    If the iterable contains string-like objects you either need to set\n\
-    ``ignore=str`` or a `depth` that is not ``None``. Otherwise this will\n\
-    raise an ``RecursionError`` because each item in a string is itself a\n\
-    string!\n\
+    If the iterable contains recursive iterable objects (i.e. `UserString`)\n\
+    one either needs to set ``ignore`` or a `depth` that is not ``None``.\n\
+    Otherwise this will raise an ``RecursionError`` (or ``RuntimeError`` on\n\
+    older Python versions) because each item in a ``UserString`` is itself a\n\
+    ``UserString``, even if it has a length of 1! The builtin strings \n\
+    (``str``, ``bytes``, ``unicode``) are special cased, but only the exact\n\
+    types because subtypes might implement custom not-recusive ``__iter__``\n\
+    methods. This means that these won't run into the infinite recursion,\n\
+    but subclasses might.\n\
 \n\
 See for example::\n\
 \n\
-    >>> list(deepflatten([1, 2, [1,2], 'abc'], depth=1))\n\
+    >>> if EQ_PY2:\n\
+    ...     from UserString import UserString\n\
+    ... else:\n\
+    ...     from collections import UserString\n\
+    >>> list(deepflatten([1, 2, [1,2], UserString('abc')], depth=1))\n\
     [1, 2, 1, 2, 'a', 'b', 'c']\n\
-    >>> list(deepflatten([1, 2, [1,2], 'abc'], ignore=str))\n\
+    >>> list(deepflatten([1, 2, [1,2], UserString('abc')], ignore=UserString))\n\
     [1, 2, 1, 2, 'abc']\n\
 \n\
 For Python2 you should ignore ``basestring`` instead of ``str``.\n\
 \n\
-This function is roughly equivalent to this python function:\n\
+This function is roughly (it's missing some of the complicated details of\n\
+the actual function) equivalent to this python function:\n\
 \n\
 .. code::\n\
 \n\
