@@ -12,7 +12,17 @@ import iteration_utilities
 from helper_leak import memory_leak_decorator
 from helper_cls import T, toT
 
-string_types = basestring if iteration_utilities.EQ_PY2 else str
+
+if iteration_utilities.EQ_PY2:
+    from itertools import imap as map
+    from UserString import UserString
+    string_types = basestring
+else:
+    from collections import UserString
+    string_types = str
+
+if not iteration_utilities.GE_PY35:
+    RecursionError = RuntimeError
 
 
 deepflatten = iteration_utilities.deepflatten
@@ -49,6 +59,27 @@ def test_deepflatten_normal4():
                                [T(0), T(1), T(2)]]]],
                             [T(0), T(1), T(2), T(3), T(4)]]]], types=list)
                 ) == toT([5, 4, 3, 2, 1, 0, 0, 1, 2, 0, 1, 2, 3, 4])
+
+
+@memory_leak_decorator()
+def test_deepflatten_containing_strings1():
+    # no endless recursion even if we have strings in the iterable
+    assert list(deepflatten(["abc", "def"])) == ['a', 'b', 'c', 'd', 'e', 'f']
+
+
+@memory_leak_decorator()
+def test_deepflatten_containing_strings2():
+    # no endless recursion even if we have strings in the iterable and gave
+    # strings as types
+    assert list(deepflatten(["abc", "def"],
+                            types=str)) == ['a', 'b', 'c', 'd', 'e', 'f']
+
+
+@memory_leak_decorator()
+def test_deepflatten_containing_strings3():
+    # mixed with strings
+    assert list(deepflatten(["abc", ("def",), "g", [[{'h'}], 'i']],
+                            )) == ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']
 
 
 @memory_leak_decorator()
@@ -99,6 +130,14 @@ def test_deepflatten_failure1():
         list(deepflatten([T(1), T(2), T(3)], None, T('a')))
 
 
+@memory_leak_decorator(collect=True)
+def test_deepflatten_failure2():
+    # recursivly iterable data structures like strings that return another
+    # string in their iter.
+    with pytest.raises(RecursionError):
+        list(deepflatten([UserString('abc')]))
+
+
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
@@ -107,3 +146,13 @@ def test_deepflatten_pickle1():
     assert next(dpflt) == T(1)
     x = pickle.dumps(dpflt)
     assert list(pickle.loads(x)) == toT([2, 3, 4])
+
+
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
+                   reason='pickle does not work on Python 2')
+@memory_leak_decorator(offset=1)
+def test_deepflatten_pickle2():
+    dpflt = deepflatten([['abc', T(1)], [T(2)], [T(3)], [T(4)]])
+    assert next(dpflt) == 'a'
+    x = pickle.dumps(dpflt)
+    assert list(pickle.loads(x)) == ['b', 'c'] + toT([1, 2, 3, 4])
