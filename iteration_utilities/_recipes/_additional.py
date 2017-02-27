@@ -253,7 +253,7 @@ def pad(iterable, fillvalue=None, nlead=0, ntail=0):
 
     nlead, ntail : int or None, optional
         The number of times to pad in front (`nlead`) and after (`ntail`) the
-        `iterable. If `ntail` is ``None`` pad indefinitly (not possible for
+        `iterable`. If `ntail` is ``None`` pad indefinitly (not possible for
         `nlead`).
         Default is ``0``.
 
@@ -278,9 +278,8 @@ def pad(iterable, fillvalue=None, nlead=0, ntail=0):
     [1, 2, 3, 0, 0, 0, 0, 0, 0, 0]
 
     .. warning::
-        This will return an infinitly long generator if either ``before`` or
-        ``after`` are ``None``, so do not try to do something like
-        ``list(pad([], before=None))``!
+        This will return an infinitly long generator if ``ntail`` is ``None``,
+        so do not try to do something like ``list(pad([], ntail=None))``!
     """
     prepend = repeat(fillvalue, nlead)
 
