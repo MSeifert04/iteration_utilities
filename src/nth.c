@@ -84,7 +84,7 @@ nth_call(PyIUObject_Nth *self,
     PyObject *(*iternext)(PyObject *);
     PyObject *iterable, *iterator, *item;
     PyObject *defaultitem=NULL, *func=NULL, *last=NULL, *val=NULL, *tmp=NULL;
-    int ok, truthy=1, retpred=0, retidx=0;
+    int ok=0, truthy=1, retpred=0, retidx=0;
     Py_ssize_t idx, nfound=-1;
 
     /* Parse arguments */
@@ -127,8 +127,9 @@ nth_call(PyIUObject_Nth *self,
         /* In case the index of the found element should be returned we need to
            increment the "nfound" counter.
            */
-        if (retidx)
+        if (retidx) {
             nfound++;
+        }
 
         /* If no function is given we can skip the remainder of the loop and
            just use the new item.
@@ -173,9 +174,7 @@ nth_call(PyIUObject_Nth *self,
                     /* Predicate was None or bool and no "val" was created. */
                     val = PyBool_FromLong(ok);
                 }
-                if (last != NULL) {
-                    Py_DECREF(last);
-                }
+                Py_XDECREF(last);
                 last = val;
                 /* Set val to NULL otherwise the next iteration might decref
                    it inadvertently. */
