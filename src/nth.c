@@ -177,6 +177,9 @@ nth_call(PyIUObject_Nth *self,
                     Py_DECREF(last);
                 }
                 last = val;
+                /* Set val to NULL otherwise the next iteration might decref
+                   it inadvertently. */
+                val = NULL;
 
             /* Otherwise discard the value from the function call and keep the
                item from the iterator.

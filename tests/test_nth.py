@@ -130,6 +130,14 @@ def test_nth_failures4():
 
 
 @memory_leak_decorator(collect=True)
+def test_nth_regressiontest():
+    # This segfaulted in earlier versions because the "val" intermediate
+    # variable was decref'd for each item in the iterable.
+    lst = [1] + [0]*10000 + [2]*20
+    assert nth(1)(lst, pred=bool, retpred=True)
+
+
+@memory_leak_decorator(collect=True)
 def test_nth_failures5():
     with pytest.raises(TypeError):
         nth('a')
