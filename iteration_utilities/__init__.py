@@ -4,4 +4,4 @@ from ._recipes import *
 from ._helpers import *
 from .core import *
 
-__version__ = '0.2.0'
+__version__ = '0.2.1'
