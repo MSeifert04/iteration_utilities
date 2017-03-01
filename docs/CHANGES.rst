@@ -1,9 +1,10 @@
 Changelog for "iteration_utilities"
 -----------------------------------
 
-Version 0.3.0 (not released)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Version 0.2.1 (01.03.2017)
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+- fixed segfault in ``nth`` when ``retpred=True``.
 
 
 Version 0.2.0 (27.02.2017)
