@@ -28,25 +28,25 @@ PyIU_TupleToList_and_InsertItemAtIndex(PyObject *m,
 
     tupsize = PyTuple_Size(tup);
 
-    lst = PyList_New(tupsize + 1);
+    lst = PyTuple_New(tupsize + 1);
     if (lst == NULL) {
         return NULL;
     }
 
     Py_INCREF(item);
-    PyList_SET_ITEM(lst, index, item);
+    PyTuple_SET_ITEM(lst, index, item);
 
     for (i = 0 ; i < tupsize + 1 ; i++ ) {
         if (i < index) {
             tmp = PyTuple_GET_ITEM(tup, i);
             Py_INCREF(tmp);
-            PyList_SET_ITEM(lst, i, tmp);
+            PyTuple_SET_ITEM(lst, i, tmp);
         } else if (i == index) {
             continue;
         } else {
             tmp = PyTuple_GET_ITEM(tup, i - 1);
             Py_INCREF(tmp);
-            PyList_SET_ITEM(lst, i, tmp);
+            PyTuple_SET_ITEM(lst, i, tmp);
         }
     }
     return lst;
@@ -111,7 +111,7 @@ PyIU_RemoveFromDictWhereValueIs(PyObject *m,
 PyDoc_STRVAR(PyIU_TupleToList_and_InsertItemAtIndex_doc, "_parse_args(tup, item, pos, /)\n\
 --\n\
 \n\
-Converts the `tup` to a `list` and inserts `item` at `pos`.\n\
+Converts the `tup` to a new `tuple` and inserts `item` at `pos`.\n\
 \n\
 .. warning::\n\
    This function is especially made for internal use, **DO NOT USE THIS \n\
@@ -131,7 +131,7 @@ pos : int\n\
 \n\
 Returns\n\
 -------\n\
-lst : list\n\
+lst : tuple\n\
     The converted `tup` with `item` inserted.\n\
 \n\
 Notes\n\
@@ -141,7 +141,7 @@ This is equivelant to:\n\
 .. code::\n\
 \n\
     def _parse_args(args, item, pos):\n\
-        return list(args[:pos]) + [item] + list(args[pos:])");
+        return tuple(args[:pos]) + (item, ) + tuple(args[pos:])");
 
 
 PyDoc_STRVAR(PyIU_RemoveFromDictWhereValueIs_doc, "_parse_kwargs(dct, item, /)\n\
