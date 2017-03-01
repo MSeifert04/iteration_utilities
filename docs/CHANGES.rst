@@ -1,6 +1,15 @@
 Changelog for "iteration_utilities"
 -----------------------------------
 
+
+Version 0.3.0 (not released)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- implemented ``__length_hint__`` method for :py:func:`~iteration_utilities.clamp`.
+  However sensible results (!= 0) are only possible if ``remove=False`` or
+  both ``low`` and ``high`` were not set.
+
+
 Version 0.2.1 (01.03.2017)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
