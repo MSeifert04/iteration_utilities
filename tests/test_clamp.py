@@ -1,5 +1,6 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
+import operator
 import pickle
 
 # 3rd party
@@ -170,3 +171,50 @@ def test_applyfunc_pickle8():
     assert next(clmp) == T(0)
     x = pickle.dumps(clmp)
     assert list(pickle.loads(x)) == toT([1, 2, 3, 4, 5, 6, 7, 7, 7])
+
+
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
+                   reason='length does not work before Python 3.4')
+@memory_leak_decorator()
+def test_clamp_lengthhint1():
+    # When remove=False we can determine the length-hint.
+    it = clamp(toT(range(5)), low=T(2), high=T(5), remove=False)
+    assert operator.length_hint(it) == 5
+    next(it)
+    assert operator.length_hint(it) == 4
+    next(it)
+    assert operator.length_hint(it) == 3
+    next(it)
+    assert operator.length_hint(it) == 2
+    next(it)
+    assert operator.length_hint(it) == 1
+    next(it)
+    assert operator.length_hint(it) == 0
+
+
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
+                   reason='length does not work before Python 3.4')
+@memory_leak_decorator()
+def test_clamp_lengthhint2():
+    # When low and high are not given we can determine the length-hint
+    it = clamp(toT(range(5)))
+    assert operator.length_hint(it) == 5
+    next(it)
+    assert operator.length_hint(it) == 4
+    next(it)
+    assert operator.length_hint(it) == 3
+    next(it)
+    assert operator.length_hint(it) == 2
+    next(it)
+    assert operator.length_hint(it) == 1
+    next(it)
+    assert operator.length_hint(it) == 0
+
+
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
+                   reason='length does not work before Python 3.4')
+@memory_leak_decorator()
+def test_clamp_lengthhint3():
+    # Only works if "remove=False", otherwise the length-hint simply returns 0.
+    it = clamp(toT(range(5)), low=T(2), high=T(5), remove=True)
+    assert operator.length_hint(it) == 0

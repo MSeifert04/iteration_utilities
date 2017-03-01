@@ -186,10 +186,31 @@ clamp_setstate(PyIUObject_Clamp *self,
 }
 
 /******************************************************************************
+ * LengthHint
+ *****************************************************************************/
+
+#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
+static PyObject *
+clamp_lengthhint(PyIUObject_Clamp *self)
+{
+    Py_ssize_t len = 0;
+    /* If we don't remove outliers or there are no bounds at all we can
+       determine the length. */
+    if (!(self->remove) || (self->low == NULL && self->high == NULL)) {
+        len = PyObject_LengthHint(self->iterator, 0);
+    }
+    return PyLong_FromSsize_t(len);
+}
+#endif
+
+/******************************************************************************
  * Methods
  *****************************************************************************/
 
 static PyMethodDef clamp_methods[] = {
+#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
+    {"__length_hint__", (PyCFunction)clamp_lengthhint, METH_NOARGS, PYIU_lenhint_doc},
+#endif
     {"__reduce__", (PyCFunction)clamp_reduce, METH_NOARGS, PYIU_reduce_doc},
     {"__setstate__", (PyCFunction)clamp_setstate, METH_O, PYIU_setstate_doc},
     {NULL, NULL}
