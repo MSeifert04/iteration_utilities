@@ -43,6 +43,7 @@
 #include "roundrobin.c"
 #include "sideeffect.c"
 #include "split.c"
+#include "starfilter.c"
 #include "successive.c"
 #include "tabulate.c"
 #include "uniqueever.c"
@@ -166,6 +167,7 @@ PyDoc_STRVAR(PyIU_module_doc, "API: C Functions\n----------------");
         &PyIUType_Roundrobin,
         &PyIUType_Sideeffects,
         &PyIUType_Split,
+        &PyIUType_Starfilter,
         &PyIUType_Successive,
         &PyIUType_Tabulate,
         &PyIUType_UniqueEver,
