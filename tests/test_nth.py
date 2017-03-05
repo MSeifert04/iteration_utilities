@@ -1,5 +1,7 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
+import itertools
+import operator
 import pickle
 
 # 3rd party
@@ -11,6 +13,10 @@ import iteration_utilities
 # Test helper
 from helper_leak import memory_leak_decorator
 from helper_cls import T, toT
+
+
+if iteration_utilities.EQ_PY2:
+    filter = itertools.ifilter
 
 
 nth = iteration_utilities.nth
@@ -104,6 +110,14 @@ def test_nth_default2():
     assert nth(1)([T(0), T(0), T(0)], default=None, pred=bool) is None
 
 
+@memory_leak_decorator()
+def test_nth_regressiontest():
+    # This segfaulted in earlier versions because the "val" intermediate
+    # variable was decref'd for each item in the iterable.
+    lst = [1] + [0]*10000 + [2]*20
+    assert nth(1)(lst, pred=bool, retpred=True)
+
+
 @memory_leak_decorator(collect=True)
 def test_nth_failures1():
     # failures
@@ -130,17 +144,16 @@ def test_nth_failures4():
 
 
 @memory_leak_decorator(collect=True)
-def test_nth_regressiontest():
-    # This segfaulted in earlier versions because the "val" intermediate
-    # variable was decref'd for each item in the iterable.
-    lst = [1] + [0]*10000 + [2]*20
-    assert nth(1)(lst, pred=bool, retpred=True)
-
-
-@memory_leak_decorator(collect=True)
 def test_nth_failures5():
     with pytest.raises(TypeError):
         nth('a')
+
+
+@memory_leak_decorator(collect=True)
+def test_nth_failures6():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError):
+        nth(1)(filter(operator.eq, zip([T(1)], [T(1)])))
 
 
 @memory_leak_decorator(offset=1)

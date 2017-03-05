@@ -1,5 +1,6 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
+import itertools
 import operator
 import pickle
 
@@ -12,6 +13,10 @@ import iteration_utilities
 # Test helper
 from helper_leak import memory_leak_decorator
 from helper_cls import T
+
+
+if iteration_utilities.EQ_PY2:
+    filter = itertools.ifilter
 
 
 successive = iteration_utilities.successive
@@ -71,6 +76,13 @@ def test_successive_failure1():
 def test_successive_failure2():
     with pytest.raises(ValueError):  # times must be > 0
         successive([T(1), T(2), T(3)], 0)
+
+
+@memory_leak_decorator(collect=True)
+def test_successive_failure3():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError):
+        next(successive(filter(operator.eq, zip([T(1)], [T(1)])), 1))
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

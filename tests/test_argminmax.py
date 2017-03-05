@@ -1,5 +1,7 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
+import itertools
+import operator
 
 # 3rd party
 import pytest
@@ -10,6 +12,10 @@ import iteration_utilities
 # Test helper
 from helper_leak import memory_leak_decorator
 from helper_cls import T
+
+
+if iteration_utilities.EQ_PY2:
+    filter = itertools.ifilter
 
 
 argmin = iteration_utilities.argmin
@@ -99,3 +105,18 @@ def test_argmin_failure7():
     # key failed
     with pytest.raises(TypeError):
         argmin([T(1), T(2), T('a')], key=lambda x: x + 1)
+
+
+@memory_leak_decorator(collect=True)
+def test_argmin_failure8():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError):
+        argmin(filter(operator.eq, zip([T(1)], [T(1)])))
+
+
+@memory_leak_decorator(collect=True)
+def test_argmin_failure9():
+    # Test that a failing iterator doesn't raise a SystemError
+    # with default
+    with pytest.raises(TypeError):
+        argmin(filter(operator.eq, zip([T(1)], [T(1)])), default=T(1))

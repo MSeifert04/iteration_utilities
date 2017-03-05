@@ -15,6 +15,10 @@ from helper_leak import memory_leak_decorator
 from helper_cls import T, toT
 
 
+if iteration_utilities.EQ_PY2:
+    filter = itertools.ifilter
+
+
 merge = iteration_utilities.merge
 
 
@@ -187,6 +191,31 @@ def test_merge_failure10():
     # comparison fails
     with pytest.raises(TypeError):
         list(merge([T(1), T('b')], [T(2), T(3)]))
+
+
+@memory_leak_decorator(collect=True)
+def test_merge_failure11():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError):
+        next(merge(filter(operator.eq, zip([T(1)], [T(1)]))))
+
+
+@memory_leak_decorator(collect=True)
+def test_merge_failure12():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError):
+        next(merge([T(1), T(2)], filter(operator.eq, zip([T(1)], [T(1)]))))
+
+
+@memory_leak_decorator(collect=True)
+def test_merge_failure13():
+    # Test that a failing iterator doesn't raise a SystemError
+    mge = merge(itertools.chain([T(1), T(2)], filter(operator.eq,
+                                                     zip([T(1)]*10,
+                                                         [T(1)]*10))))
+    assert next(mge) == T(1)
+    with pytest.raises(TypeError):
+        next(mge)
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

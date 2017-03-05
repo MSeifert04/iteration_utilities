@@ -1,5 +1,6 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
+import itertools
 import operator
 
 # 3rd party
@@ -18,6 +19,7 @@ groupedby = iteration_utilities.groupedby
 
 if iteration_utilities.EQ_PY2:
     range = xrange
+    filter = itertools.ifilter
 
 
 @memory_leak_decorator()
@@ -119,3 +121,11 @@ def test_groupedby_failure7():
     with pytest.raises(TypeError):
         groupedby(map(T, [1, 2, 3, 4, 'a']), lambda x: True,
                   reduce=operator.add)
+
+
+@memory_leak_decorator(collect=True)
+def test_groupedby_failure8():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError):
+        groupedby(filter(operator.eq, zip([T(1)], [T(1)])),
+                  bool)

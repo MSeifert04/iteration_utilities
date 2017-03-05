@@ -33,10 +33,17 @@ PyIU_AllDistinct(PyObject *m,
         Py_DECREF(item);
     }
 
-    PYIU_CLEAR_STOPITERATION;
-
     Py_XDECREF(iterator);
     Py_XDECREF(seen);
+
+    if (PyErr_Occurred()) {
+        if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
+            PyErr_Clear();
+        } else {
+            return NULL;
+        }
+    }
+
     Py_RETURN_TRUE;
 
 Fail:

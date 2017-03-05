@@ -1,5 +1,7 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
+import itertools
+import operator
 
 # 3rd party
 import pytest
@@ -10,6 +12,10 @@ import iteration_utilities
 # Test helper
 from helper_leak import memory_leak_decorator
 from helper_cls import T
+
+
+if iteration_utilities.EQ_PY2:
+    filter = itertools.ifilter
 
 
 all_equal = iteration_utilities.all_equal
@@ -42,3 +48,10 @@ def test_all_equal_failure2():
     # comparison fail
     with pytest.raises(TypeError):
         all_equal([T(1), T('a')])
+
+
+@memory_leak_decorator(collect=True)
+def test_all_equal_failure3():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError):
+        all_equal(filter(operator.eq, zip([T(1)], [T(1)])))

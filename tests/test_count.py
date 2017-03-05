@@ -15,9 +15,11 @@ from helper_leak import memory_leak_decorator
 from helper_cls import T
 
 
-count_items = iteration_utilities.count_items
 if iteration_utilities.EQ_PY2:
     filter = itertools.ifilter
+
+
+count_items = iteration_utilities.count_items
 
 
 @memory_leak_decorator()

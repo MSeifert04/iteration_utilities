@@ -144,7 +144,7 @@ merge_traverse(PyIUObject_Merge *self,
 static int
 merge_init_current(PyIUObject_Merge *self)
 {
-    PyObject *current, *iterator, *item, *newitem, *keyval=NULL, *tmp=NULL;
+    PyObject *current, *iterator, *item, *newitem=NULL, *keyval=NULL, *tmp=NULL;
     Py_ssize_t i, insert, tuplelength;
 
     current = PyTuple_New(self->numactive);
@@ -165,9 +165,8 @@ merge_init_current(PyIUObject_Merge *self)
                 PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, tmp, Py_DECREF(current); Py_DECREF(item); return -1;)
                 keyval = PyObject_Call(self->keyfunc, self->funcargs, NULL);
                 if (keyval == NULL) {
-                    Py_DECREF(current);
                     Py_DECREF(item);
-                    return -1;
+                    goto Fail;
                 }
             }
             newitem = PyIU_ItemIdxKey_FromC(item, i, keyval);
@@ -180,20 +179,29 @@ merge_init_current(PyIUObject_Merge *self)
                                                          tuplelength,
                                                          self->reverse);
                 if (insert < 0) {
-                    Py_DECREF(current);
-                    Py_DECREF(newitem);
-                    return -1;
+                    goto Fail;
                 }
                 PYUI_TupleInsert(current, insert, newitem, tuplelength+1);
             }
             tuplelength++;
         } else {
-            PYIU_CLEAR_STOPITERATION;
+            if (PyErr_Occurred()) {
+                if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
+                    PyErr_Clear();
+                } else {
+                    goto Fail;
+                }
+            }
         }
     }
     self->numactive = tuplelength;
     self->current = current;
     return 0;
+
+Fail:
+    Py_DECREF(current);
+    Py_XDECREF(newitem);
+    return -1;
 }
 
 /******************************************************************************
@@ -232,11 +240,18 @@ merge_next(PyIUObject_Merge *self)
     item = (*Py_TYPE(iterator)->tp_iternext)(iterator);
 
     if (item == NULL) {
-        PYIU_CLEAR_STOPITERATION;
         /* No need to keep the extra reference for the tuple because there is
            no successive value.
            */
         Py_DECREF(next);
+        if (PyErr_Occurred()) {
+            if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
+                PyErr_Clear();
+            } else {
+                Py_DECREF(val);
+                return NULL;
+            }
+        }
         Py_INCREF(val);
         self->numactive--;
     } else {

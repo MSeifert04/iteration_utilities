@@ -207,7 +207,15 @@ nth_call(PyIUObject_Nth *self,
     }
 
     Py_DECREF(iterator);
-    PYIU_CLEAR_STOPITERATION;
+
+    if (PyErr_Occurred()) {
+        if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
+            PyErr_Clear();
+        } else {
+            Py_XDECREF(last);
+            return NULL;
+        }
+    }
 
     /* We still have a last element (so the loop did not terminate without
        finding the indexed element).

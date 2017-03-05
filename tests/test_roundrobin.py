@@ -1,5 +1,6 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
+import itertools
 import operator
 import pickle
 
@@ -12,6 +13,10 @@ import iteration_utilities
 # Test helper
 from helper_leak import memory_leak_decorator
 from helper_cls import T, toT
+
+
+if iteration_utilities.EQ_PY2:
+    filter = itertools.ifilter
 
 
 roundrobin = iteration_utilities.roundrobin
@@ -60,6 +65,34 @@ def test_roundrobin_failure1():
 def test_roundrobin_failure2():
     with pytest.raises(TypeError):
         list(roundrobin([T(1)], T(1)))
+
+
+@memory_leak_decorator(collect=True)
+def test_roundrobin_failure3():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError):
+        next(roundrobin(filter(operator.eq, zip([T(1)], [T(1)]))))
+
+
+@memory_leak_decorator(collect=True)
+def test_roundrobin_failure4():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError):
+        list(roundrobin([T(1), T(2)],
+                        filter(operator.eq, zip([T(1)], [T(1)]))))
+
+
+@memory_leak_decorator(collect=True)
+def test_roundrobin_failure5():
+    # Test that a failing iterator doesn't raise a SystemError
+    rr = roundrobin(itertools.chain([T(1)],
+                                    filter(operator.eq, zip([T(1)]*10,
+                                                            [T(1)]*10))),
+                    [T(1), T(2), T(3), T(4)])
+    assert next(rr) == T(1)
+    assert next(rr) == T(1)
+    with pytest.raises(TypeError):
+        next(rr)
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

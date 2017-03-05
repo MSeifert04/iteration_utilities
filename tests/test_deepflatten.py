@@ -1,5 +1,7 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
+import itertools
+import operator
 import pickle
 
 # 3rd party
@@ -17,6 +19,7 @@ if iteration_utilities.EQ_PY2:
     from itertools import imap as map
     from UserString import UserString
     string_types = basestring
+    filter = itertools.ifilter
 else:
     from collections import UserString
     string_types = str
@@ -136,6 +139,13 @@ def test_deepflatten_failure2():
     # string in their iter.
     with pytest.raises(RecursionError):
         list(deepflatten([UserString('abc')]))
+
+
+@memory_leak_decorator(collect=True)
+def test_deepflatten_failure3():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError):
+        next(deepflatten(filter(operator.eq, zip([T(1)], [T(1)]))))
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

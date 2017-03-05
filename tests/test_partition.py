@@ -1,5 +1,7 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
+import itertools
+import operator
 
 # 3rd party
 import pytest
@@ -10,6 +12,10 @@ import iteration_utilities
 # Test helper
 from helper_leak import memory_leak_decorator
 from helper_cls import T, toT
+
+
+if iteration_utilities.EQ_PY2:
+    filter = itertools.ifilter
 
 
 partition = iteration_utilities.partition
@@ -76,3 +82,10 @@ def test_partition_failure3():
 def test_partition_failure4():
     with pytest.raises(TypeError):
         partition([T(1), T('a')], lambda x: x.value + 'a')
+
+
+@memory_leak_decorator(collect=True)
+def test_partition_failure5():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError):
+        partition(filter(operator.eq, zip([T(1)], [T(1)])), bool)

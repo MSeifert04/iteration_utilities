@@ -1,5 +1,6 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
+import itertools
 import operator
 import pickle
 
@@ -12,6 +13,10 @@ import iteration_utilities
 # Test helper
 from helper_leak import memory_leak_decorator
 from helper_cls import T, toT
+
+
+if iteration_utilities.EQ_PY2:
+    filter = itertools.ifilter
 
 
 intersperse = iteration_utilities.intersperse
@@ -36,6 +41,13 @@ def test_intersperse_normal1():
 def test_intersperse_failure1():
     with pytest.raises(TypeError):
         intersperse(T(100), T(0))
+
+
+@memory_leak_decorator(collect=True)
+def test_intersperse_failure2():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError):
+        next(intersperse(filter(operator.eq, zip([T(1)], [T(1)])), T(0)))
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

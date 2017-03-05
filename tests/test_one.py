@@ -1,5 +1,7 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
+import itertools
+import operator
 import pickle
 
 # 3rd party
@@ -11,6 +13,10 @@ import iteration_utilities
 # Test helper
 from helper_leak import memory_leak_decorator
 from helper_cls import T
+
+
+if iteration_utilities.EQ_PY2:
+    filter = itertools.ifilter
 
 
 one = iteration_utilities.one
@@ -49,3 +55,10 @@ def test_one_failure3():
     # more than 1 element
     with pytest.raises(ValueError):
         one([T(1), T(2)])
+
+
+@memory_leak_decorator(collect=True)
+def test_one_failure4():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(ValueError):
+        one(filter(operator.eq, zip([T(1)], [T(1)])))

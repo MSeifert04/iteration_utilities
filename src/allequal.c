@@ -27,9 +27,16 @@ PyIU_AllEqual(PyObject *m,
             goto Fail;
         }
     }
-    PYIU_CLEAR_STOPITERATION;;
     Py_XDECREF(iterator);
     Py_XDECREF(first);
+
+    if (PyErr_Occurred()) {
+        if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
+            PyErr_Clear();
+        } else {
+            return NULL;
+        }
+    }
     Py_RETURN_TRUE;
 
 Fail:
