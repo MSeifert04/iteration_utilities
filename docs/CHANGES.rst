@@ -9,9 +9,8 @@ Version 0.3.0 (not released)
   However sensible results (!= 0) are only possible if ``remove=False`` or
   both ``low`` and ``high`` were not set.
 
-- fixed ``SystemError`` in :py:func:`~iteration_utilities._cfuncs.count_items`
-  when accessing the next item of the iterable resulted in an Exception other
-  than ``StopIteration``.
+- fixed ``SystemError`` in several functions when accessing the next item of
+  the iterable resulted in an Exception different from ``StopIteration``.
 
 
 Version 0.2.1 (01.03.2017)

@@ -54,7 +54,6 @@ PyIU_DotProduct(PyObject *m, PyObject *args)
 
     Py_DECREF(iterator1);
     Py_DECREF(iterator2);
-    PYIU_CLEAR_STOPITERATION;
 
     if (PyErr_Occurred()) {
         if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
@@ -64,7 +63,6 @@ PyIU_DotProduct(PyObject *m, PyObject *args)
             return NULL;
         }
     }
-
 
     if (result == NULL) {
         result = PyLong_FromLong((long)0);

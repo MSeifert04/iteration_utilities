@@ -62,3 +62,10 @@ def test_one_failure4():
     # Test that a failing iterator doesn't raise a SystemError
     with pytest.raises(ValueError):
         one(filter(operator.eq, zip([T(1)], [T(1)])))
+
+
+@memory_leak_decorator(collect=True)
+def test_one_failure5():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError):
+        one(itertools.chain([T(1)], filter(operator.eq, zip([T(1)], [T(1)]))))
