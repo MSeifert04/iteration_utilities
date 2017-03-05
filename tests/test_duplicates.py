@@ -1,6 +1,5 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
-import itertools
 import operator
 import pickle
 
@@ -12,11 +11,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T, toT
-
-
-if iteration_utilities.EQ_PY2:
-    filter = itertools.ifilter
+from helper_cls import T, toT, failingTIterator
 
 
 duplicates = iteration_utilities.duplicates
@@ -88,8 +83,8 @@ def test_duplicates_failure2():
 def test_duplicates_failure3():
     # Test that a failing iterator doesn't raise a SystemError
     with pytest.raises(TypeError) as exc:
-        next(duplicates(filter(operator.eq, zip([T(1)], [T(1)]))))
-    assert 'op_eq expected 2 arguments, got 1' in str(exc)
+        next(duplicates(failingTIterator()))
+    assert 'eq expected 2 arguments, got 1' in str(exc)
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

@@ -1,8 +1,14 @@
+# Built-ins
+import operator
+import itertools
+
 # This module
 import iteration_utilities
 
 if iteration_utilities.EQ_PY2:
     from itertools import imap as map
+    from itertools import ifilter as filter
+    from itertools import izip as zip
 
 
 class T(object):
@@ -75,3 +81,12 @@ class T(object):
 
 def toT(iterable):
     return list(map(T, iterable))
+
+
+def failingTIterator(offset=0, repeats=1):
+    it = filter(operator.eq, zip([T(1) for _ in range(repeats)],
+                                 [T(1) for _ in range(repeats)]))
+    if offset:
+        return itertools.chain([T(1) for _ in range(offset)], it)
+    else:
+        return it

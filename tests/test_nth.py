@@ -1,7 +1,5 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
-import itertools
-import operator
 import pickle
 
 # 3rd party
@@ -12,11 +10,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T, toT
-
-
-if iteration_utilities.EQ_PY2:
-    filter = itertools.ifilter
+from helper_cls import T, toT, failingTIterator
 
 
 nth = iteration_utilities.nth
@@ -153,8 +147,8 @@ def test_nth_failures5():
 def test_nth_failures6():
     # Test that a failing iterator doesn't raise a SystemError
     with pytest.raises(TypeError) as exc:
-        nth(1)(filter(operator.eq, zip([T(1)], [T(1)])))
-    assert 'op_eq expected 2 arguments, got 1' in str(exc)
+        nth(1)(failingTIterator())
+    assert 'eq expected 2 arguments, got 1' in str(exc)
 
 
 @memory_leak_decorator(offset=1)

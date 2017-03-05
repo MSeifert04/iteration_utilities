@@ -1,7 +1,5 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
-import itertools
-import operator
 import pickle
 
 # 3rd party
@@ -12,11 +10,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T, toT
-
-
-if iteration_utilities.EQ_PY2:
-    filter = itertools.ifilter
+from helper_cls import T, toT, failingTIterator
 
 
 unique_justseen = iteration_utilities.unique_justseen
@@ -77,8 +71,8 @@ def test_unique_justseen_failure3():
 def test_unique_justseen_failure4():
     # Test that a failing iterator doesn't raise a SystemError
     with pytest.raises(TypeError) as exc:
-        next(unique_justseen(filter(operator.eq, zip([T(1)], [T(1)]))))
-    assert 'op_eq expected 2 arguments, got 1' in str(exc)
+        next(unique_justseen(failingTIterator()))
+    assert 'eq expected 2 arguments, got 1' in str(exc)
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

@@ -1,7 +1,5 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
-import itertools
-import operator
 
 # 3rd party
 import pytest
@@ -11,11 +9,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T, toT
-
-
-if iteration_utilities.EQ_PY2:
-    filter = itertools.ifilter
+from helper_cls import T, toT, failingTIterator
 
 
 partition = iteration_utilities.partition
@@ -88,5 +82,5 @@ def test_partition_failure4():
 def test_partition_failure5():
     # Test that a failing iterator doesn't raise a SystemError
     with pytest.raises(TypeError) as exc:
-        partition(filter(operator.eq, zip([T(1)], [T(1)])), bool)
-    assert 'op_eq expected 2 arguments, got 1' in str(exc)
+        partition(failingTIterator(), bool)
+    assert 'eq expected 2 arguments, got 1' in str(exc)

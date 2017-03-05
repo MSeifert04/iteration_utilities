@@ -1,7 +1,6 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
 from functools import partial
-import itertools
 import operator
 import pickle
 
@@ -13,11 +12,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T, toT
-
-
-if iteration_utilities.EQ_PY2:
-    filter = itertools.ifilter
+from helper_cls import T, toT, failingTIterator
 
 
 split = iteration_utilities.split
@@ -146,8 +141,8 @@ def test_split_failure6():
 def test_split_failure7():
     # Test that a failing iterator doesn't raise a SystemError
     with pytest.raises(TypeError) as exc:
-        next(split(filter(operator.eq, zip([T(1)], [T(1)])), lambda x: False))
-    assert 'op_eq expected 2 arguments, got 1' in str(exc)
+        next(split(failingTIterator(), lambda x: False))
+    assert 'eq expected 2 arguments, got 1' in str(exc)
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

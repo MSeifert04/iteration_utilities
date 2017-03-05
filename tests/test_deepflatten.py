@@ -1,7 +1,5 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
-import itertools
-import operator
 import pickle
 
 # 3rd party
@@ -12,14 +10,13 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T, toT
+from helper_cls import T, toT, failingTIterator
 
 
 if iteration_utilities.EQ_PY2:
     from itertools import imap as map
     from UserString import UserString
     string_types = basestring
-    filter = itertools.ifilter
 else:
     from collections import UserString
     string_types = str
@@ -145,8 +142,8 @@ def test_deepflatten_failure2():
 def test_deepflatten_failure3():
     # Test that a failing iterator doesn't raise a SystemError
     with pytest.raises(TypeError) as exc:
-        next(deepflatten(filter(operator.eq, zip([T(1)], [T(1)]))))
-    assert 'op_eq expected 2 arguments, got 1' in str(exc)
+        next(deepflatten(failingTIterator()))
+    assert 'eq expected 2 arguments, got 1' in str(exc)
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

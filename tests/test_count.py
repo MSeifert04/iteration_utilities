@@ -1,8 +1,5 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
-import itertools
-import operator
-import pickle
 
 # 3rd party
 import pytest
@@ -12,11 +9,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T
-
-
-if iteration_utilities.EQ_PY2:
-    filter = itertools.ifilter
+from helper_cls import T, failingTIterator
 
 
 count_items = iteration_utilities.count_items
@@ -80,5 +73,5 @@ def test_count_failure3():
     # in an Exception. For example when the iterable was a filter and the
     # filter function threw an exception.
     with pytest.raises(TypeError) as exc:
-        count_items(filter(operator.eq, zip([T(1)], [T(1)])))
-    assert 'op_eq expected 2 arguments, got 1' in str(exc)
+        count_items(failingTIterator())
+    assert 'eq expected 2 arguments, got 1' in str(exc)
