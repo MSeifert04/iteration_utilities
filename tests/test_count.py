@@ -79,5 +79,6 @@ def test_count_failure3():
     # Regression test when accessing the next item of the iterable resulted
     # in an Exception. For example when the iterable was a filter and the
     # filter function threw an exception.
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError) as exc:
         count_items(filter(operator.eq, zip([T(1)], [T(1)])))
+    assert 'op_eq expected 2 arguments, got 1' in str(exc)

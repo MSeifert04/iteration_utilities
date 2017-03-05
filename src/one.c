@@ -15,8 +15,14 @@ PyIU_One(PyObject *m,
 
     item1 = (*Py_TYPE(iterator)->tp_iternext)(iterator);
     if (item1 == NULL) {
-        PYIU_CLEAR_STOPITERATION;
         Py_DECREF(iterator);
+        if (PyErr_Occurred()) {
+            if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
+                PyErr_Clear();
+            } else {
+                return NULL;
+            }
+        }
         PyErr_Format(PyExc_ValueError,
                      "not enough values to unpack (expected 1, got 0)");
         return NULL;

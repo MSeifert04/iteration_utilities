@@ -82,5 +82,7 @@ def test_dotproduct_failure6():
 @memory_leak_decorator(collect=True)
 def test_dotproduct_failure7():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError):
-        dotproduct(filter(operator.eq, zip([T(1)], [T(1)])))
+    with pytest.raises(TypeError) as exc:
+        dotproduct(filter(operator.eq, zip([T(1)], [T(1)])),
+                   filter(operator.eq, zip([T(1)], [T(1)])))
+    assert 'op_eq expected 2 arguments, got 1' in str(exc)

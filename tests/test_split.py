@@ -145,8 +145,9 @@ def test_split_failure6():
 @memory_leak_decorator(collect=True)
 def test_split_failure7():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError) as exc:
         next(split(filter(operator.eq, zip([T(1)], [T(1)])), lambda x: False))
+    assert 'op_eq expected 2 arguments, got 1' in str(exc)
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

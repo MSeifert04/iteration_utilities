@@ -110,13 +110,15 @@ def test_argmin_failure7():
 @memory_leak_decorator(collect=True)
 def test_argmin_failure8():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError) as exc:
         argmin(filter(operator.eq, zip([T(1)], [T(1)])))
+    assert 'op_eq expected 2 arguments, got 1' in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_argmin_failure9():
     # Test that a failing iterator doesn't raise a SystemError
     # with default
-    with pytest.raises(TypeError):
-        argmin(filter(operator.eq, zip([T(1)], [T(1)])), default=T(1))
+    with pytest.raises(TypeError) as exc:
+        argmin(filter(operator.eq, zip([T(1)], [T(1)])), default=1)
+    assert 'op_eq expected 2 arguments, got 1' in str(exc)

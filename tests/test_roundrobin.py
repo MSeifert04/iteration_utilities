@@ -70,16 +70,18 @@ def test_roundrobin_failure2():
 @memory_leak_decorator(collect=True)
 def test_roundrobin_failure3():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError) as exc:
         next(roundrobin(filter(operator.eq, zip([T(1)], [T(1)]))))
+    assert 'op_eq expected 2 arguments, got 1' in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_roundrobin_failure4():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError) as exc:
         list(roundrobin([T(1), T(2)],
                         filter(operator.eq, zip([T(1)], [T(1)]))))
+    assert 'op_eq expected 2 arguments, got 1' in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -91,8 +93,9 @@ def test_roundrobin_failure5():
                     [T(1), T(2), T(3), T(4)])
     assert next(rr) == T(1)
     assert next(rr) == T(1)
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError) as exc:
         next(rr)
+    assert 'op_eq expected 2 arguments, got 1' in str(exc)
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

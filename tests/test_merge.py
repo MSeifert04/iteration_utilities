@@ -196,15 +196,17 @@ def test_merge_failure10():
 @memory_leak_decorator(collect=True)
 def test_merge_failure11():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError) as exc:
         next(merge(filter(operator.eq, zip([T(1)], [T(1)]))))
+    assert 'op_eq expected 2 arguments, got 1' in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_merge_failure12():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError) as exc:
         next(merge([T(1), T(2)], filter(operator.eq, zip([T(1)], [T(1)]))))
+    assert 'op_eq expected 2 arguments, got 1' in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -214,8 +216,9 @@ def test_merge_failure13():
                                                      zip([T(1)]*10,
                                                          [T(1)]*10))))
     assert next(mge) == T(1)
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError) as exc:
         next(mge)
+    assert 'op_eq expected 2 arguments, got 1' in str(exc)
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
