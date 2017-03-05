@@ -1,5 +1,7 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
+import itertools
+import operator
 import pickle
 
 # 3rd party
@@ -14,6 +16,8 @@ from helper_cls import T
 
 
 count_items = iteration_utilities.count_items
+if iteration_utilities.EQ_PY2:
+    filter = itertools.ifilter
 
 
 @memory_leak_decorator()
@@ -66,3 +70,12 @@ def test_count_failure1():
 def test_count_failure2():
     with pytest.raises(TypeError):
         count_items([T(1)], T(1))
+
+
+@memory_leak_decorator(collect=True)
+def test_count_failure3():
+    # Regression test when accessing the next item of the iterable resulted
+    # in an Exception. For example when the iterable was a filter and the
+    # filter function threw an exception.
+    with pytest.raises(TypeError):
+        count_items(filter(operator.eq, zip([T(1)], [T(1)])))
