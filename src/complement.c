@@ -76,15 +76,18 @@ complement_call(PyIUObject_Complement *self,
 
     /* "not func(*args, **kwargs)" */
     temp = PyObject_Call(self->func, args, kwargs);
+    if (temp == NULL) {
+        return NULL;
+    }
     res = PyObject_Not(temp);
     Py_DECREF(temp);
 
-    if (res < 0) {
-        return NULL;
+    if (res == 1) {
+        Py_RETURN_TRUE;
     } else if (res == 0) {
         Py_RETURN_FALSE;
     } else {
-        Py_RETURN_TRUE;
+        return NULL;
     }
 }
 

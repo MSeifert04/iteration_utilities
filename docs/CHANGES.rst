@@ -16,6 +16,9 @@ Version 0.3.0 (not released)
 
 - added :py:func:`~iteration_utilities.packed` callback class.
 
+- fixed a segfault in :py:func:`~iteration_utilities.complement.__call__`
+  when the function raised an Exception.
+
 
 Version 0.2.1 (01.03.2017)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
