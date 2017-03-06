@@ -133,7 +133,13 @@ grouper_next(PyIUObject_Grouper *self)
         item = iternext(self->iterator);
 
         if (item == NULL) {
-            PYIU_CLEAR_STOPITERATION;
+            if (PyErr_Occurred()) {
+                if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
+                    PyErr_Clear();
+                } else {
+                    return NULL;
+                }
+            }
             /* In case it would be the first element of a new tuple or we
                truncate the iterator we stop here.
                */

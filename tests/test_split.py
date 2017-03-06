@@ -141,7 +141,16 @@ def test_split_failure6():
 def test_split_failure7():
     # Test that a failing iterator doesn't raise a SystemError
     with pytest.raises(TypeError) as exc:
-        next(split(failingTIterator(), lambda x: False))
+        next(split(failingTIterator(), iteration_utilities.return_False))
+    assert 'eq expected 2 arguments, got 1' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_split_failure8():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError) as exc:
+        next(split(failingTIterator(offset=1),
+                   iteration_utilities.return_False))
     assert 'eq expected 2 arguments, got 1' in str(exc)
 
 

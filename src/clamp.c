@@ -129,7 +129,6 @@ clamp_next(PyIUObject_Clamp *self)
         /* Still here? Return the item! */
         return item;
     }
-    PYIU_CLEAR_STOPITERATION;
     return NULL;
 }
 

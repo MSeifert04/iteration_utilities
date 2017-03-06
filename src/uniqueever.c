@@ -142,7 +142,6 @@ uniqueever_next(PyIUObject_UniqueEver *self)
         Py_DECREF(item);
     }
 
-    PYIU_CLEAR_STOPITERATION;
     return NULL;
 
 Notfound:

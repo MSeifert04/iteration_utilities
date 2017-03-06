@@ -75,14 +75,17 @@ PyIU_Partition(PyObject *m,
         Py_DECREF(item);
     }
 
-    PYIU_CLEAR_STOPITERATION;
     Py_DECREF(funcargs);
     Py_DECREF(iterator);
 
     if (PyErr_Occurred()) {
-        Py_DECREF(result1);
-        Py_DECREF(result2);
-        return NULL;
+        if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
+            PyErr_Clear();
+        } else {
+            Py_DECREF(result1);
+            Py_DECREF(result2);
+            return NULL;
+        }
     }
 
     result = PyTuple_Pack(2, result1, result2);

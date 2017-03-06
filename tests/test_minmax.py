@@ -253,3 +253,11 @@ def test_minmax_failure12():
     with pytest.raises(TypeError) as exc:
         minmax(failingTIterator())
     assert 'eq expected 2 arguments, got 1' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_minmax_failure13():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError) as exc:
+        minmax(failingTIterator(offset=1))
+    assert 'eq expected 2 arguments, got 1' in str(exc)

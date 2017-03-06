@@ -91,7 +91,6 @@ intersperse_next(PyIUObject_Intersperse *self)
     if (self->nextitem == NULL) {
         item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator);
         if (item == NULL) {
-            PYIU_CLEAR_STOPITERATION;
             return NULL;
         }
         /* If we haven't started we return the first item, otherwise we set

@@ -146,6 +146,14 @@ def test_deepflatten_failure3():
     assert 'eq expected 2 arguments, got 1' in str(exc)
 
 
+@memory_leak_decorator(collect=True)
+def test_deepflatten_failure4():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError) as exc:
+        next(deepflatten([[failingTIterator()], 2]))
+    assert 'eq expected 2 arguments, got 1' in str(exc)
+
+
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)

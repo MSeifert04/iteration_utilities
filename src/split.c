@@ -197,7 +197,14 @@ split_next(PyIUObject_Split *self)
         }
     }
 
-    PYIU_CLEAR_STOPITERATION;
+    if (PyErr_Occurred()) {
+        if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
+            PyErr_Clear();
+        } else {
+            Py_DECREF(result);
+            return NULL;
+        }
+    }
 
     /* Only return the last result if there is something in it. */
     if (PyList_GET_SIZE(result) == 0) {
