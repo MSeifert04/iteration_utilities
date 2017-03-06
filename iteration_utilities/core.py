@@ -32,7 +32,7 @@ from iteration_utilities import (accumulate, applyfunc,
                                  ncycles,
                                  pad, powerset,
                                  remove, repeatfunc, replace, replicate,
-                                 split, successive,
+                                 split, starfilter, successive,
                                  tabulate, tail,
                                  unique_everseen, unique_justseen)
 # - folds
@@ -892,6 +892,18 @@ class _Base(object):
                           keep_before=keep_before, keep_after=keep_after,
                           eq=eq)
 
+    def starfilter(self, pred):
+        """See :py:func:`iteration_utilities.starfilter`.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> from operator import eq
+        >>> Iterable([1] * 20).enumerate().starfilter(eq).as_list()
+        [(1, 1)]
+        """
+        return self._call(starfilter, 1, pred)
+
     def starmap(self, function):
         """See :py:func:`itertools.starmap`.
 
@@ -1162,6 +1174,8 @@ class Iterable(_Base):
         See :py:func:`python:reversed`.
     :py:meth:`~Iterable.split`
         See :py:func:`~iteration_utilities.split`.
+    :py:meth:`~Iterable.starfilter`
+        See :py:func:`~iteration_utilities.starfilter`.
     :py:meth:`~Iterable.starmap`
         See :py:func:`itertools.starmap`.
     :py:meth:`~Iterable.successive`
@@ -2099,6 +2113,8 @@ class InfiniteIterable(_Base):
         See :py:func:`~iteration_utilities._recipes._additional.replicate`.
     :py:meth:`~InfiniteIterable.split`
         See :py:func:`~iteration_utilities.split`.
+    :py:meth:`~InfiniteIterable.starfilter`
+        See :py:func:`~iteration_utilities.starfilter`.
     :py:meth:`~InfiniteIterable.starmap`
         See :py:func:`itertools.starmap`.
     :py:meth:`~InfiniteIterable.successive`

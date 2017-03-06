@@ -15,6 +15,8 @@ Constant callbacks
 Simple callbacks
 ^^^^^^^^^^^^^^^^
 
+- :py:func:`~iteration_utilities.packed`, equivalent to
+  ``lambda func: lambda x: func(*x)``.
 - :py:func:`~iteration_utilities._cfuncs.return_identity`, equivalent to
   ``lambda x: x``.
 - :py:func:`~iteration_utilities._cfuncs.return_first_arg`, equivalent to

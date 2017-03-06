@@ -12,6 +12,10 @@ Version 0.3.0 (not released)
 - fixed ``SystemError`` in several functions when accessing the next item of
   the iterable resulted in an Exception different from ``StopIteration``.
 
+- added :py:func:`~iteration_utilities.starfilter` iterator.
+
+- added :py:func:`~iteration_utilities.packed` callback class.
+
 
 Version 0.2.1 (01.03.2017)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
