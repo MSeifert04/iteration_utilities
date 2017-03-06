@@ -1,6 +1,5 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
-import operator
 
 # 3rd party
 import pytest
@@ -10,7 +9,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T
+from helper_cls import T, failingTIterator
 
 
 minmax = iteration_utilities.minmax
@@ -246,3 +245,19 @@ def test_minmax_failure11():
     # str and int are not compareable.
     with pytest.raises(TypeError):
         minmax(T((100, 'a')), T((200, 10)), T((150, 'b')), T((200, 'd')))
+
+
+@memory_leak_decorator(collect=True)
+def test_minmax_failure12():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError) as exc:
+        minmax(failingTIterator())
+    assert 'eq expected 2 arguments, got 1' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_minmax_failure13():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError) as exc:
+        minmax(failingTIterator(offset=1))
+    assert 'eq expected 2 arguments, got 1' in str(exc)

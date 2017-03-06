@@ -106,15 +106,17 @@ argminmax(PyObject *m,
         Py_DECREF(item);
     }
 
-    PYIU_CLEAR_STOPITERATION;
-
     Py_DECREF(iterator);
     Py_XDECREF(funcargs);
     Py_XDECREF(maxval);
     Py_XDECREF(keyfunc);
 
     if (PyErr_Occurred()) {
-        goto Fail;
+        if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
+            PyErr_Clear();
+        } else {
+            goto Fail;
+        }
     }
 
     if (maxidx == -1) {

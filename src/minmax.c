@@ -66,11 +66,19 @@ PyIU_MinMax(PyObject *m,
     }
 
     while ( (item1=(*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
-
-        /* It could be NULL (end of sequence) but don't care .. yet. */
         item2 = (*Py_TYPE(iterator)->tp_iternext)(iterator);
+        /* item2 could be NULL (end of sequence) clear a StopIteration but
+           immediatly fail if it's another exception. It will check for
+           exceptions in the end (again) but make sure it does not process
+           an iterable when the iterator threw an exception! */
         if (item2 == NULL) {
-            PYIU_CLEAR_STOPITERATION;
+            if (PyErr_Occurred()) {
+                if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
+                    PyErr_Clear();
+                } else {
+                    goto Fail;
+                }
+            }
         }
 
         /* get the value from the key function. */
@@ -208,9 +216,12 @@ PyIU_MinMax(PyObject *m,
         }
     }
 
-    PYIU_CLEAR_STOPITERATION;
     if (PyErr_Occurred()) {
-        goto Fail;
+        if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
+            PyErr_Clear();
+        } else {
+            goto Fail;
+        }
     }
 
     if (minval == NULL) {

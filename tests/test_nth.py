@@ -10,7 +10,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T, toT
+from helper_cls import T, toT, failingTIterator
 
 
 nth = iteration_utilities.nth
@@ -104,6 +104,14 @@ def test_nth_default2():
     assert nth(1)([T(0), T(0), T(0)], default=None, pred=bool) is None
 
 
+@memory_leak_decorator()
+def test_nth_regressiontest():
+    # This segfaulted in earlier versions because the "val" intermediate
+    # variable was decref'd for each item in the iterable.
+    lst = [1] + [0]*10000 + [2]*20
+    assert nth(1)(lst, pred=bool, retpred=True)
+
+
 @memory_leak_decorator(collect=True)
 def test_nth_failures1():
     # failures
@@ -130,17 +138,17 @@ def test_nth_failures4():
 
 
 @memory_leak_decorator(collect=True)
-def test_nth_regressiontest():
-    # This segfaulted in earlier versions because the "val" intermediate
-    # variable was decref'd for each item in the iterable.
-    lst = [1] + [0]*10000 + [2]*20
-    assert nth(1)(lst, pred=bool, retpred=True)
-
-
-@memory_leak_decorator(collect=True)
 def test_nth_failures5():
     with pytest.raises(TypeError):
         nth('a')
+
+
+@memory_leak_decorator(collect=True)
+def test_nth_failures6():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError) as exc:
+        nth(1)(failingTIterator())
+    assert 'eq expected 2 arguments, got 1' in str(exc)
 
 
 @memory_leak_decorator(offset=1)

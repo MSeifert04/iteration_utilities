@@ -11,7 +11,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T, toT
+from helper_cls import T, toT, failingTIterator
 
 
 duplicates = iteration_utilities.duplicates
@@ -77,6 +77,14 @@ def test_duplicates_failure1():
 def test_duplicates_failure2():
     with pytest.raises(TypeError):
         list(duplicates([T(1), T(2), T(3), T('a')], abs))
+
+
+@memory_leak_decorator(collect=True)
+def test_duplicates_failure3():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError) as exc:
+        next(duplicates(failingTIterator()))
+    assert 'eq expected 2 arguments, got 1' in str(exc)
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

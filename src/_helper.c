@@ -14,15 +14,6 @@
 #endif
 
 /******************************************************************************
- * Convenience macros
- *
- * PYIU_CLEAR_STOPITERATION : Check if a StopIteration occurred and clear it.
- *****************************************************************************/
-
-# define PYIU_CLEAR_STOPITERATION \
- if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_StopIteration)) { PyErr_Clear(); }
-
-/******************************************************************************
  * Complex Convenience macros
  *
  * TODO: These are much too complex for macros but yield a 20-35% speedup over

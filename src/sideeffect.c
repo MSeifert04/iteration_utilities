@@ -121,21 +121,31 @@ sideeffects_next(PyIUObject_Sideeffects *self)
 
     item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator);
     if (item == NULL) {
-        PYIU_CLEAR_STOPITERATION;
+        /* We don't expect that the sideeffect function is called when
+           an exception other than StopIteration is raised by the iterator so
+           exit early in that case. */
+        if (PyErr_Occurred()) {
+            if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
+                PyErr_Clear();
+            } else {
+                return NULL;
+            }
+        }
         if (self->count != 0) {
             /* Call function with the remaining items. */
             tmptuple = PyTuple_GetSlice(self->collected, 0, self->count);
             if (tmptuple == NULL) {
-                goto Fail;
+                return NULL;
             }
             PYIU_RECYCLE_ARG_TUPLE(self->funcargs, tmptuple, tmp, return NULL)
             temp = PyObject_Call(self->func, self->funcargs, NULL);
             Py_DECREF(tmptuple);
-            if (temp == NULL) {
-                return NULL;
-            } else {
+            if (temp != NULL) {
                 Py_DECREF(temp);
             }
+            /* The case where temp == NULL is handled by the following
+               "return NULL" anyway so it does not need to be a special case
+               here. */
         }
         return NULL;
     }
@@ -185,7 +195,7 @@ sideeffects_next(PyIUObject_Sideeffects *self)
     return item;
 
 Fail:
-    Py_DECREF(item);
+    Py_XDECREF(item);
     return NULL;
 }
 

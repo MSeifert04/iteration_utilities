@@ -11,7 +11,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T
+from helper_cls import T, failingTIterator
 
 
 unique_everseen = iteration_utilities.unique_everseen
@@ -83,6 +83,14 @@ def test_uniqueeverseen_failure1():
 def test_uniqueeverseen_failure2():
     with pytest.raises(TypeError):
         list(unique_everseen([T(1), T(2), T(3), T('a')], abs))
+
+
+@memory_leak_decorator(collect=True)
+def test_uniqueeverseen_failure3():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError) as exc:
+        next(unique_everseen(failingTIterator()))
+    assert 'eq expected 2 arguments, got 1' in str(exc)
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

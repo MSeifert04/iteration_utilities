@@ -94,7 +94,13 @@ roundrobin_next(PyIUObject_Roundrobin *self)
 
     iterator = PyTuple_GET_ITEM(self->iteratortuple, self->active);
     while ((item = (*Py_TYPE(iterator)->tp_iternext)(iterator)) == NULL) {
-        PYIU_CLEAR_STOPITERATION;
+        if (PyErr_Occurred()) {
+            if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
+                PyErr_Clear();
+            } else {
+                return NULL;
+            }
+        }
         /* If the last iterable in the iteratortuple is empty simply set it to
            NULL and reset the active pointer to 0.
             */

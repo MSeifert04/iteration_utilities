@@ -9,7 +9,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T
+from helper_cls import T, failingTIterator
 
 
 argmin = iteration_utilities.argmin
@@ -99,3 +99,20 @@ def test_argmin_failure7():
     # key failed
     with pytest.raises(TypeError):
         argmin([T(1), T(2), T('a')], key=lambda x: x + 1)
+
+
+@memory_leak_decorator(collect=True)
+def test_argmin_failure8():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError) as exc:
+        argmin(failingTIterator())
+    assert 'eq expected 2 arguments, got 1' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_argmin_failure9():
+    # Test that a failing iterator doesn't raise a SystemError
+    # with default
+    with pytest.raises(TypeError) as exc:
+        argmin(failingTIterator(), default=1)
+    assert 'eq expected 2 arguments, got 1' in str(exc)

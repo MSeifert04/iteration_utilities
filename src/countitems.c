@@ -86,8 +86,16 @@ PyIU_Count(PyObject *m,
 
     Py_XDECREF(funcargs);
 
-    PYIU_CLEAR_STOPITERATION;
     Py_DECREF(iterator);
+
+    if (PyErr_Occurred()) {
+        if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
+            PyErr_Clear();
+        } else {
+            return NULL;
+        }
+    }
+
 #if PY_MAJOR_VERSION == 2
     return PyInt_FromSsize_t(sum_int);
 #else

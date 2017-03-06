@@ -9,7 +9,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T
+from helper_cls import T, failingTIterator
 
 
 dotproduct = iteration_utilities.dotproduct
@@ -71,3 +71,11 @@ def test_dotproduct_failure6():
     # addition fails (inverted)
     with pytest.raises(TypeError):
         dotproduct([1, T(1), 1], [1, T(1), 1])
+
+
+@memory_leak_decorator(collect=True)
+def test_dotproduct_failure7():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError) as exc:
+        dotproduct(failingTIterator(), failingTIterator())
+    assert 'eq expected 2 arguments, got 1' in str(exc)

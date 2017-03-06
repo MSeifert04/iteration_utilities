@@ -11,7 +11,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T
+from helper_cls import T, failingTIterator
 
 
 sideeffects = iteration_utilities.sideeffects
@@ -119,6 +119,14 @@ def test_sideeffects_failure5():
 def test_sideeffects_failure6():
     with pytest.raises(ValueError):
         list(sideeffects([T(3), T(12), T(11)], raise_error_when_below10, 2))
+
+
+@memory_leak_decorator(collect=True)
+def test_sideeffects_failure7():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError) as exc:
+        list(sideeffects(failingTIterator(), lambda x: x))
+    assert 'eq expected 2 arguments, got 1' in str(exc)
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

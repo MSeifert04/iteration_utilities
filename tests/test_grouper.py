@@ -11,7 +11,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T, toT
+from helper_cls import T, toT, failingTIterator
 
 
 grouper = iteration_utilities.grouper
@@ -152,6 +152,22 @@ def test_grouper_failure3():
     # iterable must be iterable
     with pytest.raises(TypeError):
         grouper(T(1), 2)
+
+
+@memory_leak_decorator(collect=True)
+def test_grouper_failure4():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError) as exc:
+        next(grouper(failingTIterator(), 2))
+    assert 'eq expected 2 arguments, got 1' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_grouper_failure5():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError) as exc:
+        next(grouper(failingTIterator(offset=1), 2))
+    assert 'eq expected 2 arguments, got 1' in str(exc)
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

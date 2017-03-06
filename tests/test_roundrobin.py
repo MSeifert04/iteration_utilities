@@ -11,7 +11,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T, toT
+from helper_cls import T, toT, failingTIterator
 
 
 roundrobin = iteration_utilities.roundrobin
@@ -60,6 +60,35 @@ def test_roundrobin_failure1():
 def test_roundrobin_failure2():
     with pytest.raises(TypeError):
         list(roundrobin([T(1)], T(1)))
+
+
+@memory_leak_decorator(collect=True)
+def test_roundrobin_failure3():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError) as exc:
+        next(roundrobin(failingTIterator()))
+    assert 'eq expected 2 arguments, got 1' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_roundrobin_failure4():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError) as exc:
+        list(roundrobin([T(1), T(2)],
+                        failingTIterator()))
+    assert 'eq expected 2 arguments, got 1' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_roundrobin_failure5():
+    # Test that a failing iterator doesn't raise a SystemError
+    rr = roundrobin(failingTIterator(offset=1, repeats=10),
+                    [T(1), T(2), T(3), T(4)])
+    assert next(rr) == T(1)
+    assert next(rr) == T(1)
+    with pytest.raises(TypeError) as exc:
+        next(rr)
+    assert 'eq expected 2 arguments, got 1' in str(exc)
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

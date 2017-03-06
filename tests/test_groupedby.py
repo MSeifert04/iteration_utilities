@@ -10,7 +10,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T, toT
+from helper_cls import T, toT, failingTIterator
 
 
 groupedby = iteration_utilities.groupedby
@@ -119,3 +119,11 @@ def test_groupedby_failure7():
     with pytest.raises(TypeError):
         groupedby(map(T, [1, 2, 3, 4, 'a']), lambda x: True,
                   reduce=operator.add)
+
+
+@memory_leak_decorator(collect=True)
+def test_groupedby_failure8():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError) as exc:
+        groupedby(failingTIterator(), bool)
+    assert 'eq expected 2 arguments, got 1' in str(exc)

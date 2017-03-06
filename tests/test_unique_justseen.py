@@ -10,7 +10,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T, toT
+from helper_cls import T, toT, failingTIterator
 
 
 unique_justseen = iteration_utilities.unique_justseen
@@ -65,6 +65,14 @@ def test_unique_justseen_failure3():
     # objects do not support eq or ne
     with pytest.raises(TypeError):
         list(unique_justseen([T2(1), T2(2)]))
+
+
+@memory_leak_decorator(collect=True)
+def test_unique_justseen_failure4():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError) as exc:
+        next(unique_justseen(failingTIterator()))
+    assert 'eq expected 2 arguments, got 1' in str(exc)
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

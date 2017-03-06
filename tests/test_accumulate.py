@@ -11,7 +11,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T
+from helper_cls import T, failingTIterator
 
 
 accumulate = iteration_utilities.accumulate
@@ -72,6 +72,14 @@ def test_accumulate_failure2():
 def test_accumulate_failure3():
     with pytest.raises(TypeError):
         list(accumulate([T('a'), T(2), T(3)]))
+
+
+@memory_leak_decorator(collect=True)
+def test_accumulate_failure4():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError) as exc:
+        next(accumulate(failingTIterator()))
+    assert 'eq expected 2 arguments, got 1' in str(exc)
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

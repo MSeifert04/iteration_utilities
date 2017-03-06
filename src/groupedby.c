@@ -176,13 +176,15 @@ PyIU_Groupby(PyObject *m,
 
     Py_DECREF(funcargs1);
     Py_DECREF(funcargs2);
-
-    PYIU_CLEAR_STOPITERATION;
     Py_DECREF(iterator);
 
     if (PyErr_Occurred()) {
-        Py_DECREF(resdict);
-        return NULL;
+        if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
+            PyErr_Clear();
+        } else {
+            Py_DECREF(resdict);
+            return NULL;
+        }
     }
 
     return resdict;

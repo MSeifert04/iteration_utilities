@@ -139,7 +139,6 @@ uniquejust_next(PyIUObject_UniqueJust *self)
         Py_DECREF(val);
         Py_DECREF(item);
     }
-    PYIU_CLEAR_STOPITERATION;
     return NULL;
 
 Fail:

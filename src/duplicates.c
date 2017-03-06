@@ -141,7 +141,6 @@ duplicates_next(PyIUObject_Duplicates *self)
         }
         Py_DECREF(item);
     }
-    PYIU_CLEAR_STOPITERATION;
     return NULL;
 
 Found:

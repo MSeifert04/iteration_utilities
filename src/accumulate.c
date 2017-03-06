@@ -108,7 +108,6 @@ accumulate_next(PyIUObject_Accumulate *self)
     /* Get next item from iterator.  */
     item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator);
     if (item == NULL) {
-        PYIU_CLEAR_STOPITERATION;
         return NULL;
     }
 

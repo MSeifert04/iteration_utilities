@@ -124,7 +124,14 @@ deepflatten_next(PyIUObject_DeepFlatten *self)
         /* The active iterator finished, remove it from the list and take
            up the iterator one level up. */
         if (item == NULL) {
-            PYIU_CLEAR_STOPITERATION;
+            if (PyErr_Occurred()) {
+                if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
+                    PyErr_Clear();
+                } else {
+                    return NULL;
+                }
+            }
+
             Py_INCREF(Py_None);
             PyList_SET_ITEM(self->iteratorlist, self->currentdepth, Py_None);
             self->currentdepth--;
@@ -237,8 +244,6 @@ deepflatten_next(PyIUObject_DeepFlatten *self)
         }
 
     }
-
-    PYIU_CLEAR_STOPITERATION;
     return NULL;
 }
 

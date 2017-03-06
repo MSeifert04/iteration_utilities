@@ -101,7 +101,6 @@ successive_next(PyIUObject_Successive *self)
         for (i=0; i<self->times; i++) {
             item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator);
             if (item == NULL) {
-                PYIU_CLEAR_STOPITERATION;
                 Py_DECREF(result);
                 return NULL;
             }
@@ -115,7 +114,6 @@ successive_next(PyIUObject_Successive *self)
     /* After the first element we can use the normal procedure. */
     item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator);
     if (item == NULL) {
-        PYIU_CLEAR_STOPITERATION;
         return NULL;
     }
 

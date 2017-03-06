@@ -11,7 +11,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T, toT
+from helper_cls import T, toT, failingTIterator
 
 
 intersperse = iteration_utilities.intersperse
@@ -36,6 +36,14 @@ def test_intersperse_normal1():
 def test_intersperse_failure1():
     with pytest.raises(TypeError):
         intersperse(T(100), T(0))
+
+
+@memory_leak_decorator(collect=True)
+def test_intersperse_failure2():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError) as exc:
+        next(intersperse(failingTIterator(), T(0)))
+    assert 'eq expected 2 arguments, got 1' in str(exc)
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

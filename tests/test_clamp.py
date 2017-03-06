@@ -11,85 +11,93 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T, toT
+from helper_cls import T, toT, failingTIterator
 
 
 clamp = iteration_utilities.clamp
 
 
 @memory_leak_decorator()
-def test_applyfunc_empty1():
+def test_clamp_empty1():
     assert list(clamp([], T(10), T(100))) == []
 
 
 @memory_leak_decorator()
-def test_applyfunc_normal1():
+def test_clamp_normal1():
     assert list(clamp(toT(range(10)), T(2), T(7))) == toT([2, 3, 4, 5, 6, 7])
 
 
 @memory_leak_decorator()
-def test_applyfunc_normal2():
+def test_clamp_normal2():
     # only low
     assert list(clamp(toT(range(10)), T(2))) == toT([2, 3, 4, 5, 6, 7, 8, 9])
 
 
 @memory_leak_decorator()
-def test_applyfunc_normal3():
+def test_clamp_normal3():
     # only high
     assert list(clamp(toT(range(10)),
                       high=T(7))) == toT([0, 1, 2, 3, 4, 5, 6, 7])
 
 
 @memory_leak_decorator()
-def test_applyfunc_normal4():
+def test_clamp_normal4():
     # both, inclusive
     assert list(clamp(toT(range(10)), low=T(2), high=T(7),
                       inclusive=True)) == toT([3, 4, 5, 6])
 
 
 @memory_leak_decorator()
-def test_applyfunc_normal5():
+def test_clamp_normal5():
     # no low/high
     assert list(clamp(toT(range(10)))) == toT([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
 
 
 @memory_leak_decorator()
-def test_applyfunc_normal6():
+def test_clamp_normal6():
     # only low without remove
     assert list(clamp(toT(range(10)), T(2), remove=False)) == (
             toT([2, 2, 2, 3, 4, 5, 6, 7, 8, 9]))
 
 
 @memory_leak_decorator()
-def test_applyfunc_normal7():
+def test_clamp_normal7():
     # only high without remove
     assert list(clamp(toT(range(10)), high=T(7),
                       remove=False)) == toT([0, 1, 2, 3, 4, 5, 6, 7, 7, 7])
 
 
 @memory_leak_decorator()
-def test_applyfunc_normal8():
+def test_clamp_normal8():
     # both without remove
     assert list(clamp(toT(range(10)), low=T(2), high=T(7),
                       remove=False)) == toT([2, 2, 2, 3, 4, 5, 6, 7, 7, 7])
 
 
 @memory_leak_decorator(collect=True)
-def test_applyfunc_failure1():
+def test_clamp_failure1():
     with pytest.raises(TypeError):
         list(clamp(toT(range(10)), T('a'), T(3)))
 
 
 @memory_leak_decorator(collect=True)
-def test_applyfunc_failure2():
+def test_clamp_failure2():
     with pytest.raises(TypeError):
         list(clamp(map(T, range(10)), T(3), T('a')))
+
+
+@memory_leak_decorator(collect=True)
+def test_clamp_failure3():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError) as exc:
+        next(clamp(failingTIterator()))
+    assert 'eq expected 2 arguments, got 1' in str(exc)
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
-def test_applyfunc_pickle1():
+def test_clamp_pickle1():
     clmp = clamp(toT(range(10)), T(2), T(7))
     assert next(clmp) == T(2)
     x = pickle.dumps(clmp)
@@ -99,7 +107,7 @@ def test_applyfunc_pickle1():
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
-def test_applyfunc_pickle2():
+def test_clamp_pickle2():
     # inclusive
     clmp = clamp(map(T, range(10)), T(2), T(7), inclusive=True)
     assert next(clmp) == T(3)
@@ -110,7 +118,7 @@ def test_applyfunc_pickle2():
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
-def test_applyfunc_pickle3():
+def test_clamp_pickle3():
     # only low
     clmp = clamp(map(T, range(10)), T(2))
     assert next(clmp) == T(2)
@@ -121,7 +129,7 @@ def test_applyfunc_pickle3():
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
-def test_applyfunc_pickle4():
+def test_clamp_pickle4():
     # only high
     clmp = clamp(map(T, range(10)), high=T(7))
     assert next(clmp) == T(0)
@@ -132,7 +140,7 @@ def test_applyfunc_pickle4():
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
-def test_applyfunc_pickle5():
+def test_clamp_pickle5():
     # only high, with inclusive
     clmp = clamp(map(T, range(10)), high=T(7), inclusive=True)
     assert next(clmp) == T(0)
@@ -143,7 +151,7 @@ def test_applyfunc_pickle5():
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
-def test_applyfunc_pickle6():
+def test_clamp_pickle6():
     # only low, with inclusive
     clmp = clamp(map(T, range(10)), T(2), inclusive=True)
     assert next(clmp) == T(3)
@@ -154,7 +162,7 @@ def test_applyfunc_pickle6():
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
-def test_applyfunc_pickle7():
+def test_clamp_pickle7():
     # no low no high
     clmp = clamp(map(T, range(10)))
     assert next(clmp) == T(0)
@@ -165,7 +173,7 @@ def test_applyfunc_pickle7():
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
-def test_applyfunc_pickle8():
+def test_clamp_pickle8():
     # only high but without remove
     clmp = clamp(map(T, range(10)), high=T(7), remove=False)
     assert next(clmp) == T(0)

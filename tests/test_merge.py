@@ -12,7 +12,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T, toT
+from helper_cls import T, toT, failingTIterator
 
 
 merge = iteration_utilities.merge
@@ -187,6 +187,32 @@ def test_merge_failure10():
     # comparison fails
     with pytest.raises(TypeError):
         list(merge([T(1), T('b')], [T(2), T(3)]))
+
+
+@memory_leak_decorator(collect=True)
+def test_merge_failure11():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError) as exc:
+        next(merge(failingTIterator()))
+    assert 'eq expected 2 arguments, got 1' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_merge_failure12():
+    # Test that a failing iterator doesn't raise a SystemError
+    with pytest.raises(TypeError) as exc:
+        next(merge([T(1), T(1)], failingTIterator()))
+    assert 'eq expected 2 arguments, got 1' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_merge_failure13():
+    # Test that a failing iterator doesn't raise a SystemError
+    mge = merge(failingTIterator(offset=2, repeats=10))
+    assert next(mge) == T(1)
+    with pytest.raises(TypeError) as exc:
+        next(mge)
+    assert 'eq expected 2 arguments, got 1' in str(exc)
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
