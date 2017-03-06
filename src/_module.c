@@ -18,6 +18,8 @@
 #include "complement.c"
 #include "const.c"
 #include "flip.c"
+#include "packed.c"
+
 #include "nth.c"
 
 #include "argminmax.c"
@@ -43,6 +45,7 @@
 #include "roundrobin.c"
 #include "sideeffect.c"
 #include "split.c"
+#include "starfilter.c"
 #include "successive.c"
 #include "tabulate.c"
 #include "uniqueever.c"
@@ -152,6 +155,8 @@ PyDoc_STRVAR(PyIU_module_doc, "API: C Functions\n----------------");
         &PyIUType_Complement,
         &PyIUType_Constant,
         &PyIUType_Flip,
+        &PyIUType_Packed,
+
         &PyIUType_Nth,
 
         &PyIUType_Accumulate,
@@ -166,6 +171,7 @@ PyDoc_STRVAR(PyIU_module_doc, "API: C Functions\n----------------");
         &PyIUType_Roundrobin,
         &PyIUType_Sideeffects,
         &PyIUType_Split,
+        &PyIUType_Starfilter,
         &PyIUType_Successive,
         &PyIUType_Tabulate,
         &PyIUType_UniqueEver,

@@ -58,6 +58,7 @@ Processing an iterable
 - :py:func:`reversed`
 - :py:func:`~iteration_utilities.sideeffects` (not implemented in `Iterable`)
 - :py:func:`~iteration_utilities.split`
+- :py:func:`~iteration_utilities.starfilter`
 - :py:func:`itertools.starmap`
 - :py:func:`~iteration_utilities.successive`
 - :py:func:`~iteration_utilities._recipes._core.tail`
