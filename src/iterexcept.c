@@ -114,16 +114,10 @@ iterexcept_next(PyIUObject_Iterexcept *self)
 static PyObject *
 iterexcept_reduce(PyIUObject_Iterexcept *self)
 {
-    if (self->first == NULL) {
-        return Py_BuildValue("O(OO)", Py_TYPE(self),
-                             self->func,
-                             self->except);
-    } else {
-        return Py_BuildValue("O(OOO)", Py_TYPE(self),
-                             self->func,
-                             self->except,
-                             self->first);
-    }
+    return Py_BuildValue("O(OOO)", Py_TYPE(self),
+                         self->func,
+                         self->except,
+                         self->first ? self->first : Py_None);
 }
 
 /******************************************************************************
