@@ -19,6 +19,9 @@ Version 0.3.0 (not released)
 - fixed a segfault in :py:func:`~iteration_utilities.complement.__call__`
   when the function raised an Exception.
 
+- fixed a segfault in :py:func:`~iteration_utilities._cfuns.partition`
+  when ``bool(item)`` raised an Exception.
+
 
 Version 0.2.1 (01.03.2017)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -60,6 +60,7 @@ PyIU_Partition(PyObject *m,
 
         ok = PyObject_IsTrue(temp);
         Py_DECREF(temp);
+        temp = NULL;
 
         if (ok == 1) {
             if (PyList_Append(result2, item) < 0) {
@@ -69,7 +70,7 @@ PyIU_Partition(PyObject *m,
             if (PyList_Append(result1, item) < 0) {
                 goto Fail;
             }
-        } else if (ok < 0) {
+        } else {
             goto Fail;
         }
         Py_DECREF(item);
