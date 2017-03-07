@@ -26,6 +26,10 @@ Version 0.3.0 (not released)
   when two of the ``keep*`` parameters are True. The case where all three were
   given already raised the correct exception.
 
+- :py:func:`~iteration_utilities.clamp` now interprets ``low=None`` or
+  ``high=None`` as if the corresponding value wasn't given. Before it tried to
+  compare the items with ``None``.
+
 
 Version 0.2.1 (01.03.2017)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^

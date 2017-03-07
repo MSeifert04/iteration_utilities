@@ -74,6 +74,13 @@ def test_clamp_normal8():
                       remove=False)) == toT([2, 2, 2, 3, 4, 5, 6, 7, 7, 7])
 
 
+@memory_leak_decorator()
+def test_clamp_normal9():
+    # no low/high (given as None)
+    assert list(clamp(toT(range(10)),
+                      None, None)) == toT([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+
 @memory_leak_decorator(collect=True)
 def test_clamp_failure1():
     with pytest.raises(TypeError):
@@ -92,6 +99,20 @@ def test_clamp_failure3():
     with pytest.raises(TypeError) as exc:
         next(clamp(failingTIterator()))
     assert 'eq expected 2 arguments, got 1' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_clamp_failure4():
+    # Not iterable
+    with pytest.raises(TypeError):
+        clamp(T(1))
+
+
+@memory_leak_decorator(collect=True)
+def test_clamp_failure5():
+    # Too few arguments
+    with pytest.raises(TypeError):
+        clamp()
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

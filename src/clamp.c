@@ -25,24 +25,32 @@ clamp_new(PyTypeObject *type,
     static char *kwlist[] = {"iterable", "low", "high", "inclusive", "remove", NULL};
     PyIUObject_Clamp *self;
 
-    PyObject *iterable, *iterator, *low=NULL, *high=NULL;
+    PyObject *iterable;
+    PyObject *iterator=NULL;
+    PyObject *low=NULL;
+    PyObject *high=NULL;
     int inclusive=0, remove=1;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OOii:clamp", kwlist,
                                      &iterable, &low, &high, &inclusive, &remove)) {
-        return NULL;
+        goto Fail;
+    }
+    if (low == Py_None) {
+        low = NULL;
+    }
+    if (high == Py_None) {
+        high = NULL;
     }
 
     /* Create and fill struct */
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
-        return NULL;
+        goto Fail;
     }
     self = (PyIUObject_Clamp *)type->tp_alloc(type, 0);
     if (self == NULL) {
-        Py_DECREF(iterator);
-        return NULL;
+        goto Fail;
     }
     Py_XINCREF(low);
     Py_XINCREF(high);
@@ -52,6 +60,10 @@ clamp_new(PyTypeObject *type,
     self->inclusive = inclusive;
     self->remove = remove;
     return (PyObject *)self;
+
+Fail:
+    Py_XDECREF(iterator);
+    return NULL;
 }
 
 /******************************************************************************
@@ -139,49 +151,12 @@ clamp_next(PyIUObject_Clamp *self)
 static PyObject *
 clamp_reduce(PyIUObject_Clamp *self)
 {
-    if (self->low == NULL && self->high == NULL) {
-        return Py_BuildValue("O(O)(ii)", Py_TYPE(self),
-                             self->iterator, self->inclusive, self->remove);
-    } else if (self->high == NULL) {
-        return Py_BuildValue("O(OO)(ii)", Py_TYPE(self),
-                             self->iterator, self->low, self->inclusive, self->remove);
-    } else if (self->low == NULL) {
-        return Py_BuildValue("O(O)(Oii)", Py_TYPE(self),
-                             self->iterator, self->high, self->inclusive, self->remove);
-    } else {
-        return Py_BuildValue("O(OOOii)", Py_TYPE(self),
-                             self->iterator, self->low, self->high, self->inclusive, self->remove);
-    }
-}
-
-/******************************************************************************
- * Setstate
- *****************************************************************************/
-
-static PyObject *
-clamp_setstate(PyIUObject_Clamp *self,
-               PyObject *state)
-{
-    PyObject *high=NULL;
-    int inclusive, remove;
-
-    if (PyTuple_Size(state) == 3) {
-        if (!PyArg_ParseTuple(state, "Oii", &high, &inclusive, &remove)) {
-            return NULL;
-        }
-    } else {
-        if (!PyArg_ParseTuple(state, "ii", &inclusive, &remove)) {
-            return NULL;
-        }
-    }
-    if (high != NULL) {
-        Py_CLEAR(self->high);
-        Py_XINCREF(high);
-        self->high = high;
-    }
-    self->inclusive = inclusive;
-    self->remove = remove;
-    Py_RETURN_NONE;
+    return Py_BuildValue("O(OOOii)", Py_TYPE(self),
+                         self->iterator,
+                         self->low ? self->low : Py_None,
+                         self->high ? self->high : Py_None,
+                         self->inclusive,
+                         self->remove);
 }
 
 /******************************************************************************
@@ -211,7 +186,6 @@ static PyMethodDef clamp_methods[] = {
     {"__length_hint__", (PyCFunction)clamp_lengthhint, METH_NOARGS, PYIU_lenhint_doc},
 #endif
     {"__reduce__", (PyCFunction)clamp_reduce, METH_NOARGS, PYIU_reduce_doc},
-    {"__setstate__", (PyCFunction)clamp_setstate, METH_O, PYIU_setstate_doc},
     {NULL, NULL}
 };
 
