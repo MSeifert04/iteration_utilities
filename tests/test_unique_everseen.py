@@ -118,6 +118,32 @@ def test_uniqueeverseen_failure4():
         unique_everseen()
 
 
+@memory_leak_decorator(collect=True)
+def test_uniqueeverseen_failure5():
+    # Failure when comparing the object to the objects in the list
+    class NoHashNoEq():
+        def __hash__(self):
+            raise TypeError('cannot be hashed')
+        def __eq__(self, other):
+            raise ValueError('bad class')
+
+    with pytest.raises(ValueError) as exc:
+        list(unique_everseen([[T(1)], NoHashNoEq()]))
+    assert 'bad class' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_uniqueeverseen_failure6():
+    # Failure (no TypeError) when trying to hash the value
+    class NoHash():
+        def __hash__(self):
+            raise ValueError('bad class')
+
+    with pytest.raises(ValueError) as exc:
+        list(unique_everseen([T(1), NoHash()]))
+    assert 'bad class' in str(exc)
+
+
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
