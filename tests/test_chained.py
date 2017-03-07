@@ -75,6 +75,12 @@ def test_chained_failure4():
         chained(lambda x: x*2, lambda x: x+1)(T('a'))
 
 
+@memory_leak_decorator(collect=True)
+def test_chained_failure5():
+    with pytest.raises(TypeError):  # second func fails
+        chained(lambda x: x*2, lambda x: x+1, all=True)(T('a'))
+
+
 @memory_leak_decorator(offset=1)
 def test_chained_pickle1():
     cmp = chained(iteration_utilities.square, iteration_utilities.reciprocal)

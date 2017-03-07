@@ -23,7 +23,8 @@ chained_new(PyTypeObject *type,
 {
     PyIUObject_Chained *self;
 
-    PyObject *kwarg, *funcargs=NULL;
+    PyObject *kwarg;
+    PyObject *funcargs=NULL;
     Py_ssize_t nkwargs;
     int reverse = 0;
     int all = 0;
@@ -31,7 +32,7 @@ chained_new(PyTypeObject *type,
     /* Parse arguments */
     if (funcs == NULL || !PyTuple_Check(funcs) || PyTuple_Size(funcs) <= 0) {
         PyErr_Format(PyExc_TypeError, "at least 1 function must be given.");
-        return NULL;
+        goto Fail;
     }
 
     if (kwargs != NULL && PyDict_Check(kwargs) && PyDict_Size(kwargs)) {
@@ -52,19 +53,18 @@ chained_new(PyTypeObject *type,
         if (PyDict_Size(kwargs) - nkwargs != 0) {
             PyErr_Format(PyExc_TypeError,
                          "`chained` got an unexpected keyword argument");
-            return NULL;
+            goto Fail;
         }
     }
 
     funcargs = PyTuple_New(1);
     if (funcargs == NULL) {
-        return NULL;
+        goto Fail;
     }
     /* Create struct */
     self = (PyIUObject_Chained *)type->tp_alloc(type, 0);
     if (self == NULL) {
-        Py_DECREF(funcargs);
-        return NULL;
+        goto Fail;
     }
     Py_INCREF(funcs);
     self->funcs = funcs;
@@ -72,6 +72,10 @@ chained_new(PyTypeObject *type,
     self->all = all;
     self->funcargs = funcargs;
     return (PyObject *)self;
+
+Fail:
+    Py_XDECREF(funcargs);
+    return NULL;
 }
 
 /******************************************************************************
