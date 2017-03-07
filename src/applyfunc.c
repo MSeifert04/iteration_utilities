@@ -28,18 +28,17 @@ applyfunc_new(PyTypeObject *type,
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO:applyfunc", kwlist,
                                      &func, &initial)) {
-        return NULL;
+        goto Fail;
     }
     funcargs = PyTuple_New(1);
     if (funcargs == NULL) {
-        return NULL;
+        goto Fail;
     }
 
     /* Create and fill struct */
     self = (PyIUObject_Applyfunc *)type->tp_alloc(type, 0);
     if (self == NULL) {
-        Py_DECREF(funcargs);
-        return NULL;
+        goto Fail;
     }
     Py_INCREF(func);
     Py_INCREF(initial);
@@ -48,6 +47,10 @@ applyfunc_new(PyTypeObject *type,
     self->funcargs = funcargs;
 
     return (PyObject *)self;
+
+Fail:
+    Py_XDECREF(funcargs);
+    return NULL;
 }
 
 /******************************************************************************

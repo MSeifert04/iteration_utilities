@@ -35,6 +35,13 @@ def test_applyfunc_failure1():
         list(getitem(applyfunc(lambda x: x**T(2), T('a')), stop=3))
 
 
+@memory_leak_decorator(collect=True)
+def test_applyfunc_failure2():
+    # Too few arguments
+    with pytest.raises(TypeError):
+        applyfunc(bool)
+
+
 @memory_leak_decorator(offset=1)
 def test_applyfunc_pickle1():
     apf = applyfunc(iteration_utilities.square, T(2))
