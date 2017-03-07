@@ -60,6 +60,20 @@ def test_flip_failure1():
         flip(isinstance)(10, float)
 
 
+@memory_leak_decorator(collect=True)
+def test_flip_failure2():
+    # Too few arguments
+    with pytest.raises(TypeError):
+        flip()
+
+
+@memory_leak_decorator(collect=True)
+def test_flip_failure3():
+    # Too many arguments
+    with pytest.raises(TypeError):
+        flip(isinstance, bool)
+
+
 @memory_leak_decorator(offset=1)
 def test_flip_pickle1():
     x = pickle.dumps(flip(isinstance))
