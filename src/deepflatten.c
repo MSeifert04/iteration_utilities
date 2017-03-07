@@ -26,29 +26,34 @@ deepflatten_new(PyTypeObject *type,
     static char *kwlist[] = {"iterable", "depth", "types", "ignore", NULL};
     PyIUObject_DeepFlatten *self;
 
-    PyObject *iterable, *iterator, *iteratorlist, *types=NULL, *ignore=NULL;
-    Py_ssize_t depth=-1, i;
+    PyObject *iterable;
+    PyObject *iterator=NULL;
+    PyObject *iteratorlist=NULL;
+    PyObject *types=NULL;
+    PyObject *ignore=NULL;
+    Py_ssize_t depth=-1;
+    Py_ssize_t i;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|nOO:deepflatten", kwlist,
                                      &iterable, &depth, &types, &ignore)) {
-        return NULL;
+        goto Fail;
     }
 
     /* Create and fill struct */
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
-        return NULL;
+        goto Fail;
     }
     /* Create a list of size "depth+1" or if depth was not given use 3 for
        a start. Fill all entries with None except for the first which should
        be the iterator over the iterable. */
     iteratorlist = PyList_New(depth >= 0 ? depth + 1 : 3);
     if (iteratorlist == NULL) {
-        Py_DECREF(iterator);
-        return NULL;
+        goto Fail;
     } else {
         PyList_SET_ITEM(iteratorlist, 0, iterator);
+        iterator = NULL;
     }
     for (i=1 ; i < PyList_Size(iteratorlist) ; i++) {
         Py_INCREF(Py_None);
@@ -56,8 +61,7 @@ deepflatten_new(PyTypeObject *type,
     }
     self = (PyIUObject_DeepFlatten *)type->tp_alloc(type, 0);
     if (self == NULL) {
-        Py_DECREF(iteratorlist);
-        return NULL;
+        goto Fail;
     }
     Py_XINCREF(types);
     Py_XINCREF(ignore);
@@ -68,6 +72,11 @@ deepflatten_new(PyTypeObject *type,
     self->currentdepth = 0;
     self->isstring = 0;
     return (PyObject *)self;
+
+Fail:
+    Py_XDECREF(iterator);
+    Py_XDECREF(iteratorlist);
+    return NULL;
 }
 
 /******************************************************************************
