@@ -73,6 +73,24 @@ def test_uniqueeverseen_getter1():
     assert t.key is None
 
 
+@memory_leak_decorator()
+def test_uniqueeverseen_getter2():
+    t = unique_everseen([T(1), T([0, 0]), T(3)],
+                        iteration_utilities.return_identity)
+    assert not t.seen
+    assert t.key is iteration_utilities.return_identity
+    assert next(t) == T(1)
+    assert t.seen == Seen({T(1)})
+    assert t.key is iteration_utilities.return_identity
+    assert next(t) == T([0, 0])
+    assert T(1) in t.seen
+    assert T([0, 0]) in t.seen
+    assert t.key is iteration_utilities.return_identity
+    assert next(t) == T(3)
+    assert t.seen == Seen({T(1), T(3)}, [T([0, 0])])
+    assert t.key is iteration_utilities.return_identity
+
+
 @memory_leak_decorator(collect=True)
 def test_uniqueeverseen_failure1():
     with pytest.raises(TypeError):
@@ -91,6 +109,13 @@ def test_uniqueeverseen_failure3():
     with pytest.raises(TypeError) as exc:
         next(unique_everseen(failingTIterator()))
     assert 'eq expected 2 arguments, got 1' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_uniqueeverseen_failure4():
+    # Too few arguments
+    with pytest.raises(TypeError):
+        unique_everseen()
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
