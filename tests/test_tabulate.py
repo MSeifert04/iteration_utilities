@@ -62,6 +62,13 @@ def test_tabulate_failure3():
         next(tab)
 
 
+@memory_leak_decorator(collect=True)
+def test_tabulate_failure4():
+    # Too few arguments
+    with pytest.raises(TypeError):
+        tabulate()
+
+
 @memory_leak_decorator(offset=1)
 def test_tabulate_pickle1():
     rr = tabulate(T)
