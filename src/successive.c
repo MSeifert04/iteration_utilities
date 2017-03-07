@@ -23,34 +23,38 @@ successive_new(PyTypeObject *type,
     static char *kwlist[] = {"iterable", "times", NULL};
     PyIUObject_Successive *self;
 
-    PyObject *iterable, *iterator;
+    PyObject *iterable;
+    PyObject *iterator = NULL;
     Py_ssize_t times = 2;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|n:successive", kwlist,
                                      &iterable, &times)) {
-        return NULL;
+        goto Fail;
     }
     if (times <= 0) {
         PyErr_Format(PyExc_ValueError,
                      "times must be greater than 0.");
-        return NULL;
+        goto Fail;
     }
 
     /* Create and fill struct */
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
-        return NULL;
+        goto Fail;
     }
     self = (PyIUObject_Successive *)type->tp_alloc(type, 0);
     if (self == NULL) {
-        Py_DECREF(iterator);
-        return NULL;
+        goto Fail;
     }
     self->iterator = iterator;
     self->times = times;
     self->result = NULL;
     return (PyObject *)self;
+
+Fail:
+    Py_XDECREF(iterator);
+    return NULL;
 }
 
 /******************************************************************************
