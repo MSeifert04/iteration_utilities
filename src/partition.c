@@ -8,37 +8,38 @@ PyIU_Partition(PyObject *m,
                PyObject *kwargs)
 {
     static char *kwlist[] = {"iterable", "func", NULL};
-    PyObject *iterable=NULL, *func=Py_None;
-    PyObject *iterator, *item, *result1, *result2, *result, *temp=NULL;
-    PyObject *funcargs=NULL, *tmp=NULL;
+    PyObject *iterable=NULL;
+    PyObject *func=NULL;
+    PyObject *iterator=NULL;
+    PyObject *item=NULL;
+    PyObject *result1=NULL;
+    PyObject *result2=NULL;
+    PyObject *funcargs=NULL;
+    PyObject *tmp=NULL;
+    PyObject *temp=NULL;
+    PyObject *result=NULL;
     long ok;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:partition", kwlist,
                                      &iterable, &func)) {
-        return NULL;
+        goto Fail;
     }
 
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
-        return NULL;
+        goto Fail;
     }
 
     result1 = PyList_New(0);
     result2 = PyList_New(0);
 
     if (result1 == NULL || result2 == NULL) {
-        Py_XDECREF(result1);
-        Py_XDECREF(result2);
-        Py_DECREF(iterator);
-        return NULL;
+        goto Fail;
     }
 
     funcargs = PyTuple_New(1);
     if (funcargs == NULL) {
-        Py_XDECREF(result1);
-        Py_XDECREF(result2);
-        Py_DECREF(iterator);
-        return NULL;
+        goto Fail;
     }
 
     if (func == Py_None || func == (PyObject *)&PyBool_Type) {
@@ -47,9 +48,9 @@ PyIU_Partition(PyObject *m,
 
     while ((item = (*Py_TYPE(iterator)->tp_iternext)(iterator))) {
 
-        if (func == NULL || func == (PyObject *)&PyBool_Type) {
+        if (func == NULL) {
             temp = item;
-            Py_INCREF(item);
+            Py_INCREF(temp);
         } else {
             PYIU_RECYCLE_ARG_TUPLE(funcargs, item, tmp, goto Fail)
             temp = PyObject_Call(func, funcargs, NULL);
