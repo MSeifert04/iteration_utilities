@@ -27,12 +27,12 @@ sideeffects_new(PyTypeObject *type,
     PyIUObject_Sideeffects *self;
 
     PyObject *iterable;
-    PyObject *iterator;
     PyObject *func;
+    PyObject *iterator=NULL;
+    PyObject *collected=NULL;
+    PyObject *funcargs=NULL;
     Py_ssize_t times = 0;
     Py_ssize_t count = 0;
-    PyObject *collected;
-    PyObject *funcargs;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|n:sideeffects", kwlist,
@@ -45,28 +45,22 @@ sideeffects_new(PyTypeObject *type,
     } else {
         collected = PyTuple_New(times);
         if (collected == NULL) {
-            return NULL;
+            goto Fail;
         }
     }
 
     /* Create and fill struct */
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
-        Py_XDECREF(collected);
-        return NULL;
+        goto Fail;
     }
     funcargs = PyTuple_New(1);
     if (funcargs == NULL) {
-        Py_XDECREF(collected);
-        Py_DECREF(iterator);
-        return NULL;
+        goto Fail;
     }
     self = (PyIUObject_Sideeffects *)type->tp_alloc(type, 0);
     if (self == NULL) {
-        Py_XDECREF(collected);
-        Py_DECREF(iterator);
-        Py_DECREF(funcargs);
-        return NULL;
+        goto Fail;
     }
     Py_INCREF(func);
     self->iterator = iterator;
@@ -76,6 +70,12 @@ sideeffects_new(PyTypeObject *type,
     self->collected = collected;
     self->funcargs = funcargs;
     return (PyObject *)self;
+
+Fail:
+    Py_XDECREF(collected);
+    Py_XDECREF(iterator);
+    Py_XDECREF(funcargs);
+    return NULL;
 }
 
 /******************************************************************************
@@ -174,9 +174,15 @@ sideeffects_next(PyIUObject_Sideeffects *self)
             } else {
                 Py_DECREF(temp);
             }
-            /* If the "collected" has a refcount of 1 after calling the
-               function reuse it, otherwise create a new one */
-            if (Py_REFCNT(self->collected) == 1) {
+            /* Try to reuse collected if possible. In this case the "funcargs"
+               and the class own a reference to collected so we can only
+               reuse the collected tuple IF nobody except the instance owns
+               the "funcargs" and nobody except the instance and the funcargs
+               owns the "collected". This can be up to 40-50% faster for small
+               "times" values. Even for relativly bigger ones this is still
+               10% faster. */
+            if (Py_REFCNT(self->funcargs) == 1 &&
+                    Py_REFCNT(self->collected) <= 2) {
                 for (i=0 ; i < self->times ; i++) {
                     temp = PyTuple_GET_ITEM(self->collected, i);
                     PyTuple_SET_ITEM(self->collected, i, NULL);
