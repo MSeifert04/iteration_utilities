@@ -24,12 +24,15 @@ uniquejust_new(PyTypeObject *type,
     static char *kwlist[] = {"iterable", "key", NULL};
     PyIUObject_UniqueJust *self;
 
-    PyObject *iterable, *iterator, *keyfunc=NULL, *funcargs=NULL;
+    PyObject *iterable;
+    PyObject *iterator=NULL;
+    PyObject *keyfunc=NULL;
+    PyObject *funcargs=NULL;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:unique_justseen", kwlist,
                                      &iterable, &keyfunc)) {
-        return NULL;
+        goto Fail;
     }
 
     /* Create and fill struct */
@@ -38,18 +41,15 @@ uniquejust_new(PyTypeObject *type,
     }
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
-        return NULL;
+        goto Fail;
     }
     funcargs = PyTuple_New(1);
     if (funcargs == NULL) {
-        return NULL;
+        goto Fail;
     }
     self = (PyIUObject_UniqueJust *)type->tp_alloc(type, 0);
     if (self == NULL) {
-        Py_DECREF(iterator);
-        Py_XDECREF(keyfunc);
-        Py_XDECREF(funcargs);
-        return NULL;
+        goto Fail;
     }
     Py_XINCREF(keyfunc);
     self->iterator = iterator;
@@ -57,6 +57,11 @@ uniquejust_new(PyTypeObject *type,
     self->lastitem = NULL;
     self->funcargs = funcargs;
     return (PyObject *)self;
+
+Fail:
+    Py_XDECREF(iterator);
+    Py_XDECREF(funcargs);
+    return NULL;
 }
 
 /******************************************************************************
