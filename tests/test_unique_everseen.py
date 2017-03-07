@@ -124,6 +124,7 @@ def test_uniqueeverseen_failure5():
     class NoHashNoEq():
         def __hash__(self):
             raise TypeError('cannot be hashed')
+
         def __eq__(self, other):
             raise ValueError('bad class')
 

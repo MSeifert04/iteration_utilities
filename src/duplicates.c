@@ -30,39 +30,37 @@ duplicates_new(PyTypeObject *type,
     static char *kwlist[] = {"iterable", "key", NULL};
     PyIUObject_Duplicates *self;
 
-    PyObject *iterable, *iterator, *seen, *key=NULL, *funcargs=NULL;
+    PyObject *iterable;
+    PyObject *iterator=NULL;
+    PyObject *seen=NULL;
+    PyObject *key=NULL;
+    PyObject *funcargs=NULL;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:duplicates", kwlist,
                                      &iterable, &key)) {
-        return NULL;
+        goto Fail;
     }
     if (key == Py_None) {
         key = NULL;
     }
     funcargs = PyTuple_New(1);
     if (funcargs == NULL) {
-        return NULL;
+        goto Fail;
     }
 
     /* Create and fill struct */
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
-        Py_DECREF(funcargs);
-        return NULL;
+        goto Fail;
     }
     seen = PyIUSeen_New();
     if (seen == NULL) {
-        Py_DECREF(funcargs);
-        Py_DECREF(iterator);
-        return NULL;
+        goto Fail;
     }
     self = (PyIUObject_Duplicates *)type->tp_alloc(type, 0);
     if (self == NULL) {
-        Py_DECREF(funcargs);
-        Py_DECREF(iterator);
-        Py_DECREF(seen);
-        return NULL;
+        goto Fail;
     }
     Py_XINCREF(key);
     self->iterator = iterator;
@@ -70,6 +68,12 @@ duplicates_new(PyTypeObject *type,
     self->seen = seen;
     self->funcargs = funcargs;
     return (PyObject *)self;
+
+Fail:
+    Py_XDECREF(funcargs);
+    Py_XDECREF(iterator);
+    Py_XDECREF(seen);
+    return NULL;
 }
 
 /******************************************************************************
