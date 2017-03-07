@@ -48,6 +48,13 @@ def test_iterexcept_failure1():
         list(iter_except(({T('a'): T(10)}).popitem, ValueError))
 
 
+@memory_leak_decorator(collect=True)
+def test_iterexcept_failure2():
+    # too few arguments
+    with pytest.raises(TypeError):
+        iter_except()
+
+
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,
                    reason='cannot pickle this on Python < 3.4.')
 @memory_leak_decorator(offset=1)
