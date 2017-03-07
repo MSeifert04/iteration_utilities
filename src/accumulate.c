@@ -29,12 +29,16 @@ accumulate_new(PyTypeObject *type,
     static char *kwlist[] = {"iterable", "func", "start", NULL};
     PyIUObject_Accumulate *self;
 
-    PyObject *iterator, *iterable, *binop=NULL, *start=NULL, *funcargs=NULL;
+    PyObject *iterable;
+    PyObject *iterator=NULL;
+    PyObject *binop=NULL;
+    PyObject *start=NULL;
+    PyObject *funcargs=NULL;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OO:accumulate", kwlist,
                                      &iterable, &binop, &start)) {
-        return NULL;
+        goto Fail;
     }
     if (binop == Py_None) {
         binop = NULL;
@@ -43,17 +47,15 @@ accumulate_new(PyTypeObject *type,
     /* Create and fill struct */
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
-        return NULL;
+        goto Fail;
     }
     funcargs = PyTuple_New(2);
     if (funcargs == NULL) {
-        Py_DECREF(iterator);
-        return NULL;
+        goto Fail;
     }
     self = (PyIUObject_Accumulate *)type->tp_alloc(type, 0);
     if (self == NULL) {
-        Py_DECREF(iterator);
-        return NULL;
+        goto Fail;
     }
     Py_XINCREF(binop);
     Py_XINCREF(start);
@@ -62,6 +64,11 @@ accumulate_new(PyTypeObject *type,
     self->total = start;
     self->funcargs = funcargs;
     return (PyObject *)self;
+
+Fail:
+    Py_XDECREF(funcargs);
+    Py_XDECREF(iterator);
+    return NULL;
 }
 
 /******************************************************************************
