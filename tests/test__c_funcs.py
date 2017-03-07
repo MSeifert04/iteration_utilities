@@ -8,8 +8,10 @@ import pytest
 import iteration_utilities
 
 # Test helper
+from helper_leak import memory_leak_decorator
 
 
+@memory_leak_decorator()
 def test_other_c_funcs():
     assert iteration_utilities.return_True()
     assert not iteration_utilities.return_False()
@@ -35,6 +37,28 @@ def test_other_c_funcs():
 
     assert not iteration_utilities.is_iterable(1)
     assert iteration_utilities.is_iterable([1])
+
+
+@memory_leak_decorator(collect=True)
+def test_reverse_math_ops():
+    assert iteration_utilities.radd(1, 2) == 3
+    assert iteration_utilities.rsub(1, 2) == 1
+    assert iteration_utilities.rmul(1, 2) == 2
+    assert iteration_utilities.rdiv(1, 2) == 2
+    assert iteration_utilities.rfdiv(1, 2) == 2
+    assert iteration_utilities.rpow(1, 2) == 2
+    assert iteration_utilities.rmod(1, 2) == 0
+
+    for rfunc in [iteration_utilities.radd, iteration_utilities.rsub,
+                  iteration_utilities.rmul, iteration_utilities.rdiv,
+                  iteration_utilities.rfdiv, iteration_utilities.rpow,
+                  iteration_utilities.rmod]:
+        with pytest.raises(TypeError):
+            # Too few arguments
+            rfunc(1)
+        with pytest.raises(TypeError):
+            # Too many arguments
+            rfunc(1, 2, 3)
 
 
 @pytest.mark.skipif(not iteration_utilities.GE_PY35,
