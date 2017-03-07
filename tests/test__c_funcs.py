@@ -48,6 +48,32 @@ def test_other_c_funcs_failures():
         # no positional argument given.
         iteration_utilities.return_first_arg(test=10)
 
+    x = object()
+    with pytest.raises(TypeError):
+        iteration_utilities.is_even(x)
+    with pytest.raises(TypeError):
+        iteration_utilities.is_odd(x)
+
+    class NoBool(object):
+        def __bool__(self):
+            raise ValueError('bad class')
+        def __mod__(self, other):
+            return self
+        __nonzero__ = __bool__
+    with pytest.raises(ValueError) as exc:
+        iteration_utilities.is_even(NoBool())
+    assert 'bad class' in str(exc)
+    with pytest.raises(ValueError) as exc:
+        iteration_utilities.is_odd(NoBool())
+    assert 'bad class' in str(exc)
+
+    class NoIter(object):
+        def __iter__(self):
+            raise ValueError('bad class')
+    with pytest.raises(ValueError) as exc:
+        iteration_utilities.is_iterable(NoIter())
+    assert 'bad class' in str(exc)
+
 @memory_leak_decorator(collect=True)
 def test_reverse_math_ops():
     assert iteration_utilities.radd(1, 2) == 3
