@@ -23,29 +23,32 @@ starfilter_new(PyTypeObject *type,
     PyIUObject_Starfilter *self;
 
     PyObject *iterable;
-    PyObject *iterator;
     PyObject *func;
+    PyObject *iterator=NULL;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO:starfilter", kwlist,
                                      &func, &iterable)) {
-        return NULL;
+        goto Fail;
     }
 
     /* Create and fill struct */
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
-        return NULL;
+        goto Fail;
     }
     self = (PyIUObject_Starfilter *)type->tp_alloc(type, 0);
     if (self == NULL) {
-        Py_DECREF(iterator);
-        return NULL;
+        goto Fail;
     }
     Py_INCREF(func);
     self->iterator = iterator;
     self->func = func;
     return (PyObject *)self;
+
+Fail:
+    Py_XDECREF(iterator);
+    return NULL;
 }
 
 /******************************************************************************

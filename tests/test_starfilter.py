@@ -118,6 +118,13 @@ def test_starfilter_failure8():
     assert 'eq expected 2 arguments, got 1' in str(exc)
 
 
+@memory_leak_decorator(collect=True)
+def test_starfilter_failure9():
+    # Too few arguments
+    with pytest.raises(TypeError):
+        starfilter()
+
+
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)

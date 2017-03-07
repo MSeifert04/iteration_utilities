@@ -32,6 +32,7 @@ def test_all_equal_normal2():
 
 @memory_leak_decorator()
 def test_all_equal_normal3():
+    # generator
     assert all_equal(i for i in [T(1), T(1), T(1)])
 
 
