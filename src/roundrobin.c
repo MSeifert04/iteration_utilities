@@ -22,7 +22,9 @@ roundrobin_new(PyTypeObject *type,
 {
     PyIUObject_Roundrobin *self;
 
-    PyObject *iteratortuple, *item, *iterator;
+    PyObject *iteratortuple=NULL;
+    PyObject *item;
+    PyObject *iterator;
     Py_ssize_t numactive, idx;
 
     /* Parse arguments */
@@ -31,26 +33,28 @@ roundrobin_new(PyTypeObject *type,
     /* Create and fill struct */
     iteratortuple = PyTuple_New(numactive);
     if (iteratortuple == NULL) {
-        return NULL;
+        goto Fail;
     }
     for (idx = 0 ; idx<numactive ; idx++) {
         item = PyTuple_GET_ITEM(args, idx);
         iterator = PyObject_GetIter(item);
         if (iterator == NULL) {
-            Py_DECREF(iteratortuple);
-            return NULL;
+            goto Fail;
         }
         PyTuple_SET_ITEM(iteratortuple, idx, iterator);
     }
     self = (PyIUObject_Roundrobin *)type->tp_alloc(type, 0);
     if (self == NULL) {
-        Py_DECREF(iteratortuple);
-        return NULL;
+        goto Fail;
     }
     self->iteratortuple = iteratortuple;
     self->numactive = numactive;
     self->active = 0;
     return (PyObject *)self;
+
+Fail:
+    Py_XDECREF(iteratortuple);
+    return NULL;
 }
 
 /******************************************************************************
