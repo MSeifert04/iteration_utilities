@@ -40,6 +40,15 @@ def test_other_c_funcs():
 
 
 @memory_leak_decorator(collect=True)
+def test_other_c_funcs_failures():
+    with pytest.raises(TypeError):
+          # no argument given.
+        iteration_utilities.return_first_arg()
+    with pytest.raises(TypeError):
+        # no positional argument given.
+        iteration_utilities.return_first_arg(test=10)
+
+@memory_leak_decorator(collect=True)
 def test_reverse_math_ops():
     assert iteration_utilities.radd(1, 2) == 3
     assert iteration_utilities.rsub(1, 2) == 1
