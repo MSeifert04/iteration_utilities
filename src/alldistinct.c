@@ -33,8 +33,8 @@ PyIU_AllDistinct(PyObject *m,
         Py_DECREF(item);
     }
 
-    Py_XDECREF(iterator);
-    Py_XDECREF(seen);
+    Py_DECREF(iterator);
+    Py_DECREF(seen);
 
     if (PyErr_Occurred()) {
         if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
