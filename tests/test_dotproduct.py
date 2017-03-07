@@ -31,6 +31,13 @@ def test_dotproduct_normal2():
                       [T(100), T(200), T(300)]) == T(140000)
 
 
+@memory_leak_decorator()
+def test_dotproduct_normal3():
+    # generators
+    assert dotproduct((i for i in [T(1), T(2), T(3)]),
+                      (i for i in [T(1), T(2), T(3)])) == T(14)
+
+
 @memory_leak_decorator(collect=True)
 def test_dotproduct_failure1():
     # first iterable is not iterable
@@ -79,3 +86,10 @@ def test_dotproduct_failure7():
     with pytest.raises(TypeError) as exc:
         dotproduct(failingTIterator(), failingTIterator())
     assert 'eq expected 2 arguments, got 1' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_dotproduct_failure8():
+    # Too few arguments
+    with pytest.raises(TypeError):
+        dotproduct()
