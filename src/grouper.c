@@ -25,7 +25,10 @@ grouper_new(PyTypeObject *type,
     static char *kwlist[] = {"iterable", "n", "fillvalue", "truncate", NULL};
     PyIUObject_Grouper *self;
 
-    PyObject *iterable, *iterator, *fillvalue = NULL, *result = NULL;
+    PyObject *iterable;
+    PyObject *iterator = NULL;
+    PyObject *fillvalue = NULL;
+    PyObject *result = NULL;
     Py_ssize_t times;
     int truncate = 0;
 
@@ -33,27 +36,26 @@ grouper_new(PyTypeObject *type,
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "On|Oi:grouper", kwlist,
                                      &iterable, &times,
                                      &fillvalue, &truncate)) {
-        return NULL;
+        goto Fail;
     }
     if (fillvalue != NULL && truncate != 0) {
         PyErr_Format(PyExc_TypeError,
                      "cannot specify both `truncate` and `fillvalue`.");
-        return NULL;
+        goto Fail;
     }
     if (times <= 0) {
         PyErr_Format(PyExc_ValueError, "`n` must be greater than 0.");
-        return NULL;
+        goto Fail;
     }
 
     /* Create and fill struct */
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
-        return NULL;
+        goto Fail;
     }
     self = (PyIUObject_Grouper *)type->tp_alloc(type, 0);
     if (self == NULL) {
-        Py_DECREF(iterator);
-        return NULL;
+        goto Fail;
     }
     Py_XINCREF(fillvalue);
     self->iterator = iterator;
@@ -62,6 +64,10 @@ grouper_new(PyTypeObject *type,
     self->truncate = truncate;
     self->result = result;
     return (PyObject *)self;
+
+Fail:
+    Py_XDECREF(iterator);
+    return NULL;
 }
 
 /******************************************************************************
