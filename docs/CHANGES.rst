@@ -22,6 +22,10 @@ Version 0.3.0 (not released)
 - fixed a segfault in :py:func:`~iteration_utilities._cfuns.partition`
   when ``bool(item)`` raised an Exception.
 
+- included a missing ``ValueError`` in  :py:func:`~iteration_utilities.split`
+  when two of the ``keep*`` parameters are True. The case where all three were
+  given already raised the correct exception.
+
 
 Version 0.2.1 (01.03.2017)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
