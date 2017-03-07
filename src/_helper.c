@@ -3,6 +3,14 @@
  *****************************************************************************/
 
 /******************************************************************************
+ * Missing stdlib MACROS
+ *
+ * PySet_CheckExact : check for a set but not subtype
+ *****************************************************************************/
+
+#define PySet_CheckExact(ob) (Py_TYPE(ob) == &PySet_Type)
+
+/******************************************************************************
  * Compatibility macros
  *
  * Py_RETURN_NOTIMPLEMENTED : sets TypeError and returns NULL.
