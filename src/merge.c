@@ -37,7 +37,11 @@ merge_new(PyTypeObject *type,
 {
     PyIUObject_Merge *self;
 
-    PyObject *iteratortuple, *iterator, *keyfunc=NULL, *reversekw=NULL, *funcargs=NULL;
+    PyObject *iteratortuple=NULL;
+    PyObject *iterator=NULL;
+    PyObject *keyfunc=NULL;
+    PyObject *reversekw=NULL;
+    PyObject *funcargs=NULL;
     Py_ssize_t numactive, idx, nkwargs;
     int reverse = Py_LT;
 
@@ -64,38 +68,29 @@ merge_new(PyTypeObject *type,
         if (PyDict_Size(kwargs) - nkwargs != 0) {
             PyErr_Format(PyExc_TypeError,
                          "merge got an unexpected keyword argument");
-            Py_XDECREF(keyfunc);
-            return NULL;
+            goto Fail;
         }
     }
 
     /* Create and fill struct */
     iteratortuple = PyTuple_New(numactive);
     if (iteratortuple == NULL) {
-        Py_XDECREF(keyfunc);
-        return NULL;
+        goto Fail;
     }
     for (idx=0 ; idx<numactive ; idx++) {
         iterator = PyObject_GetIter(PyTuple_GET_ITEM(args, idx));
         if (iterator == NULL) {
-            Py_DECREF(iteratortuple);
-            Py_XDECREF(keyfunc);
-            return NULL;
+            goto Fail;
         }
         PyTuple_SET_ITEM(iteratortuple, idx, iterator);
     }
     funcargs = PyTuple_New(1);
     if (funcargs == NULL) {
-        Py_DECREF(iteratortuple);
-        Py_XDECREF(keyfunc);
-        return NULL;
+        goto Fail;
     }
     self = (PyIUObject_Merge *)type->tp_alloc(type, 0);
     if (self == NULL) {
-        Py_DECREF(iteratortuple);
-        Py_XDECREF(keyfunc);
-        Py_XDECREF(funcargs);
-        return NULL;
+        goto Fail;
     }
     self->iteratortuple = iteratortuple;
     self->keyfunc = keyfunc;
@@ -104,6 +99,12 @@ merge_new(PyTypeObject *type,
     self->numactive = numactive;
     self->funcargs = funcargs;
     return (PyObject *)self;
+
+Fail:
+    Py_XDECREF(iteratortuple);
+    Py_XDECREF(keyfunc);
+    Py_XDECREF(funcargs);
+    return NULL;
 }
 
 /******************************************************************************
