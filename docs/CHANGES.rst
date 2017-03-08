@@ -2,8 +2,12 @@ Changelog for "iteration_utilities"
 -----------------------------------
 
 
-Version 0.3.0 (not released)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Version 0.3.1 or 0.4.0 (unreleased)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+Version 0.3.0 (2017-03-09)
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - implemented ``__length_hint__`` method for :py:func:`~iteration_utilities.clamp`.
   However sensible results (!= 0) are only possible if ``remove=False`` or
@@ -31,13 +35,13 @@ Version 0.3.0 (not released)
   compare the items with ``None``.
 
 
-Version 0.2.1 (01.03.2017)
+Version 0.2.1 (2017-03-01)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - fixed segfault in ``nth`` when ``retpred=True``.
 
 
-Version 0.2.0 (27.02.2017)
+Version 0.2.0 (2017-02-27)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - added ``remove`` parameter to :py:func:`~iteration_utilities.clamp`.
@@ -45,7 +49,7 @@ Version 0.2.0 (27.02.2017)
   recusive-iterable classes a RecursionException is raised instead of freezing.
 
 
-Version 0.1.0 (25.01.2017)
+Version 0.1.0 (2017-01-25)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - initial release
