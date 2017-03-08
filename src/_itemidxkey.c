@@ -75,11 +75,14 @@ PyIU_ItemIdxKey_FromC(PyObject *item,
 {
     /* STEALS REFERENCES!!! */
     PyIUObject_ItemIdxKey *self;
-    /* Verify inputs. */
+    /* Verifing the inputs could be done but the API isn't exported and it
+       should never be NULL we can neglect this check for the sake of
+       performance:
     if (item == NULL) {
         PyErr_Format(PyExc_TypeError, "`item` must be given.");
         return NULL;
     }
+    */
     /* Create and fill new ItemIdxKey. */
     self = PyObject_GC_New(PyIUObject_ItemIdxKey, &PyIUType_ItemIdxKey);
     if (self == NULL) {
