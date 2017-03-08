@@ -16,10 +16,10 @@ Version 0.3.0 (not released)
 
 - added :py:func:`~iteration_utilities.packed` callback class.
 
-- fixed a segfault in :py:func:`~iteration_utilities.complement.__call__`
-  when the function raised an Exception.
+- fixed a segfault in :py:func:`~iteration_utilities.complement` ``__call__``
+  method when the function raised an Exception.
 
-- fixed a segfault in :py:func:`~iteration_utilities._cfuns.partition`
+- fixed a segfault in :py:func:`~iteration_utilities._cfuncs.partition`
   when ``bool(item)`` raised an Exception.
 
 - included a missing ``ValueError`` in  :py:func:`~iteration_utilities.split`
