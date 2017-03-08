@@ -14,7 +14,7 @@ Functools for one function
   ``lambda func: not func``.
 - :py:func:`flip`, reverse the order of the arguments passed to the function.
   Equivalent to
-  ``lambda func: lambda *args, **kwargs: func(*list(reversed(args)), kwargs)``
+  ``lambda func: lambda *args, **kwargs: func(*list(reversed(args)), **kwargs)``
 - :py:func:`functools.lru_cache`, cache the return value of a function.
 - :py:func:`functools.partial`, partially set the arguments of a function
 - :py:class:`functools.partialmethod`, same as ``partial`` but works on methods.
