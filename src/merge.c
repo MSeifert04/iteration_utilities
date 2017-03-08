@@ -14,6 +14,94 @@
  *****************************************************************************/
 
 
+
+/******************************************************************************
+ * ------------------------------- HELPER -------------------------------------
+ *
+ * Find the position to insert a value in an already sorted tuple. Assumes that
+ * the sorting should be stable and searches the rightmost place where the
+ * tuple is still sorted.
+ *
+ * Function will compare first to the "hi-1"-th element and then start
+ * bisecting. (See inline code for explanation).
+ *
+ * tuple : Sorted tuple to inspect
+ * item  : Value to search the position for.
+ * hi    : Upper index to search for.
+ * cmpop : The comparison operator to use. For example Py_LT for a tuple sorted
+ *         from low to high or Py_GT for a tuple sorted from high to low.
+ *
+ * Returns -1 on failure otherwise a positive Py_ssize_t value.
+ *
+ * Copied and modified from the python bisect module.
+ *****************************************************************************/
+
+Py_ssize_t
+PyUI_TupleBisectRight_LastFirst(PyObject *tuple,
+                                PyObject *item,
+                                Py_ssize_t hi,
+                                int cmpop)
+{
+    /* Temporary variables */
+    PyObject *litem;
+    int res;
+
+    /* Indices for the left end and mid of the current part of the array.
+       The right end (hi) is given as input.
+       */
+    Py_ssize_t mid, lo = 0;
+
+    /* Bisection has two worst cases: If it should be inserted in the first or
+       last place. The list is reverse-ordered so it's likely that the
+       bisection could return the last place (for bisect_left it would be the
+       first) in the "merge_sorted" function.
+
+       Checking the number of comparisons in "merge" shows that merge now uses
+       slightly less comparisons than "sorted" in the average case, slightly
+       more in the worst case and much less in the best case! */
+
+    /* So let's check the last item first! */
+    if (hi <= 0) {
+        return 0;
+    }
+    litem = PyTuple_GET_ITEM(tuple, hi-1);
+    /* if (litem) { // should not happen
+     */
+        res = PyIU_ItemIdxKey_Compare(item, litem, cmpop);
+        if (res == 1) {
+            return hi;
+        } else if (res == 0) {
+            hi = hi - 1;
+        } else {
+            return -1;
+        }
+    /*} else { // belongs to the above commented if
+        return -1;
+    } */
+
+    /* Start the normal bisection algorithm from biscet.c */
+    while (lo < hi) {
+        mid = ((size_t)lo + hi) / 2;
+        litem = PyTuple_GET_ITEM(tuple, mid);
+        /* if (litem) { // should not happen
+         */
+            res = PyIU_ItemIdxKey_Compare(item, litem, cmpop);
+            if (res == 1) {
+                lo = mid + 1;
+            } else if (res == 0) {
+                hi = mid;
+            } else {
+                return -1;
+            }
+        /*} else { // belongs to the above commented if
+            return -1;
+        } */
+    }
+    return lo;
+}
+
+
+
 typedef struct {
     PyObject_HEAD
     PyObject *iteratortuple;

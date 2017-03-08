@@ -141,27 +141,22 @@ itemidxkey_repr(PyIUObject_ItemIdxKey *s)
  * Richcompare
  *****************************************************************************/
 
-static PyObject *
-itemidxkey_richcompare(PyObject *v,
-                       PyObject *w,
-                       int op)
+
+int
+PyIU_ItemIdxKey_Compare(PyObject *v,
+                        PyObject *w,
+                        int op)
 {
+    /* Several assumptions in here:
+       - That the objects are actually PyIUObject_ItemIdxKey objects.
+       - That no other operator than > or < is going here.
+       */
     PyObject *item1, *item2;
     PyIUObject_ItemIdxKey *l, *r;
-    int ok;
-
-    /* Only allow < and > for now */
-    switch (op) {
-        case Py_LT: break;
-        case Py_GT: break;
-        default: Py_RETURN_NOTIMPLEMENTED;
-    }
-    /* only allow ItemIdxKey to be compared. */
-    if (!PyIU_ItemIdxKey_CheckExact(v) || !PyIU_ItemIdxKey_CheckExact(w))
-        Py_RETURN_NOTIMPLEMENTED;
 
     l = (PyIUObject_ItemIdxKey *)v;
     r = (PyIUObject_ItemIdxKey *)w;
+
     /* Compare items if key is NULL otherwise compare keys. */
     if (l->key == NULL) {
         item1 = l->item;
@@ -170,6 +165,7 @@ itemidxkey_richcompare(PyObject *v,
         item1 = l->key;
         item2 = r->key;
     }
+
     /* The order to check for equality and lt makes a huge performance
        difference:
        - lots of duplicates: first eq then "op"
@@ -178,17 +174,11 @@ itemidxkey_richcompare(PyObject *v,
 
        --> I chose eq then "op" but the other version is also avaiable as
        comment. */
+
     if (l->idx < r->idx) {
         op = (op == Py_LT) ? Py_LE : Py_GE;
     }
-    ok = PyObject_RichCompareBool(item1, item2, op);
-    if (ok == 1) {
-        Py_RETURN_TRUE;
-    } else if (ok == 0) {
-        Py_RETURN_FALSE;
-    } else {
-        return NULL;
-    }
+    return PyObject_RichCompareBool(item1, item2, op);
 
     /* First eq then "op" : Better if there are lots of duplicates! Worse if
                             there are few or None!
@@ -255,6 +245,34 @@ itemidxkey_richcompare(PyObject *v,
         return NULL;
     }
     */
+}
+
+
+static PyObject *
+itemidxkey_richcompare(PyObject *v,
+                       PyObject *w,
+                       int op)
+{
+    int ok;
+
+    /* Only allow < and > for now */
+    switch (op) {
+        case Py_LT: break;
+        case Py_GT: break;
+        default: Py_RETURN_NOTIMPLEMENTED;
+    }
+    /* only allow ItemIdxKey to be compared. */
+    if (!PyIU_ItemIdxKey_CheckExact(v) || !PyIU_ItemIdxKey_CheckExact(w))
+        Py_RETURN_NOTIMPLEMENTED;
+
+    ok = PyIU_ItemIdxKey_Compare(v, w, op);
+    if (ok == 1) {
+        Py_RETURN_TRUE;
+    } else if (ok == 0) {
+        Py_RETURN_FALSE;
+    } else {
+        return NULL;
+    }
 }
 
 /******************************************************************************
