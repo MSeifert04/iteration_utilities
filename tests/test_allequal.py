@@ -30,6 +30,12 @@ def test_all_equal_normal2():
     assert not all_equal([T(1), T(1), T(2)])
 
 
+@memory_leak_decorator()
+def test_all_equal_normal3():
+    # generator
+    assert all_equal(i for i in [T(1), T(1), T(1)])
+
+
 @memory_leak_decorator(collect=True)
 def test_all_equal_failure1():
     # not iterable

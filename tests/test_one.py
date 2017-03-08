@@ -30,6 +30,12 @@ def test_one_normal3():
     assert one({T('o'): T(10)}) == T('o')
 
 
+@memory_leak_decorator()
+def test_one_normal4():
+    # generator with one item
+    assert one(i for i in [T(0)]) == T(0)
+
+
 @memory_leak_decorator(collect=True)
 def test_one_failure1():
     with pytest.raises(TypeError):
@@ -64,3 +70,10 @@ def test_one_failure5():
     with pytest.raises(TypeError) as exc:
         one(failingTIterator(offset=1))
     assert 'eq expected 2 arguments, got 1' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_one_failure6():
+    # generator without items
+    with pytest.raises(ValueError):
+        one(i for i in [])

@@ -9,8 +9,13 @@ PyIU_Count(PyObject *m,
 {
     static char *kwlist[] = {"iterable", "pred", "eq", NULL};
 
-    PyObject *iterable, *iterator, *item, *val=NULL, *pred=NULL;
-    PyObject *tmp=NULL, *funcargs=NULL;
+    PyObject *iterable;
+    PyObject *item=NULL;
+    PyObject *iterator=NULL;
+    PyObject *val=NULL;
+    PyObject *pred=NULL;
+    PyObject *tmp=NULL;
+    PyObject *funcargs=NULL;
     Py_ssize_t sum_int = 0;
     int ok, eq=0;
 
@@ -18,31 +23,34 @@ PyIU_Count(PyObject *m,
                                      &iterable, &pred, &eq)) {
         return NULL;
     }
-    if (eq && pred==NULL) {
+    if (pred == Py_None) {
+        pred = NULL;
+    }
+    if (eq && pred == NULL) {
         PyErr_Format(PyExc_TypeError, "`pred` must be specified if `eq=True`.");
-        return NULL;
+        goto Fail;
     }
 
     funcargs = PyTuple_New(1);
     if (funcargs == NULL) {
-        return NULL;
+        goto Fail;
     }
 
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
-        Py_XDECREF(funcargs);
-        return NULL;
+        goto Fail;
     }
 
     while ((item = (*Py_TYPE(iterator)->tp_iternext)(iterator))) {
-        /* Always check for equality if "eq=1". */
-        if (eq) {
-            ok = PyObject_RichCompareBool(pred, item, Py_EQ);
-            Py_DECREF(item);
 
         /* No predicate given just set ok == 1 so the element is counted. */
-        } else if (pred == NULL || pred == Py_None) {
+        if (pred == NULL) {
             ok = 1;
+            Py_DECREF(item);
+
+        /* Always check for equality if "eq=1". */
+        } else if (eq) {
+            ok = PyObject_RichCompareBool(pred, item, Py_EQ);
             Py_DECREF(item);
 
         /* Predicate is bool, so we can skip the function call and just
@@ -77,15 +85,12 @@ PyIU_Count(PyObject *m,
            process some iterable that's longer than the maximum py_ssize_t...
            */
         if (sum_int == PY_SSIZE_T_MAX) {
-            Py_DECREF(iterator);
-            PyErr_Format(PyExc_TypeError,
-                         "`iterable` is too long to count.");
-            return NULL;
+            PyErr_Format(PyExc_TypeError, "`iterable` is too long to count.");
+            goto Fail;
         }
     }
 
     Py_XDECREF(funcargs);
-
     Py_DECREF(iterator);
 
     if (PyErr_Occurred()) {
@@ -103,7 +108,7 @@ PyIU_Count(PyObject *m,
 #endif
 
 Fail:
-    Py_DECREF(iterator);
+    Py_XDECREF(iterator);
     Py_XDECREF(funcargs);
     return NULL;
 }

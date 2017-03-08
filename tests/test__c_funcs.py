@@ -8,8 +8,10 @@ import pytest
 import iteration_utilities
 
 # Test helper
+from helper_leak import memory_leak_decorator
 
 
+@memory_leak_decorator()
 def test_other_c_funcs():
     assert iteration_utilities.return_True()
     assert not iteration_utilities.return_False()
@@ -35,6 +37,63 @@ def test_other_c_funcs():
 
     assert not iteration_utilities.is_iterable(1)
     assert iteration_utilities.is_iterable([1])
+
+
+@memory_leak_decorator(collect=True)
+def test_other_c_funcs_failures():
+    with pytest.raises(TypeError):
+          # no argument given.
+        iteration_utilities.return_first_arg()
+    with pytest.raises(TypeError):
+        # no positional argument given.
+        iteration_utilities.return_first_arg(test=10)
+
+    x = object()
+    with pytest.raises(TypeError):
+        iteration_utilities.is_even(x)
+    with pytest.raises(TypeError):
+        iteration_utilities.is_odd(x)
+
+    class NoBool(object):
+        def __bool__(self):
+            raise ValueError('bad class')
+        def __mod__(self, other):
+            return self
+        __nonzero__ = __bool__
+    with pytest.raises(ValueError) as exc:
+        iteration_utilities.is_even(NoBool())
+    assert 'bad class' in str(exc)
+    with pytest.raises(ValueError) as exc:
+        iteration_utilities.is_odd(NoBool())
+    assert 'bad class' in str(exc)
+
+    class NoIter(object):
+        def __iter__(self):
+            raise ValueError('bad class')
+    with pytest.raises(ValueError) as exc:
+        iteration_utilities.is_iterable(NoIter())
+    assert 'bad class' in str(exc)
+
+@memory_leak_decorator(collect=True)
+def test_reverse_math_ops():
+    assert iteration_utilities.radd(1, 2) == 3
+    assert iteration_utilities.rsub(1, 2) == 1
+    assert iteration_utilities.rmul(1, 2) == 2
+    assert iteration_utilities.rdiv(1, 2) == 2
+    assert iteration_utilities.rfdiv(1, 2) == 2
+    assert iteration_utilities.rpow(1, 2) == 2
+    assert iteration_utilities.rmod(1, 2) == 0
+
+    for rfunc in [iteration_utilities.radd, iteration_utilities.rsub,
+                  iteration_utilities.rmul, iteration_utilities.rdiv,
+                  iteration_utilities.rfdiv, iteration_utilities.rpow,
+                  iteration_utilities.rmod]:
+        with pytest.raises(TypeError):
+            # Too few arguments
+            rfunc(1)
+        with pytest.raises(TypeError):
+            # Too many arguments
+            rfunc(1, 2, 3)
 
 
 @pytest.mark.skipif(not iteration_utilities.GE_PY35,

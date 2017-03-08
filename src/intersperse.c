@@ -24,30 +24,33 @@ intersperse_new(PyTypeObject *type,
     static char *kwlist[] = {"iterable", "e", NULL};
     PyIUObject_Intersperse *self;
 
-    PyObject *iterable, *iterator, *filler;
+    PyObject *iterable, *iterator=NULL, *filler=NULL;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO:intersperse", kwlist,
                                      &iterable, &filler)) {
-        return NULL;
+        goto Fail;
     }
 
     /* Create and fill struct */
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
-        return NULL;
+        goto Fail;
     }
     self = (PyIUObject_Intersperse *)type->tp_alloc(type, 0);
     if (self == NULL) {
-        Py_DECREF(iterator);
-        return NULL;
+        goto Fail;
     }
-    Py_XINCREF(filler);
+    Py_INCREF(filler);
     self->iterator = iterator;
     self->filler = filler;
     self->nextitem = NULL;
     self->started = 0;
     return (PyObject *)self;
+
+Fail:
+    Py_XDECREF(iterator);
+    return NULL;
 }
 
 /******************************************************************************

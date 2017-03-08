@@ -1,0 +1,42 @@
+language: python
+
+os:
+  - linux
+
+python:
+  - "2.7"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+  - "3.5-dev" # 3.5 development branch
+  - "3.6"
+  - "3.6-dev" # 3.6 development branch
+  - "3.7-dev" # 3.7 development branch
+  - "nightly" # currently points to 3.7-dev
+
+matrix:
+  include:
+    #- python: "2.7"
+    #  os: osx
+    #- python: "3.5"
+    #  os: osx
+
+  allow_failures:
+    #- python: "3.7-dev"
+    #- python: "nightly"
+    #- python: "2.7"
+    #  os: osx
+    #- python: "3.5"
+    #  os: osx
+
+install:
+  - pip install cpp-coveralls
+  - export CFLAGS="-coverage -O0"
+  - python setup.py install
+
+# command to run tests
+script:
+  - python setup.py test
+
+after_success:
+  coveralls --exclude lib --exclude tests --gcov-options '\-lp'

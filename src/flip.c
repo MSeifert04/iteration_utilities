@@ -71,12 +71,12 @@ flip_call(PyIUObject_Flip *self,
           PyObject *args,
           PyObject *kwargs)
 {
-    PyObject *result, *newargs;
+    PyObject *result, *tmpargs;
 
-    if (args != NULL) {
-        newargs = PyUI_TupleReverse(args);
-        result = PyObject_Call(self->func, newargs, kwargs);
-        Py_DECREF(newargs);
+    if (PyTuple_GET_SIZE(args) >= 2) {
+        tmpargs = PyUI_TupleReverse(args);
+        result = PyObject_Call(self->func, tmpargs, kwargs);
+        Py_DECREF(tmpargs);
     } else {
         result = PyObject_Call(self->func, args, kwargs);
     }

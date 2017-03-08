@@ -40,21 +40,26 @@ PyObject *
 PyIUSeen_New(void)
 {
     /* Create and fill new object. */
-    PyObject *seenset;
     PyIUObject_Seen *self;
+
+    PyObject *seenset = NULL;
+
     seenset = PySet_New(NULL);
     if (seenset == NULL) {
-        return NULL;
+        goto Fail;
     }
     self = PyObject_GC_New(PyIUObject_Seen, &PyIUType_Seen);
     if (self == NULL) {
-        Py_DECREF(seenset);
-        return NULL;
+        goto Fail;
     }
     self->seenset = seenset;
     self->seenlist = NULL;
     PyObject_GC_Track(self);
     return (PyObject *)self;
+
+Fail:
+    Py_XDECREF(seenset);
+    return NULL;
 }
 
 /******************************************************************************
@@ -69,45 +74,48 @@ seen_new(PyTypeObject *type,
     static char *kwlist[] = {"seenset", "seenlist", NULL};
     PyIUObject_Seen *self;
 
-    PyObject *seenset=NULL, *seenlist=NULL;
+    PyObject *seenset = NULL;
+    PyObject *seenlist = NULL;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OO:Seen", kwlist,
                                      &seenset, &seenlist)) {
-        return NULL;
+        goto Fail;
     }
     if (seenset == NULL) {
         seenset = PySet_New(NULL);
         if (seenset == NULL) {
-            return NULL;
+            goto Fail;
         }
     } else {
-        if (PySet_Check(seenset) && PyAnySet_CheckExact(seenset)) {
-            Py_INCREF(seenset);
-        } else {
+        Py_INCREF(seenset);
+        if (!PySet_CheckExact(seenset)) {
             PyErr_Format(PyExc_TypeError, "`seenset` must be a set.");
-            return NULL;
+            goto Fail;
         }
     }
+
     if (seenlist != NULL && !PyList_CheckExact(seenlist)) {
         if (seenlist == Py_None) {
             seenlist = NULL;
         } else {
             PyErr_Format(PyExc_TypeError, "`seenlist` must be a list.");
-            return NULL;
+            goto Fail;
         }
     }
 
     self = (PyIUObject_Seen *)type->tp_alloc(type, 0);
     if (self == NULL) {
-        Py_DECREF(seenset);
-        Py_XDECREF(seenlist);
-        return NULL;
+        goto Fail;
     }
     Py_XINCREF(seenlist);
     self->seenset = seenset;
     self->seenlist = seenlist;
 
     return (PyObject *)self;
+
+Fail:
+    Py_XDECREF(seenset);
+    return NULL;
 }
 
 /******************************************************************************
@@ -144,7 +152,7 @@ static PyObject *
 seen_repr(PyIUObject_Seen *self)
 {
     if (self->seenlist != NULL && PyList_Size(self->seenlist) > 0) {
-        return PyUnicode_FromFormat("Seen(%R, unhashable=%R)",
+        return PyUnicode_FromFormat("Seen(%R, seenlist=%R)",
                                     self->seenset, self->seenlist);
     } else {
         return PyUnicode_FromFormat("Seen(%R)",
@@ -322,6 +330,15 @@ int
 PyIUSeen_ContainsAdd(PyObject *self,
                      PyObject *o)
 {
+    /* In the interest of keeping it fast, no check if it's really a Seen
+       instance - SEGFAULT if not!
+       However the API is not exported so only crashes in-library stuff.
+
+    if (!PyIUSeen_CheckExact(self)) {
+        PyErr_Format(PyExc_TypeError, "only works for `Seen` instances.");
+        return NULL;
+    }
+    */
     return seen_containsadd_direct((PyIUObject_Seen *)self, o);
 }
 
@@ -330,10 +347,6 @@ seen_containsadd(PyObject *self,
                  PyObject *o)
 {
     int ok;
-    if (!PyIUSeen_CheckExact(self)) {
-        PyErr_Format(PyExc_TypeError, "only works for `Seen` instances.");
-        return NULL;
-    }
     ok = seen_containsadd_direct((PyIUObject_Seen *)self, o);
     if (ok == 0) {
         Py_RETURN_FALSE;

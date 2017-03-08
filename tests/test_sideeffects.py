@@ -11,7 +11,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T, failingTIterator
+from helper_cls import T, toT, failingTIterator
 
 
 sideeffects = iteration_utilities.sideeffects
@@ -83,6 +83,27 @@ def test_sideeffects_normal5():
     assert l == [(T(1), T(2)), (T(3), )]
 
 
+@memory_leak_decorator()
+def test_sideeffects_normal6():
+    # generator
+    l = []
+    assert list(sideeffects((i for i in [T(1), T(2)]),
+                            l.append, 2)) == [T(1), T(2)]
+    assert l == [(T(1), T(2))]
+
+
+@memory_leak_decorator()
+def test_sideeffects_normal7():
+    # useless side-effect
+    assert list(sideeffects([T(1), T(2)], return_None)) == [T(1), T(2)]
+
+
+@memory_leak_decorator()
+def test_sideeffects_normal8():
+    # useless side-effect
+    assert list(sideeffects(toT(range(10)), return_None, 3)) == toT(range(10))
+
+
 @memory_leak_decorator(collect=True)
 def test_sideeffects_failure1():
     l = []
@@ -127,6 +148,13 @@ def test_sideeffects_failure7():
     with pytest.raises(TypeError) as exc:
         list(sideeffects(failingTIterator(), lambda x: x))
     assert 'eq expected 2 arguments, got 1' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_sideeffects_failure8():
+    # Too few arguments
+    with pytest.raises(TypeError):
+        sideeffects()
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

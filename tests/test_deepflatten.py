@@ -154,6 +154,44 @@ def test_deepflatten_failure4():
     assert 'eq expected 2 arguments, got 1' in str(exc)
 
 
+@memory_leak_decorator(collect=True)
+def test_deepflatten_failure5():
+    # not iterable
+    with pytest.raises(TypeError):
+        deepflatten(T(1))
+
+
+@memory_leak_decorator(collect=True)
+def test_deepflatten_failure6():
+    # specified not iterable type as types
+    with pytest.raises(TypeError):
+        list(deepflatten([T(1), 2., T(3), T(4)], types=float))
+
+
+@memory_leak_decorator(collect=True)
+def test_deepflatten_failure7():
+    # object that raises something else than TypeError when not iterable
+    class NotIterable(object):
+        def __iter__(self):
+            raise ValueError('bad class')
+
+    with pytest.raises(ValueError) as exc:
+        list(deepflatten([T(1), NotIterable(), T(3), T(4)]))
+    assert 'bad class' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_deepflatten_failure8():
+    # accessing iterator after exhausting the iterable
+
+    df = deepflatten(toT([1, 2, 3, 4]))
+
+    assert list(df) == toT([1, 2, 3, 4])
+
+    nothing = object()
+    assert next(df, nothing) is nothing
+
+
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)

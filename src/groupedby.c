@@ -9,9 +9,22 @@ PyIU_Groupby(PyObject *m,
 {
     static char *kwlist[] = {"iterable", "key", "keep", "reduce", "reducestart", NULL};
 
-    PyObject *iterable, *key1, *key2=NULL, *iterator, *item, *val, *lst, *keep;
-    PyObject *reduce=NULL, *reducestart=NULL, *reducetmp=NULL, *resdict;
-    PyObject *funcargs1=NULL, *funcargs2=NULL, *tmp1=NULL, *tmp2=NULL;
+    PyObject *iterable;
+    PyObject *key1;
+    PyObject *key2=NULL;
+    PyObject *iterator=NULL;
+    PyObject *item;
+    PyObject *val;
+    PyObject *lst;
+    PyObject *keep;
+    PyObject *reduce=NULL;
+    PyObject *reducestart=NULL;
+    PyObject *reducetmp=NULL;
+    PyObject *resdict=NULL;
+    PyObject *funcargs1=NULL;
+    PyObject *funcargs2=NULL;
+    PyObject *tmp1=NULL;
+    PyObject *tmp2=NULL;
     int ok;
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 5)
     Py_hash_t hash;
@@ -20,33 +33,29 @@ PyIU_Groupby(PyObject *m,
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|OOO:groupby", kwlist,
                                      &iterable, &key1, &key2, &reduce,
                                      &reducestart)) {
-        return NULL;
+        goto Fail;
     }
     if (reduce == NULL && reducestart != NULL) {
         PyErr_Format(PyExc_TypeError,
                      "cannot specify `reducestart` if no `reduce` is given.");
-        return NULL;
+        goto Fail;
     }
 
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
-        return NULL;
+        goto Fail;
     }
     resdict = PyDict_New();
     if (resdict == NULL) {
-        Py_DECREF(iterator);
-        return NULL;
+        goto Fail;
     }
     funcargs1 = PyTuple_New(1);
     if (funcargs1 == NULL) {
-        Py_DECREF(iterator);
-        Py_DECREF(resdict);
+        goto Fail;
     }
     funcargs2 = PyTuple_New(2);
     if (funcargs2 == NULL) {
-        Py_DECREF(funcargs1);
-        Py_DECREF(iterator);
-        Py_DECREF(resdict);
+        goto Fail;
     }
 
     while ( (item = (*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {

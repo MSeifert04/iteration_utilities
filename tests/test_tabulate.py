@@ -42,12 +42,22 @@ def test_tabulate_normal2():
 
 @memory_leak_decorator(collect=True)
 def test_tabulate_failure1():
-    with pytest.raises(TypeError):
-        next(tabulate(iteration_utilities.square, T(0.5)))
+
+    class T(object):
+        def __init__(self, val):
+            self.val = val
+
+        def __truediv__(self, other):
+            return self.__class__(self.val / other.val)
+
+    # Function call fails
+    with pytest.raises(ZeroDivisionError):
+        next(tabulate(lambda x: T(1)/x, T(0)))
 
 
 @memory_leak_decorator(collect=True)
 def test_tabulate_failure2():
+    # incrementing with one fails
     with pytest.raises(TypeError):
         next(tabulate(iteration_utilities.return_identity, T(0.5)))
 
@@ -60,6 +70,13 @@ def test_tabulate_failure3():
         next(tab)
     with pytest.raises(StopIteration):
         next(tab)
+
+
+@memory_leak_decorator(collect=True)
+def test_tabulate_failure4():
+    # Too few arguments
+    with pytest.raises(TypeError):
+        tabulate()
 
 
 @memory_leak_decorator(offset=1)

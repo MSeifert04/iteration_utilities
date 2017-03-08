@@ -40,6 +40,14 @@ def test_groupedby_normal2():
 
 
 @memory_leak_decorator()
+def test_groupedby_normal3():
+    # generator
+    assert groupedby((i for i in [T('a'), T('ab'), T('abc')]),
+                     key=lambda x: x.value[0]
+                     ) == {'a': toT(['a', 'ab', 'abc'])}
+
+
+@memory_leak_decorator()
 def test_groupedby_keep1():
     assert groupedby([T('a'), T('ba'), T('ab'), T('abc'), T('b')],
                      key=lambda x: x.value[0],
@@ -127,3 +135,10 @@ def test_groupedby_failure8():
     with pytest.raises(TypeError) as exc:
         groupedby(failingTIterator(), bool)
     assert 'eq expected 2 arguments, got 1' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_groupedby_failure9():
+    # too few arguments
+    with pytest.raises(TypeError):
+        groupedby()

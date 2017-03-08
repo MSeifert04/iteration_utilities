@@ -116,3 +116,10 @@ def test_argmin_failure9():
     with pytest.raises(TypeError) as exc:
         argmin(failingTIterator(), default=1)
     assert 'eq expected 2 arguments, got 1' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_argmin_failure10():
+    # not iterable
+    with pytest.raises(TypeError):
+        argmin(T(1))

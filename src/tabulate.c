@@ -28,7 +28,7 @@ tabulate_new(PyTypeObject *type,
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:tabulate", kwlist,
                                      &func, &cnt)) {
-        return NULL;
+        goto Fail;
     }
     if (cnt == NULL) {
 #if PY_MAJOR_VERSION == 2
@@ -36,20 +36,21 @@ tabulate_new(PyTypeObject *type,
 #else
         cnt = PyLong_FromLong(0);
 #endif
+        if (cnt == NULL) {
+            goto Fail;
+        }
     } else {
         Py_INCREF(cnt);
     }
     funcargs = PyTuple_New(1);
     if (funcargs == NULL) {
-        Py_DECREF(cnt);
+        goto Fail;
     }
 
     /* Create and fill struct */
     self = (PyIUObject_Tabulate *)type->tp_alloc(type, 0);
     if (self == NULL) {
-        Py_DECREF(cnt);
-        Py_DECREF(funcargs);
-        return NULL;
+        goto Fail;
     }
     Py_INCREF(func);
     self->func = func;
@@ -57,6 +58,11 @@ tabulate_new(PyTypeObject *type,
     self->funcargs = funcargs;
 
     return (PyObject *)self;
+
+Fail:
+    Py_XDECREF(cnt);
+    Py_XDECREF(funcargs);
+    return NULL;
 }
 
 /******************************************************************************

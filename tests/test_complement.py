@@ -50,6 +50,47 @@ def test_complement_normal7():
     assert complement(iteration_utilities.is_None)(True)
 
 
+@memory_leak_decorator(collect=True)
+def test_complement_failure1():
+    # Function raises an Exception
+    def failingfunction(x):
+        raise ValueError('bad function')
+
+    with pytest.raises(ValueError) as exc:
+        complement(failingfunction)(1)
+    assert 'bad function' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_complement_failure2():
+    # Function raturns an object that cannot be interpreted as boolean
+    class NoBool(object):
+        def __bool__(self):
+            raise ValueError('bad class')
+        __nonzero__ = __bool__
+
+    def failingfunction(x):
+        return NoBool()
+
+    with pytest.raises(ValueError) as exc:
+        complement(failingfunction)(1)
+    assert 'bad class' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_complement_failure3():
+    # Too many arguments
+    with pytest.raises(TypeError):
+        complement(bool, int)
+
+
+@memory_leak_decorator(collect=True)
+def test_complement_failure4():
+    # Too few arguments
+    with pytest.raises(TypeError):
+        complement()
+
+
 @memory_leak_decorator(offset=1)
 def test_complement_pickle1():
     x = pickle.dumps(complement(iteration_utilities.is_None))

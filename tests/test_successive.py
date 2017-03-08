@@ -63,6 +63,7 @@ def test_successive_normal4():
 
 @memory_leak_decorator(collect=True)
 def test_successive_failure1():
+    # Not iterable
     with pytest.raises(TypeError):
         successive(T(1))
 
@@ -79,6 +80,13 @@ def test_successive_failure3():
     with pytest.raises(TypeError) as exc:
         next(successive(failingTIterator(), 1))
     assert 'eq expected 2 arguments, got 1' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_successive_failure4():
+    # Too few arguments
+    with pytest.raises(TypeError):
+        successive()
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

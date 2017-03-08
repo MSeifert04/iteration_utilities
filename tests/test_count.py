@@ -32,6 +32,7 @@ def test_count_normal2():
 
 @memory_leak_decorator()
 def test_count_normal3():
+    # None as pred is equal to not giving any predicate
     assert count_items([T(0), T(0), T(1), T(1)], None) == 4
 
 
@@ -75,3 +76,38 @@ def test_count_failure3():
     with pytest.raises(TypeError) as exc:
         count_items(failingTIterator())
     assert 'eq expected 2 arguments, got 1' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_count_failure4():
+    # Too few arguments
+    with pytest.raises(TypeError):
+        count_items()
+
+
+@memory_leak_decorator(collect=True)
+def test_count_failure5():
+    # eq True but no pred
+    with pytest.raises(TypeError):
+        count_items([T(0)], eq=True)
+
+
+@memory_leak_decorator(collect=True)
+def test_count_failure6():
+    # eq True but pred None (like not given)
+    with pytest.raises(TypeError):
+        count_items([T(0)], pred=None, eq=True)
+
+
+@memory_leak_decorator(collect=True)
+def test_count_failure7():
+    # function returns item without boolean interpretation
+
+    class NoBool(object):
+        def __bool__(self):
+            raise ValueError('bad class')
+        __nonzero__ = __bool__
+
+    with pytest.raises(ValueError) as exc:
+        count_items([T(0)], lambda x: NoBool())
+    assert 'bad class' in str(exc)

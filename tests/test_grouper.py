@@ -58,6 +58,13 @@ def test_grouper_normal6():
 
 
 @memory_leak_decorator()
+def test_grouper_normal7():
+    # generator
+    assert list(grouper((i for i in toT([1, 2, 3, 4, 5, 6])), 3)
+                ) == [(T(1), T(2), T(3)), (T(4), T(5), T(6))]
+
+
+@memory_leak_decorator()
 def test_grouper_fill1():
     # with fillvalue
     assert list(grouper(toT([1]), 3,
@@ -168,6 +175,15 @@ def test_grouper_failure5():
     with pytest.raises(TypeError) as exc:
         next(grouper(failingTIterator(offset=1), 2))
     assert 'eq expected 2 arguments, got 1' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_grouper_failure6():
+    # Too few arguments
+    with pytest.raises(TypeError):
+        grouper()
+    with pytest.raises(TypeError):
+        grouper(toT([1, 2, 3, 4]))
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

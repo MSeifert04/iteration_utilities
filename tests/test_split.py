@@ -39,6 +39,13 @@ def test_split_normal2():
 
 
 @memory_leak_decorator()
+def test_split_normal3():
+    # using a generator
+    assert list(split((i for i in [T(1), T(2), T(3)]),
+                      lambda x: x.value == 2)) == [[T(1)], [T(3)]]
+
+
+@memory_leak_decorator()
 def test_split_keep1():
     assert list(split([T(1), T(2), T(3)], lambda x: x.value == 2,
                       keep=True)) == [[T(1)], [T(2)], [T(3)]]
@@ -117,24 +124,42 @@ def test_split_failure3():
 
 @memory_leak_decorator(collect=True)
 def test_split_failure4():
-    # more than one of the keeps is specified
-    with pytest.raises(TypeError):
-        list(split([T(1), T(2), T(3)], T('a'), keep=True, keep_before=True))
+    # more than one keep* parameter
+    with pytest.raises(ValueError) as exc:
+        split(toT([1, 2, 3, 4]), T(2), eq=True,
+              keep=True, keep_before=True)
+    assert ('only one or none of `keep`, `keep_before`, '
+            '`keep_after` may be set.' in str(exc))
 
 
 @memory_leak_decorator(collect=True)
 def test_split_failure5():
-    # more than one of the keeps is specified
-    with pytest.raises(TypeError):
-        list(split([T(1), T(2), T(3)], T('a'), keep=True, keep_after=True))
+    # more than one keep* parameter
+    with pytest.raises(ValueError) as exc:
+        split(toT([1, 2, 3, 4]), T(2), eq=True,
+              keep=True, keep_after=True)
+    assert ('only one or none of `keep`, `keep_before`, '
+            '`keep_after` may be set.' in str(exc))
 
 
 @memory_leak_decorator(collect=True)
 def test_split_failure6():
-    # more than one of the keeps is specified
-    with pytest.raises(TypeError):
-        list(split([T(1), T(2), T(3)], T('a'),
-                   keep_before=True, keep_after=True))
+    # more than one keep* parameter
+    with pytest.raises(ValueError) as exc:
+        split(toT([1, 2, 3, 4]), T(2), eq=True,
+              keep_before=True, keep_after=True)
+    assert ('only one or none of `keep`, `keep_before`, '
+            '`keep_after` may be set.' in str(exc))
+
+
+@memory_leak_decorator(collect=True)
+def test_split_failure11():
+    # more than one keep* parameter
+    with pytest.raises(ValueError) as exc:
+        split(toT([1, 2, 3, 4]), T(2), eq=True,
+              keep=True, keep_before=True, keep_after=True)
+    assert ('only one or none of `keep`, `keep_before`, '
+            '`keep_after` may be set.' in str(exc))
 
 
 @memory_leak_decorator(collect=True)
@@ -152,6 +177,21 @@ def test_split_failure8():
         next(split(failingTIterator(offset=1),
                    iteration_utilities.return_False))
     assert 'eq expected 2 arguments, got 1' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_split_failure9():
+    # Too few arguments
+    with pytest.raises(TypeError):
+        split()
+
+
+@memory_leak_decorator(collect=True)
+def test_split_failure10():
+    # maxsplit <= -2
+    with pytest.raises(ValueError) as exc:
+        split(toT([1, 2, 3, 4]), T(2), eq=True, maxsplit=-2)
+    assert '`maxsplit` must be -1 or greater.' in str(exc)
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

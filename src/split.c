@@ -30,7 +30,10 @@ split_new(PyTypeObject *type,
                              "keep", "keep_before", "keep_after", "eq", NULL};
     PyIUObject_Split *self;
 
-    PyObject *iterable, *iterator, *delimiter, *funcargs=NULL;
+    PyObject *iterable;
+    PyObject *delimiter;
+    PyObject *iterator=NULL;
+    PyObject *funcargs=NULL;
     Py_ssize_t maxsplit = -1;  /* -1 means no maxsplit! */
     int keep_delimiter = 0, keep_before = 0, keep_after = 0, cmp = 0;
 
@@ -39,34 +42,31 @@ split_new(PyTypeObject *type,
                                      &iterable, &delimiter,
                                      &maxsplit, &keep_delimiter,
                                      &keep_before, &keep_after, &cmp)) {
-        return NULL;
+        goto Fail;
     }
     if (maxsplit <= -2) {
-        PyErr_Format(PyExc_ValueError,
-                     "`maxsplit` must be -1 or greater.");
-        return NULL;
+        PyErr_Format(PyExc_ValueError, "`maxsplit` must be -1 or greater.");
+        goto Fail;
     }
-    if (keep_delimiter && keep_before && keep_after) {
+    if ((keep_delimiter ? 1 : 0) + (keep_before ? 1 : 0) +
+            (keep_after ? 1 : 0) > 1 ) {
         PyErr_Format(PyExc_ValueError,
                      "only one or none of `keep`, `keep_before`, `keep_after` may be set.");
-        return NULL;
+        goto Fail;
     }
 
     /* Create and fill struct */
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
-        return NULL;
+        goto Fail;
     }
     funcargs = PyTuple_New(1);
     if (funcargs == NULL) {
-        Py_DECREF(iterator);
-        return NULL;
+        goto Fail;
     }
     self = (PyIUObject_Split *)type->tp_alloc(type, 0);
     if (self == NULL) {
-        Py_DECREF(iterator);
-        Py_DECREF(funcargs);
-        return NULL;
+        goto Fail;
     }
     Py_INCREF(delimiter);
     self->iterator = iterator;
@@ -79,6 +79,12 @@ split_new(PyTypeObject *type,
     self->next = NULL;
     self->funcargs = funcargs;
     return (PyObject *)self;
+
+Fail:
+    Py_XDECREF(iterator);
+    Py_XDECREF(funcargs);
+    return NULL;
+
 }
 
 /******************************************************************************

@@ -34,6 +34,20 @@ def test_merge_empty3():
 
 
 @memory_leak_decorator()
+def test_merge_empty4():
+    # generator, one ends immediatly the other only after two items
+    assert list(merge((i for i in []),
+                      (i for i in (T(1), T(2))),
+                      {})) == [T(1), T(2)]
+
+
+@memory_leak_decorator()
+def test_merge_empty5():
+    # generator
+    assert list(merge((), {}, (i for i in []))) == []
+
+
+@memory_leak_decorator()
 def test_merge_normal1():
     for seq in itertools.permutations([[T(1)], [T(2)], [T(3)]]):
         assert list(merge(*seq)) == toT([1, 2, 3])

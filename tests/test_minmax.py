@@ -261,3 +261,21 @@ def test_minmax_failure13():
     with pytest.raises(TypeError) as exc:
         minmax(failingTIterator(offset=1))
     assert 'eq expected 2 arguments, got 1' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_minmax_failure14():
+    # Test a weird class that has lt but no gt method
+    class ltbutnogt(object):
+        def __init__(self, val):
+            self.val = val
+
+        def __lt__(self, other):
+            return self.val < other.val
+
+        def __gt__(self, other):
+            raise ValueError('no gt!')
+
+    with pytest.raises(ValueError) as exc:
+        minmax(ltbutnogt(10), ltbutnogt(5))
+    assert 'no gt!' in str(exc)

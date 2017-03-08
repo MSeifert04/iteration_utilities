@@ -82,6 +82,20 @@ def test_accumulate_failure4():
     assert 'eq expected 2 arguments, got 1' in str(exc)
 
 
+@memory_leak_decorator(collect=True)
+def test_accumulate_failure5():
+    # Not iterable
+    with pytest.raises(TypeError):
+        accumulate(T(1))
+
+
+@memory_leak_decorator(collect=True)
+def test_accumulate_failure6():
+    # Too few arguments
+    with pytest.raises(TypeError):
+        accumulate()
+
+
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)

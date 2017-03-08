@@ -27,6 +27,21 @@ def test_nth_normal2():
 
 
 @memory_leak_decorator()
+def test_nth_nopred_retpred1():
+    assert nth(2)(toT(range(10)), retpred=1) == T(2)
+
+
+@memory_leak_decorator()
+def test_nth_retidx1():
+    assert nth(2)(toT(range(10)), retidx=1) == 2
+
+
+@memory_leak_decorator()
+def test_nth_retidx2():
+    assert nth(2)(toT(range(10)), pred=bool, retidx=1) == 3
+
+
+@memory_leak_decorator()
 def test_nth_pred1():
     # With pred
     assert nth(1)([T(0), T(1), T(2)], pred=bool) == T(2)
@@ -105,6 +120,13 @@ def test_nth_default2():
 
 
 @memory_leak_decorator()
+def test_nth_default3():
+    # generator
+    assert nth(1)((i for i in [T(0), T(0), T(0)]),
+                  default=None, pred=bool) is None
+
+
+@memory_leak_decorator()
 def test_nth_regressiontest():
     # This segfaulted in earlier versions because the "val" intermediate
     # variable was decref'd for each item in the iterable.
@@ -114,7 +136,7 @@ def test_nth_regressiontest():
 
 @memory_leak_decorator(collect=True)
 def test_nth_failures1():
-    # failures
+    # not iterable
     with pytest.raises(TypeError):
         nth(10)(T(100))
 
@@ -139,6 +161,7 @@ def test_nth_failures4():
 
 @memory_leak_decorator(collect=True)
 def test_nth_failures5():
+    # item not an integer
     with pytest.raises(TypeError):
         nth('a')
 
@@ -149,6 +172,87 @@ def test_nth_failures6():
     with pytest.raises(TypeError) as exc:
         nth(1)(failingTIterator())
     assert 'eq expected 2 arguments, got 1' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_nth_failures7():
+    # too few arguments for __call__
+    with pytest.raises(TypeError):
+        nth(1)()
+
+
+@memory_leak_decorator(collect=True)
+def test_nth_failures8():
+    # too few arguments for __call__
+    with pytest.raises(TypeError):
+        nth(1)()
+
+
+@memory_leak_decorator(collect=True)
+def test_nth_failures9():
+    # too few arguments for __call__
+    with pytest.raises(ValueError) as exc:
+        nth(1)([T(0), T(1), T(2)], retpred=1, retidx=1)
+    assert 'can only specify `retpred` or `retidx`.' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_nth_failures10():
+    # indexerror with generator
+    with pytest.raises(IndexError):
+        nth(1)((i for i in [T(0)]), pred=bool)
+
+
+@memory_leak_decorator(collect=True)
+def test_nth_failures11():
+    # evaluating as boolean fails
+    class NoBool(object):
+        def __bool__(self):
+            raise ValueError('bad class')
+        __nonzero__ = __bool__
+
+    with pytest.raises(ValueError) as exc:
+        nth(1)([T(0)], pred=lambda x: NoBool())
+    assert 'bad class' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_nth_failures12():
+    # evaluating as boolean fails
+    class NoBool(object):
+        def __bool__(self):
+            raise ValueError('bad class')
+        __nonzero__ = __bool__
+
+    with pytest.raises(ValueError) as exc:
+        nth(1)([T(0)], pred=lambda x: NoBool(), retpred=1)
+    assert 'bad class' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_nth_failures13():
+    # evaluating as boolean fails
+    class NoBool(object):
+        def __bool__(self):
+            raise ValueError('bad class')
+        __nonzero__ = __bool__
+
+    with pytest.raises(ValueError) as exc:
+        nth(1)([T(0)], pred=lambda x: NoBool(), retidx=1)
+    assert 'bad class' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_nth_failures14():
+    # evaluating as boolean fails
+    class NoBool(object):
+        def __bool__(self):
+            raise ValueError('bad class')
+        __nonzero__ = __bool__
+
+    with pytest.raises(ValueError) as exc:
+        nth(1)([T(0)], pred=lambda x: NoBool(), truthy=0)
+    assert 'bad class' in str(exc)
 
 
 @memory_leak_decorator(offset=1)

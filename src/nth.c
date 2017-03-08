@@ -21,27 +21,31 @@ nth_new(PyTypeObject *type,
 {
     PyIUObject_Nth *self;
 
-    PyObject *funcargs;
+    PyObject *funcargs = NULL;
     Py_ssize_t index;
 
     /* Parse arguments */
     if (!PyArg_ParseTuple(args, "n:nth", &index)) {
-        return NULL;
+        goto Fail;
     }
+
     funcargs = PyTuple_New(1);
     if (funcargs == NULL) {
-        return NULL;
+        goto Fail;
     }
 
     /* Create struct */
     self = (PyIUObject_Nth *)type->tp_alloc(type, 0);
     if (self == NULL) {
-        Py_DECREF(funcargs);
-        return NULL;
+        goto Fail;
     }
     self->index = index;
     self->funcargs = funcargs;
     return (PyObject *)self;
+
+Fail:
+    Py_XDECREF(funcargs);
+    return NULL;
 }
 
 /******************************************************************************
@@ -88,7 +92,7 @@ nth_call(PyIUObject_Nth *self,
     Py_ssize_t idx, nfound=-1;
 
     /* Parse arguments */
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OOiii:nth", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OOiii:nth.__call__", kwlist,
                                      &iterable, &defaultitem, &func,
                                      &truthy, &retpred, &retidx)) {
         return NULL;

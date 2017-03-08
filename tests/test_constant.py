@@ -28,6 +28,13 @@ def test_constant_normal2():
     assert one(10, a=2) == T(1)
 
 
+@memory_leak_decorator()
+def test_constant_failure1():
+    # Too few arguments
+    with pytest.raises(TypeError):
+        const()
+
+
 @memory_leak_decorator(offset=1)
 def test_constant_pickle1():
     x = pickle.dumps(const(T(10)))

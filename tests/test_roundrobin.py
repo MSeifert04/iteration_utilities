@@ -50,6 +50,15 @@ def test_roundrobin_normal3():
                            )) == toT([1, 1, 1, 2, 2, 3])
 
 
+@memory_leak_decorator()
+def test_roundrobin_normal4():
+    # generator
+    assert list(roundrobin((i for i in [T(1), T(2), T(3)]),
+                           (i for i in [T(1)]),
+                           (i for i in [T(1), T(2)]))
+                ) == toT([1, 1, 1, 2, 2, 3])
+
+
 @memory_leak_decorator(collect=True)
 def test_roundrobin_failure1():
     with pytest.raises(TypeError):
