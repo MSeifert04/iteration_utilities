@@ -17,10 +17,18 @@ ItemIdxKey = iteration_utilities.ItemIdxKey
 
 
 @memory_leak_decorator()
-def test_itemidxkey_repr():
+def test_itemidxkey_repr1():
     # Just make sure the representation does not fail.
     assert repr(ItemIdxKey(T(10), 2))
     assert repr(ItemIdxKey(T(10), 2, T(10)))
+
+
+@memory_leak_decorator(collect=True)
+def test_itemidxkey_repr2():
+    # Just make sure the representation does not fail.
+    iik = ItemIdxKey(10, 2)
+    iik.item = [iik]
+    assert repr(iik) == 'ItemIdxKey(item=[ItemIdxKey(...)], idx=2)'
 
 
 @memory_leak_decorator(collect=True)

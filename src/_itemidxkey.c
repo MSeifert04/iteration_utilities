@@ -100,11 +100,11 @@ PyIU_ItemIdxKey_FromC(PyObject *item,
  *****************************************************************************/
 
 static void
-itemidxkey_dealloc(PyIUObject_ItemIdxKey *s)
+itemidxkey_dealloc(PyIUObject_ItemIdxKey *self)
 {
-    Py_XDECREF(s->item);
-    Py_XDECREF(s->key);
-    Py_TYPE(s)->tp_free((PyObject*)s);
+    Py_XDECREF(self->item);
+    Py_XDECREF(self->key);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 /******************************************************************************
@@ -112,12 +112,12 @@ itemidxkey_dealloc(PyIUObject_ItemIdxKey *s)
  *****************************************************************************/
 
 static int
-itemidxkey_traverse(PyIUObject_ItemIdxKey *s,
+itemidxkey_traverse(PyIUObject_ItemIdxKey *self,
                     visitproc visit,
                     void *arg)
 {
-    Py_VISIT(s->item);
-    Py_VISIT(s->key);
+    Py_VISIT(self->item);
+    Py_VISIT(self->key);
     return 0;
 }
 
@@ -126,15 +126,25 @@ itemidxkey_traverse(PyIUObject_ItemIdxKey *s,
  *****************************************************************************/
 
 static PyObject *
-itemidxkey_repr(PyIUObject_ItemIdxKey *s)
+itemidxkey_repr(PyIUObject_ItemIdxKey *self)
 {
-    if (s->key == NULL) {
-        return PyUnicode_FromFormat("ItemIdxKey(item=%R, idx=%zd)",
-                                    s->item, s->idx);
-    } else {
-        return PyUnicode_FromFormat("ItemIdxKey(item=%R, idx=%zd, key=%R)",
-                                    s->item, s->idx, s->key);
+    PyObject *repr;
+    int ok;
+
+    ok = Py_ReprEnter((PyObject*)self);
+    if (ok != 0) {
+        return ok > 0 ? PyUnicode_FromString("ItemIdxKey(...)") : NULL;
     }
+
+    if (self->key == NULL) {
+        repr = PyUnicode_FromFormat("ItemIdxKey(item=%R, idx=%zd)",
+                                    self->item, self->idx);
+    } else {
+        repr = PyUnicode_FromFormat("ItemIdxKey(item=%R, idx=%zd, key=%R)",
+                                    self->item, self->idx, self->key);
+    }
+    Py_ReprLeave((PyObject *)self);
+    return repr;
 }
 
 /******************************************************************************

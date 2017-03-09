@@ -151,13 +151,24 @@ seen_traverse(PyIUObject_Seen *self,
 static PyObject *
 seen_repr(PyIUObject_Seen *self)
 {
+    PyObject *repr;
+    int ok;
+
+    ok = Py_ReprEnter((PyObject*)self);
+    if (ok != 0) {
+        return ok > 0 ? PyUnicode_FromString("Seen(...)") : NULL;
+    }
+
     if (self->seenlist != NULL && PyList_Size(self->seenlist) > 0) {
-        return PyUnicode_FromFormat("Seen(%R, seenlist=%R)",
+        repr = PyUnicode_FromFormat("Seen(%R, seenlist=%R)",
                                     self->seenset, self->seenlist);
     } else {
-        return PyUnicode_FromFormat("Seen(%R)",
+        repr = PyUnicode_FromFormat("Seen(%R)",
                                     self->seenset);
     }
+
+    Py_ReprLeave((PyObject *)self);
+    return repr;
 }
 
 /******************************************************************************
