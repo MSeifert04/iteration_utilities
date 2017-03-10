@@ -6,8 +6,8 @@ Version 0.3.1 (unreleased)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - :py:func:`~iteration_utilities.Seen` and
-  :py:func:`~iteration_utilities.ItemIdxKey` can detect infinite recusions in
-  :py:func:`repr`.
+  :py:func:`~iteration_utilities.ItemIdxKey` can detect recursive objects in
+  their :py:func:`repr`.
 
 
 Version 0.3.0 (2017-03-09)
