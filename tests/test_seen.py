@@ -1,6 +1,5 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
-import pickle
 
 # 3rd party
 import pytest
@@ -139,8 +138,10 @@ def test_seen_cmpfailure1():
     class HashButNoEq(object):
         def __init__(self, val):
             self.val = val
+
         def __hash__(self):
             return 1
+
         def __eq__(self, other):
             raise ValueError('bad class')
     s1 = Seen({HashButNoEq(1)})
@@ -158,8 +159,10 @@ def test_seen_cmpfailure2():
     class HashButNoEq(object):
         def __init__(self, val):
             self.val = val
+
         def __hash__(self):
             return 1
+
         def __eq__(self, other):
             raise ValueError('bad class')
     s1 = Seen(set(), [HashButNoEq(1)])
@@ -205,6 +208,18 @@ def test_seen_repr0():
     assert repr(Seen(set(), [T(1)]))
 
 
+@memory_leak_decorator(collect=True)
+def test_seen_repr1():
+    # check that even though it can't be immediatly set that recursive
+    # representations are catched
+    s = Seen()
+    s.contains_add([s])
+    if iteration_utilities.EQ_PY2:
+        assert repr(s) == 'Seen(set([]), seenlist=[[Seen(...)]])'
+    else:
+        assert repr(s) == 'Seen(set(), seenlist=[[Seen(...)]])'
+
+
 @memory_leak_decorator()
 def test_seen_contains0():
     x = Seen()
@@ -233,6 +248,7 @@ def test_seen_contains_failure2():
     class NoHashNoEq():
         def __hash__(self):
             raise TypeError('cannot be hashed')
+
         def __eq__(self, other):
             raise ValueError('bad class')
 
@@ -271,6 +287,7 @@ def test_seen_containsadd_failure2():
     class NoHashNoEq():
         def __hash__(self):
             raise TypeError('cannot be hashed')
+
         def __eq__(self, other):
             raise ValueError('bad class')
 
