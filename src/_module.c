@@ -19,6 +19,7 @@
 #include "const.c"
 #include "flip.c"
 #include "packed.c"
+#include "partial.c"
 
 #include "nth.c"
 
@@ -157,6 +158,9 @@ PyDoc_STRVAR(PyIU_module_doc, "API: C Functions\n----------------");
         &PyIUType_Flip,
         &PyIUType_Packed,
 
+        &Placeholder_Type,
+        &PyIUType_Partial,
+
         &PyIUType_Nth,
 
         &PyIUType_Accumulate,
@@ -202,6 +206,8 @@ PyDoc_STRVAR(PyIU_module_doc, "API: C Functions\n----------------");
             Py_INCREF(typelist[i]);
             PyModule_AddObject(m, name+1, (PyObject *)typelist[i]);
         }
+        Py_INCREF(PYIU_Placeholder);
+        PyModule_AddObject(m, "Placeholder", PYIU_Placeholder);
 
         /* Add pre-defined instances. */
         PyIU_returnTrue = constant_new(&PyIUType_Constant, Py_BuildValue("(O)", Py_True), NULL);

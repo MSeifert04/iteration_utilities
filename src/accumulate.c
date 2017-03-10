@@ -1,10 +1,15 @@
 /******************************************************************************
  * Licensed under PSF license - see licenses/LICENSE_PYTHON.rst
-
+ *
  * IMPORTANT NOTE (other license!):
  *
  * This function is _roughly_ identical to the one in "itertoolsmodule.c" in
  * CPython. This class is inlcuded _mostly_ for Python2 compatibility!
+ *
+ * Changes with respect to the original Python functions are licensed under
+ * the "iteration_utilities" license:
+ * Apache License Version 2.0 - see LICENSE.rst
+ *
  *****************************************************************************/
 
 typedef struct {
