@@ -31,58 +31,57 @@
  * PYIU_RECYCLE_ARG_TUPLE :
  *     args (Tuple of length 1)
  *     newarg (PyObject *)
- *     tmp (PyObject *)
  *     error_stmt (for example "return NULL" or "goto Fail")
  *
  * PYIU_RECYCLE_ARG_TUPLE_BINOP :
  *     args (Tuple of length 1)
  *     new1, new2 (PyObject *)
- *     tmp1, tmp2 (PyObject *)
  *     error_stmt (for example "return NULL" or "goto Fail")
  *****************************************************************************/
 
-#define PYIU_RECYCLE_ARG_TUPLE(args, newarg, tmp, error_stmt) \
-    if (Py_REFCNT(args) == 1) { \
-        /* Recycle args by replacing the element with newarg. */ \
-        tmp = PyTuple_GET_ITEM(args, 0); \
-        Py_INCREF(newarg); \
-        PyTuple_SET_ITEM(args, 0, newarg); \
-        Py_XDECREF(tmp); \
-        tmp = NULL; \
-    } else { \
-        /* Create a new tuple and insert the newarg. */ \
-        tmp = args; \
-        args = PyTuple_New(1); \
-        if (args == NULL) { \
-            error_stmt; \
-        } \
-        Py_INCREF(newarg); \
-        PyTuple_SET_ITEM(args, 0, newarg); \
-        Py_DECREF(tmp); \
-        tmp = NULL; \
-    }
+#define PYIU_RECYCLE_ARG_TUPLE(args, newarg, error_stmt)                 \
+    do {                                                                 \
+        if (Py_REFCNT(args) == 1) {                                      \
+            /* Recycle args by replacing the element with newarg. */     \
+            PyObject *tmp = PyTuple_GET_ITEM(args, 0);                   \
+            Py_INCREF(newarg);                                           \
+            PyTuple_SET_ITEM(args, 0, newarg);                           \
+            Py_XDECREF(tmp);                                             \
+        } else {                                                         \
+            /* Create a new tuple and insert the newarg. */              \
+            PyObject *tmp = args;                                        \
+            args = PyTuple_New(1);                                       \
+            if (args == NULL) {                                          \
+                error_stmt;                                              \
+            }                                                            \
+            Py_INCREF(newarg);                                           \
+            PyTuple_SET_ITEM(args, 0, newarg);                           \
+            Py_DECREF(tmp);                                              \
+        }                                                                \
+    } while (0)
 
 
-#define PYIU_RECYCLE_ARG_TUPLE_BINOP(args, new1, new2, tmp1, tmp2, error_stmt) \
-    if (Py_REFCNT(args) == 1) { \
-        /* Recycle args by replacing the element with newarg. */ \
-        Py_INCREF(new1);                  Py_INCREF(new2); \
-        tmp1 = PyTuple_GET_ITEM(args, 0); tmp2 = PyTuple_GET_ITEM(args, 1);\
-        PyTuple_SET_ITEM(args, 0, new1);  PyTuple_SET_ITEM(args, 1, new2);\
-        Py_XDECREF(tmp1);                 Py_XDECREF(tmp2); \
-        tmp1 = NULL;                      tmp2 = NULL; \
-    } else { \
-        /* Create a new tuple and insert the newarg. */ \
-        tmp1 = args; \
-        args = PyTuple_New(2); \
-        if (args == NULL) { \
-            error_stmt; \
-        } \
-        Py_INCREF(new1);                 Py_INCREF(new2);\
-        PyTuple_SET_ITEM(args, 0, new1); PyTuple_SET_ITEM(args, 1, new2); \
-        Py_DECREF(tmp1); \
-        tmp1 = NULL; \
-    }
+#define PYIU_RECYCLE_ARG_TUPLE_BINOP(args, new1, new2, error_stmt)                \
+    do {                                                                          \
+        if (Py_REFCNT(args) == 1) {                                               \
+            /* Recycle args by replacing the element with newarg. */              \
+            PyObject *tmp1 = PyTuple_GET_ITEM(args, 0);                           \
+            PyObject *tmp2 = PyTuple_GET_ITEM(args, 1);                           \
+            Py_INCREF(new1);                  Py_INCREF(new2);                    \
+            PyTuple_SET_ITEM(args, 0, new1);  PyTuple_SET_ITEM(args, 1, new2);    \
+            Py_XDECREF(tmp1);                 Py_XDECREF(tmp2);                   \
+        } else {                                                                  \
+            /* Create a new tuple and insert the newarg. */                       \
+            PyObject *tmp = (args);                                               \
+            args = PyTuple_New(2);                                                \
+            if (args == NULL) {                                                   \
+                error_stmt;                                                       \
+            }                                                                     \
+            Py_INCREF(new1);                 Py_INCREF(new2);                     \
+            PyTuple_SET_ITEM(args, 0, new1); PyTuple_SET_ITEM(args, 1, new2);     \
+            Py_DECREF(tmp);                                                       \
+        }                                                                         \
+    } while (0)
 
 /******************************************************************************
  * Global constants.

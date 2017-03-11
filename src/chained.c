@@ -114,7 +114,7 @@ chained_call(PyIUObject_Chained *self,
              PyObject *args,
              PyObject *kwargs)
 {
-    PyObject *func, *temp, *oldtemp, *result=NULL, *tmp=NULL;
+    PyObject *func, *temp, *oldtemp, *result=NULL;
     Py_ssize_t tuplesize, idx;
 
     tuplesize = PyTuple_Size(self->funcs);
@@ -145,9 +145,9 @@ chained_call(PyIUObject_Chained *self,
             }
         } else {
             oldtemp = temp;
-            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, temp, tmp, Py_DECREF(result);
-                                                              Py_DECREF(oldtemp);
-                                                              return NULL)
+            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, temp, Py_DECREF(result);
+                                                         Py_DECREF(oldtemp);
+                                                         return NULL);
             temp = PyObject_Call(func, self->funcargs, NULL);
             Py_DECREF(oldtemp);
         }

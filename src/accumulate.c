@@ -110,7 +110,6 @@ static PyObject *
 accumulate_next(PyIUObject_Accumulate *self)
 {
     PyObject *item, *oldtotal, *newtotal;
-    PyObject *tmp1=NULL, *tmp2=NULL;
 
     /* Get next item from iterator.  */
     item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator);
@@ -133,7 +132,8 @@ accumulate_next(PyIUObject_Accumulate *self)
     if (self->binop == NULL) {
         newtotal = PyNumber_Add(self->total, item);
     } else {
-        PYIU_RECYCLE_ARG_TUPLE_BINOP(self->funcargs, self->total, item, tmp1, tmp2, Py_DECREF(item); return NULL)
+        PYIU_RECYCLE_ARG_TUPLE_BINOP(self->funcargs, self->total, item, Py_DECREF(item);
+                                                                        return NULL);
         newtotal = PyObject_Call(self->binop, self->funcargs, NULL);
     }
     Py_DECREF(item);

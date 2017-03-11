@@ -23,8 +23,6 @@ PyIU_Groupby(PyObject *m,
     PyObject *resdict=NULL;
     PyObject *funcargs1=NULL;
     PyObject *funcargs2=NULL;
-    PyObject *tmp1=NULL;
-    PyObject *tmp2=NULL;
     int ok;
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 5)
     Py_hash_t hash;
@@ -60,7 +58,7 @@ PyIU_Groupby(PyObject *m,
 
     while ( (item = (*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
         /* Calculate the key for the dictionary (val). */
-        PYIU_RECYCLE_ARG_TUPLE(funcargs1, item, tmp1, Py_DECREF(item); goto Fail)
+        PYIU_RECYCLE_ARG_TUPLE(funcargs1, item, Py_DECREF(item); goto Fail);
         val = PyObject_Call(key1, funcargs1, NULL);
         if (val == NULL) {
             Py_DECREF(item);
@@ -73,7 +71,7 @@ PyIU_Groupby(PyObject *m,
         } else {
             /* We use the same item again to calculate the keep so we don't need
                to replace. */
-            //PYIU_RECYCLE_ARG_TUPLE(funcargs1, item, tmp1, Py_DECREF(item); goto Fail)
+            //PYIU_RECYCLE_ARG_TUPLE(funcargs1, item, Py_DECREF(item); goto Fail)
             keep = PyObject_Call(key2, funcargs1, NULL);
             Py_DECREF(item);
             if (keep == NULL) {
@@ -154,13 +152,13 @@ PyIU_Groupby(PyObject *m,
             /* Already an item present so use the binary operation. */
             } else {
                 if (lst == NULL) {
-                    PYIU_RECYCLE_ARG_TUPLE_BINOP(funcargs2, reducestart, keep, tmp1, tmp2, Py_DECREF(keep);
-                                                                                           goto Fail)
+                    PYIU_RECYCLE_ARG_TUPLE_BINOP(funcargs2, reducestart, keep, Py_DECREF(keep);
+                                                                               goto Fail);
                     reducetmp = PyObject_Call(reduce, funcargs2, NULL);
                 } else {
-                    PYIU_RECYCLE_ARG_TUPLE_BINOP(funcargs2, lst, keep, tmp1, tmp2, Py_DECREF(keep);
-                                                                                   Py_DECREF(lst);
-                                                                                   goto Fail)
+                    PYIU_RECYCLE_ARG_TUPLE_BINOP(funcargs2, lst, keep, Py_DECREF(keep);
+                                                                       Py_DECREF(lst);
+                                                                       goto Fail);
                     reducetmp = PyObject_Call(reduce, funcargs2, NULL);
                     Py_DECREF(lst);
                 }

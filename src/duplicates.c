@@ -114,7 +114,7 @@ duplicates_traverse(PyIUObject_Duplicates *self,
 static PyObject *
 duplicates_next(PyIUObject_Duplicates *self)
 {
-    PyObject *item=NULL, *temp=NULL, *tmp=NULL;
+    PyObject *item=NULL, *temp=NULL;
     int ok;
 
     while ( (item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator)) ) {
@@ -123,7 +123,7 @@ duplicates_next(PyIUObject_Duplicates *self)
         if (self->key == NULL) {
             temp = item;
         } else {
-            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, tmp, goto Fail)
+            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, goto Fail);
             temp = PyObject_Call(self->key, self->funcargs, NULL);
             if (temp == NULL) {
                 goto Fail;

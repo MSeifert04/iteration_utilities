@@ -15,7 +15,6 @@ PyIU_Partition(PyObject *m,
     PyObject *result1=NULL;
     PyObject *result2=NULL;
     PyObject *funcargs=NULL;
-    PyObject *tmp=NULL;
     PyObject *temp=NULL;
     PyObject *result=NULL;
     long ok;
@@ -52,7 +51,7 @@ PyIU_Partition(PyObject *m,
             temp = item;
             Py_INCREF(temp);
         } else {
-            PYIU_RECYCLE_ARG_TUPLE(funcargs, item, tmp, goto Fail)
+            PYIU_RECYCLE_ARG_TUPLE(funcargs, item, goto Fail);
             temp = PyObject_Call(func, funcargs, NULL);
             if (temp == NULL) {
                 goto Fail;

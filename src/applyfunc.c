@@ -89,10 +89,10 @@ applyfunc_traverse(PyIUObject_Applyfunc *self,
 static PyObject *
 applyfunc_next(PyIUObject_Applyfunc *self)
 {
-    PyObject *newval, *temp, *tmp;
+    PyObject *newval, *temp;
 
     /* Call the function with the current value as argument.  */
-    PYIU_RECYCLE_ARG_TUPLE(self->funcargs, self->value, tmp, return NULL)
+    PYIU_RECYCLE_ARG_TUPLE(self->funcargs, self->value, return NULL);
     newval = PyObject_Call(self->func, self->funcargs, NULL);
     if (newval == NULL) {
         return NULL;

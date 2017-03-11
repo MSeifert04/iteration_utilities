@@ -9,7 +9,7 @@ argminmax(PyObject *m,
           int cmpop)
 {
     PyObject *sequence, *defaultvalue, *keyfunc=NULL, *iterator=NULL;
-    PyObject *item=NULL, *val=NULL, *maxval=NULL, *funcargs=NULL, *tmp=NULL;
+    PyObject *item=NULL, *val=NULL, *maxval=NULL, *funcargs=NULL;
     Py_ssize_t defaultitem=0, idx=-1, maxidx=-1, nkwargs=0;
     int defaultisset = 0;
     const int positional = PyTuple_Size(args) > 1;
@@ -75,7 +75,7 @@ argminmax(PyObject *m,
 
         /* Use the item itself or keyfunc(item). */
         if (keyfunc != NULL) {
-            PYIU_RECYCLE_ARG_TUPLE(funcargs, item, tmp, goto Fail)
+            PYIU_RECYCLE_ARG_TUPLE(funcargs, item, goto Fail);
             val = PyObject_Call(keyfunc, funcargs, NULL);
             if (val == NULL) {
                 goto Fail;

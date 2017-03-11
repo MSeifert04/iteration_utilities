@@ -116,7 +116,7 @@ sideeffects_traverse(PyIUObject_Sideeffects *self,
 static PyObject *
 sideeffects_next(PyIUObject_Sideeffects *self)
 {
-    PyObject *item, *tmp=NULL, *temp=NULL, *tmptuple=NULL;
+    PyObject *item, *temp=NULL, *tmptuple=NULL;
     Py_ssize_t i;
 
     item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator);
@@ -137,7 +137,7 @@ sideeffects_next(PyIUObject_Sideeffects *self)
             if (tmptuple == NULL) {
                 return NULL;
             }
-            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, tmptuple, tmp, return NULL)
+            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, tmptuple, return NULL);
             temp = PyObject_Call(self->func, self->funcargs, NULL);
             Py_DECREF(tmptuple);
             if (temp != NULL) {
@@ -152,7 +152,7 @@ sideeffects_next(PyIUObject_Sideeffects *self)
 
     if (self->times == 0) {
         /* Always call the function if times == 0 */
-        PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, tmp, goto Fail)
+        PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, goto Fail);
         temp = PyObject_Call(self->func, self->funcargs, NULL);
         if (temp == NULL) {
             goto Fail;
@@ -167,7 +167,7 @@ sideeffects_next(PyIUObject_Sideeffects *self)
         self->count++;
         if (self->count == self->times) {
             self->count = 0;
-            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, self->collected, tmp, goto Fail)
+            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, self->collected, goto Fail);
             temp = PyObject_Call(self->func, self->funcargs, NULL);
             if (temp == NULL) {
                 goto Fail;
