@@ -102,7 +102,7 @@ uniquejust_traverse(PyIUObject_UniqueJust *self,
 static PyObject *
 uniquejust_next(PyIUObject_UniqueJust *self)
 {
-    PyObject *item, *old, *val=NULL, *tmp=NULL;
+    PyObject *item, *old, *val=NULL;
     int ok;
 
     while ( (item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator)) ) {
@@ -112,7 +112,7 @@ uniquejust_next(PyIUObject_UniqueJust *self)
             Py_INCREF(item);
             val = item;
         } else {
-            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, tmp, goto Fail)
+            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, goto Fail);
             val = PyObject_Call(self->keyfunc, self->funcargs, NULL);
             if (val == NULL) {
                 goto Fail;

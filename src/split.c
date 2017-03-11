@@ -125,7 +125,7 @@ split_traverse(PyIUObject_Split *self,
 static PyObject *
 split_next(PyIUObject_Split *self)
 {
-    PyObject *result, *item=NULL, *val=NULL, *tmp=NULL;
+    PyObject *result, *item=NULL, *val=NULL;
     int ok;
 
     /* Create a list to hold the result. */
@@ -158,7 +158,7 @@ split_next(PyIUObject_Split *self)
             ok = PyObject_RichCompareBool(self->delimiter, item, Py_EQ);
 
         } else {
-            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, tmp, goto Fail)
+            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, goto Fail);
             val = PyObject_Call(self->delimiter, self->funcargs, NULL);
             if (val == NULL) {
                 goto Fail;

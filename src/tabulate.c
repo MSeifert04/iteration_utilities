@@ -106,7 +106,7 @@ tabulate_next(PyIUObject_Tabulate *self)
         goto Fail;
     }
     /* Call the function with the current value as argument. */
-    PYIU_RECYCLE_ARG_TUPLE(self->funcargs, self->cnt, tmp, return NULL)
+    PYIU_RECYCLE_ARG_TUPLE(self->funcargs, self->cnt, return NULL);
     result = PyObject_Call(self->func, self->funcargs, NULL);
     if (result == NULL) {
         goto Fail;

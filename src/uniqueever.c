@@ -114,7 +114,7 @@ uniqueever_traverse(PyIUObject_UniqueEver *self,
 static PyObject *
 uniqueever_next(PyIUObject_UniqueEver *self)
 {
-    PyObject *item=NULL, *temp=NULL, *tmp=NULL;
+    PyObject *item=NULL, *temp=NULL;
     int ok;
 
     while ( (item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator)) ) {
@@ -123,7 +123,7 @@ uniqueever_next(PyIUObject_UniqueEver *self)
         if (self->key == NULL) {
             temp = item;
         } else {
-            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, tmp, return NULL)
+            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, return NULL);
             temp = PyObject_Call(self->key, self->funcargs, NULL);
             if (temp == NULL) {
                 goto Fail;

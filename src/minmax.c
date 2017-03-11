@@ -11,7 +11,7 @@ PyIU_MinMax(PyObject *m,
     PyObject *item1 = NULL, *item2 = NULL, *val1 = NULL, *val2 = NULL;
     PyObject *maxitem = NULL, *maxval = NULL, *minitem = NULL, *minval = NULL;
     PyObject *temp = NULL, *resulttuple = NULL;
-    PyObject *funcargs=NULL, *tmp=NULL;
+    PyObject *funcargs=NULL;
     Py_ssize_t nkwargs = 0;
     int cmp;
     const int positional = PyTuple_Size(args) > 1;
@@ -75,13 +75,13 @@ PyIU_MinMax(PyObject *m,
 
         /* get the value from the key function. */
         if (keyfunc != NULL) {
-            PYIU_RECYCLE_ARG_TUPLE(funcargs, item1, tmp, goto Fail)
+            PYIU_RECYCLE_ARG_TUPLE(funcargs, item1, goto Fail);
             val1 = PyObject_Call(keyfunc, funcargs, NULL);
             if (val1 == NULL) {
                 goto Fail;
             }
             if (item2 != NULL) {
-                PYIU_RECYCLE_ARG_TUPLE(funcargs, item2, tmp, goto Fail)
+                PYIU_RECYCLE_ARG_TUPLE(funcargs, item2, goto Fail);
                 val2 = PyObject_Call(keyfunc, funcargs, NULL);
                 if (val2 == NULL) {
                     goto Fail;

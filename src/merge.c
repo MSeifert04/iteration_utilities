@@ -233,7 +233,7 @@ merge_traverse(PyIUObject_Merge *self,
 static int
 merge_init_current(PyIUObject_Merge *self)
 {
-    PyObject *current, *iterator, *item, *newitem=NULL, *keyval=NULL, *tmp=NULL;
+    PyObject *current, *iterator, *item, *newitem=NULL, *keyval=NULL;
     Py_ssize_t i, insert, tuplelength;
 
     current = PyTuple_New(self->numactive);
@@ -251,7 +251,9 @@ merge_init_current(PyIUObject_Merge *self)
                from which iterable to get the next item if it is yielded).
                */
             if (self->keyfunc != NULL) {
-                PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, tmp, Py_DECREF(current); Py_DECREF(item); return -1;)
+                PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, Py_DECREF(current);
+                                                             Py_DECREF(item);
+                                                             return -1;);
                 keyval = PyObject_Call(self->keyfunc, self->funcargs, NULL);
                 if (keyval == NULL) {
                     Py_DECREF(item);
@@ -300,7 +302,7 @@ Fail:
 static PyObject *
 merge_next(PyIUObject_Merge *self)
 {
-    PyObject *iterator, *item, *val, *keyval, *oldkeyval, *tmp=NULL;
+    PyObject *iterator, *item, *val, *keyval, *oldkeyval;
     Py_ssize_t insert=0;
     PyIUObject_ItemIdxKey *next;
 
@@ -346,7 +348,10 @@ merge_next(PyIUObject_Merge *self)
     } else {
         if (self->keyfunc != NULL) {
             oldkeyval = next->key;
-            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, tmp, Py_DECREF(item); Py_DECREF(val); Py_DECREF(next); return NULL;)
+            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, Py_DECREF(item);
+                                                         Py_DECREF(val);
+                                                         Py_DECREF(next);
+                                                         return NULL;);
             keyval = PyObject_Call(self->keyfunc, self->funcargs, NULL);
             if (keyval == NULL) {
                 Py_DECREF(item);

@@ -14,7 +14,6 @@ PyIU_Count(PyObject *m,
     PyObject *iterator=NULL;
     PyObject *val=NULL;
     PyObject *pred=NULL;
-    PyObject *tmp=NULL;
     PyObject *funcargs=NULL;
     Py_ssize_t sum_int = 0;
     int ok, eq=0;
@@ -62,7 +61,7 @@ PyIU_Count(PyObject *m,
 
         /* Call the function and check if the returned value is truthy. */
         } else {
-            PYIU_RECYCLE_ARG_TUPLE(funcargs, item, tmp, goto Fail)
+            PYIU_RECYCLE_ARG_TUPLE(funcargs, item, goto Fail);
             val = PyObject_Call(pred, funcargs, NULL);
             Py_DECREF(item);
             if (val == NULL) {

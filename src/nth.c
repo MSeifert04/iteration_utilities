@@ -87,7 +87,7 @@ nth_call(PyIUObject_Nth *self,
 
     PyObject *(*iternext)(PyObject *);
     PyObject *iterable, *iterator, *item;
-    PyObject *defaultitem=NULL, *func=NULL, *last=NULL, *val=NULL, *tmp=NULL;
+    PyObject *defaultitem=NULL, *func=NULL, *last=NULL, *val=NULL;
     int ok=0, truthy=1, retpred=0, retidx=0;
     Py_ssize_t idx, nfound=-1;
 
@@ -154,7 +154,10 @@ nth_call(PyIUObject_Nth *self,
 
         /* Otherwise call the function.  */
         } else {
-            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, tmp, Py_DECREF(iterator); Py_DECREF(item); Py_XDECREF(last); return NULL)
+            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, Py_DECREF(iterator);
+                                                         Py_DECREF(item);
+                                                         Py_XDECREF(last);
+                                                         return NULL);
             val = PyObject_Call(func, self->funcargs, NULL);
             if (val == NULL) {
                 Py_DECREF(iterator);
