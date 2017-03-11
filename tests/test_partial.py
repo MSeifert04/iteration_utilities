@@ -16,6 +16,16 @@ from helper_leak import memory_leak_decorator
 from helper_cls import T, failingTIterator
 
 
+partial = iteration_utilities.partial
+
+
+# =============================================================================
+# These tests are taken from the python tests.
+#
+# They were changed from unitests to pytest and made py2 and py3 compatible.
+# =============================================================================
+
+
 def capture(*args, **kw):
     """capture all positional and keyword arguments"""
     return args, kw
@@ -24,6 +34,14 @@ def capture(*args, **kw):
 def signature(part):
     """ return the signature of a partial object """
     return (part.func, part.args, part.keywords, part.__dict__)
+
+
+class AllowPickle:
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, tb):
+        return False
 
 
 class MyTuple(tuple):
@@ -39,34 +57,99 @@ class MyDict(dict):
     pass
 
 
+@memory_leak_decorator(collect=True)
+def test_attributes_unwritable():
+    p = partial(capture, 1, 2, a=10, b=20)
+    expectedexc = TypeError if iteration_utilities.EQ_PY2 else AttributeError
+    with pytest.raises(expectedexc):
+        p.func = map
+    with pytest.raises(expectedexc):
+        p.args = (1, 2)
+    with pytest.raises(expectedexc):
+        p.keywords = {'a': 1, 'b': 2}
+
+    p = partial(hex)
+    with pytest.raises(TypeError):
+        del p.__dict__
+
+
+@memory_leak_decorator(offset=1)
+def test_recursive_pickle():
+    if iteration_utilities.GE_PY35:
+        expectedexc = RecursionError
+    else:
+        expectedexc = RuntimeError
+
+    with AllowPickle():
+        f = partial(capture)
+        f.__setstate__((f, (), {}, {}))
+        try:
+            for proto in range(pickle.HIGHEST_PROTOCOL + 1):
+                with pytest.raises(expectedexc):
+                    pickle.dumps(f, proto)
+        finally:
+            f.__setstate__((capture, (), {}, {}))
+
+        f = partial(capture)
+        f.__setstate__((capture, (f,), {}, {}))
+        try:
+            for proto in range(pickle.HIGHEST_PROTOCOL + 1):
+                f_copy = pickle.loads(pickle.dumps(f, proto))
+                try:
+                    assert f_copy.args[0] is f_copy
+                finally:
+                    f_copy.__setstate__((capture, (), {}, {}))
+        finally:
+            f.__setstate__((capture, (), {}, {}))
+
+        f = partial(capture)
+        f.__setstate__((capture, (), {'a': f}, {}))
+        try:
+            for proto in range(pickle.HIGHEST_PROTOCOL + 1):
+                f_copy = pickle.loads(pickle.dumps(f, proto))
+                try:
+                    assert f_copy.keywords['a'] is f_copy
+                finally:
+                    f_copy.__setstate__((capture, (), {}, {}))
+        finally:
+            f.__setstate__((capture, (), {}, {}))
+
+
+@memory_leak_decorator()
+def test_repr():
+    args = (object(), object())
+    args_repr = ', '.join(repr(a) for a in args)
+    kwargs = {'a': object(), 'b': object()}
+    kwargs_reprs = ['a={a!r}, b={b!r}'.format(**kwargs),
+                    'b={b!r}, a={a!r}'.format(**kwargs)]
+    name = 'iteration_utilities.partial'
+
+    f = partial(capture)
+    compare = '{name}({capture!r})'.format(name=name, capture=capture)
+    assert compare == repr(f)
+
+    f = partial(capture, *args)
+    compare = ('{name}({capture!r}, {args_repr})'
+               ''.format(name=name, capture=capture, args_repr=args_repr))
+    assert compare == repr(f)
+
+    f = partial(capture, **kwargs)
+    compare = ['{name}({capture!r}, {kwargs_repr})'
+               ''.format(name=name, capture=capture, kwargs_repr=kwargs_repr)
+               for kwargs_repr in kwargs_reprs]
+    assert repr(f) in compare
+
+    f = partial(capture, *args, **kwargs)
+    compare = ['{name}({capture!r}, {args_repr}, {kwargs_repr})'
+               ''.format(name=name, capture=capture,
+                         args_repr=args_repr, kwargs_repr=kwargs_repr)
+               for kwargs_repr in kwargs_reprs]
+    assert repr(f) in compare
+
+
 class TestPartial(unittest.TestCase):
 
     partial = iteration_utilities.partial
-
-    class AllowPickle:
-        def __enter__(self):
-            return self
-
-        def __exit__(self, type, value, tb):
-            return False
-
-    def test_attributes_unwritable(self):
-        # attributes should not be writable
-        p = self.partial(capture, 1, 2, a=10, b=20)
-        self.assertRaises(AttributeError,
-                          setattr, p, 'func', map)
-        self.assertRaises(AttributeError,
-                          setattr, p, 'args', (1, 2))
-        self.assertRaises(AttributeError,
-                          setattr, p, 'keywords', dict(a=1, b=2))
-
-        p = self.partial(hex)
-        try:
-            del p.__dict__
-        except TypeError:
-            pass
-        else:
-            self.fail('partial object allowed __dict__ to be deleted')
 
     def test_basic_examples(self):
         p = self.partial(capture, 1, 2, a=10, b=20)
@@ -201,37 +284,6 @@ class TestPartial(unittest.TestCase):
         p2.new_attr = 'spam'
         self.assertEqual(p2.new_attr, 'spam')
 
-    def test_repr(self):
-        args = (object(), object())
-        args_repr = ', '.join(repr(a) for a in args)
-        kwargs = {'a': object(), 'b': object()}
-        kwargs_reprs = ['a={a!r}, b={b!r}'.format_map(kwargs),
-                        'b={b!r}, a={a!r}'.format_map(kwargs)]
-        name = 'iteration_utilities.partial'
-
-        f = self.partial(capture)
-        self.assertEqual('{name}({capture!r})'
-                         ''.format(name=name, capture=capture), repr(f))
-
-        f = self.partial(capture, *args)
-        self.assertEqual('{name}({capture!r}, {args_repr})'
-                         ''.format(name=name, capture=capture,
-                                   args_repr=args_repr), repr(f))
-
-        f = self.partial(capture, **kwargs)
-        self.assertIn(repr(f),
-                      ['{name}({capture!r}, {kwargs_repr})'
-                       ''.format(name=name, capture=capture,
-                                 kwargs_repr=kwargs_repr)
-                       for kwargs_repr in kwargs_reprs])
-
-        f = self.partial(capture, *args, **kwargs)
-        self.assertIn(repr(f),
-                      ['{name}({capture!r}, {args_repr}, {kwargs_repr})'
-                       ''.format(name=name, capture=capture,
-                                 args_repr=args_repr, kwargs_repr=kwargs_repr)
-                       for kwargs_repr in kwargs_reprs])
-
     def test_recursive_repr(self):
         name = 'iteration_utilities.partial'
 
@@ -257,7 +309,7 @@ class TestPartial(unittest.TestCase):
             f.__setstate__((capture, (), {}, {}))
 
     def test_pickle(self):
-        with self.AllowPickle():
+        with AllowPickle():
             f = self.partial(signature, ['asdf'], bar=[True])
             f.attr = []
             for proto in range(pickle.HIGHEST_PROTOCOL + 1):
@@ -345,41 +397,6 @@ class TestPartial(unittest.TestCase):
         r = f(2)
         self.assertEqual(r, ((1, 2), {}))
         self.assertIs(type(r[0]), tuple)
-
-    def test_recursive_pickle(self):
-        with self.AllowPickle():
-            f = self.partial(capture)
-            f.__setstate__((f, (), {}, {}))
-            try:
-                for proto in range(pickle.HIGHEST_PROTOCOL + 1):
-                    with self.assertRaises(RecursionError):
-                        pickle.dumps(f, proto)
-            finally:
-                f.__setstate__((capture, (), {}, {}))
-
-            f = self.partial(capture)
-            f.__setstate__((capture, (f,), {}, {}))
-            try:
-                for proto in range(pickle.HIGHEST_PROTOCOL + 1):
-                    f_copy = pickle.loads(pickle.dumps(f, proto))
-                    try:
-                        self.assertIs(f_copy.args[0], f_copy)
-                    finally:
-                        f_copy.__setstate__((capture, (), {}, {}))
-            finally:
-                f.__setstate__((capture, (), {}, {}))
-
-            f = self.partial(capture)
-            f.__setstate__((capture, (), {'a': f}, {}))
-            try:
-                for proto in range(pickle.HIGHEST_PROTOCOL + 1):
-                    f_copy = pickle.loads(pickle.dumps(f, proto))
-                    try:
-                        self.assertIs(f_copy.keywords['a'], f_copy)
-                    finally:
-                        f_copy.__setstate__((capture, (), {}, {}))
-            finally:
-                f.__setstate__((capture, (), {}, {}))
 
     # Issue 6083: Reference counting bug
     def test_setstate_refcount(self):

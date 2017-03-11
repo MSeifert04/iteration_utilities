@@ -43,6 +43,11 @@ placeholder_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     return PYIU_Placeholder;
 }
 
+PyDoc_STRVAR(placeholder_doc, "PlaceholderType()\n\
+--\n\
+\n\
+A placeholder for :py:func:`iteration_utilities.partial`.");
+
 PyTypeObject Placeholder_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "iteration_utilities.PlaceholderType",
@@ -64,7 +69,7 @@ PyTypeObject Placeholder_Type = {
     0,                         /*tp_setattro */
     0,                         /*tp_as_buffer */
     Py_TPFLAGS_DEFAULT,        /*tp_flags */
-    0,                         /*tp_doc */
+    placeholder_doc,           /*tp_doc */
     0,                         /*tp_traverse */
     0,                         /*tp_clear */
     0,                         /*tp_richcompare */
@@ -272,10 +277,6 @@ partial_traverse(PyIUObject_Partial *self, visitproc visit, void *arg)
     return 0;
 }
 
-PyDoc_STRVAR(partial_doc,
-"partial(func, *args, **keywords) - new function with partial application\n\
-    of the given arguments and keywords.\n");
-
 #define OFF(x) offsetof(PyIUObject_Partial, x)
 static PyMemberDef partial_memberlist[] = {
     {"func",            T_OBJECT,       OFF(fn),        READONLY,
@@ -480,6 +481,12 @@ static PyMethodDef partial_methods[] = {
     {"__setstate__", (PyCFunction)partial_setstate, METH_O},
     {NULL,              NULL}
 };
+
+
+PyDoc_STRVAR(partial_doc, "partial(func, *args, **kwargs)\n\
+--\n\
+\n\
+Almost like :py:func:`functools.partial`.");
 
 PyTypeObject PyIUType_Partial = {
     PyVarObject_HEAD_INIT(NULL, 0)
