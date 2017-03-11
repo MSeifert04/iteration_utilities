@@ -187,8 +187,7 @@ partial_new(PyTypeObject *type, PyObject *args, PyObject *kw)
         else {
             self->kw = PyDict_Copy(kw);
         }
-    }
-    else {
+    } else {
         self->kw = PyDict_Copy(pkw);
         if (kw != NULL && self->kw != NULL) {
             if (PyDict_Merge(self->kw, kw, 1) != 0) {
@@ -197,6 +196,7 @@ partial_new(PyTypeObject *type, PyObject *args, PyObject *kw)
             }
         }
     }
+
     if (self->kw == NULL) {
         Py_DECREF(self);
         return NULL;
@@ -350,35 +350,57 @@ partial_repr(PyIUObject_Partial *self)
         if (status < 0) {
             return NULL;
         }
-        return PyUnicode_FromFormat("%s(...)", Py_TYPE(self)->tp_name);
+        return PyUnicode_FromString("...");
     }
 
     arglist = PyUnicode_FromString("");
     if (arglist == NULL) {
         goto done;
     }
+
     /* Pack positional arguments */
     n = PyTuple_GET_SIZE(self->args);
     for (i = 0; i < n; i++) {
-        Py_SETREF(arglist, PyUnicode_FromFormat("%U, %R", arglist,
-                                        PyTuple_GET_ITEM(self->args, i)));
+        PyObject *tmp = PyUnicode_FromFormat("%U, %R", arglist,
+                                             PyTuple_GET_ITEM(self->args, i));
+        Py_CLEAR(arglist);
+        arglist = tmp;
         if (arglist == NULL) {
             goto done;
         }
     }
+
     /* Pack keyword arguments */
-    for (i = 0; PyDict_Next(self->kw, &i, &key, &value);) {
-        Py_SETREF(arglist, PyUnicode_FromFormat("%U, %U=%R", arglist,
-                                                key, value));
+    i = 0;
+    while (PyDict_Next(self->kw, &i, &key, &value)) {
+        PyObject *tmp;
+        /* This is mostly a special case because of Python2 which segfaults
+           for normal strings when used as "%U" in "PyUnicode_FromFormat"
+           However setstate also allows to pass in arbitary dictionaries
+           with non-string keys. To prevent segfaults in that case this
+           branch is also important for python3.
+           */
+        PyObject *othertmp = PyUnicode_FromObject(key);
+        if (othertmp == NULL) {
+            Py_DECREF(arglist);
+            goto done;
+        }
+        tmp = PyUnicode_FromFormat("%U, %U=%R", arglist, othertmp, value);
+        Py_DECREF(othertmp);
+
+        Py_CLEAR(arglist);
+        arglist = tmp;
         if (arglist == NULL) {
             goto done;
         }
     }
+
     result = PyUnicode_FromFormat("%s(%R%U)", Py_TYPE(self)->tp_name,
                                   self->fn, arglist);
     Py_DECREF(arglist);
 
- done:
+
+done:
     Py_ReprLeave((PyObject *)self);
     return result;
 }
@@ -424,11 +446,9 @@ partial_setstate(PyIUObject_Partial *self, PyObject *state)
 
     if (kw == Py_None) {
         kw = PyDict_New();
-    }
-    else if (!PyDict_CheckExact(kw)) {
+    } else if (!PyDict_CheckExact(kw)) {
         kw = PyDict_Copy(kw);
-    }
-    else {
+    } else {
         Py_INCREF(kw);
     }
     if (kw == NULL) {
@@ -444,10 +464,14 @@ partial_setstate(PyIUObject_Partial *self, PyObject *state)
         Py_INCREF(dict);
     }
 
-    Py_SETREF(self->fn, fn);
-    Py_SETREF(self->args, fnargs);
-    Py_SETREF(self->kw, kw);
-    Py_XSETREF(self->dict, dict);
+    Py_CLEAR(self->fn);
+    Py_CLEAR(self->args);
+    Py_CLEAR(self->kw);
+    Py_CLEAR(self->dict);
+    self->fn = fn;
+    self->args = fnargs;
+    self->kw = kw;
+    self->dict = dict;
     Py_RETURN_NONE;
 }
 
