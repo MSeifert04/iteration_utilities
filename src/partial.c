@@ -92,6 +92,57 @@ PyObject PlaceholderStruct = {
     1, &Placeholder_Type
 };
 
+static Py_ssize_t
+PyIUPlaceholder_NumInTuple(PyObject *tup)
+{
+    Py_ssize_t cnts = 0;
+    Py_ssize_t i;
+
+    /* Find the placeholders (if any) in the tuple. */
+    for ( i=0 ; i < PyTuple_GET_SIZE(tup) ; i++ ) {
+        if (PyTuple_GET_ITEM(tup, i) == PYIU_Placeholder) {
+            cnts++;
+        }
+    }
+
+    return cnts;
+}
+
+static Py_ssize_t *
+PyIUPlaceholder_PosInTuple(PyObject *tup, Py_ssize_t cnts)
+{
+    Py_ssize_t *pos = PyMem_Malloc((size_t)cnts * sizeof(Py_ssize_t));
+    Py_ssize_t j = 0;
+    Py_ssize_t i;
+
+    if (pos == NULL) {
+        PyErr_Format(PyExc_MemoryError,
+                     "Memory Error when trying to allocate array for partial.");
+        goto Fail;
+    }
+
+    /* Find the placeholders (if any) in the tuple. */
+    for ( i=0 ; i < PyTuple_GET_SIZE(tup) ; i++ ) {
+        if (PyTuple_GET_ITEM(tup, i) == PYIU_Placeholder) {
+            pos[j] = i;
+            j++;
+        }
+    }
+
+    if (j != cnts) {
+        PyErr_Format(PyExc_TypeError,
+                     "Something went wrong... totally wrong!");
+        goto Fail;
+    }
+
+    return pos;
+
+Fail:
+    PyMem_Free(pos);
+    return NULL;
+
+}
+
 
 /******************************************************************************
  * The following code is has a different license:
@@ -115,15 +166,50 @@ typedef struct {
     PyObject *kw;
     PyObject *dict;
     PyObject *weakreflist; /* List of weak references */
+    Py_ssize_t numph;
+    Py_ssize_t *posph;
+    PyObject *argscopy;
 } PyIUObject_Partial;
 
 PyTypeObject PyIUType_Partial;
+
+
+static int
+partial_traverse(PyIUObject_Partial *self, visitproc visit, void *arg)
+{
+    Py_VISIT(self->fn);
+    Py_VISIT(self->args);
+    Py_VISIT(self->kw);
+    Py_VISIT(self->dict);
+    Py_VISIT(self->argscopy);
+    return 0;
+}
+
+
+static void
+partial_dealloc(PyIUObject_Partial *self)
+{
+    PyObject_GC_UnTrack(self);
+    if (self->weakreflist != NULL) {
+        PyObject_ClearWeakRefs((PyObject *) self);
+    }
+    Py_XDECREF(self->fn);
+    Py_XDECREF(self->args);
+    Py_XDECREF(self->argscopy);
+    Py_XDECREF(self->kw);
+    Py_XDECREF(self->dict);
+    if (self->posph != NULL) {
+        PyMem_Free(self->posph);
+    }
+    Py_TYPE(self)->tp_free(self);
+}
+
 
 static PyObject *
 partial_new(PyTypeObject *type, PyObject *args, PyObject *kw)
 {
     PyObject *func, *pargs, *nargs, *pkw;
-    PyIUObject_Partial *self=NULL;
+    PyIUObject_Partial *self = NULL;
 
     if (PyTuple_GET_SIZE(args) < 1) {
         PyErr_SetString(PyExc_TypeError,
@@ -135,6 +221,11 @@ partial_new(PyTypeObject *type, PyObject *args, PyObject *kw)
     func = PyTuple_GET_ITEM(args, 0);
     if (Py_TYPE(func) == &PyIUType_Partial && type == &PyIUType_Partial) {
         PyIUObject_Partial *part = (PyIUObject_Partial *)func;
+        if (part->numph) {
+            PyErr_SetString(PyExc_TypeError,
+                            "not supported yet.");
+            goto Fail;
+        }
         if (part->dict == NULL) {
             pargs = part->args;
             pkw = part->kw;
@@ -152,6 +243,8 @@ partial_new(PyTypeObject *type, PyObject *args, PyObject *kw)
     if (self == NULL) {
         goto Fail;
     }
+    self->posph = NULL;
+    self->argscopy = NULL;
 
     self->fn = func;
     Py_INCREF(func);
@@ -162,6 +255,19 @@ partial_new(PyTypeObject *type, PyObject *args, PyObject *kw)
     }
 
     if (pargs == NULL || PyTuple_GET_SIZE(pargs) == 0) {
+        /* Check how many placeholders exist and at which positions. */
+        self->numph = PyIUPlaceholder_NumInTuple(nargs);
+        if (self->numph) {
+            self->posph = PyIUPlaceholder_PosInTuple(nargs, self->numph);
+            if (self->posph == NULL) {
+                goto Fail;
+            }
+            self->argscopy = PyTuple_GetSlice(nargs, 0, PY_SSIZE_T_MAX);
+            if (self->argscopy == NULL) {
+                goto Fail;
+            }
+        }
+        /* Save the arguments. */
         self->args = nargs;
         Py_INCREF(nargs);
     } else if (PyTuple_GET_SIZE(nargs) == 0) {
@@ -205,19 +311,6 @@ Fail:
     return NULL;
 }
 
-static void
-partial_dealloc(PyIUObject_Partial *self)
-{
-    PyObject_GC_UnTrack(self);
-    if (self->weakreflist != NULL) {
-        PyObject_ClearWeakRefs((PyObject *) self);
-    }
-    Py_XDECREF(self->fn);
-    Py_XDECREF(self->args);
-    Py_XDECREF(self->kw);
-    Py_XDECREF(self->dict);
-    Py_TYPE(self)->tp_free(self);
-}
 
 static PyObject *
 partial_call(PyIUObject_Partial *self, PyObject *args, PyObject *kw)
@@ -225,18 +318,44 @@ partial_call(PyIUObject_Partial *self, PyObject *args, PyObject *kw)
     PyObject *ret;
     PyObject *argappl = NULL;
     PyObject *kwappl = NULL;
+    Py_ssize_t i;
 
     if (PyTuple_GET_SIZE(self->args) == 0) {
         argappl = args;
         Py_INCREF(args);
     } else if (PyTuple_GET_SIZE(args) == 0) {
+        if (self->numph) {
+            PyErr_SetString(PyExc_TypeError,
+                            "not enough values to fill the placeholders.");
+            return NULL;
+        }
         argappl = self->args;
         Py_INCREF(self->args);
     } else {
-        argappl = PySequence_Concat(self->args, args);
-        if (argappl == NULL) {
-            goto Fail;
+        if (self->numph) {
+            if (PyTuple_GET_SIZE(args) != self->numph) {
+                PyErr_SetString(PyExc_TypeError,
+                                "not enough values or too many to fill the placeholders.");
+                return NULL;
+            } else {
+                argappl = self->argscopy;
+                Py_INCREF(argappl);
+                /* Temporary replace the placeholders with the given args.
+                   These are switched back to placeholders after the function
+                   call. Let's just hope that nobody decrefs them out of
+                   existence.
+                   */
+                for (i = 0 ; i < self->numph ; i++) {
+                    PyTuple_SET_ITEM(argappl, self->posph[i], PyTuple_GET_ITEM(args, i));
+                }
+            }
+        } else {
+            argappl = PySequence_Concat(self->args, args);
+            if (argappl == NULL) {
+                goto Fail;
+            }
         }
+
     }
 
     if (PyDict_Size(self->kw) == 0) {
@@ -255,6 +374,11 @@ partial_call(PyIUObject_Partial *self, PyObject *args, PyObject *kw)
     }
 
     ret = PyObject_Call(self->fn, argappl, kwappl);
+    if (self->numph) {
+        for (i = 0 ; i < self->numph ; i++) {
+            PyTuple_SET_ITEM(argappl, self->posph[i], PYIU_Placeholder);
+        }
+    }
     Py_DECREF(argappl);
     Py_XDECREF(kwappl);
     return ret;
@@ -265,15 +389,6 @@ Fail:
     return NULL;
 }
 
-static int
-partial_traverse(PyIUObject_Partial *self, visitproc visit, void *arg)
-{
-    Py_VISIT(self->fn);
-    Py_VISIT(self->args);
-    Py_VISIT(self->kw);
-    Py_VISIT(self->dict);
-    return 0;
-}
 
 #define OFF(x) offsetof(PyIUObject_Partial, x)
 static PyMemberDef partial_memberlist[] = {
@@ -283,6 +398,8 @@ static PyMemberDef partial_memberlist[] = {
      "tuple of arguments to future partial calls"},
     {"keywords",        T_OBJECT,       OFF(kw),        READONLY,
      "dictionary of keyword arguments to future partial calls"},
+    {"num_placeholders",T_PYSSIZET,     OFF(numph),     READONLY,
+     "number of placeholders in the args"},
     {NULL}  /* Sentinel */
 };
 
@@ -299,6 +416,7 @@ partial_get_dict(PyIUObject_Partial *self)
     Py_INCREF(self->dict);
     return self->dict;
 }
+
 
 static int
 partial_set_dict(PyIUObject_Partial *self, PyObject *value)
@@ -334,6 +452,7 @@ static PyGetSetDef partial_getsetlist[] = {
     {NULL} /* Sentinel */
 };
 #endif
+
 
 static PyObject *
 partial_repr(PyIUObject_Partial *self)
@@ -404,6 +523,7 @@ done:
     return result;
 }
 
+
 /* Pickle strategy:
    __reduce__ by itself doesn't support getting kwargs in the unpickle
    operation so we define a __setstate__ that replaces all the information
@@ -470,8 +590,26 @@ partial_setstate(PyIUObject_Partial *self, PyObject *state)
     self->args = fnargs;
     self->kw = kw;
     self->dict = dict;
+
+    self->numph = PyIUPlaceholder_NumInTuple(self->args);
+    if (self->numph) {
+        self->posph = PyIUPlaceholder_PosInTuple(self->args, self->numph);
+        if (self->posph == NULL) {
+            Py_DECREF(self);
+            return NULL;
+        }
+        self->argscopy = PyTuple_GetSlice(self->args, 0, PY_SSIZE_T_MAX);
+        if (self->argscopy == NULL) {
+            Py_DECREF(self);
+            return NULL;
+        }
+    } else {
+        self->posph = NULL;
+        self->argscopy = NULL;
+    }
     Py_RETURN_NONE;
 }
+
 
 static PyMethodDef partial_methods[] = {
     {"__reduce__",   (PyCFunction)partial_reduce,   METH_NOARGS},
