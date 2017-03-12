@@ -536,7 +536,7 @@ def test_placeholder_new():
 
 
 @memory_leak_decorator()
-def test_partial_placeholder_num_placeholders():
+def test_partial_placeholder_basic():
     p = partial(isinstance, partial._, int)
     assert p.num_placeholders == 1
     assert p.args == (partial._, int)
@@ -546,7 +546,7 @@ def test_partial_placeholder_num_placeholders():
 
 
 @memory_leak_decorator()
-def test_partial_placeholder_num_placeholders_someone_holds_ref():
+def test_partial_placeholder_someone_holds_ref():
     p = partial(isinstance, partial._, int)
     # hold a reference to args while calling the function
     x = p.args
@@ -557,26 +557,35 @@ def test_partial_placeholder_num_placeholders_someone_holds_ref():
 
 
 @memory_leak_decorator()
-def test_partial_placeholder_num_placeholders_copy():
+def test_partial_placeholder_copy():
     p = partial(isinstance, partial._, int)
     # call a copy of a partial with placeholders
     p2 = copy.copy(p)
+    assert p2.num_placeholders == 1
     assert p2(20)
     assert not p2(1.2)
     assert not p2(T(1.2))
 
 
 @memory_leak_decorator()
-def test_partial_placeholder_num_placeholders_deepcopy():
+def test_partial_placeholder_deepcopy():
     p = partial(isinstance, partial._, int)
-    p3 = copy.deepcopy(p)
-    assert p3(20)
-    assert not p3(1.2)
-    assert not p3(T(1.2))
+    p2 = copy.deepcopy(p)
+    assert p2.num_placeholders == 1
+    assert p2(20)
+    assert not p2(1.2)
+    assert not p2(T(1.2))
+
+
+@memory_leak_decorator()
+def test_partial_placeholder_setstate_frees_old_array():
+    p = partial(isinstance, partial._, int)
+    p.__setstate__((isinstance, (10, int), {}, {}))
+    # TODO: How to check the memory is freed? :(
 
 
 @memory_leak_decorator(collect=True)
-def test_partial_placeholder_num_placeholders_missing_args():
+def test_partial_placeholder_missing_args():
     p = partial(isinstance, partial._, int)
     # creating a partial based on another partial is not supported (yet)
     with pytest.raises(TypeError) as exc:
@@ -598,10 +607,10 @@ def test_partial_placeholder_num_placeholders_missing_args():
 
     with pytest.raises(TypeError) as exc:
         p(T(1))
-    assert ("not enough values or too many to fill the placeholders."
-            ""in str(exc))
+    assert ("not enough values to fill the placeholders." in str(exc))
 
-    with pytest.raises(TypeError) as exc:
-        p(T(1), T(2), T(3))
-    assert ("not enough values or too many to fill the placeholders."
-            ""in str(exc))
+
+@memory_leak_decorator()
+def test_partial_placeholder_more_args():
+    p = partial(capture, partial._, T(2))
+    assert p(T(1), T(3), T(4)) == ((T(1), T(2), T(3), T(4)), {})

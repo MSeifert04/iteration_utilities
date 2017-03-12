@@ -325,11 +325,11 @@ partial_call(PyIUObject_Partial *self, PyObject *args, PyObject *kw)
         Py_INCREF(self->args);
     } else {
         if (self->numph) {
-            if (PyTuple_GET_SIZE(args) != self->numph) {
-                PyErr_SetString(PyExc_TypeError,
-                                "not enough values or too many to fill the placeholders.");
-                return NULL;
-            } else {
+            Py_ssize_t tuplesize = PyTuple_GET_SIZE(args);
+            if (tuplesize == self->numph) {
+                /* Exactly that many arguments as there are placeholders, just
+                   fill in the blanks.
+                   */
                 if (Py_REFCNT(self->args) == 1) {
                     argappl = self->args;
                     Py_INCREF(argappl);
@@ -340,7 +340,8 @@ partial_call(PyIUObject_Partial *self, PyObject *args, PyObject *kw)
                        change while the function is called. Why is self->args
                        exposed?
                        */
-                    argappl = PyTuple_GetSlice(self->args, 0, PY_SSIZE_T_MAX);
+                    argappl = PyTuple_GetSlice(self->args,
+                                               0, PY_SSIZE_T_MAX);
                     if (argappl == NULL) {
                         goto Fail;
                     }
@@ -349,10 +350,44 @@ partial_call(PyIUObject_Partial *self, PyObject *args, PyObject *kw)
                    These are switched back to placeholders after the function
                    call. Let's just hope that nobody decrefs them out of
                    existence.
+                   CAREFUL: These items live on a stolen reference!!!
                    */
                 for (i = 0 ; i < self->numph ; i++) {
-                    PyTuple_SET_ITEM(argappl, self->posph[i], PyTuple_GET_ITEM(args, i));
+                    PyTuple_SET_ITEM(argappl,
+                                     self->posph[i],
+                                     PyTuple_GET_ITEM(args, i));
                 }
+            } else if (tuplesize > self->numph) {
+                /* More arguments than placeholders, fill in the placeholders
+                   and concat the remaining items.
+                   To keep the state clean first try to slice the passed in
+                   args (those which shouldn't fill the placeholders), then
+                   concat the self->args and the slice (creating a new
+                   reference) so we can simply fill in the blanks without
+                   potentially altering the original self->args
+                   */
+                PyObject *tmp = PyTuple_GetSlice(args,
+                                                 self->numph, PY_SSIZE_T_MAX);
+                if (tmp == NULL) {
+                    return NULL;
+                }
+                argappl = PySequence_Concat(self->args, tmp);
+                Py_DECREF(tmp);
+                if (argappl == NULL) {
+                    goto Fail;
+                }
+                /* See above.
+                   CAREFUL: These items live on a stolen reference!!!
+                   */
+                for (i = 0 ; i < self->numph ; i++) {
+                    PyTuple_SET_ITEM(argappl,
+                                     self->posph[i],
+                                     PyTuple_GET_ITEM(args, i));
+                }
+            } else {
+                PyErr_SetString(PyExc_TypeError,
+                                "not enough values to fill the placeholders.");
+                return NULL;
             }
         } else {
             argappl = PySequence_Concat(self->args, args);
@@ -378,7 +413,11 @@ partial_call(PyIUObject_Partial *self, PyObject *args, PyObject *kw)
         }
     }
 
+    /* Actually call the function. */
     ret = PyObject_Call(self->fn, argappl, kwappl);
+
+    /* Before decref'ing argappl we need to be make sure that there are no
+       items inside that live on a borrowed reference!!! */
     if (self->numph) {
         for (i = 0 ; i < self->numph ; i++) {
             PyTuple_SET_ITEM(argappl, self->posph[i], PYIU_Placeholder);
@@ -389,6 +428,13 @@ partial_call(PyIUObject_Partial *self, PyObject *args, PyObject *kw)
     return ret;
 
 Fail:
+    /* Before decref'ing argappl we need to be make sure that there are no
+       items inside that live on a borrowed reference!!! */
+    if (self->numph && argappl != NULL) {
+        for (i = 0 ; i < self->numph ; i++) {
+            PyTuple_SET_ITEM(argappl, self->posph[i], PYIU_Placeholder);
+        }
+    }
     Py_XDECREF(argappl);
     Py_XDECREF(kwappl);
     return NULL;
@@ -596,6 +642,10 @@ partial_setstate(PyIUObject_Partial *self, PyObject *state)
     self->kw = kw;
     self->dict = dict;
 
+    /* Free potentially existing array of positions. */
+    if (self->posph != NULL) {
+        PyMem_Free(self->posph);
+    }
     self->numph = PyIUPlaceholder_NumInTuple(self->args);
     if (self->numph) {
         self->posph = PyIUPlaceholder_PosInTuple(self->args, self->numph);
