@@ -17,7 +17,7 @@ placeholder_repr(PyObject *self)
 static PyObject *
 placeholder_reduce(PyObject *self)
 {
-    return PyUnicode_FromString("iteration_utilities._Placeholder");
+    return PyUnicode_FromString("iteration_utilities.Placeholder");
 }
 
 static PyMethodDef placeholder_methods[] = {
@@ -512,14 +512,11 @@ partial_repr(PyIUObject_Partial *self)
     PyObject *arglist;
     Py_ssize_t i, n;
     PyObject *key, *value;
-    int status;
+    int ok;
 
-    status = Py_ReprEnter((PyObject *)self);
-    if (status != 0) {
-        if (status < 0) {
-            return NULL;
-        }
-        return PyUnicode_FromString("...");
+    ok = Py_ReprEnter((PyObject *)self);
+    if (ok != 0) {
+        return ok > 0 ? PyUnicode_FromString("...") : NULL;
     }
 
     arglist = PyUnicode_FromString("");
