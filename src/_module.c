@@ -207,7 +207,15 @@ PyDoc_STRVAR(PyIU_module_doc, "API: C Functions\n----------------");
             PyModule_AddObject(m, name+1, (PyObject *)typelist[i]);
         }
         Py_INCREF(PYIU_Placeholder);
-        PyModule_AddObject(m, "Placeholder", PYIU_Placeholder);
+        PyModule_AddObject(m, "_Placeholder", PYIU_Placeholder);
+
+        if (PyDict_SetItemString(PyIUType_Partial.tp_dict, "_", PYIU_Placeholder) != 0) {
+#if PY_MAJOR_VERSION >= 3
+            return m;
+#else
+            return;
+#endif
+        }
 
         /* Add pre-defined instances. */
         PyIU_returnTrue = constant_new(&PyIUType_Constant, Py_BuildValue("(O)", Py_True), NULL);

@@ -473,3 +473,28 @@ def test_invalid_kwargs():
     # Shouldn't segfault!!!
     with pytest.raises(TypeError):
         repr(f)
+
+
+@memory_leak_decorator()
+def test_partial_has_placeholder():
+    assert hasattr(partial, '_')
+
+
+@memory_leak_decorator()
+def test_placeholder():
+    assert partial._ is partial._
+    assert copy.copy(partial._) is partial._
+    assert copy.deepcopy(partial._) is partial._
+    # PlaceholderType.__new__()
+    assert type(partial._)() is partial._
+    assert repr(partial._) == '_'
+
+
+@memory_leak_decorator(collect=True)
+def test_placeholder_new():
+    with pytest.raises(TypeError) as exc:
+        type(partial._)(1)
+    assert "PlaceholderType takes no arguments" in str(exc)
+    with pytest.raises(TypeError) as exc:
+        type(partial._)(a=1)
+    assert "PlaceholderType takes no arguments" in str(exc)

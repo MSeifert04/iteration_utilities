@@ -10,19 +10,25 @@ PyObject PlaceholderStruct;
 static PyObject *
 placeholder_repr(PyObject *self)
 {
-    return PyUnicode_FromString("Placeholder");
+    return PyUnicode_FromString("_");
 }
 
+#if PY_MAJOR_VERSION == 3
 static PyObject *
 placeholder_reduce(PyObject *self)
 {
-    return PyUnicode_FromString("iteration_utilities.Placeholder");
+    return PyUnicode_FromString("iteration_utilities._Placeholder");
 }
 
 static PyMethodDef placeholder_methods[] = {
     {"__reduce__", (PyCFunction)placeholder_reduce, METH_NOARGS, NULL},
     {NULL, NULL}
 };
+#else
+static PyMethodDef placeholder_methods[] = {
+    {NULL, NULL}
+};
+#endif
 
 static PyObject *
 placeholder_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
