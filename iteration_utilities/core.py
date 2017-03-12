@@ -306,17 +306,18 @@ class _Base(object):
 
         Examples
         --------
-        >>> from iteration_utilities import Iterable
+        >>> from iteration_utilities import Iterable, chained
+        >>> roundint = chained(round, int)
         >>> import operator
         >>> Iterable.from_tabulate(operator.neg).islice(8).as_list()
         [0, -1, -2, -3, -4, -5, -6, -7]
 
         >>> from math import gamma
-        >>> Iterable.from_tabulate(gamma, 1).islice(8).as_tuple()
-        (1.0, 1.0, 2.0, 6.0, 24.0, 120.0, 720.0, 5040.0)
+        >>> Iterable.from_tabulate(gamma, 1).islice(8).map(roundint).as_tuple()
+        (1, 1, 2, 6, 24, 120, 720, 5040)
 
-        >>> Iterable.from_tabulate(func=gamma, start=2).islice(7).as_tuple()
-        (1.0, 2.0, 6.0, 24.0, 120.0, 720.0, 5040.0)
+        >>> Iterable.from_tabulate(func=gamma, start=2).islice(7).map(roundint).as_tuple()
+        (1, 2, 6, 24, 120, 720, 5040)
 
         .. warning::
            This returns an `InfiniteIterable`.
