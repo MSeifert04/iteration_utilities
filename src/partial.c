@@ -223,7 +223,8 @@ static PyObject *
 partial_call(PyIUObject_Partial *self, PyObject *args, PyObject *kw)
 {
     PyObject *ret;
-    PyObject *argappl, *kwappl;
+    PyObject *argappl = NULL;
+    PyObject *kwappl = NULL;
 
     if (PyTuple_GET_SIZE(self->args) == 0) {
         argappl = args;
@@ -234,7 +235,7 @@ partial_call(PyIUObject_Partial *self, PyObject *args, PyObject *kw)
     } else {
         argappl = PySequence_Concat(self->args, args);
         if (argappl == NULL) {
-            return NULL;
+            goto Fail;
         }
     }
 
@@ -244,14 +245,11 @@ partial_call(PyIUObject_Partial *self, PyObject *args, PyObject *kw)
     } else {
         kwappl = PyDict_Copy(self->kw);
         if (kwappl == NULL) {
-            Py_DECREF(argappl);
-            return NULL;
+            goto Fail;
         }
         if (kw != NULL) {
             if (PyDict_Merge(kwappl, kw, 1) != 0) {
-                Py_DECREF(argappl);
-                Py_DECREF(kwappl);
-                return NULL;
+                goto Fail;
             }
         }
     }
@@ -260,6 +258,11 @@ partial_call(PyIUObject_Partial *self, PyObject *args, PyObject *kw)
     Py_DECREF(argappl);
     Py_XDECREF(kwappl);
     return ret;
+
+Fail:
+    Py_XDECREF(argappl);
+    Py_XDECREF(kwappl);
+    return NULL;
 }
 
 static int

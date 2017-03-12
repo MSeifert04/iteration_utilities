@@ -1,5 +1,6 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
+import collections
 import copy
 import pickle
 import weakref
@@ -467,12 +468,46 @@ def test_setstate_refcount():
 
 
 @memory_leak_decorator(collect=True)
-def test_invalid_kwargs():
+def test_invalid_kwargs_with_setstate():
     f = partial(object)
     f.__setstate__((object, (), {1: 1}, {}))
     # Shouldn't segfault!!!
     with pytest.raises(TypeError):
         repr(f)
+
+
+@memory_leak_decorator()
+def test_partial_from_partial_kwargs():
+    f1 = partial(capture, b=10)
+    f2 = partial(f1)
+    assert f2() == ((), {'b': 10})
+    assert signature(f2) == (capture, (), {'b': 10}, {})
+
+    f1 = partial(capture, b=10)
+    f2 = partial(f1, c=10)
+    assert f2() == ((), {'b': 10, 'c': 10})
+    assert signature(f2) == (capture, (), {'b': 10, 'c': 10}, {})
+
+    f1 = partial(capture, b=10)
+    f2 = partial(f1, b=20)
+    assert f2() == ((), {'b': 20})
+    assert signature(f2) == (capture, (), {'b': 20}, {})
+
+
+@memory_leak_decorator(collect=True)
+def test_partial_dict_setter():
+    p = partial(capture, b=10)
+    with pytest.raises(TypeError):
+        p.__dict__ = 10
+
+    p = partial(capture, b=10)
+    p.__dict__ = {}
+    assert signature(p) == (capture, (), {'b': 10}, {})
+
+    p = partial(capture, b=10)
+    p.__dict__ = collections.OrderedDict()
+    assert signature(p) == (capture, (), {'b': 10}, collections.OrderedDict())
+    assert isinstance(p.__dict__, collections.OrderedDict)
 
 
 @memory_leak_decorator()
