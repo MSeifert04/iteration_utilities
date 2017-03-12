@@ -117,12 +117,12 @@ static PyObject *
 partial_new(PyTypeObject *type, PyObject *args, PyObject *kw)
 {
     PyObject *func, *pargs, *nargs, *pkw;
-    PyIUObject_Partial *self;
+    PyIUObject_Partial *self=NULL;
 
     if (PyTuple_GET_SIZE(args) < 1) {
         PyErr_SetString(PyExc_TypeError,
                         "type 'partial' takes at least one argument");
-        return NULL;
+        goto Fail;
     }
 
     pargs = pkw = NULL;
@@ -138,13 +138,13 @@ partial_new(PyTypeObject *type, PyObject *args, PyObject *kw)
     if (!PyCallable_Check(func)) {
         PyErr_SetString(PyExc_TypeError,
                         "the first argument must be callable");
-        return NULL;
+        goto Fail;
     }
 
     /* create PyIUObject_Partial structure */
     self = (PyIUObject_Partial *)type->tp_alloc(type, 0);
     if (self == NULL) {
-        return NULL;
+        goto Fail;
     }
 
     self->fn = func;
@@ -152,23 +152,20 @@ partial_new(PyTypeObject *type, PyObject *args, PyObject *kw)
 
     nargs = PyTuple_GetSlice(args, 1, PY_SSIZE_T_MAX);
     if (nargs == NULL) {
-        Py_DECREF(self);
-        return NULL;
+        goto Fail;
     }
+
     if (pargs == NULL || PyTuple_GET_SIZE(pargs) == 0) {
         self->args = nargs;
         Py_INCREF(nargs);
-    }
-    else if (PyTuple_GET_SIZE(nargs) == 0) {
+    } else if (PyTuple_GET_SIZE(nargs) == 0) {
         self->args = pargs;
         Py_INCREF(pargs);
-    }
-    else {
+    } else {
         self->args = PySequence_Concat(pargs, nargs);
         if (self->args == NULL) {
             Py_DECREF(nargs);
-            Py_DECREF(self);
-            return NULL;
+            goto Fail;
         }
     }
     Py_DECREF(nargs);
@@ -176,30 +173,30 @@ partial_new(PyTypeObject *type, PyObject *args, PyObject *kw)
     if (pkw == NULL || PyDict_Size(pkw) == 0) {
         if (kw == NULL) {
             self->kw = PyDict_New();
-        }
-        else if (Py_REFCNT(kw) == 1) {
+        } else if (Py_REFCNT(kw) == 1) {
             Py_INCREF(kw);
             self->kw = kw;
-        }
-        else {
+        } else {
             self->kw = PyDict_Copy(kw);
         }
     } else {
         self->kw = PyDict_Copy(pkw);
         if (kw != NULL && self->kw != NULL) {
             if (PyDict_Merge(self->kw, kw, 1) != 0) {
-                Py_DECREF(self);
-                return NULL;
+                goto Fail;
             }
         }
     }
 
     if (self->kw == NULL) {
-        Py_DECREF(self);
-        return NULL;
+        goto Fail;
     }
 
     return (PyObject *)self;
+
+Fail:
+    Py_XDECREF(self);
+    return NULL;
 }
 
 static void
@@ -429,8 +426,7 @@ partial_setstate(PyIUObject_Partial *self, PyObject *state)
 
     if(!PyTuple_CheckExact(fnargs)) {
         fnargs = PySequence_Tuple(fnargs);
-    }
-    else {
+    } else {
         Py_INCREF(fnargs);
     }
     if (fnargs == NULL) {

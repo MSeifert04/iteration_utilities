@@ -459,3 +459,17 @@ def test_setstate_refcount():
     f = partial(object)
     with pytest.raises(TypeError):
         f.__setstate__(BadSequence())
+
+
+# =============================================================================
+# New tests (not taken from CPython source)
+# =============================================================================
+
+
+@memory_leak_decorator(collect=True)
+def test_invalid_kwargs():
+    f = partial(object)
+    f.__setstate__((object, (), {1: 1}, {}))
+    # Shouldn't segfault!!!
+    with pytest.raises(TypeError):
+        repr(f)
