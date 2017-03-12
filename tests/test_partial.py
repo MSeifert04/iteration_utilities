@@ -587,11 +587,6 @@ def test_partial_placeholder_setstate_frees_old_array():
 @memory_leak_decorator(collect=True)
 def test_partial_placeholder_missing_args():
     p = partial(isinstance, partial._, int)
-    # creating a partial based on another partial is not supported (yet)
-    with pytest.raises(TypeError) as exc:
-        partial(p, T(1))
-    assert ("creating a partial from another partial with placeholders is not "
-            "supported." in str(exc))
 
     with pytest.raises(TypeError) as exc:
         p()
@@ -614,3 +609,107 @@ def test_partial_placeholder_missing_args():
 def test_partial_placeholder_more_args():
     p = partial(capture, partial._, T(2))
     assert p(T(1), T(3), T(4)) == ((T(1), T(2), T(3), T(4)), {})
+
+
+@memory_leak_decorator()
+def test_partial_from_partial_with_one_placeholder():
+    # One placeholder, no additional arguments, placeholder in different
+    # positions
+    p1 = partial(capture, partial._, T(2), T(3))
+    p2 = partial(p1)
+    assert p1.args is p2.args
+    assert p1.keywords == p2.keywords
+    assert p1(T(1)) == ((T(1), T(2), T(3)), {})
+    assert p2(T(1)) == ((T(1), T(2), T(3)), {})
+    assert p1(T(1)) == p2(T(1))
+
+    p1 = partial(capture, T(1), partial._, T(3))
+    p2 = partial(p1)
+    assert p1.args is p2.args
+    assert p1.keywords == p2.keywords
+    assert p1(T(2)) == ((T(1), T(2), T(3)), {})
+    assert p2(T(2)) == ((T(1), T(2), T(3)), {})
+    assert p1(T(2)) == p2(T(2))
+
+    p1 = partial(capture, T(1), T(2), partial._)
+    p2 = partial(p1)
+    assert p1.args is p2.args
+    assert p1.keywords == p2.keywords
+    assert p1(T(3)) == ((T(1), T(2), T(3)), {})
+    assert p2(T(3)) == ((T(1), T(2), T(3)), {})
+    assert p1(T(3)) == p2(T(3))
+
+
+@memory_leak_decorator(collect=True)
+def test_partial_from_partial_with_one_placeholder_fail():
+    p1 = partial(capture, partial._, T(2), T(3))
+    p2 = partial(p1)
+    with pytest.raises(TypeError) as exc:
+        p2()
+    assert ("not enough values to fill the placeholders." in str(exc))
+
+
+@memory_leak_decorator()
+def test_partial_from_partial_basic1():
+    # One placeholder, one argument given
+    p1 = partial(capture, partial._, T(2), T(3))
+    p2 = partial(p1, T(1))
+    assert p1.args == (partial._, T(2), T(3))
+    assert p1(T(1)) == ((T(1), T(2), T(3)), {})
+    assert p1(T(1), T(4)) == ((T(1), T(2), T(3), T(4)), {})
+    assert p2.args == (T(1), T(2), T(3))
+    assert p2() == ((T(1), T(2), T(3)), {})
+    assert p2(T(4)) == ((T(1), T(2), T(3), T(4)), {})
+
+
+@memory_leak_decorator()
+def test_partial_from_partial_basic2():
+    # Two placeholders, one argument given
+    p1 = partial(capture, partial._, T(2), partial._)
+    p2 = partial(p1, T(1))
+    assert p1.args == (partial._, T(2), partial._)
+    assert p1(T(1), T(3)) == ((T(1), T(2), T(3)), {})
+    assert p1(T(1), T(3), T(4)) == ((T(1), T(2), T(3), T(4)), {})
+    assert p2.args == (T(1), T(2), partial._)
+    assert p2(T(3)) == ((T(1), T(2), T(3)), {})
+    assert p2(T(3), T(4)) == ((T(1), T(2), T(3), T(4)), {})
+
+
+@memory_leak_decorator()
+def test_partial_from_partial_basic3():
+    # One placeholders, two arguments given
+    p1 = partial(capture, partial._, T(2))
+    p2 = partial(p1, T(1), T(3))
+    assert p1.args == (partial._, T(2))
+    assert p1(T(1)) == ((T(1), T(2)), {})
+    assert p1(T(1), T(3)) == ((T(1), T(2), T(3)), {})
+    assert p1(T(1), T(3), T(4)) == ((T(1), T(2), T(3), T(4)), {})
+    assert p2.args == (T(1), T(2), T(3))
+    assert p2() == ((T(1), T(2), T(3)), {})
+    assert p2(T(4)) == ((T(1), T(2), T(3), T(4)), {})
+
+
+@memory_leak_decorator()
+def test_partial_from_partial_basic4():
+    # Two placeholderss, two arguments given
+    p1 = partial(capture, partial._, partial._, T(3))
+    p2 = partial(p1, T(1), T(2))
+    assert p1.args == (partial._, partial._, T(3))
+    assert p1(T(1), T(2)) == ((T(1), T(2), T(3)), {})
+    assert p1(T(1), T(2), T(4)) == ((T(1), T(2), T(3), T(4)), {})
+    assert p2.args == (T(1), T(2), T(3))
+    assert p2() == ((T(1), T(2), T(3)), {})
+    assert p2(T(4)) == ((T(1), T(2), T(3), T(4)), {})
+
+
+@memory_leak_decorator()
+def test_partial_from_partial_basic5():
+    # Two placeholderss, three arguments given
+    p1 = partial(capture, partial._, partial._, T(3))
+    p2 = partial(p1, T(1), T(2), T(4))
+    assert p1.args == (partial._, partial._, T(3))
+    assert p1(T(1), T(2)) == ((T(1), T(2), T(3)), {})
+    assert p1(T(1), T(2), T(4)) == ((T(1), T(2), T(3), T(4)), {})
+    assert p2.args == (T(1), T(2), T(3), T(4))
+    assert p2() == ((T(1), T(2), T(3), T(4)), {})
+    assert p2(T(5)) == ((T(1), T(2), T(3), T(4), T(5)), {})

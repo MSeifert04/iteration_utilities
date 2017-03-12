@@ -205,33 +205,16 @@ partial_dealloc(PyIUObject_Partial *self)
 static PyObject *
 partial_new(PyTypeObject *type, PyObject *args, PyObject *kw)
 {
-    PyObject *func, *pargs, *nargs, *pkw;
+    PyObject *func;
+    PyObject *nargs;
+    PyObject *pargs = NULL;
+    PyObject *pkw = NULL;
     PyIUObject_Partial *self = NULL;
+    Py_ssize_t startslice = 1;
 
     if (PyTuple_GET_SIZE(args) < 1) {
         PyErr_SetString(PyExc_TypeError,
                         "type 'partial' takes at least one argument");
-        goto Fail;
-    }
-
-    pargs = pkw = NULL;
-    func = PyTuple_GET_ITEM(args, 0);
-    if (Py_TYPE(func) == &PyIUType_Partial && type == &PyIUType_Partial) {
-        PyIUObject_Partial *part = (PyIUObject_Partial *)func;
-        if (part->numph) {
-            PyErr_SetString(PyExc_TypeError,
-                            "creating a partial from another partial with placeholders is not supported.");
-            goto Fail;
-        }
-        if (part->dict == NULL) {
-            pargs = part->args;
-            pkw = part->kw;
-            func = part->fn;
-        }
-    }
-    if (!PyCallable_Check(func)) {
-        PyErr_SetString(PyExc_TypeError,
-                        "the first argument must be callable");
         goto Fail;
     }
 
@@ -240,25 +223,70 @@ partial_new(PyTypeObject *type, PyObject *args, PyObject *kw)
     if (self == NULL) {
         goto Fail;
     }
+
+    func = PyTuple_GET_ITEM(args, 0);
+    /* Unwrap the function if it's another partial and we're not in a subclass
+       and (that's important) there is no custom attribute set
+       (__dict__ = NULL). That means even if the dict was only accessed but
+       empty!
+       */
+    if (Py_TYPE(func) == &PyIUType_Partial &&
+            type == &PyIUType_Partial &&
+            ((PyIUObject_Partial *)func)->dict == NULL) {
+
+        Py_ssize_t tuplesize = PyTuple_GET_SIZE(args) - 1;
+        PyIUObject_Partial *part = (PyIUObject_Partial *)func;
+
+        if (part->numph && tuplesize) {
+            /* Creating a partial from another partial which had placeholders
+               needs to be specially treated. At least if there are positional
+               keywords given these will replace the placeholders!
+               */
+            Py_ssize_t i, stop;
+
+            pargs = PYUI_TupleCopy(part->args);
+            if (pargs == NULL) {
+                return NULL;
+            }
+            /* Only replace min(part->numpy, tuplesize) placeholders, otherwise
+               this will make out of bounds memory accesses (besides doing
+               something undefined).
+               */
+            stop = part->numph > tuplesize ? tuplesize : part->numph;
+            for ( i=0 ; i < stop ; i++ ) {
+                PyObject *tmp = PyTuple_GET_ITEM(args, i+1);
+                PyObject *ph = PyTuple_GET_ITEM(pargs, part->posph[i]);
+                Py_INCREF(tmp);
+                PyTuple_SET_ITEM(pargs, part->posph[i], tmp);
+                Py_DECREF(ph);
+            }
+            /* Just alter the startslice so the arguments will be sliced
+               correctly later. It is also a good indicator if the pargs need
+               to be decremented later. */
+            startslice = startslice + stop;
+        } else {
+            pargs = part->args;
+        }
+        pkw = part->kw;
+        func = part->fn;
+    }
+
+    if (!PyCallable_Check(func)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "the first argument must be callable");
+        goto Fail;
+    }
     self->posph = NULL;
 
     self->fn = func;
     Py_INCREF(func);
 
-    nargs = PyTuple_GetSlice(args, 1, PY_SSIZE_T_MAX);
+    nargs = PyTuple_GetSlice(args, startslice, PY_SSIZE_T_MAX);
     if (nargs == NULL) {
         goto Fail;
     }
 
     if (pargs == NULL || PyTuple_GET_SIZE(pargs) == 0) {
-        /* Check how many placeholders exist and at which positions. */
-        self->numph = PyIUPlaceholder_NumInTuple(nargs);
-        if (self->numph) {
-            self->posph = PyIUPlaceholder_PosInTuple(nargs, self->numph);
-            if (self->posph == NULL) {
-                goto Fail;
-            }
-        }
         /* Save the arguments. */
         self->args = nargs;
         Py_INCREF(nargs);
@@ -272,7 +300,21 @@ partial_new(PyTypeObject *type, PyObject *args, PyObject *kw)
             goto Fail;
         }
     }
+    /* Check how many placeholders exist and at which positions. */
+    self->numph = PyIUPlaceholder_NumInTuple(self->args);
+    if (self->numph) {
+        self->posph = PyIUPlaceholder_PosInTuple(self->args, self->numph);
+        if (self->posph == NULL) {
+            goto Fail;
+        }
+    }
     Py_DECREF(nargs);
+    /* If we already exchanged placeholders we already got a reference to
+       pargs so we need to decrement them once. */
+    if (startslice != 1) {
+        Py_DECREF(pargs);
+        startslice = 1;  /* So the "Fail" won't decrement them again. */
+    }
 
     if (pkw == NULL || PyDict_Size(pkw) == 0) {
         if (kw == NULL) {
@@ -299,6 +341,9 @@ partial_new(PyTypeObject *type, PyObject *args, PyObject *kw)
     return (PyObject *)self;
 
 Fail:
+    if (startslice != 1) {
+        Py_DECREF(pargs);
+    }
     Py_XDECREF(self);
     return NULL;
 }
@@ -340,8 +385,7 @@ partial_call(PyIUObject_Partial *self, PyObject *args, PyObject *kw)
                        change while the function is called. Why is self->args
                        exposed?
                        */
-                    argappl = PyTuple_GetSlice(self->args,
-                                               0, PY_SSIZE_T_MAX);
+                    argappl = PYUI_TupleCopy(self->args);
                     if (argappl == NULL) {
                         goto Fail;
                     }
