@@ -168,7 +168,6 @@ typedef struct {
     PyObject *weakreflist; /* List of weak references */
     Py_ssize_t numph;
     Py_ssize_t *posph;
-    PyObject *argscopy;
 } PyIUObject_Partial;
 
 PyTypeObject PyIUType_Partial;
@@ -181,7 +180,6 @@ partial_traverse(PyIUObject_Partial *self, visitproc visit, void *arg)
     Py_VISIT(self->args);
     Py_VISIT(self->kw);
     Py_VISIT(self->dict);
-    Py_VISIT(self->argscopy);
     return 0;
 }
 
@@ -195,7 +193,6 @@ partial_dealloc(PyIUObject_Partial *self)
     }
     Py_XDECREF(self->fn);
     Py_XDECREF(self->args);
-    Py_XDECREF(self->argscopy);
     Py_XDECREF(self->kw);
     Py_XDECREF(self->dict);
     if (self->posph != NULL) {
@@ -223,7 +220,7 @@ partial_new(PyTypeObject *type, PyObject *args, PyObject *kw)
         PyIUObject_Partial *part = (PyIUObject_Partial *)func;
         if (part->numph) {
             PyErr_SetString(PyExc_TypeError,
-                            "not supported yet.");
+                            "creating a partial from another partial with placeholders is not supported.");
             goto Fail;
         }
         if (part->dict == NULL) {
@@ -244,7 +241,6 @@ partial_new(PyTypeObject *type, PyObject *args, PyObject *kw)
         goto Fail;
     }
     self->posph = NULL;
-    self->argscopy = NULL;
 
     self->fn = func;
     Py_INCREF(func);
@@ -260,10 +256,6 @@ partial_new(PyTypeObject *type, PyObject *args, PyObject *kw)
         if (self->numph) {
             self->posph = PyIUPlaceholder_PosInTuple(nargs, self->numph);
             if (self->posph == NULL) {
-                goto Fail;
-            }
-            self->argscopy = PyTuple_GetSlice(nargs, 0, PY_SSIZE_T_MAX);
-            if (self->argscopy == NULL) {
                 goto Fail;
             }
         }
@@ -338,7 +330,7 @@ partial_call(PyIUObject_Partial *self, PyObject *args, PyObject *kw)
                                 "not enough values or too many to fill the placeholders.");
                 return NULL;
             } else {
-                argappl = self->argscopy;
+                argappl = self->args;
                 Py_INCREF(argappl);
                 /* Temporary replace the placeholders with the given args.
                    These are switched back to placeholders after the function
@@ -598,14 +590,8 @@ partial_setstate(PyIUObject_Partial *self, PyObject *state)
             Py_DECREF(self);
             return NULL;
         }
-        self->argscopy = PyTuple_GetSlice(self->args, 0, PY_SSIZE_T_MAX);
-        if (self->argscopy == NULL) {
-            Py_DECREF(self);
-            return NULL;
-        }
     } else {
         self->posph = NULL;
-        self->argscopy = NULL;
     }
     Py_RETURN_NONE;
 }
