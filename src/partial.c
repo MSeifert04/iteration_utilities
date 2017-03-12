@@ -330,8 +330,21 @@ partial_call(PyIUObject_Partial *self, PyObject *args, PyObject *kw)
                                 "not enough values or too many to fill the placeholders.");
                 return NULL;
             } else {
-                argappl = self->args;
-                Py_INCREF(argappl);
+                if (Py_REFCNT(self->args) == 1) {
+                    argappl = self->args;
+                    Py_INCREF(argappl);
+                } else {
+                    /* We need a new argappl because someone else holds a
+                       reference to the the args attribute. This will be a bit
+                       slower but better than the surprise of having a tuple
+                       change while the function is called. Why is self->args
+                       exposed?
+                       */
+                    argappl = PyTuple_GetSlice(self->args, 0, PY_SSIZE_T_MAX);
+                    if (argappl == NULL) {
+                        return NULL;
+                    }
+                }
                 /* Temporary replace the placeholders with the given args.
                    These are switched back to placeholders after the function
                    call. Let's just hope that nobody decrefs them out of
