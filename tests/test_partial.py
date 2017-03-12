@@ -533,3 +533,75 @@ def test_placeholder_new():
     with pytest.raises(TypeError) as exc:
         type(partial._)(a=1)
     assert "PlaceholderType takes no arguments" in str(exc)
+
+
+@memory_leak_decorator()
+def test_partial_placeholder_num_placeholders():
+    p = partial(isinstance, partial._, int)
+    assert p.num_placeholders == 1
+    assert p.args == (partial._, int)
+    assert p(20)
+    assert not p(1.2)
+    assert not p(T(1.2))
+
+
+@memory_leak_decorator()
+def test_partial_placeholder_num_placeholders_someone_holds_ref():
+    p = partial(isinstance, partial._, int)
+    # hold a reference to args while calling the function
+    x = p.args
+    assert p(20)
+    assert not p(1.2)
+    assert not p(T(1.2))
+    del x
+
+
+@memory_leak_decorator()
+def test_partial_placeholder_num_placeholders_copy():
+    p = partial(isinstance, partial._, int)
+    # call a copy of a partial with placeholders
+    p2 = copy.copy(p)
+    assert p2(20)
+    assert not p2(1.2)
+    assert not p2(T(1.2))
+
+
+@memory_leak_decorator()
+def test_partial_placeholder_num_placeholders_deepcopy():
+    p = partial(isinstance, partial._, int)
+    p3 = copy.deepcopy(p)
+    assert p3(20)
+    assert not p3(1.2)
+    assert not p3(T(1.2))
+
+
+@memory_leak_decorator(collect=True)
+def test_partial_placeholder_num_placeholders_missing_args():
+    p = partial(isinstance, partial._, int)
+    # creating a partial based on another partial is not supported (yet)
+    with pytest.raises(TypeError) as exc:
+        partial(p, T(1))
+    assert ("creating a partial from another partial with placeholders is not "
+            "supported." in str(exc))
+
+    with pytest.raises(TypeError) as exc:
+        p()
+    assert "not enough values to fill the placeholders." in str(exc)
+
+    # partial with multiple placeholders and too many or too few arguments
+    p = partial(isinstance, partial._, partial._)
+    assert p.num_placeholders == 2
+
+    with pytest.raises(TypeError) as exc:
+        p()
+    assert "not enough values to fill the placeholders." in str(exc)
+
+    with pytest.raises(TypeError) as exc:
+        p(T(1))
+    assert ("not enough values or too many to fill the placeholders."
+            ""in str(exc))
+
+    with pytest.raises(TypeError) as exc:
+        p(T(1), T(2), T(3))
+    assert ("not enough values or too many to fill the placeholders."
+            ""in str(exc))

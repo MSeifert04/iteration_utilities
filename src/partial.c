@@ -342,7 +342,7 @@ partial_call(PyIUObject_Partial *self, PyObject *args, PyObject *kw)
                        */
                     argappl = PyTuple_GetSlice(self->args, 0, PY_SSIZE_T_MAX);
                     if (argappl == NULL) {
-                        return NULL;
+                        goto Fail;
                     }
                 }
                 /* Temporary replace the placeholders with the given args.
@@ -600,7 +600,6 @@ partial_setstate(PyIUObject_Partial *self, PyObject *state)
     if (self->numph) {
         self->posph = PyIUPlaceholder_PosInTuple(self->args, self->numph);
         if (self->posph == NULL) {
-            Py_DECREF(self);
             return NULL;
         }
     } else {
