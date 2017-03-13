@@ -10,7 +10,8 @@ Version 0.4.0 (unreleased)
   their :py:func:`repr`.
 
 - added :py:func:`~iteration_utilities.partial` callback class, which is
-  essentially :py:func:`functools.partial` but allows to use placeholders.
+  essentially :py:func:`functools.partial` but also allows positional
+  placeholders.
 
 
 Version 0.3.0 (2017-03-09)

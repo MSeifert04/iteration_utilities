@@ -41,10 +41,13 @@ placeholder_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     return PYIU_Placeholder;
 }
 
-PyDoc_STRVAR(placeholder_doc, "PlaceholderType()\n\
+PyDoc_STRVAR(placeholder_doc, "PlaceholderType(/)\n\
 --\n\
 \n\
-A placeholder for :py:func:`iteration_utilities.partial`.");
+A placeholder for :py:func:`iteration_utilities.partial`. It defines the\n\
+class for ``iteration_utilities.partial._`` and \n\
+``iteration_utilities.Placeholder``.\n\
+");
 
 PyTypeObject Placeholder_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
@@ -488,13 +491,13 @@ Fail:
 #define OFF(x) offsetof(PyIUObject_Partial, x)
 static PyMemberDef partial_memberlist[] = {
     {"func",            T_OBJECT,       OFF(fn),        READONLY,
-     "function object to use in future partial calls"},
+     "Function object to use in future partial calls."},
     {"args",            T_OBJECT,       OFF(args),      READONLY,
-     "tuple of arguments to future partial calls"},
+     "Tuple of arguments to future partial calls."},
     {"keywords",        T_OBJECT,       OFF(kw),        READONLY,
-     "dictionary of keyword arguments to future partial calls"},
+     "Dictionary of keyword arguments to future partial calls."},
     {"num_placeholders",T_PYSSIZET,     OFF(numph),     READONLY,
-     "number of placeholders in the args"},
+     "Number of placeholders in the args."},
     {NULL}  /* Sentinel */
 };
 
@@ -710,7 +713,72 @@ static PyMethodDef partial_methods[] = {
 PyDoc_STRVAR(partial_doc, "partial(func, *args, **kwargs)\n\
 --\n\
 \n\
-Almost like :py:func:`functools.partial`.");
+Like :py:func:`functools.partial` but supporting placeholders.\n\
+\n\
+.. versionadded:: 0.4.0\n\
+\n\
+Parameters\n\
+----------\n\
+\n\
+func : callable\n\
+    The function to partially wrap.\n\
+\n\
+args : any type\n\
+    The positional arguments for `func`.\n\
+    \n\
+    .. note::\n\
+       Using ``partial._`` as one or multiple positional arguments will be\n\
+       interpreted as placeholder that need to be filled when the `partial`\n\
+       instance is called.\n\
+\n\
+kwargs : any type\n\
+    The keyword arguments for `func`.\n\
+\n\
+Returns\n\
+-------\n\
+\n\
+partial : callable\n\
+    The `func` where the given positional arguments are fixed (or represented\n\
+    as placeholders) and with optional keyword arguments.\n\
+\n\
+Notes\n\
+-----\n\
+While placeholders can be used for the `args` they can't be used for the\n\
+`kwargs`.\n\
+\n\
+Examples\n\
+--------\n\
+The :py:func:`iteration_utilities.partial` can be used as slightly slower\n\
+drop-in replacement for :py:func:`functools.partial`. However it offers the\n\
+possibility to pass in placeholders as positional arguments. This can be\n\
+especially useful if a function does not allow keyword arguments::\n\
+\n\
+    >>> from iteration_utilities import partial\n\
+    >>> isint = partial(isinstance, partial._, int)\n\
+    >>> isint(10)\n\
+    True\n\
+    >>> isint(11.11)\n\
+    False\n\
+\n\
+In this case the `isint` function is equivalent but faster than\n\
+``lambda x: isinstance(x, int)``.\n\
+The ``partial._`` attribute or the ``iteration_utilities.Placeholder`` or\n\
+instances of :py:func:`iteration_utilities.PlaceholderType` can be used\n\
+as placeholders for the positional arguments.\n\
+\n\
+For example most iterators in `iteration_utilities` take the `iterable` as\n\
+the first argument so other arguments can be easily added::\n\
+\n\
+    >>> from iteration_utilities import accumulate, Placeholder\n\
+    >>> from operator import mul\n\
+    >>> cumprod = partial(accumulate, Placeholder, mul)\n\
+    >>> list(cumprod([1,2,3,4,5]))\n\
+    [1, 2, 6, 24, 120]\n\
+\n\
+Attributes\n\
+----------\n\
+_ : ``iteration_utilities.Placeholder``\n\
+");
 
 PyTypeObject PyIUType_Partial = {
     PyVarObject_HEAD_INIT(NULL, 0)
