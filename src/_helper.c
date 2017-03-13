@@ -145,6 +145,30 @@ PyUI_TupleReverse(PyObject *tuple)
 }
 
 /******************************************************************************
+ * Copy a tuple. This is necessary because PyTuple_GetSlice doesn't return a
+ * copy when the range is identical (or bigger) than the original tuple.
+ *
+ * tuple : Tuple where the value should be inserted.
+ *****************************************************************************/
+
+static PyObject *
+PYUI_TupleCopy(PyObject *tuple)
+{
+    Py_ssize_t tuplesize = PyTuple_GET_SIZE(tuple);
+    Py_ssize_t i;
+    PyObject *newtuple = PyTuple_New(tuplesize);
+    if (newtuple == NULL) {
+        return NULL;
+    }
+    for ( i=0 ; i<tuplesize ; i++) {
+        PyObject *tmp = PyTuple_GET_ITEM(tuple, i);
+        Py_INCREF(tmp);
+        PyTuple_SET_ITEM(newtuple, i, tmp);
+    }
+    return newtuple;
+}
+
+/******************************************************************************
  * Insert a value in a Tuple by moving all items at or above this index one to
  * the right.
  *

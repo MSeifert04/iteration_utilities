@@ -16,7 +16,9 @@ Functools for one function
   Equivalent to
   ``lambda func: lambda *args, **kwargs: func(*list(reversed(args)), **kwargs)``
 - :py:func:`functools.lru_cache`, cache the return value of a function.
-- :py:func:`functools.partial`, partially set the arguments of a function
+- :py:func:`functools.partial`, partially set the arguments of a function.
+- :py:func:`iteration_utilities.partial`, partially set the arguments of a function.
+  also accepting placeholders.
 - :py:class:`functools.partialmethod`, same as ``partial`` but works on methods.
 
 

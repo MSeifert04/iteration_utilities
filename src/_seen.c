@@ -337,7 +337,7 @@ seen_containsnoadd_direct(PyIUObject_Seen *self,
     }
 }
 
-int
+static int
 PyIUSeen_ContainsAdd(PyObject *self,
                      PyObject *o)
 {
