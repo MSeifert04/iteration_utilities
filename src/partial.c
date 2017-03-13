@@ -228,7 +228,7 @@ partial_new(PyTypeObject *type, PyObject *args, PyObject *kw)
     }
 
     func = PyTuple_GET_ITEM(args, 0);
-    /* Unwrap the function if it's another partial and we're not in a subclass
+    /* Unwrap the function; if it's another partial and we're not in a subclass
        and (that's important) there is no custom attribute set
        (__dict__ = NULL). That means even if the dict was only accessed but
        empty!
@@ -618,14 +618,6 @@ done:
     return result;
 }
 
-
-/* Pickle strategy:
-   __reduce__ by itself doesn't support getting kwargs in the unpickle
-   operation so we define a __setstate__ that replaces all the information
-   about the partial.  If we only replaced part of it someone would use
-   it as a hook to do strange things.
- */
-
 static PyObject *
 partial_reduce(PyIUObject_Partial *self, PyObject *unused)
 {
@@ -686,7 +678,7 @@ partial_setstate(PyIUObject_Partial *self, PyObject *state)
     self->kw = kw;
     self->dict = dict;
 
-    /* Free potentially existing array of positions. */
+    /* Free potentially existing array of positions and recreate it. */
     if (self->posph != NULL) {
         PyMem_Free(self->posph);
     }
