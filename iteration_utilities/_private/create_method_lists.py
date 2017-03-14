@@ -32,10 +32,10 @@ def _get_methods(cls, indentation_level):
     # All methods
     res = []
     it = Iterable(i for c in cls.__mro__ for i in c.__dict__.items()).as_dict()
-    for k, d in Iterable(it.items()
-                         ).filterfalse(lambda x: x[0].startswith('_')
-                         ).map(name_and_doc
-                         ).get_sorted(key=itemgetter(0)):
+    for k, d in (Iterable(it.items())
+                 .filterfalse(lambda x: x[0].startswith('_'))
+                 .map(name_and_doc)
+                 .get_sorted(key=itemgetter(0))):
         res.append('{}:py:meth:`~{}.{}`'.format(indent, name, k))
         res.append('{}    {}'.format(indent, d))
     return '\n'.join(res)
@@ -49,11 +49,5 @@ InfiniteIterable.__init__.__doc__ = InfiniteIterable.__init__.__doc__.format(
 ManyIterables.__init__.__doc__ = ManyIterables.__init__.__doc__.format(
     'itertools.imap' if PY2 else 'map', _get_methods(ManyIterables, 2))
 
-# Currently using:
-from iteration_utilities import Iterable, InfiniteIterable, ManyIterables
-from iteration_utilities.core import _Base, _get_methods
-print(_get_methods(Iterable, 1))
-print(_get_methods(InfiniteIterable, 1))
-print(_get_methods(ManyIterables, 2))
-# and insert these manually.... :-(
+# Currently inserting these manually.... :-(
 """

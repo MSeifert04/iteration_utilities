@@ -106,19 +106,19 @@ def test_c_funcs_signatures():
     from inspect import Signature
 
     # Gett all C functions
-    it = Iterable(chain(iteration_utilities._cfuncs.__dict__.items())
-                  # only include those that do not start with an underscore,
-                  # we only need user-facing functions/classes
-                  ).filterfalse(lambda x: x[0].startswith(('_'))
-                  # only include those that have a __module__, to exclude things
-                  # like "return_None", "first" which do not have a signature
-                  ).filter(lambda x: hasattr(x[1], '__module__')
-                  # only include those that are really part of the package
-                  ).filter(lambda x: x[1].__module__.startswith('iteration_utilities')
-                  # remove duplicates
-                  ).unique_everseen(itemgetter(0)
-                  # get the signature, fails if it can't
-                  ).map(lambda x: (x[0], x[1], Signature.from_callable(x[1])))
+    it = (Iterable(chain(iteration_utilities._cfuncs.__dict__.items()))
+          # only include those that do not start with an underscore,
+          # we only need user-facing functions/classes
+          .filterfalse(lambda x: x[0].startswith(('_')))
+          # only include those that have a __module__, to exclude things
+          # like "return_None", "first" which do not have a signature
+          .filter(lambda x: hasattr(x[1], '__module__'))
+          # only include those that are really part of the package
+          .filter(lambda x: x[1].__module__.startswith('iteration_utilities'))
+          # remove duplicates
+          .unique_everseen(itemgetter(0))
+          # get the signature, fails if it can't
+          .map(lambda x: (x[0], x[1], Signature.from_callable(x[1]))))
     # Just need to trigger evaluation, use sorted because it's nice for manual
     # debugging!
     it.get_sorted(key=chained(itemgetter(0), str.lower))
