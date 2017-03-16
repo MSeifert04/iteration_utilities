@@ -14,21 +14,54 @@ static PyObject *
 PyIU_MathSquare(PyObject *m,
                 PyObject *o)
 {
-    return PyNumber_Power(o, PyIU_Long_2(), Py_None);
+    static PyObject *two = NULL;
+    if (two == NULL) {
+        #if PY_MAJOR_VERSION == 2
+            two = PyInt_FromLong((long)2);
+        #else
+            two = PyLong_FromLong((long)2);
+        #endif
+        if (two == NULL) {
+            return NULL;
+        }
+    }
+    return PyNumber_Power(o, two, Py_None);
 }
 
 static PyObject *
 PyIU_MathDouble(PyObject *m,
                 PyObject *o)
 {
-    return PyNumber_Multiply(o, PyIU_Long_2());
+    static PyObject *two = NULL;
+    if (two == NULL) {
+        #if PY_MAJOR_VERSION == 2
+            two = PyInt_FromLong((long)2);
+        #else
+            two = PyLong_FromLong((long)2);
+        #endif
+        if (two == NULL) {
+            return NULL;
+        }
+    }
+    return PyNumber_Multiply(o, two);
 }
 
 static PyObject *
 PyIU_MathReciprocal(PyObject *m,
                     PyObject *o)
 {
-    return PyNumber_TrueDivide(PyIU_Long_1(), o);
+    static PyObject *one = NULL;
+    if (one == NULL) {
+        #if PY_MAJOR_VERSION == 2
+            one = PyInt_FromLong((long)1);
+        #else
+            one = PyLong_FromLong((long)1);
+        #endif
+        if (one == NULL) {
+            return NULL;
+        }
+    }
+    return PyNumber_TrueDivide(one, o);
 }
 
 /******************************************************************************

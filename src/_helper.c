@@ -84,45 +84,6 @@
     } while (0)
 
 /******************************************************************************
- * Global constants.
- *
- * Python objects that are created only once and stay in memory:
- *
- * PyIU_LongTwo : 1
- * PyIU_LongTwo : 2
- *****************************************************************************/
-
-static PyObject *PyIU_Long_1_global = NULL;
-
-PyObject *
-PyIU_Long_1(void)
-{
-    if (PyIU_Long_1_global == NULL) {
-        #if PY_MAJOR_VERSION == 2
-            PyIU_Long_1_global = PyInt_FromLong((long)1);
-        #else
-            PyIU_Long_1_global = PyLong_FromLong((long)1);
-        #endif
-    }
-    return PyIU_Long_1_global;
-}
-
-static PyObject *PyIU_Long_2_global = NULL;
-
-PyObject *
-PyIU_Long_2(void)
-{
-    if (PyIU_Long_2_global == NULL) {
-        #if PY_MAJOR_VERSION == 2
-            PyIU_Long_2_global = PyInt_FromLong((long)2);
-        #else
-            PyIU_Long_2_global = PyLong_FromLong((long)2);
-        #endif
-    }
-    return PyIU_Long_2_global;
-}
-
-/******************************************************************************
  * Create a new reversed tuple from another tuple.
  *****************************************************************************/
 

@@ -52,10 +52,22 @@ static PyObject *
 PyIU_IsEven(PyObject *m,
             PyObject *o)
 {
+    static PyObject *two = NULL;
     PyObject *remainder;
     int res;
 
-    remainder = PyNumber_Remainder(o, PyIU_Long_2());
+    if (two == NULL) {
+        #if PY_MAJOR_VERSION == 2
+            two = PyInt_FromLong((long)2);
+        #else
+            two = PyLong_FromLong((long)2);
+        #endif
+        if (two == NULL) {
+            return NULL;
+        }
+    }
+
+    remainder = PyNumber_Remainder(o, two);
     if (remainder == NULL) {
         return NULL;
     }
@@ -84,10 +96,22 @@ static PyObject *
 PyIU_IsOdd(PyObject *m,
            PyObject *o)
 {
+    static PyObject *two = NULL;
     PyObject *remainder;
     int res;
 
-    remainder = PyNumber_Remainder(o, PyIU_Long_2());
+    if (two == NULL) {
+        #if PY_MAJOR_VERSION == 2
+            two = PyInt_FromLong((long)2);
+        #else
+            two = PyLong_FromLong((long)2);
+        #endif
+        if (two == NULL) {
+            return NULL;
+        }
+    }
+
+    remainder = PyNumber_Remainder(o, two);
     if (remainder == NULL) {
         return NULL;
     }

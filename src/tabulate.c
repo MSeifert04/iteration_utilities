@@ -101,7 +101,20 @@ tabulate_traverse(PyIUObject_Tabulate *self,
 static PyObject *
 tabulate_next(PyIUObject_Tabulate *self)
 {
-    PyObject *result=NULL, *tmp=NULL;
+    static PyObject *one = NULL;
+    PyObject *result = NULL;
+    PyObject *tmp = NULL;
+
+    if (one == NULL) {
+        #if PY_MAJOR_VERSION == 2
+            one = PyInt_FromLong((long)1);
+        #else
+            one = PyLong_FromLong((long)1);
+        #endif
+        if (one == NULL) {
+            return NULL;
+        }
+    }
     if (self->cnt == NULL) {
         goto Fail;
     }
@@ -113,7 +126,7 @@ tabulate_next(PyIUObject_Tabulate *self)
     }
     /* Increment the counter. */
     tmp = self->cnt;
-    self->cnt = PyNumber_Add(self->cnt, PyIU_Long_1());
+    self->cnt = PyNumber_Add(self->cnt, one);
     Py_DECREF(tmp);
     if (self->cnt == NULL) {
         goto Fail;
