@@ -14,21 +14,21 @@ static PyObject *
 PyIU_MathSquare(PyObject *m,
                 PyObject *o)
 {
-    return PyNumber_Power(o, PyIU_Long_2(), Py_None);
+    return PyNumber_Power(o, PyIU_global_two, Py_None);
 }
 
 static PyObject *
 PyIU_MathDouble(PyObject *m,
                 PyObject *o)
 {
-    return PyNumber_Multiply(o, PyIU_Long_2());
+    return PyNumber_Multiply(o, PyIU_global_two);
 }
 
 static PyObject *
 PyIU_MathReciprocal(PyObject *m,
                     PyObject *o)
 {
-    return PyNumber_TrueDivide(PyIU_Long_1(), o);
+    return PyNumber_TrueDivide(PyIU_global_one, o);
 }
 
 /******************************************************************************

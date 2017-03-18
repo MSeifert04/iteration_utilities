@@ -55,7 +55,7 @@ PyIU_IsEven(PyObject *m,
     PyObject *remainder;
     int res;
 
-    remainder = PyNumber_Remainder(o, PyIU_Long_2());
+    remainder = PyNumber_Remainder(o, PyIU_global_two);
     if (remainder == NULL) {
         return NULL;
     }
@@ -87,7 +87,7 @@ PyIU_IsOdd(PyObject *m,
     PyObject *remainder;
     int res;
 
-    remainder = PyNumber_Remainder(o, PyIU_Long_2());
+    remainder = PyNumber_Remainder(o, PyIU_global_two);
     if (remainder == NULL) {
         return NULL;
     }

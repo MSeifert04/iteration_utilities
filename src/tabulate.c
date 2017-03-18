@@ -113,7 +113,7 @@ tabulate_next(PyIUObject_Tabulate *self)
     }
     /* Increment the counter. */
     tmp = self->cnt;
-    self->cnt = PyNumber_Add(self->cnt, PyIU_Long_1());
+    self->cnt = PyNumber_Add(self->cnt, PyIU_global_one);
     Py_DECREF(tmp);
     if (self->cnt == NULL) {
         goto Fail;
