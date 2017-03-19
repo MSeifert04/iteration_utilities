@@ -158,7 +158,7 @@ seen_repr(PyIUObject_Seen *self)
         return ok > 0 ? PyUnicode_FromString("...") : NULL;
     }
 
-    if (self->seenlist != NULL && PyList_Size(self->seenlist) > 0) {
+    if (self->seenlist != NULL && PyList_GET_SIZE(self->seenlist) > 0) {
         repr = PyUnicode_FromFormat("%s(%R, seenlist=%R)",
                                     Py_TYPE(self)->tp_name,
                                     self->seenset, self->seenlist);
@@ -198,8 +198,8 @@ seen_richcompare(PyObject *v,
     r = (PyIUObject_Seen *)w;
 
     /* Check if either both have seenlists or none. */
-    if ((l->seenlist == NULL && r->seenlist != NULL && PyList_Size(r->seenlist)) ||
-            (r->seenlist == NULL && l->seenlist != NULL && PyList_Size(l->seenlist))) {
+    if ((l->seenlist == NULL && r->seenlist != NULL && PyList_GET_SIZE(r->seenlist)) ||
+            (r->seenlist == NULL && l->seenlist != NULL && PyList_GET_SIZE(l->seenlist))) {
         if (op == Py_NE) {
             Py_RETURN_TRUE;
         } else {
@@ -248,7 +248,7 @@ Py_ssize_t
 PyIUSeen_Size(PyIUObject_Seen *self)
 {
     if (self->seenlist != NULL) {
-        return PySet_Size(self->seenset) + PyList_Size(self->seenlist);
+        return PySet_Size(self->seenset) + PyList_GET_SIZE(self->seenlist);
     } else {
         return PySet_Size(self->seenset);
     }

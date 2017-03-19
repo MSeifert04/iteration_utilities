@@ -182,7 +182,8 @@ roundrobin_lengthhint(PyIUObject_Roundrobin *self)
     Py_ssize_t i, len = 0;
 
     for (i=0 ; i<self->numactive ; i++) {
-        len = len + PyObject_LengthHint(PyTuple_GET_ITEM(self->iteratortuple, i), 0);
+        PyObject *it = PyTuple_GET_ITEM(self->iteratortuple, i);
+        len += PyObject_LengthHint(it, 0);
     }
 
     return PyLong_FromSsize_t(len);

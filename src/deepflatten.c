@@ -57,7 +57,7 @@ deepflatten_new(PyTypeObject *type,
         PyList_SET_ITEM(iteratorlist, 0, iterator);
         iterator = NULL;
     }
-    for (i=1 ; i < PyList_Size(iteratorlist) ; i++) {
+    for (i=1 ; i < PyList_GET_SIZE(iteratorlist) ; i++) {
         Py_INCREF(Py_None);
         PyList_SET_ITEM(iteratorlist, i, Py_None);
     }
@@ -243,12 +243,12 @@ deepflatten_next(PyIUObject_DeepFlatten *self)
             Py_DECREF(activeiterator);
             return NULL;
         }
-        if (self->currentdepth >= PyList_Size(self->iteratorlist)) {
-            if (PyList_Append(self->iteratorlist, activeiterator) == -1) {
-                Py_DECREF(activeiterator);
+        if (self->currentdepth >= PyList_GET_SIZE(self->iteratorlist)) {
+            int ok = PyList_Append(self->iteratorlist, activeiterator);
+            Py_DECREF(activeiterator);
+            if (ok == -1) {
                 return NULL;
             }
-            Py_DECREF(activeiterator);
         } else {
             PyList_SET_ITEM(self->iteratorlist, self->currentdepth, activeiterator);
         }
