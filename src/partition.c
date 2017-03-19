@@ -8,16 +8,14 @@ PyIU_Partition(PyObject *m,
                PyObject *kwargs)
 {
     static char *kwlist[] = {"iterable", "func", NULL};
-    PyObject *iterable=NULL;
-    PyObject *func=NULL;
-    PyObject *iterator=NULL;
-    PyObject *item=NULL;
-    PyObject *result1=NULL;
-    PyObject *result2=NULL;
-    PyObject *funcargs=NULL;
-    PyObject *temp=NULL;
-    PyObject *result=NULL;
-    long ok;
+    PyObject *iterable = NULL;
+    PyObject *func = NULL;
+    PyObject *iterator = NULL;
+    PyObject *result1 = NULL;
+    PyObject *result2 = NULL;
+    PyObject *funcargs = NULL;
+    PyObject *result = NULL;
+    PyObject *(*iternext)(PyObject *);
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:partition", kwlist,
                                      &iterable, &func)) {
@@ -28,16 +26,14 @@ PyIU_Partition(PyObject *m,
     if (iterator == NULL) {
         goto Fail;
     }
+    iternext = *Py_TYPE(iterator)->tp_iternext;
 
     result1 = PyList_New(0);
-    result2 = PyList_New(0);
-
-    if (result1 == NULL || result2 == NULL) {
+    if (result1 == NULL) {
         goto Fail;
     }
-
-    funcargs = PyTuple_New(1);
-    if (funcargs == NULL) {
+    result2 = PyList_New(0);
+    if (result2 == NULL) {
         goto Fail;
     }
 
@@ -45,15 +41,32 @@ PyIU_Partition(PyObject *m,
         func = NULL;
     }
 
-    while ((item = (*Py_TYPE(iterator)->tp_iternext)(iterator))) {
+    if (func != NULL) {
+        funcargs = PyTuple_New(1);
+        if (funcargs == NULL) {
+            goto Fail;
+        }
+    }
+
+    for (;;) {
+        PyObject *item;
+        PyObject *temp;
+        int ok;
+
+        item = iternext(iterator);
+        if (item == NULL) {
+            break;
+        }
 
         if (func == NULL) {
             temp = item;
             Py_INCREF(temp);
         } else {
-            PYIU_RECYCLE_ARG_TUPLE(funcargs, item, goto Fail);
+            PYIU_RECYCLE_ARG_TUPLE(funcargs, item, Py_DECREF(item);
+                                                   goto Fail);
             temp = PyObject_Call(func, funcargs, NULL);
             if (temp == NULL) {
+                Py_DECREF(item);
                 goto Fail;
             }
         }
@@ -63,20 +76,30 @@ PyIU_Partition(PyObject *m,
         temp = NULL;
 
         if (ok == 1) {
-            if (PyList_Append(result2, item) < 0) {
-                goto Fail;
-            }
+            ok = PyList_Append(result2, item);
         } else if (ok == 0) {
-            if (PyList_Append(result1, item) < 0) {
-                goto Fail;
-            }
-        } else {
+            ok = PyList_Append(result1, item);
+        }
+        /* No need to check here if the "IsTrue" failed here. The "ok" variable
+           is reused and the case where "IsTrue" failed and the case where
+           "PyList_Append" failed can be handled in one go after decrementing
+           the item!
+
+        else {
+            Py_DECREF(item);
             goto Fail;
         }
+        */
+
         Py_DECREF(item);
+        item = NULL;
+
+        if (ok == -1) {
+            goto Fail;
+        }
     }
 
-    Py_DECREF(funcargs);
+    Py_XDECREF(funcargs);
     Py_DECREF(iterator);
 
     if (PyErr_Occurred()) {
@@ -92,9 +115,6 @@ PyIU_Partition(PyObject *m,
     result = PyTuple_Pack(2, result1, result2);
     Py_DECREF(result1);
     Py_DECREF(result2);
-    if (result == NULL) {
-        return NULL;
-    }
 
     return result;
 
@@ -102,8 +122,6 @@ Fail:
     Py_XDECREF(funcargs);
     Py_XDECREF(result1);
     Py_XDECREF(result2);
-    Py_XDECREF(item);
-    Py_XDECREF(temp);
     Py_XDECREF(iterator);
     return NULL;
 }
