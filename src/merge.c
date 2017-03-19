@@ -126,10 +126,9 @@ merge_new(PyTypeObject *type,
     static char *kwlist[] = {"key", "reverse", NULL};
     PyIUObject_Merge *self;
 
-    PyObject *iteratortuple=NULL;
-    PyObject *keyfunc=NULL;
-    PyObject *reversekw=NULL;
-    PyObject *funcargs=NULL;
+    PyObject *iteratortuple = NULL;
+    PyObject *keyfunc = NULL;
+    PyObject *funcargs = NULL;
     int reverse = 0;
 
     /* Parse arguments */
