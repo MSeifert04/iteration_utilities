@@ -33,6 +33,12 @@ def test_argmin_positional2():
 
 
 @memory_leak_decorator()
+def test_argmin_positional3():
+    # key=None is identical to no key
+    assert argmin(T(3), T(1), T(2), key=None) == 1
+
+
+@memory_leak_decorator()
 def test_argmin_sequence1():
     assert argmin([T(3), T(0), T(1)]) == 1
 

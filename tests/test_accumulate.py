@@ -29,13 +29,14 @@ def test_accumulate_normal1():
 
 @memory_leak_decorator()
 def test_accumulate_normal2():
+    # binop=None is identical to no binop
     assert list(accumulate([], None)) == []
 
 
 @memory_leak_decorator()
 def test_accumulate_normal3():
-    assert list(accumulate([T(1), T(2), T(3), T(4)],
-                           None)) == [T(1), T(3), T(6), T(10)]
+    # binop=None is identical to no binop
+    assert list(accumulate([T(1), T(2), T(3)], None)) == [T(1), T(3), T(6)]
 
 
 @memory_leak_decorator()

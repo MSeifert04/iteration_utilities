@@ -107,7 +107,7 @@ Class that always returns `x` when called.\n\
 Parameters\n\
 ----------\n\
 x : any type\n\
-    The item that should be returned when called.\n\
+    The item that should be returned when called. Positional only parameter.\n\
 \n\
 Methods\n\
 -------\n\

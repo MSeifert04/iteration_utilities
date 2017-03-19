@@ -30,7 +30,7 @@ PyIU_ReturnFirstArg(PyObject *m,
 {
     PyObject *first;
 
-    if (!PyTuple_Check(args) || PyTuple_Size(args) == 0) {
+    if (!PyTuple_CheckExact(args) || PyTuple_GET_SIZE(args) == 0) {
         PyErr_Format(PyExc_TypeError,
                      "Expected at least one positional argument.");
         return NULL;

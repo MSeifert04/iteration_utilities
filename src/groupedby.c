@@ -11,18 +11,18 @@ PyIU_Groupby(PyObject *m,
 
     PyObject *iterable;
     PyObject *key1;
-    PyObject *key2=NULL;
-    PyObject *iterator=NULL;
+    PyObject *key2 = NULL;
+    PyObject *iterator = NULL;
     PyObject *item;
     PyObject *val;
     PyObject *lst;
     PyObject *keep;
-    PyObject *reduce=NULL;
-    PyObject *reducestart=NULL;
-    PyObject *reducetmp=NULL;
-    PyObject *resdict=NULL;
-    PyObject *funcargs1=NULL;
-    PyObject *funcargs2=NULL;
+    PyObject *reduce = NULL;
+    PyObject *reducestart = NULL;
+    PyObject *reducetmp = NULL;
+    PyObject *resdict = NULL;
+    PyObject *funcargs1 = NULL;
+    PyObject *funcargs2 = NULL;
     int ok;
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 5)
     Py_hash_t hash;
@@ -33,6 +33,10 @@ PyIU_Groupby(PyObject *m,
                                      &reducestart)) {
         goto Fail;
     }
+
+    PYIU_NULL_IF_NONE(reduce);
+    PYIU_NULL_IF_NONE(key2);
+
     if (reduce == NULL && reducestart != NULL) {
         PyErr_Format(PyExc_TypeError,
                      "cannot specify `reducestart` if no `reduce` is given.");
@@ -43,17 +47,22 @@ PyIU_Groupby(PyObject *m,
     if (iterator == NULL) {
         goto Fail;
     }
+
     resdict = PyDict_New();
     if (resdict == NULL) {
         goto Fail;
     }
+
     funcargs1 = PyTuple_New(1);
     if (funcargs1 == NULL) {
         goto Fail;
     }
-    funcargs2 = PyTuple_New(2);
-    if (funcargs2 == NULL) {
-        goto Fail;
+
+    if (reduce != NULL) {
+        funcargs2 = PyTuple_New(2);
+        if (funcargs2 == NULL) {
+            goto Fail;
+        }
     }
 
     while ( (item = (*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
@@ -66,7 +75,7 @@ PyIU_Groupby(PyObject *m,
         }
 
         /* Calculate the value for the dictionary (keep).  */
-        if (key2 == NULL || key2 == Py_None) {
+        if (key2 == NULL) {
             keep = item;
         } else {
             /* We use the same item again to calculate the keep so we don't need
@@ -182,7 +191,7 @@ PyIU_Groupby(PyObject *m,
     }
 
     Py_DECREF(funcargs1);
-    Py_DECREF(funcargs2);
+    Py_XDECREF(funcargs2);
     Py_DECREF(iterator);
 
     if (PyErr_Occurred()) {
@@ -230,8 +239,11 @@ reduce : callable, optional\n\
     in :py:func:`functools.reduce`.\n\
 \n\
 reducestart : any type, optional\n\
-    Can only be specified if `reduce` is given. This parameter is equivalent\n\
-    to the `start` parameter of :py:func:`functools.reduce`.\n\
+    If given (even as ``None``) it will be interpreted as startvalue for the\n\
+    `reduce` function.\n\
+    \n\
+    .. note::\n\
+       Can only be specified if `reduce` is given.\n\
 \n\
 Returns\n\
 -------\n\

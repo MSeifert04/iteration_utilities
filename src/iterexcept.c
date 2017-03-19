@@ -30,9 +30,7 @@ iterexcept_new(PyTypeObject *type,
                                      &func, &except, &first)) {
         return NULL;
     }
-    if (first == Py_None) {
-        first = NULL;
-    }
+    PYIU_NULL_IF_NONE(first);
 
     /* Create and fill struct */
     self = (PyIUObject_Iterexcept *)type->tp_alloc(type, 0);
@@ -91,8 +89,7 @@ iterexcept_next(PyIUObject_Iterexcept *self)
         result = PyObject_CallObject(self->func, NULL);
     } else {
         result = PyObject_CallObject(self->first, NULL);
-        Py_DECREF(self->first);
-        self->first = NULL;
+        Py_CLEAR(self->first);
     }
 
     /* Stop if the result is NULL but only clear the exception if the expected
@@ -151,8 +148,8 @@ exception : Exception\n\
     The `exception` which terminates the iteration.\n\
 \n\
 first : callable or None, optional\n\
-    If not ``None`` this function is called once before the `func` is\n\
-    executed.\n\
+    If not given (or not ``None``) this function is called once before the \n\
+    `func` is executed.\n\
 \n\
 Returns\n\
 -------\n\

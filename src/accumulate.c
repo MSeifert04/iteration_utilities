@@ -35,29 +35,31 @@ accumulate_new(PyTypeObject *type,
     PyIUObject_Accumulate *self;
 
     PyObject *iterable;
-    PyObject *iterator=NULL;
-    PyObject *binop=NULL;
-    PyObject *start=NULL;
-    PyObject *funcargs=NULL;
+    PyObject *iterator = NULL;
+    PyObject *binop = NULL;
+    PyObject *start = NULL;
+    PyObject *funcargs = NULL;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OO:accumulate", kwlist,
                                      &iterable, &binop, &start)) {
         goto Fail;
     }
-    if (binop == Py_None) {
-        binop = NULL;
-    }
+    PYIU_NULL_IF_NONE(binop);
 
     /* Create and fill struct */
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
         goto Fail;
     }
-    funcargs = PyTuple_New(2);
-    if (funcargs == NULL) {
-        goto Fail;
+
+    if (binop != NULL) {
+        funcargs = PyTuple_New(2);
+        if (funcargs == NULL) {
+            goto Fail;
+        }
     }
+
     self = (PyIUObject_Accumulate *)type->tp_alloc(type, 0);
     if (self == NULL) {
         goto Fail;
@@ -221,7 +223,7 @@ func : callable or None, optional\n\
     If ``None`` defaults to :py:func:`operator.add`.\n\
 \n\
 start : any type, optional\n\
-    If given this value is inserted before the `iterable`.\n\
+    If given (even as ``None``) this value is inserted before the `iterable`.\n\
 \n\
 Returns\n\
 -------\n\

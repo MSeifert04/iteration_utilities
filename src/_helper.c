@@ -22,6 +22,23 @@
 #endif
 
 /******************************************************************************
+ * Simple Convenience macros
+ *
+ * Set a value to NULL if it's None.
+ *
+ * PYIU_NULL_IF_NONE :
+ *     arg : PyObject *
+ *
+ *****************************************************************************/
+
+#define PYIU_NULL_IF_NONE(arg)     \
+    do {                           \
+        if (arg == Py_None) {      \
+           arg = NULL;             \
+        }                          \
+    } while (0)
+
+/******************************************************************************
  * Complex Convenience macros
  *
  * TODO: These are much too complex for macros but yield a 20-35% speedup over
@@ -94,8 +111,10 @@
  * These are created in "_module.c"!
  *****************************************************************************/
 
+static PyObject *PyIU_global_zero = NULL;
 static PyObject *PyIU_global_one = NULL;
 static PyObject *PyIU_global_two = NULL;
+static PyObject *PyIU_global_0tuple = NULL;
 
 /******************************************************************************
  * Create a new tuple containing iterators for the input-tuple.

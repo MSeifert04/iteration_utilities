@@ -7,12 +7,13 @@ PyIU_MinMax(PyObject *m,
             PyObject *args,
             PyObject *kwargs)
 {
+    static char *kwlist[] = {"key", "default", NULL};
+
     PyObject *sequence, *iterator=NULL, *defaultitem = NULL, *keyfunc = NULL;
     PyObject *item1 = NULL, *item2 = NULL, *val1 = NULL, *val2 = NULL;
     PyObject *maxitem = NULL, *maxval = NULL, *minitem = NULL, *minval = NULL;
     PyObject *temp = NULL, *resulttuple = NULL;
     PyObject *funcargs=NULL;
-    Py_ssize_t nkwargs = 0;
     int cmp;
     const int positional = PyTuple_Size(args) > 1;
 
@@ -21,35 +22,28 @@ PyIU_MinMax(PyObject *m,
     } else if (!PyArg_UnpackTuple(args, "minmax", 1, 1, &sequence)) {
         return NULL;
     }
-    if (kwargs != NULL && PyDict_Check(kwargs) && PyDict_Size(kwargs)) {
 
-        keyfunc = PyDict_GetItemString(kwargs, "key");
-        if (keyfunc != NULL) {
-            nkwargs++;
-            Py_INCREF(keyfunc);
-        }
-
-        defaultitem = PyDict_GetItemString(kwargs, "default");
-        if (defaultitem != NULL) {
-            nkwargs++;
-            Py_INCREF(defaultitem);
-        }
-
-        if (PyDict_Size(kwargs) - nkwargs != 0) {
-            PyErr_Format(PyExc_TypeError,
-                         "minmax got an unexpected keyword argument");
-            goto Fail;
-        }
+    if (!PyArg_ParseTupleAndKeywords(PyIU_global_0tuple, kwargs,
+                                     "|OO:minmax", kwlist,
+                                     &keyfunc, &defaultitem)) {
+        return NULL;
     }
+
+    PYIU_NULL_IF_NONE(keyfunc);
+    Py_XINCREF(keyfunc);
+
     if (positional && defaultitem != NULL) {
         PyErr_Format(PyExc_TypeError,
                      "Cannot specify a default for minmax with multiple "
                      "positional arguments");
         goto Fail;
     }
-    funcargs = PyTuple_New(0);
-    if (funcargs == NULL) {
-        goto Fail;
+
+    if (keyfunc != NULL) {
+        funcargs = PyTuple_New(0);
+        if (funcargs == NULL) {
+            goto Fail;
+        }
     }
 
     iterator = PyObject_GetIter(sequence);
@@ -163,9 +157,7 @@ PyIU_MinMax(PyObject *m,
             } else {
                 /* If both are set swap them if val2 is smaller than val1. */
                 cmp = PyObject_RichCompareBool(val2, val1, Py_LT);
-                if (cmp < 0) {
-                    goto Fail;
-                } else if (cmp > 0) {
+                if (cmp > 0) {
                     temp = val1;
                     val1 = val2;
                     val2 = temp;
@@ -173,6 +165,8 @@ PyIU_MinMax(PyObject *m,
                     temp = item1;
                     item1 = item2;
                     item2 = temp;
+                } else if (cmp < 0) {
+                    goto Fail;
                 }
             }
 
@@ -180,30 +174,30 @@ PyIU_MinMax(PyObject *m,
                the current minimum.
                */
             cmp = PyObject_RichCompareBool(val1, minval, Py_LT);
-            if (cmp < 0) {
-                goto Fail;
-            } else if (cmp > 0) {
+            if (cmp > 0) {
                 Py_DECREF(minval);
                 Py_DECREF(minitem);
                 minval = val1;
                 minitem = item1;
-            } else {
+            } else if (cmp == 0) {
                 Py_DECREF(item1);
                 Py_DECREF(val1);
+            } else {
+                goto Fail;
             }
 
             /* Same for maximum. */
             cmp = PyObject_RichCompareBool(val2, maxval, Py_GT);
-            if (cmp < 0) {
-                goto Fail;
-            } else if (cmp > 0) {
+            if (cmp > 0) {
                 Py_DECREF(maxval);
                 Py_DECREF(maxitem);
                 maxval = val2;
                 maxitem = item2;
-            } else {
+            } else if (cmp == 0) {
                 Py_DECREF(item2);
                 Py_DECREF(val2);
+            } else  {
+                goto Fail;
             }
         }
     }
@@ -236,7 +230,7 @@ PyIU_MinMax(PyObject *m,
     }
 
     Py_DECREF(iterator);
-    Py_DECREF(funcargs);
+    Py_XDECREF(funcargs);
     Py_XDECREF(keyfunc);
     Py_XDECREF(defaultitem);
 

@@ -27,11 +27,11 @@ deepflatten_new(PyTypeObject *type,
     PyIUObject_DeepFlatten *self;
 
     PyObject *iterable;
-    PyObject *iterator=NULL;
-    PyObject *iteratorlist=NULL;
-    PyObject *types=NULL;
-    PyObject *ignore=NULL;
-    Py_ssize_t depth=-1;
+    PyObject *iterator = NULL;
+    PyObject *iteratorlist = NULL;
+    PyObject *types = NULL;
+    PyObject *ignore = NULL;
+    Py_ssize_t depth = -1;
     Py_ssize_t i;
 
     /* Parse arguments */
@@ -39,6 +39,8 @@ deepflatten_new(PyTypeObject *type,
                                      &iterable, &depth, &types, &ignore)) {
         goto Fail;
     }
+    PYIU_NULL_IF_NONE(types);
+    PYIU_NULL_IF_NONE(ignore);
 
     /* Create and fill struct */
     iterator = PyObject_GetIter(iterable);
@@ -165,13 +167,12 @@ deepflatten_next(PyIUObject_DeepFlatten *self)
 
         /* First check if the item is an instance of the ignored types, if
            it is, then simply return it. */
-        } else if (self->ignore && self->ignore != Py_None &&
-                PyObject_IsInstance(item, self->ignore)) {
+        } else if (self->ignore && PyObject_IsInstance(item, self->ignore)) {
             return item;
 
         /* If types is given then check if it's an instance thereof and if
            so replace activeiterator, otherwise return the item. */
-        } else if (self->types && self->types != Py_None) {
+        } else if (self->types) {
             if (PyObject_IsInstance(item, self->types)) {
                 /* Check if it's a builtin-string-type and if so set
                    "isstring". Check for the exact type because sub types might

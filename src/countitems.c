@@ -22,17 +22,18 @@ PyIU_Count(PyObject *m,
                                      &iterable, &pred, &eq)) {
         return NULL;
     }
-    if (pred == Py_None) {
-        pred = NULL;
-    }
+    PYIU_NULL_IF_NONE(pred);
+
     if (eq && pred == NULL) {
         PyErr_Format(PyExc_TypeError, "`pred` must be specified if `eq=True`.");
         goto Fail;
     }
 
-    funcargs = PyTuple_New(1);
-    if (funcargs == NULL) {
-        goto Fail;
+    if (pred != NULL && pred != (PyObject *)&PyBool_Type) {
+        funcargs = PyTuple_New(1);
+        if (funcargs == NULL) {
+            goto Fail;
+        }
     }
 
     iterator = PyObject_GetIter(iterable);

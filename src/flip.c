@@ -118,6 +118,7 @@ Parameters\n\
 ----------\n\
 func : callable\n\
     The function that should be called with the flipped (reversed) arguments.\n\
+    Positional-only parameter.\n\
 \n\
 Methods\n\
 -------\n\

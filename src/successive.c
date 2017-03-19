@@ -186,14 +186,10 @@ successive_setstate(PyIUObject_Successive *self,
         return NULL;
     }
 
+    PYIU_NULL_IF_NONE(result);
     Py_CLEAR(self->result);
-
-    if (result == Py_None) {
-        self->result = NULL;
-    } else {
-        Py_INCREF(result);
-        self->result = result;
-    }
+    self->result = result;
+    Py_XINCREF(result);
 
     Py_RETURN_NONE;
 }
@@ -238,7 +234,7 @@ static PyMethodDef successive_methods[] = {
  * Docstring
  *****************************************************************************/
 
-PyDoc_STRVAR(successive_doc, "successive(iterable, times)\n\
+PyDoc_STRVAR(successive_doc, "successive(iterable, times=2)\n\
 --\n\
 \n\
 Like the recipe for pairwise but allows to get an arbitary number\n\

@@ -8,9 +8,11 @@ argminmax(PyObject *m,
           PyObject *kwargs,
           int cmpop)
 {
-    PyObject *sequence, *defaultvalue, *keyfunc=NULL, *iterator=NULL;
+    static char *kwlist[] = {"key", "default", NULL};
+
+    PyObject *sequence, *keyfunc=NULL, *iterator=NULL;
     PyObject *item=NULL, *val=NULL, *maxval=NULL, *funcargs=NULL;
-    Py_ssize_t defaultitem=0, idx=-1, maxidx=-1, nkwargs=0;
+    Py_ssize_t defaultitem=0, idx=-1, maxidx=-1;
     int defaultisset = 0;
     const int positional = PyTuple_Size(args) > 1;
 
@@ -19,37 +21,20 @@ argminmax(PyObject *m,
     } else if (!PyArg_UnpackTuple(args, "argmin/argmax", 1, 1, &sequence)) {
         return NULL;
     }
-    if (kwargs != NULL && PyDict_Check(kwargs) && PyDict_Size(kwargs)) {
 
-        keyfunc = PyDict_GetItemString(kwargs, "key");
-        if (keyfunc != NULL) {
-            nkwargs++;
-            Py_INCREF(keyfunc);
-        }
-
-        defaultvalue = PyDict_GetItemString(kwargs, "default");
-        if (defaultvalue != NULL) {
-            nkwargs++;
-#if PY_MAJOR_VERSION == 2
-            /* This will convert the value to an integer first so this differs
-               from the Py3 case.
-               */
-            defaultitem = PyInt_AsSsize_t(defaultvalue);
-#else
-            defaultitem = PyLong_AsSsize_t(defaultvalue);
-#endif
-            if (PyErr_Occurred()) {
-                goto Fail;
-            }
-            defaultisset = 1;
-        }
-
-        if (PyDict_Size(kwargs) - nkwargs != 0) {
-            PyErr_Format(PyExc_TypeError,
-                         "argmin/argmax got an unexpected keyword argument");
-            goto Fail;
-        }
+    if (!PyArg_ParseTupleAndKeywords(PyIU_global_0tuple, kwargs,
+                                     "|On:argmin_max", kwlist,
+                                     &keyfunc, &defaultitem)) {
+        return NULL;
     }
+
+    if (defaultitem != 0 ||
+            (kwargs != NULL && PyDict_CheckExact(kwargs) &&
+             PyDict_GetItemString(kwargs, "default"))) {
+        defaultisset = 1;
+    }
+    PYIU_NULL_IF_NONE(keyfunc);
+    Py_XINCREF(keyfunc);
 
     if (keyfunc != NULL) {
         funcargs = PyTuple_New(1);
@@ -93,14 +78,14 @@ argminmax(PyObject *m,
         /* maximum value and item are set; update them as necessary. */
         } else {
             int cmpres = PyObject_RichCompareBool(val, maxval, cmpop);
-            if (cmpres < 0) {
-                goto Fail;
-            } else if (cmpres > 0) {
+            if (cmpres > 0) {
                 Py_DECREF(maxval);
                 maxval = val;
                 maxidx = idx;
-            } else {
+            } else if (cmpres == 0) {
                 Py_DECREF(val);
+            } else {
+                goto Fail;
             }
         }
         Py_DECREF(item);
@@ -115,7 +100,7 @@ argminmax(PyObject *m,
         if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
             PyErr_Clear();
         } else {
-            goto Fail;
+            return NULL;
         }
     }
 
@@ -125,7 +110,7 @@ argminmax(PyObject *m,
         } else {
             PyErr_Format(PyExc_ValueError,
                          "argmin/argmax arg is an empty sequence");
-            goto Fail;
+            return NULL;
         }
     }
 #if PY_MAJOR_VERSION == 2
@@ -172,7 +157,7 @@ PyIU_Argmax(PyObject *self,
  * Docstring
  *****************************************************************************/
 
-PyDoc_STRVAR(PyIU_Argmin_doc, "argmin(iterable, /, key=None, default=None)\n\
+PyDoc_STRVAR(PyIU_Argmin_doc, "argmin(iterable, /, key, default)\n\
 --\n\
 \n\
 Find index of the minimum.\n\
@@ -190,8 +175,8 @@ key : callable, optional\n\
     If not given then compare the values, otherwise compare ``key(item)``.\n\
 \n\
 default : int, optional\n\
-    If not given raise ``ValueError`` if the `iterable` is empty otherwise\n\
-    return ``default``\n\
+    If given an empty `iterable` will return `default` instead of raising a \n\
+    ``ValueError``.\n\
 \n\
 Returns\n\
 -------\n\

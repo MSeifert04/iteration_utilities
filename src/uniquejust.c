@@ -36,16 +36,17 @@ uniquejust_new(PyTypeObject *type,
     }
 
     /* Create and fill struct */
-    if (keyfunc == Py_None) {
-        keyfunc = NULL;
-    }
+    PYIU_NULL_IF_NONE(keyfunc);
+
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
         goto Fail;
     }
-    funcargs = PyTuple_New(1);
-    if (funcargs == NULL) {
-        goto Fail;
+    if (keyfunc != NULL) {
+        funcargs = PyTuple_New(1);
+        if (funcargs == NULL) {
+            goto Fail;
+        }
     }
     self = (PyIUObject_UniqueJust *)type->tp_alloc(type, 0);
     if (self == NULL) {

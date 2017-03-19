@@ -91,6 +91,12 @@ def test_minmax_normal15():
 
 
 @memory_leak_decorator()
+def test_minmax_keyNone1():
+    # key=None is identical to no key
+    assert minmax([T(1), T(2)], key=None) == (T(1), T(2))
+
+
+@memory_leak_decorator()
 def test_minmax_key1():
     assert minmax(T('a'), T('b'), T('c'),
                   key=lambda x: x.value.upper()) == (T('a'), T('c'))

@@ -36,12 +36,8 @@ clamp_new(PyTypeObject *type,
                                      &iterable, &low, &high, &inclusive, &remove)) {
         goto Fail;
     }
-    if (low == Py_None) {
-        low = NULL;
-    }
-    if (high == Py_None) {
-        high = NULL;
-    }
+    PYIU_NULL_IF_NONE(low);
+    PYIU_NULL_IF_NONE(high);
 
     /* Create and fill struct */
     iterator = PyObject_GetIter(iterable);
@@ -204,10 +200,12 @@ iterable : iterable\n\
     Clamp the values from this `iterable`.\n\
 \n\
 low : any type, optional\n\
-    The lower bound for clamp.\n\
+    The lower bound for clamp. If not given or ``None`` there is no lower \n\
+    bound.\n\
 \n\
 high : any type, optional\n\
-    The upper bound for clamp.\n\
+    The upper bound for clamp. If not given or ``None`` there is no upper \n\
+    bound.\n\
 \n\
 inclusive : bool, optional\n\
     If ``True`` also remove values that are equal to `low` and `high`.\n\

@@ -123,40 +123,26 @@ merge_new(PyTypeObject *type,
           PyObject *args,
           PyObject *kwargs)
 {
+    static char *kwlist[] = {"key", "reverse", NULL};
     PyIUObject_Merge *self;
 
-    PyObject *iteratortuple=NULL;
-    PyObject *keyfunc=NULL;
-    PyObject *reversekw=NULL;
-    PyObject *funcargs=NULL;
-    Py_ssize_t nkwargs;
-    int reverse = Py_LT;
+    PyObject *iteratortuple = NULL;
+    PyObject *keyfunc = NULL;
+    PyObject *funcargs = NULL;
+    int reverse = 0;
 
     /* Parse arguments */
 
-    if (kwargs != NULL && PyDict_Check(kwargs) && PyDict_Size(kwargs)) {
-        nkwargs = 0;
-
-        keyfunc = PyDict_GetItemString(kwargs, "key");
-        if (keyfunc != NULL) {
-            nkwargs++;
-            Py_INCREF(keyfunc);
-        }
-
-        reversekw = PyDict_GetItemString(kwargs, "reverse");
-        if (reversekw != NULL) {
-            nkwargs++;
-            if (PyObject_IsTrue(reversekw)) {
-                reverse = Py_GT;
-            }
-        }
-
-        if (PyDict_Size(kwargs) - nkwargs != 0) {
-            PyErr_Format(PyExc_TypeError,
-                         "merge got an unexpected keyword argument");
-            goto Fail;
-        }
+    if (!PyArg_ParseTupleAndKeywords(PyIU_global_0tuple, kwargs,
+                                     "|OO:merge", kwlist,
+                                     &keyfunc, &reverse)) {
+        return NULL;
     }
+
+    reverse = reverse ? Py_GT : Py_LT;
+
+    PYIU_NULL_IF_NONE(keyfunc);
+    Py_XINCREF(keyfunc);
 
     /* Create and fill struct */
     iteratortuple = PyUI_CreateIteratorTuple(args);
@@ -164,9 +150,11 @@ merge_new(PyTypeObject *type,
         goto Fail;
     }
 
-    funcargs = PyTuple_New(1);
-    if (funcargs == NULL) {
-        goto Fail;
+    if (keyfunc != NULL) {
+        funcargs = PyTuple_New(1);
+        if (funcargs == NULL) {
+            goto Fail;
+        }
     }
 
     self = (PyIUObject_Merge *)type->tp_alloc(type, 0);
@@ -301,7 +289,7 @@ merge_next(PyIUObject_Merge *self)
     PyIUObject_ItemIdxKey *next;
 
     /* No current then we create one. */
-    if (self->current == NULL || self->current == Py_None) {
+    if (self->current == NULL) {
         if (merge_init_current(self) < 0) {
             return NULL;
         }
@@ -402,23 +390,30 @@ static PyObject *
 merge_setstate(PyIUObject_Merge *self,
                PyObject *state)
 {
-    PyObject *current, *keyfunc;
+    PyObject *current, *keyfunc, *funcargs=NULL;
     Py_ssize_t numactive;
     int reverse;
     if (!PyArg_ParseTuple(state, "OiOn",
                           &keyfunc, &reverse, &current, &numactive)) {
         return NULL;
     }
-
-    Py_CLEAR(self->current);
-    self->current = current;
-    Py_INCREF(self->current);
+    PYIU_NULL_IF_NONE(current);
 
     if (keyfunc != Py_None) {
+        funcargs = PyTuple_New(1);
+        if (funcargs == NULL) {
+            return NULL;
+        }
+        self->funcargs = funcargs;
+
         Py_CLEAR(self->keyfunc);
         self->keyfunc = keyfunc;
         Py_INCREF(self->keyfunc);
     }
+
+    Py_CLEAR(self->current);
+    self->current = current;
+    Py_XINCREF(self->current);
 
     self->numactive = numactive;
     self->reverse = reverse;
@@ -434,7 +429,7 @@ static PyObject *
 merge_lengthhint(PyIUObject_Merge *self)
 {
     Py_ssize_t i, len = 0;
-    if (self->current == NULL || self->current == Py_None) {
+    if (self->current == NULL) {
         for (i=0 ; i<PyTuple_Size(self->iteratortuple) ; i++) {
             len = len + PyObject_LengthHint(PyTuple_GET_ITEM(self->iteratortuple, i), 0);
         }
