@@ -159,9 +159,7 @@ PyIU_MinMax(PyObject *m,
             } else {
                 /* If both are set swap them if val2 is smaller than val1. */
                 cmp = PyObject_RichCompareBool(val2, val1, Py_LT);
-                if (cmp < 0) {
-                    goto Fail;
-                } else if (cmp > 0) {
+                if (cmp > 0) {
                     temp = val1;
                     val1 = val2;
                     val2 = temp;
@@ -169,6 +167,8 @@ PyIU_MinMax(PyObject *m,
                     temp = item1;
                     item1 = item2;
                     item2 = temp;
+                } else if (cmp < 0) {
+                    goto Fail;
                 }
             }
 
@@ -176,30 +176,30 @@ PyIU_MinMax(PyObject *m,
                the current minimum.
                */
             cmp = PyObject_RichCompareBool(val1, minval, Py_LT);
-            if (cmp < 0) {
-                goto Fail;
-            } else if (cmp > 0) {
+            if (cmp > 0) {
                 Py_DECREF(minval);
                 Py_DECREF(minitem);
                 minval = val1;
                 minitem = item1;
-            } else {
+            } else if (cmp == 0) {
                 Py_DECREF(item1);
                 Py_DECREF(val1);
+            } else {
+                goto Fail;
             }
 
             /* Same for maximum. */
             cmp = PyObject_RichCompareBool(val2, maxval, Py_GT);
-            if (cmp < 0) {
-                goto Fail;
-            } else if (cmp > 0) {
+            if (cmp > 0) {
                 Py_DECREF(maxval);
                 Py_DECREF(maxitem);
                 maxval = val2;
                 maxitem = item2;
-            } else {
+            } else if (cmp == 0) {
                 Py_DECREF(item2);
                 Py_DECREF(val2);
+            } else  {
+                goto Fail;
             }
         }
     }

@@ -80,14 +80,14 @@ argminmax(PyObject *m,
         /* maximum value and item are set; update them as necessary. */
         } else {
             int cmpres = PyObject_RichCompareBool(val, maxval, cmpop);
-            if (cmpres < 0) {
-                goto Fail;
-            } else if (cmpres > 0) {
+            if (cmpres > 0) {
                 Py_DECREF(maxval);
                 maxval = val;
                 maxidx = idx;
-            } else {
+            } else if (cmpres == 0) {
                 Py_DECREF(val);
+            } else {
+                goto Fail;
             }
         }
         Py_DECREF(item);

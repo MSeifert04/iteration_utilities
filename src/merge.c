@@ -130,7 +130,6 @@ merge_new(PyTypeObject *type,
     PyObject *keyfunc=NULL;
     PyObject *reversekw=NULL;
     PyObject *funcargs=NULL;
-    Py_ssize_t nkwargs;
     int reverse = 0;
 
     /* Parse arguments */
