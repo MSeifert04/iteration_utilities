@@ -22,33 +22,21 @@ roundrobin_new(PyTypeObject *type,
 {
     PyIUObject_Roundrobin *self;
 
-    PyObject *iteratortuple=NULL;
-    PyObject *item;
-    PyObject *iterator;
-    Py_ssize_t numactive, idx;
-
-    /* Parse arguments */
-    numactive = PyTuple_Size(args);
+    PyObject *iteratortuple = NULL;
 
     /* Create and fill struct */
-    iteratortuple = PyTuple_New(numactive);
+    iteratortuple = PyUI_CreateIteratorTuple(args);
     if (iteratortuple == NULL) {
         goto Fail;
     }
-    for (idx = 0 ; idx<numactive ; idx++) {
-        item = PyTuple_GET_ITEM(args, idx);
-        iterator = PyObject_GetIter(item);
-        if (iterator == NULL) {
-            goto Fail;
-        }
-        PyTuple_SET_ITEM(iteratortuple, idx, iterator);
-    }
+
     self = (PyIUObject_Roundrobin *)type->tp_alloc(type, 0);
     if (self == NULL) {
         goto Fail;
     }
+
     self->iteratortuple = iteratortuple;
-    self->numactive = numactive;
+    self->numactive = PyTuple_GET_SIZE(args);
     self->active = 0;
     return (PyObject *)self;
 
@@ -146,27 +134,21 @@ roundrobin_next(PyIUObject_Roundrobin *self)
 static PyObject *
 roundrobin_reduce(PyIUObject_Roundrobin *self)
 {
-    PyObject *iteratortuple, *temp, *res;
-    Py_ssize_t idx;
+    PyObject *ittuple, *res;
 
-    if (PyTuple_Size(self->iteratortuple) != self->numactive) {
-        iteratortuple = PyTuple_New(self->numactive);
-        if (iteratortuple == NULL) {
+    if (PyTuple_GET_SIZE(self->iteratortuple) != self->numactive) {
+        ittuple = PyTuple_GetSlice(self->iteratortuple, 0, self->numactive);
+        if (ittuple == NULL) {
             return NULL;
         }
-        for (idx=0 ; idx<self->numactive ; idx++) {
-            temp = PyTuple_GET_ITEM(self->iteratortuple, idx);
-            Py_INCREF(temp);
-            PyTuple_SET_ITEM(iteratortuple, idx, temp);
-        }
     } else {
-        iteratortuple = self->iteratortuple;
-        Py_INCREF(iteratortuple);
+        ittuple = self->iteratortuple;
+        Py_INCREF(ittuple);
     }
     res = Py_BuildValue("OO(nn)", Py_TYPE(self),
-                        iteratortuple,
+                        ittuple,
                         self->numactive, self->active);
-    Py_DECREF(iteratortuple);
+    Py_DECREF(ittuple);
     return res;
 }
 

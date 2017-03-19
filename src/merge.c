@@ -126,15 +126,13 @@ merge_new(PyTypeObject *type,
     PyIUObject_Merge *self;
 
     PyObject *iteratortuple=NULL;
-    PyObject *iterator=NULL;
     PyObject *keyfunc=NULL;
     PyObject *reversekw=NULL;
     PyObject *funcargs=NULL;
-    Py_ssize_t numactive, idx, nkwargs;
+    Py_ssize_t nkwargs;
     int reverse = Py_LT;
 
     /* Parse arguments */
-    numactive = PyTuple_Size(args);
 
     if (kwargs != NULL && PyDict_Check(kwargs) && PyDict_Size(kwargs)) {
         nkwargs = 0;
@@ -161,30 +159,26 @@ merge_new(PyTypeObject *type,
     }
 
     /* Create and fill struct */
-    iteratortuple = PyTuple_New(numactive);
+    iteratortuple = PyUI_CreateIteratorTuple(args);
     if (iteratortuple == NULL) {
         goto Fail;
     }
-    for (idx=0 ; idx<numactive ; idx++) {
-        iterator = PyObject_GetIter(PyTuple_GET_ITEM(args, idx));
-        if (iterator == NULL) {
-            goto Fail;
-        }
-        PyTuple_SET_ITEM(iteratortuple, idx, iterator);
-    }
+
     funcargs = PyTuple_New(1);
     if (funcargs == NULL) {
         goto Fail;
     }
+
     self = (PyIUObject_Merge *)type->tp_alloc(type, 0);
     if (self == NULL) {
         goto Fail;
     }
+
     self->iteratortuple = iteratortuple;
     self->keyfunc = keyfunc;
     self->reverse = reverse;
     self->current = NULL;
-    self->numactive = numactive;
+    self->numactive = PyTuple_GET_SIZE(args);
     self->funcargs = funcargs;
     return (PyObject *)self;
 
