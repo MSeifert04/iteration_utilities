@@ -19,37 +19,37 @@ PyIU_TupleToList_and_InsertItemAtIndex(PyObject *m,
 
     Py_ssize_t tupsize;
     Py_ssize_t i;
-    PyObject *lst;
-    PyObject *tmp;
+    PyObject *newtup;
 
     if (!PyArg_ParseTuple(args, "OOn:_parse_args", &tup, &item, &index)) {
         return NULL;
     }
 
-    tupsize = PyTuple_Size(tup);
+    tupsize = PyTuple_GET_SIZE(tup);
 
-    lst = PyTuple_New(tupsize + 1);
-    if (lst == NULL) {
+    newtup = PyTuple_New(tupsize + 1);
+    if (newtup == NULL) {
         return NULL;
     }
 
     Py_INCREF(item);
-    PyTuple_SET_ITEM(lst, index, item);
+    PyTuple_SET_ITEM(newtup, index, item);
 
     for (i = 0 ; i < tupsize + 1 ; i++ ) {
+        PyObject *tmp;
         if (i < index) {
             tmp = PyTuple_GET_ITEM(tup, i);
             Py_INCREF(tmp);
-            PyTuple_SET_ITEM(lst, i, tmp);
+            PyTuple_SET_ITEM(newtup, i, tmp);
         } else if (i == index) {
             continue;
         } else {
             tmp = PyTuple_GET_ITEM(tup, i - 1);
             Py_INCREF(tmp);
-            PyTuple_SET_ITEM(lst, i, tmp);
+            PyTuple_SET_ITEM(newtup, i, tmp);
         }
     }
-    return lst;
+    return newtup;
 }
 
 
@@ -121,13 +121,20 @@ Parameters\n\
 ----------\n\
 tup : tuple\n\
     The tuple to convert.\n\
+    \n\
+    .. warning::\n\
+       This function will encounter a segmentation fault if `tup` is not\n\
+       a tuple.\n\
 \n\
 item : any type\n\
     The item to insert.\n\
 \n\
 pos : int\n\
-    The position where to insert the `item`. If this is not carefully chosen\n\
-    the function will segfault!\n\
+    The position where to insert the `item`. \n\
+    \n\
+    .. warning::\n\
+       No bounds checking - If `pos` is not carefully chosen the function \n\
+       will segfault!\n\
 \n\
 Returns\n\
 -------\n\

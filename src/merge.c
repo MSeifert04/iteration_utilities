@@ -430,16 +430,16 @@ merge_lengthhint(PyIUObject_Merge *self)
 {
     Py_ssize_t i, len = 0;
     if (self->current == NULL) {
-        for (i=0 ; i<PyTuple_Size(self->iteratortuple) ; i++) {
-            len = len + PyObject_LengthHint(PyTuple_GET_ITEM(self->iteratortuple, i), 0);
+        for (i=0 ; i<PyTuple_GET_SIZE(self->iteratortuple) ; i++) {
+            len += PyObject_LengthHint(PyTuple_GET_ITEM(self->iteratortuple, i), 0);
         }
     } else {
-        len = len + self->numactive;
+        len += self->numactive;
         for (i=0 ; i<self->numactive ; i++) {
-            len = len + PyObject_LengthHint(
-                  PyTuple_GET_ITEM(self->iteratortuple,
-                                   ((PyIUObject_ItemIdxKey *)PyTuple_GET_ITEM(self->current, i))->idx),
-                  0);
+            PyObject *iik = PyTuple_GET_ITEM(self->current, i);
+            Py_ssize_t idx = ((PyIUObject_ItemIdxKey *)iik)->idx;
+            PyObject *it = PyTuple_GET_ITEM(self->iteratortuple, idx);
+            len += PyObject_LengthHint(it, 0);
         }
     }
 

@@ -14,7 +14,7 @@ argminmax(PyObject *m,
     PyObject *item=NULL, *val=NULL, *maxval=NULL, *funcargs=NULL;
     Py_ssize_t defaultitem=0, idx=-1, maxidx=-1;
     int defaultisset = 0;
-    const int positional = PyTuple_Size(args) > 1;
+    const int positional = PyTuple_GET_SIZE(args) > 1;
 
     if (positional) {
         sequence = args;

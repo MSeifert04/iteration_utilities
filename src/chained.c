@@ -29,7 +29,7 @@ chained_new(PyTypeObject *type,
     int all = 0;
 
     /* Parse arguments */
-    if (funcs == NULL || !PyTuple_Check(funcs) || PyTuple_Size(funcs) <= 0) {
+    if (PyTuple_GET_SIZE(funcs) <= 0) {
         PyErr_Format(PyExc_TypeError, "at least 1 function must be given.");
         goto Fail;
     }

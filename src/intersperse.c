@@ -149,7 +149,7 @@ intersperse_setstate(PyIUObject_Intersperse *self,
     int started;
     PyObject *nextitem;
 
-    if (PyTuple_Size(state) == 1) {
+    if (PyTuple_GET_SIZE(state) == 1) {
         if (!PyArg_ParseTuple(state, "i", &started)) {
             return NULL;
         }

@@ -15,7 +15,7 @@ PyIU_MinMax(PyObject *m,
     PyObject *temp = NULL, *resulttuple = NULL;
     PyObject *funcargs=NULL;
     int cmp;
-    const int positional = PyTuple_Size(args) > 1;
+    const int positional = PyTuple_GET_SIZE(args) > 1;
 
     if (positional) {
         sequence = args;
