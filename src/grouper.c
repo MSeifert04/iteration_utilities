@@ -309,7 +309,8 @@ n : :py:class:`int`\n\
 fillvalue : any type, optional\n\
     The `fillvalue` if the `iterable` is consumed and the last yielded group\n\
     should be filled. If not given the last yielded group may be shorter\n\
-    than the group before.\n\
+    than the group before. Using ``fillvalue=None`` is different from not \n\
+    giving a `fillvalue` in that the last group will be filled with ``None``.\n\
 \n\
 truncate : bool, optional\n\
     As alternative to `fillvalue` the last group is discarded if it is\n\

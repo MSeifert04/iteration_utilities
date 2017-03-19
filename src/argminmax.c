@@ -160,7 +160,7 @@ PyIU_Argmax(PyObject *self,
  * Docstring
  *****************************************************************************/
 
-PyDoc_STRVAR(PyIU_Argmin_doc, "argmin(iterable, /, key=None, default=None)\n\
+PyDoc_STRVAR(PyIU_Argmin_doc, "argmin(iterable, /, key, default)\n\
 --\n\
 \n\
 Find index of the minimum.\n\
@@ -178,8 +178,8 @@ key : callable, optional\n\
     If not given then compare the values, otherwise compare ``key(item)``.\n\
 \n\
 default : int, optional\n\
-    If not given raise ``ValueError`` if the `iterable` is empty otherwise\n\
-    return ``default``\n\
+    If given an empty `iterable` will return `default` instead of raising a \n\
+    ``ValueError``.\n\
 \n\
 Returns\n\
 -------\n\

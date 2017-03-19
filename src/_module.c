@@ -235,9 +235,11 @@ PyDoc_STRVAR(PyIU_module_doc, "API: C Functions\n----------------");
         PyModule_AddObject(m, PyIU_ReduceLast_name, PyIU_ReduceLast);
 
         #if PY_MAJOR_VERSION == 2
+            PyIU_global_zero = PyInt_FromLong((long)0);
             PyIU_global_one = PyInt_FromLong((long)1);
             PyIU_global_two = PyInt_FromLong((long)2);
         #else
+            PyIU_global_zero = PyLong_FromLong((long)0);
             PyIU_global_one = PyLong_FromLong((long)1);
             PyIU_global_two = PyLong_FromLong((long)2);
         #endif

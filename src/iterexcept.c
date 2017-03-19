@@ -151,8 +151,8 @@ exception : Exception\n\
     The `exception` which terminates the iteration.\n\
 \n\
 first : callable or None, optional\n\
-    If not ``None`` this function is called once before the `func` is\n\
-    executed.\n\
+    If not given (or not ``None``) this function is called once before the \n\
+    `func` is executed.\n\
 \n\
 Returns\n\
 -------\n\

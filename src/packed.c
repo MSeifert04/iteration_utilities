@@ -127,6 +127,7 @@ Parameters\n\
 ----------\n\
 func : callable\n\
     The function that should be called when the packed-instance is called.\n\
+    Positional-only parameter.\n\
 \n\
 Methods\n\
 -------\n\

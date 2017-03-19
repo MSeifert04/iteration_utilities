@@ -31,17 +31,10 @@ tabulate_new(PyTypeObject *type,
         goto Fail;
     }
     if (cnt == NULL) {
-#if PY_MAJOR_VERSION == 2
-        cnt = PyInt_FromLong(0);
-#else
-        cnt = PyLong_FromLong(0);
-#endif
-        if (cnt == NULL) {
-            goto Fail;
-        }
-    } else {
-        Py_INCREF(cnt);
+        cnt = PyIU_global_zero;
     }
+    Py_INCREF(cnt);
+
     funcargs = PyTuple_New(1);
     if (funcargs == NULL) {
         goto Fail;

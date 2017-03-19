@@ -94,6 +94,7 @@
  * These are created in "_module.c"!
  *****************************************************************************/
 
+static PyObject *PyIU_global_zero = NULL;
 static PyObject *PyIU_global_one = NULL;
 static PyObject *PyIU_global_two = NULL;
 static PyObject *PyIU_global_0tuple = NULL;

@@ -240,8 +240,11 @@ reduce : callable, optional\n\
     in :py:func:`functools.reduce`.\n\
 \n\
 reducestart : any type, optional\n\
-    Can only be specified if `reduce` is given. This parameter is equivalent\n\
-    to the `start` parameter of :py:func:`functools.reduce`.\n\
+    If given (even as ``None``) it will be interpreted as startvalue for the\n\
+    `reduce` function.\n\
+    \n\
+    .. note::\n\
+       Can only be specified if `reduce` is given.\n\
 \n\
 Returns\n\
 -------\n\

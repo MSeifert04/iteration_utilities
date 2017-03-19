@@ -13,7 +13,7 @@ Version 0.4.0 (unreleased)
   essentially :py:func:`functools.partial` but also allows positional
   placeholders.
 
-- several functions now interpret ``None`` like the argument for the function
+- several functions now interpret ``None`` as if that argument for the function
   wasn't given:
 
   - ``key`` argument for ``minmax``, ``merge``, ``argmin`` and ``argmax``.

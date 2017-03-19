@@ -451,7 +451,7 @@ static PyMethodDef itemidxkey_methods[] = {
  * Docstring
  *****************************************************************************/
 
-PyDoc_STRVAR(itemidxkey_doc, "ItemIdxKey(item, idx, key=None)\n\
+PyDoc_STRVAR(itemidxkey_doc, "ItemIdxKey(item, idx, /, key)\n\
 --\n\
 \n\
 Helper class that makes it easier and faster to compare two values for\n\
@@ -466,8 +466,9 @@ idx : number\n\
     The position (index) of the `item`.\n\
 \n\
 key : any type, optional\n\
-    The `item` processed by the `key` function. If it is set then\n\
-    comparisons will compare the `key` instead of the `item`.\n\
+    If given (even as ``None``) this should be the `item` processed by the \n\
+    `key` function. If it is set then comparisons will compare the `key` \n\
+    instead of the `item`.\n\
 \n\
 Attributes\n\
 ----------\n\

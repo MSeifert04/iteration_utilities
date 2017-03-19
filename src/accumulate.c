@@ -225,7 +225,7 @@ func : callable or None, optional\n\
     If ``None`` defaults to :py:func:`operator.add`.\n\
 \n\
 start : any type, optional\n\
-    If given this value is inserted before the `iterable`.\n\
+    If given (even as ``None``) this value is inserted before the `iterable`.\n\
 \n\
 Returns\n\
 -------\n\

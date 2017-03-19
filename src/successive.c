@@ -238,7 +238,7 @@ static PyMethodDef successive_methods[] = {
  * Docstring
  *****************************************************************************/
 
-PyDoc_STRVAR(successive_doc, "successive(iterable, times)\n\
+PyDoc_STRVAR(successive_doc, "successive(iterable, times=2)\n\
 --\n\
 \n\
 Like the recipe for pairwise but allows to get an arbitary number\n\

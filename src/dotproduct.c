@@ -91,7 +91,7 @@ Dot product (matrix multiplication) of two vectors.\n\
 Parameters\n\
 ----------\n\
 vec1, vec2 : iterable\n\
-    Any `iterables` to calculate the dot product.\n\
+    Any `iterables` to calculate the dot product. Positional-only parameter.\n\
 \n\
 Returns\n\
 -------\n\
