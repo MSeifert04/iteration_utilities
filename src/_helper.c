@@ -104,16 +104,19 @@ static PyObject *PyIU_global_two = NULL;
 PyObject *
 PyUI_TupleReverse(PyObject *tuple)
 {
-    PyObject *item, *newtuple;
-    Py_ssize_t num, idx;
+    PyObject *newtuple;
+    Py_ssize_t i, j;
+    Py_ssize_t tuplesize = PyTuple_GET_SIZE(tuple);
 
-    num = PyTuple_Size(tuple);
-    newtuple = PyTuple_New(num);
+    newtuple = PyTuple_New(tuplesize);
+    if (newtuple == NULL) {
+        return NULL;
+    }
 
-    for (idx=0 ; idx<num ; idx++) {
-        item = PyTuple_GET_ITEM(tuple, idx);
+    for (i = 0, j = tuplesize-1 ; i < tuplesize ; i++, j--) {
+        PyObject *item = PyTuple_GET_ITEM(tuple, i);
         Py_INCREF(item);
-        PyTuple_SET_ITEM(newtuple, num-idx-1, item);
+        PyTuple_SET_ITEM(newtuple, j, item);
     }
 
     return newtuple;
@@ -129,17 +132,21 @@ PyUI_TupleReverse(PyObject *tuple)
 static PyObject *
 PYUI_TupleCopy(PyObject *tuple)
 {
-    Py_ssize_t tuplesize = PyTuple_GET_SIZE(tuple);
+    PyObject *newtuple;
     Py_ssize_t i;
-    PyObject *newtuple = PyTuple_New(tuplesize);
+    Py_ssize_t tuplesize = PyTuple_GET_SIZE(tuple);
+
+    newtuple = PyTuple_New(tuplesize);
     if (newtuple == NULL) {
         return NULL;
     }
-    for ( i=0 ; i<tuplesize ; i++) {
+
+    for (i = 0 ; i < tuplesize ; i++) {
         PyObject *tmp = PyTuple_GET_ITEM(tuple, i);
         Py_INCREF(tmp);
         PyTuple_SET_ITEM(newtuple, i, tmp);
     }
+
     return newtuple;
 }
 
@@ -165,15 +172,14 @@ PYUI_TupleInsert(PyObject *tuple,
                  Py_ssize_t num)
 {
     /* Temporary variables */
-    PyObject *temp;
     Py_ssize_t i;
 
     /* Move each of them to the next place, starting by the next-to-last
        element going left until where.
        */
-    for (i=num-2 ; i>=where ; i--) {
-        temp = PyTuple_GET_ITEM(tuple, i);
-        PyTuple_SET_ITEM(tuple, i+1, temp);
+    for (i = num-2 ; i >= where ; i--) {
+        PyObject *temp = PyTuple_GET_ITEM(tuple, i);
+        PyTuple_SET_ITEM(tuple, i + 1, temp);
     }
     /* Insert the new element. */
     PyTuple_SET_ITEM(tuple, where, v);
@@ -200,15 +206,14 @@ PYUI_TupleRemove(PyObject *tuple,
                  Py_ssize_t num)
 {
     /* Temporary variables */
-    PyObject *temp;
-    Py_ssize_t idx;
+    Py_ssize_t i;
 
     /* Move each item to the left from the after-where index until the end of
        the array.
        */
-    for (idx = where + 1 ; idx < num ; idx++) {
-        temp = PyTuple_GET_ITEM(tuple, idx);
-        PyTuple_SET_ITEM(tuple, idx-1, temp);
+    for (i = where+1 ; i < num ; i++) {
+        PyObject *temp = PyTuple_GET_ITEM(tuple, i);
+        PyTuple_SET_ITEM(tuple, i-1, temp);
     }
     /* Insert NULL at the last position. */
     PyTuple_SET_ITEM(tuple, num-1, NULL);
