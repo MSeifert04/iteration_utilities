@@ -23,7 +23,7 @@ def test_itemidxkey_repr1():
     assert repr(ItemIdxKey(T(10), 2, T(10)))
 
 
-@memory_leak_decorator(collect=True)
+@memory_leak_decorator(collect=True, offset=1)
 def test_itemidxkey_repr2():
     # Just make sure the representation uses the class name
     class Fun(ItemIdxKey):

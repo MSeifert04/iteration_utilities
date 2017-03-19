@@ -232,7 +232,7 @@ def test_seen_repr1():
         assert repr(s) == 'iteration_utilities.Seen(set(), seenlist=[[...]])'
 
 
-@memory_leak_decorator(collect=True)
+@memory_leak_decorator(collect=True, offset=1)
 def test_seen_repr2():
     # Check that the representation is class name aware
     class Fun(Seen):

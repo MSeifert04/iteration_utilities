@@ -133,7 +133,7 @@ itemidxkey_repr(PyIUObject_ItemIdxKey *self)
 
     ok = Py_ReprEnter((PyObject*)self);
     if (ok != 0) {
-        return ok > 0 ? PyUnicode_FromFormat("...") : NULL;
+        return ok > 0 ? PyUnicode_FromString("...") : NULL;
     }
 
     if (self->key == NULL) {

@@ -155,7 +155,7 @@ seen_repr(PyIUObject_Seen *self)
 
     ok = Py_ReprEnter((PyObject*)self);
     if (ok != 0) {
-        return ok > 0 ? PyUnicode_FromFormat("...") : NULL;
+        return ok > 0 ? PyUnicode_FromString("...") : NULL;
     }
 
     if (self->seenlist != NULL && PyList_Size(self->seenlist) > 0) {
