@@ -22,15 +22,16 @@ argminmax(PyObject *m,
         return NULL;
     }
 
-    if (kwargs != NULL && PyDict_CheckExact(kwargs) &&
-            PyDict_GetItemString(kwargs, "default")) {
-        defaultisset = 1;
-    }
-
     if (!PyArg_ParseTupleAndKeywords(PyIU_global_0tuple, kwargs,
                                      "|On:argmin_max", kwlist,
                                      &keyfunc, &defaultitem)) {
         return NULL;
+    }
+
+    if (defaultitem != 0 ||
+            (kwargs != NULL && PyDict_CheckExact(kwargs) &&
+             PyDict_GetItemString(kwargs, "default"))) {
+        defaultisset = 1;
     }
 
     if (keyfunc == Py_None) {

@@ -81,6 +81,12 @@ seen_new(PyTypeObject *type,
                                      &seenset, &seenlist)) {
         goto Fail;
     }
+    if (seenset == Py_None) {
+        seenset = NULL;
+    }
+    if (seenlist == Py_None) {
+        seenlist = NULL;
+    }
     if (seenset == NULL) {
         seenset = PySet_New(NULL);
         if (seenset == NULL) {
@@ -95,12 +101,8 @@ seen_new(PyTypeObject *type,
     }
 
     if (seenlist != NULL && !PyList_CheckExact(seenlist)) {
-        if (seenlist == Py_None) {
-            seenlist = NULL;
-        } else {
-            PyErr_Format(PyExc_TypeError, "`seenlist` must be a list.");
-            goto Fail;
-        }
+        PyErr_Format(PyExc_TypeError, "`seenlist` must be a list.");
+        goto Fail;
     }
 
     self = (PyIUObject_Seen *)type->tp_alloc(type, 0);
@@ -435,7 +437,7 @@ static PySequenceMethods seen_as_sequence = {
  * Docstring
  *****************************************************************************/
 
-PyDoc_STRVAR(seen_doc, "Seen(seenset, seenlist)\n\
+PyDoc_STRVAR(seen_doc, "Seen(seenset=None, seenlist=None)\n\
 --\n\
 \n\
 Helper class which adds the items after each `contains_add` check.\n\

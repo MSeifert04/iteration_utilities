@@ -13,6 +13,12 @@ Version 0.4.0 (unreleased)
   essentially :py:func:`functools.partial` but also allows positional
   placeholders.
 
+- several functions now also allow ``None`` as function argument:
+
+  - ``key`` argument for ``minmax``, ``merge``, ``argmin`` and ``argmax``.
+  - ``reduce`` argument for ``groupedby``.
+  - all arguments for ``Seen.__new__``.
+
 
 Version 0.3.0 (2017-03-09)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -81,6 +81,12 @@ def test_merge_normal5():
 
 
 @memory_leak_decorator()
+def test_merge_normal6():
+    # key=None is identical to no key
+    assert list(merge([T(1)], [T(2)], key=None)) == [T(1), T(2)]
+
+
+@memory_leak_decorator()
 def test_merge_stable1():
     # Stability tests (no use of T on purpose!)
     it = merge([1], [1.])

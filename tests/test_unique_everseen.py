@@ -29,6 +29,12 @@ def test_uniqueeverseen_normal1():
 
 
 @memory_leak_decorator()
+def test_uniqueeverseen_normal2():
+    # key=None is identical to no key
+    assert list(unique_everseen([T(1), T(2), T(1)], None)) == [T(1), T(2)]
+
+
+@memory_leak_decorator()
 def test_uniqueeverseen_key1():
     assert list(unique_everseen([T(1), T(2), T(1)], abs)) == [T(1), T(2)]
 

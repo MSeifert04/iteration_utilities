@@ -47,6 +47,12 @@ def test_partition_normal5():
 
 
 @memory_leak_decorator()
+def test_partition_normal6():
+    # pred=None is identical to no pred
+    assert partition([T(0), T(1), T(2)], None) == (toT([0]), toT([1, 2]))
+
+
+@memory_leak_decorator()
 def test_partition_pred1():
     assert partition([T(0), T(1), T(2)],
                      lambda x: x.value > 1) == (toT([0, 1]), toT([2]))

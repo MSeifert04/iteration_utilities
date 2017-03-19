@@ -47,6 +47,13 @@ def test_unique_justseen_normal3():
     assert list(unique_justseen('aAabBb', key=str.lower)) == ['a', 'b']
 
 
+@memory_leak_decorator()
+def test_unique_justseen_normal4():
+    # key=None is identical to no key
+    assert list(unique_justseen(toT([1, 1, 2, 2, 3, 3]),
+                                None)) == toT([1, 2, 3])
+
+
 @memory_leak_decorator(collect=True)
 def test_unique_justseen_failure1():
     # not iterable

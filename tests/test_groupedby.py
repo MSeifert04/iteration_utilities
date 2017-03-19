@@ -77,6 +77,14 @@ def test_groupedby_reduce3():
                      reducestart=T(0))
 
 
+@memory_leak_decorator()
+def test_groupedby_reduce4():
+    # reduce=None is identical to no reduce
+    assert groupedby([T(1), T(1), T(2), T(3)], lambda x: x,
+                     reduce=None) == {T(1): [T(1), T(1)],
+                                      T(2): [T(2)], T(3): [T(3)]}
+
+
 @memory_leak_decorator(collect=True)
 def test_groupedby_failure1():
     # not iterable

@@ -16,6 +16,18 @@ Seen = iteration_utilities.Seen
 
 
 @memory_leak_decorator()
+def test_seen_new_None1():
+    # seenset=None is identical to no seenset
+    assert Seen(None) == Seen()
+
+
+@memory_leak_decorator()
+def test_seen_new_None2():
+    # seenlist=None is identical to no seenlist
+    assert Seen(set(), None) == Seen(set())
+
+
+@memory_leak_decorator()
 def test_seen_equality0():
     assert Seen() == Seen()
 
