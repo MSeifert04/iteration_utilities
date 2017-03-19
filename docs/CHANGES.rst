@@ -2,7 +2,7 @@ Changelog for "iteration_utilities"
 -----------------------------------
 
 
-Version 0.4.0 (unreleased)
+Version 0.4.0 (2017-03-20)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - :py:func:`~iteration_utilities.Seen` and
