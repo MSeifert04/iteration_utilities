@@ -9,6 +9,10 @@ Version 0.4.0 (unreleased)
   :py:func:`~iteration_utilities.ItemIdxKey` can detect recursive objects in
   their :py:func:`repr`.
 
+- The representation for :py:func:`~iteration_utilities.Seen` and
+  :py:func:`~iteration_utilities.ItemIdxKey` now uses the classname even for
+  subclasses.
+
 - added :py:func:`~iteration_utilities.partial` callback class, which is
   essentially :py:func:`functools.partial` but also allows positional
   placeholders.

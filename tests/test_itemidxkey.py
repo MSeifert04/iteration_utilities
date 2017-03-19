@@ -25,10 +25,20 @@ def test_itemidxkey_repr1():
 
 @memory_leak_decorator(collect=True)
 def test_itemidxkey_repr2():
+    # Just make sure the representation uses the class name
+    class Fun(ItemIdxKey):
+        pass
+
+    assert 'Fun' in repr(Fun(T(10), 2))
+    assert 'Fun' in repr(Fun(T(10), 2, T(10)))
+
+
+@memory_leak_decorator(collect=True)
+def test_itemidxkey_repr3():
     # Just make sure the representation does not fail.
     iik = ItemIdxKey(10, 2)
     iik.item = [iik]
-    assert repr(iik) == 'ItemIdxKey(item=[ItemIdxKey(...)], idx=2)'
+    assert repr(iik) == 'iteration_utilities.ItemIdxKey(item=[...], idx=2)'
 
 
 @memory_leak_decorator(collect=True)
