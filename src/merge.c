@@ -65,37 +65,27 @@ PyUI_TupleBisectRight_LastFirst(PyObject *tuple,
         return 0;
     }
     litem = PyTuple_GET_ITEM(tuple, hi-1);
-    /* if (litem) { // should not happen
-     */
-        res = PyIU_ItemIdxKey_Compare(item, litem, cmpop);
-        if (res == 1) {
-            return hi;
-        } else if (res == 0) {
-            hi = hi - 1;
-        } else {
-            return -1;
-        }
-    /*} else { // belongs to the above commented if
+    res = PyIU_ItemIdxKey_Compare(item, litem, cmpop);
+    if (res == 1) {
+        return hi;
+    } else if (res == 0) {
+        hi = hi - 1;
+    } else {
         return -1;
-    } */
+    }
 
     /* Start the normal bisection algorithm from biscet.c */
     while (lo < hi) {
         mid = ((size_t)lo + hi) / 2;
         litem = PyTuple_GET_ITEM(tuple, mid);
-        /* if (litem) { // should not happen
-         */
-            res = PyIU_ItemIdxKey_Compare(item, litem, cmpop);
-            if (res == 1) {
-                lo = mid + 1;
-            } else if (res == 0) {
-                hi = mid;
-            } else {
-                return -1;
-            }
-        /*} else { // belongs to the above commented if
+        res = PyIU_ItemIdxKey_Compare(item, litem, cmpop);
+        if (res == 1) {
+            lo = mid + 1;
+        } else if (res == 0) {
+            hi = mid;
+        } else {
             return -1;
-        } */
+        }
     }
     return lo;
 }
