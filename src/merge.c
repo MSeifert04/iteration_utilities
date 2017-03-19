@@ -138,9 +138,13 @@ merge_new(PyTypeObject *type,
         nkwargs = 0;
 
         keyfunc = PyDict_GetItemString(kwargs, "key");
+
         if (keyfunc != NULL) {
             nkwargs++;
-            Py_INCREF(keyfunc);
+            if (keyfunc == Py_None) {
+                keyfunc = NULL;
+            }
+            Py_XINCREF(keyfunc);
         }
 
         reversekw = PyDict_GetItemString(kwargs, "reverse");
@@ -164,9 +168,11 @@ merge_new(PyTypeObject *type,
         goto Fail;
     }
 
-    funcargs = PyTuple_New(1);
-    if (funcargs == NULL) {
-        goto Fail;
+    if (keyfunc != NULL) {
+        funcargs = PyTuple_New(1);
+        if (funcargs == NULL) {
+            goto Fail;
+        }
     }
 
     self = (PyIUObject_Merge *)type->tp_alloc(type, 0);
@@ -402,7 +408,7 @@ static PyObject *
 merge_setstate(PyIUObject_Merge *self,
                PyObject *state)
 {
-    PyObject *current, *keyfunc;
+    PyObject *current, *keyfunc, *funcargs=NULL;
     Py_ssize_t numactive;
     int reverse;
     if (!PyArg_ParseTuple(state, "OiOn",
@@ -410,15 +416,21 @@ merge_setstate(PyIUObject_Merge *self,
         return NULL;
     }
 
-    Py_CLEAR(self->current);
-    self->current = current;
-    Py_INCREF(self->current);
-
     if (keyfunc != Py_None) {
+        funcargs = PyTuple_New(1);
+        if (funcargs == NULL) {
+            return NULL;
+        }
+        self->funcargs = funcargs;
+
         Py_CLEAR(self->keyfunc);
         self->keyfunc = keyfunc;
         Py_INCREF(self->keyfunc);
     }
+
+    Py_CLEAR(self->current);
+    self->current = current;
+    Py_INCREF(self->current);
 
     self->numactive = numactive;
     self->reverse = reverse;

@@ -35,10 +35,10 @@ accumulate_new(PyTypeObject *type,
     PyIUObject_Accumulate *self;
 
     PyObject *iterable;
-    PyObject *iterator=NULL;
-    PyObject *binop=NULL;
-    PyObject *start=NULL;
-    PyObject *funcargs=NULL;
+    PyObject *iterator = NULL;
+    PyObject *binop = NULL;
+    PyObject *start = NULL;
+    PyObject *funcargs = NULL;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OO:accumulate", kwlist,
@@ -54,10 +54,14 @@ accumulate_new(PyTypeObject *type,
     if (iterator == NULL) {
         goto Fail;
     }
-    funcargs = PyTuple_New(2);
-    if (funcargs == NULL) {
-        goto Fail;
+
+    if (binop != NULL) {
+        funcargs = PyTuple_New(2);
+        if (funcargs == NULL) {
+            goto Fail;
+        }
     }
+
     self = (PyIUObject_Accumulate *)type->tp_alloc(type, 0);
     if (self == NULL) {
         goto Fail;

@@ -31,10 +31,10 @@ duplicates_new(PyTypeObject *type,
     PyIUObject_Duplicates *self;
 
     PyObject *iterable;
-    PyObject *iterator=NULL;
-    PyObject *seen=NULL;
-    PyObject *key=NULL;
-    PyObject *funcargs=NULL;
+    PyObject *iterator = NULL;
+    PyObject *seen = NULL;
+    PyObject *key = NULL;
+    PyObject *funcargs = NULL;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:duplicates", kwlist,
@@ -44,9 +44,11 @@ duplicates_new(PyTypeObject *type,
     if (key == Py_None) {
         key = NULL;
     }
-    funcargs = PyTuple_New(1);
-    if (funcargs == NULL) {
-        goto Fail;
+    if (key != NULL) {
+        funcargs = PyTuple_New(1);
+        if (funcargs == NULL) {
+            goto Fail;
+        }
     }
 
     /* Create and fill struct */

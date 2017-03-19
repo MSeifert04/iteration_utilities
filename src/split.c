@@ -60,9 +60,11 @@ split_new(PyTypeObject *type,
     if (iterator == NULL) {
         goto Fail;
     }
-    funcargs = PyTuple_New(1);
-    if (funcargs == NULL) {
-        goto Fail;
+    if (!cmp) {
+        funcargs = PyTuple_New(1);
+        if (funcargs == NULL) {
+            goto Fail;
+        }
     }
     self = (PyIUObject_Split *)type->tp_alloc(type, 0);
     if (self == NULL) {

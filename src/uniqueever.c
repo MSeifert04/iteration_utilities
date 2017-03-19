@@ -54,9 +54,11 @@ uniqueever_new(PyTypeObject *type,
     if (seen == NULL) {
         goto Fail;
     }
-    funcargs = PyTuple_New(1);
-    if (funcargs == NULL) {
-        goto Fail;
+    if (key != NULL) {
+        funcargs = PyTuple_New(1);
+        if (funcargs == NULL) {
+            goto Fail;
+        }
     }
     self = (PyIUObject_UniqueEver *)type->tp_alloc(type, 0);
     if (self == NULL) {

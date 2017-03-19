@@ -43,9 +43,11 @@ uniquejust_new(PyTypeObject *type,
     if (iterator == NULL) {
         goto Fail;
     }
-    funcargs = PyTuple_New(1);
-    if (funcargs == NULL) {
-        goto Fail;
+    if (keyfunc != NULL) {
+        funcargs = PyTuple_New(1);
+        if (funcargs == NULL) {
+            goto Fail;
+        }
     }
     self = (PyIUObject_UniqueJust *)type->tp_alloc(type, 0);
     if (self == NULL) {

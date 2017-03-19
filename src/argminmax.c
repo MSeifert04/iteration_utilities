@@ -24,7 +24,10 @@ argminmax(PyObject *m,
         keyfunc = PyDict_GetItemString(kwargs, "key");
         if (keyfunc != NULL) {
             nkwargs++;
-            Py_INCREF(keyfunc);
+            if (keyfunc == Py_None) {
+                keyfunc = NULL;
+            }
+            Py_XINCREF(keyfunc);
         }
 
         defaultvalue = PyDict_GetItemString(kwargs, "default");

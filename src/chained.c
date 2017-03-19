@@ -57,9 +57,11 @@ chained_new(PyTypeObject *type,
         }
     }
 
-    funcargs = PyTuple_New(1);
-    if (funcargs == NULL) {
-        goto Fail;
+    if (!all) {
+        funcargs = PyTuple_New(1);
+        if (funcargs == NULL) {
+            goto Fail;
+        }
     }
     /* Create struct */
     self = (PyIUObject_Chained *)type->tp_alloc(type, 0);
@@ -114,11 +116,12 @@ chained_call(PyIUObject_Chained *self,
              PyObject *args,
              PyObject *kwargs)
 {
-    PyObject *func, *temp, *oldtemp, *result=NULL;
-    Py_ssize_t tuplesize, idx;
-
-    tuplesize = PyTuple_Size(self->funcs);
-    temp = NULL;
+    PyObject *func;
+    PyObject *oldtemp;
+    PyObject *temp = NULL;
+    PyObject *result = NULL;
+    Py_ssize_t idx;
+    Py_ssize_t tuplesize = PyTuple_GET_SIZE(self->funcs);
 
     /* Create a placeholder tuple for "all=True".  */
     if (self->all) {

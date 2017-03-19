@@ -11,18 +11,18 @@ PyIU_Groupby(PyObject *m,
 
     PyObject *iterable;
     PyObject *key1;
-    PyObject *key2=NULL;
-    PyObject *iterator=NULL;
+    PyObject *key2 = NULL;
+    PyObject *iterator = NULL;
     PyObject *item;
     PyObject *val;
     PyObject *lst;
     PyObject *keep;
-    PyObject *reduce=NULL;
-    PyObject *reducestart=NULL;
-    PyObject *reducetmp=NULL;
-    PyObject *resdict=NULL;
-    PyObject *funcargs1=NULL;
-    PyObject *funcargs2=NULL;
+    PyObject *reduce = NULL;
+    PyObject *reducestart = NULL;
+    PyObject *reducetmp = NULL;
+    PyObject *resdict = NULL;
+    PyObject *funcargs1 = NULL;
+    PyObject *funcargs2 = NULL;
     int ok;
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 5)
     Py_hash_t hash;
@@ -33,6 +33,11 @@ PyIU_Groupby(PyObject *m,
                                      &reducestart)) {
         goto Fail;
     }
+
+    if (reduce == Py_None) {
+        reduce = NULL;
+    }
+
     if (reduce == NULL && reducestart != NULL) {
         PyErr_Format(PyExc_TypeError,
                      "cannot specify `reducestart` if no `reduce` is given.");
@@ -43,17 +48,22 @@ PyIU_Groupby(PyObject *m,
     if (iterator == NULL) {
         goto Fail;
     }
+
     resdict = PyDict_New();
     if (resdict == NULL) {
         goto Fail;
     }
+
     funcargs1 = PyTuple_New(1);
     if (funcargs1 == NULL) {
         goto Fail;
     }
-    funcargs2 = PyTuple_New(2);
-    if (funcargs2 == NULL) {
-        goto Fail;
+
+    if (reduce != NULL) {
+        funcargs2 = PyTuple_New(2);
+        if (funcargs2 == NULL) {
+            goto Fail;
+        }
     }
 
     while ( (item = (*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
@@ -182,7 +192,7 @@ PyIU_Groupby(PyObject *m,
     }
 
     Py_DECREF(funcargs1);
-    Py_DECREF(funcargs2);
+    Py_XDECREF(funcargs2);
     Py_DECREF(iterator);
 
     if (PyErr_Occurred()) {

@@ -30,9 +30,11 @@ PyIU_Count(PyObject *m,
         goto Fail;
     }
 
-    funcargs = PyTuple_New(1);
-    if (funcargs == NULL) {
-        goto Fail;
+    if (pred != NULL && pred != (PyObject *)&PyBool_Type) {
+        funcargs = PyTuple_New(1);
+        if (funcargs == NULL) {
+            goto Fail;
+        }
     }
 
     iterator = PyObject_GetIter(iterable);

@@ -26,6 +26,9 @@ PyIU_MinMax(PyObject *m,
         keyfunc = PyDict_GetItemString(kwargs, "key");
         if (keyfunc != NULL) {
             nkwargs++;
+            if (keyfunc == Py_None) {
+                keyfunc = NULL;
+            }
             Py_INCREF(keyfunc);
         }
 
@@ -47,9 +50,12 @@ PyIU_MinMax(PyObject *m,
                      "positional arguments");
         goto Fail;
     }
-    funcargs = PyTuple_New(0);
-    if (funcargs == NULL) {
-        goto Fail;
+
+    if (keyfunc != NULL) {
+        funcargs = PyTuple_New(0);
+        if (funcargs == NULL) {
+            goto Fail;
+        }
     }
 
     iterator = PyObject_GetIter(sequence);
@@ -236,7 +242,7 @@ PyIU_MinMax(PyObject *m,
     }
 
     Py_DECREF(iterator);
-    Py_DECREF(funcargs);
+    Py_XDECREF(funcargs);
     Py_XDECREF(keyfunc);
     Py_XDECREF(defaultitem);
 
