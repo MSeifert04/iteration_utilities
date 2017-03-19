@@ -241,6 +241,7 @@ PyDoc_STRVAR(PyIU_module_doc, "API: C Functions\n----------------");
             PyIU_global_one = PyLong_FromLong((long)1);
             PyIU_global_two = PyLong_FromLong((long)2);
         #endif
+        PyIU_global_0tuple = PyTuple_New(0);
     }
 
 #if PY_MAJOR_VERSION >= 3

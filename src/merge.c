@@ -123,6 +123,7 @@ merge_new(PyTypeObject *type,
           PyObject *args,
           PyObject *kwargs)
 {
+    static char *kwlist[] = {"key", "reverse", NULL};
     PyIUObject_Merge *self;
 
     PyObject *iteratortuple=NULL;
@@ -130,37 +131,22 @@ merge_new(PyTypeObject *type,
     PyObject *reversekw=NULL;
     PyObject *funcargs=NULL;
     Py_ssize_t nkwargs;
-    int reverse = Py_LT;
+    int reverse = 0;
 
     /* Parse arguments */
 
-    if (kwargs != NULL && PyDict_Check(kwargs) && PyDict_Size(kwargs)) {
-        nkwargs = 0;
-
-        keyfunc = PyDict_GetItemString(kwargs, "key");
-
-        if (keyfunc != NULL) {
-            nkwargs++;
-            if (keyfunc == Py_None) {
-                keyfunc = NULL;
-            }
-            Py_XINCREF(keyfunc);
-        }
-
-        reversekw = PyDict_GetItemString(kwargs, "reverse");
-        if (reversekw != NULL) {
-            nkwargs++;
-            if (PyObject_IsTrue(reversekw)) {
-                reverse = Py_GT;
-            }
-        }
-
-        if (PyDict_Size(kwargs) - nkwargs != 0) {
-            PyErr_Format(PyExc_TypeError,
-                         "merge got an unexpected keyword argument");
-            goto Fail;
-        }
+    if (!PyArg_ParseTupleAndKeywords(PyIU_global_0tuple, kwargs,
+                                     "|OO:merge", kwlist,
+                                     &keyfunc, &reverse)) {
+        return NULL;
     }
+
+    reverse = reverse ? Py_GT : Py_LT;
+
+    if (keyfunc == Py_None) {
+        keyfunc = NULL;
+    }
+    Py_XINCREF(keyfunc);
 
     /* Create and fill struct */
     iteratortuple = PyUI_CreateIteratorTuple(args);

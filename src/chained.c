@@ -21,11 +21,10 @@ chained_new(PyTypeObject *type,
             PyObject *funcs,
             PyObject *kwargs)
 {
+    static char *kwlist[] = {"reverse", "all", NULL};
     PyIUObject_Chained *self;
 
-    PyObject *kwarg;
     PyObject *funcargs=NULL;
-    Py_ssize_t nkwargs;
     int reverse = 0;
     int all = 0;
 
@@ -35,26 +34,10 @@ chained_new(PyTypeObject *type,
         goto Fail;
     }
 
-    if (kwargs != NULL && PyDict_Check(kwargs) && PyDict_Size(kwargs)) {
-        nkwargs = 0;
-
-        kwarg = PyDict_GetItemString(kwargs, "reverse");
-        if (kwarg != NULL) {
-            reverse = PyLong_AsLong(kwarg);
-            nkwargs++;
-        }
-
-        kwarg = PyDict_GetItemString(kwargs, "all");
-        if (kwarg != NULL) {
-            all = PyLong_AsLong(kwarg);
-            nkwargs++;
-        }
-
-        if (PyDict_Size(kwargs) - nkwargs != 0) {
-            PyErr_Format(PyExc_TypeError,
-                         "`chained` got an unexpected keyword argument");
-            goto Fail;
-        }
+    if (!PyArg_ParseTupleAndKeywords(PyIU_global_0tuple, kwargs,
+                                     "|ii:chained", kwlist,
+                                     &reverse, &all)) {
+        return NULL;
     }
 
     if (!all) {

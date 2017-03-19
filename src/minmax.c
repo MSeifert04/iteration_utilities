@@ -7,12 +7,13 @@ PyIU_MinMax(PyObject *m,
             PyObject *args,
             PyObject *kwargs)
 {
+    static char *kwlist[] = {"key", "default", NULL};
+
     PyObject *sequence, *iterator=NULL, *defaultitem = NULL, *keyfunc = NULL;
     PyObject *item1 = NULL, *item2 = NULL, *val1 = NULL, *val2 = NULL;
     PyObject *maxitem = NULL, *maxval = NULL, *minitem = NULL, *minval = NULL;
     PyObject *temp = NULL, *resulttuple = NULL;
     PyObject *funcargs=NULL;
-    Py_ssize_t nkwargs = 0;
     int cmp;
     const int positional = PyTuple_Size(args) > 1;
 
@@ -21,29 +22,18 @@ PyIU_MinMax(PyObject *m,
     } else if (!PyArg_UnpackTuple(args, "minmax", 1, 1, &sequence)) {
         return NULL;
     }
-    if (kwargs != NULL && PyDict_Check(kwargs) && PyDict_Size(kwargs)) {
 
-        keyfunc = PyDict_GetItemString(kwargs, "key");
-        if (keyfunc != NULL) {
-            nkwargs++;
-            if (keyfunc == Py_None) {
-                keyfunc = NULL;
-            }
-            Py_INCREF(keyfunc);
-        }
-
-        defaultitem = PyDict_GetItemString(kwargs, "default");
-        if (defaultitem != NULL) {
-            nkwargs++;
-            Py_INCREF(defaultitem);
-        }
-
-        if (PyDict_Size(kwargs) - nkwargs != 0) {
-            PyErr_Format(PyExc_TypeError,
-                         "minmax got an unexpected keyword argument");
-            goto Fail;
-        }
+    if (!PyArg_ParseTupleAndKeywords(PyIU_global_0tuple, kwargs,
+                                     "|OO:minmax", kwlist,
+                                     &keyfunc, &defaultitem)) {
+        return NULL;
     }
+
+    if (keyfunc == Py_None) {
+        keyfunc = NULL;
+    }
+    Py_XINCREF(keyfunc);
+
     if (positional && defaultitem != NULL) {
         PyErr_Format(PyExc_TypeError,
                      "Cannot specify a default for minmax with multiple "

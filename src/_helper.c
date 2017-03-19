@@ -96,6 +96,7 @@
 
 static PyObject *PyIU_global_one = NULL;
 static PyObject *PyIU_global_two = NULL;
+static PyObject *PyIU_global_0tuple = NULL;
 
 /******************************************************************************
  * Create a new tuple containing iterators for the input-tuple.
