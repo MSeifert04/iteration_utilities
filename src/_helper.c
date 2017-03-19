@@ -98,6 +98,34 @@ static PyObject *PyIU_global_one = NULL;
 static PyObject *PyIU_global_two = NULL;
 
 /******************************************************************************
+ * Create a new tuple containing iterators for the input-tuple.
+ *****************************************************************************/
+
+PyObject *
+PyUI_CreateIteratorTuple(PyObject *tuple)
+{
+    PyObject *newtuple;
+    Py_ssize_t i;
+    Py_ssize_t tuplesize = PyTuple_GET_SIZE(tuple);
+
+    newtuple = PyTuple_New(tuplesize);
+    if (newtuple == NULL) {
+        return NULL;
+    }
+
+    for (i = 0 ; i < tuplesize ; i++) {
+        PyObject *iterator = PyObject_GetIter(PyTuple_GET_ITEM(tuple, i));
+        if (iterator == NULL) {
+            Py_DECREF(newtuple);
+            return NULL;
+        }
+        PyTuple_SET_ITEM(newtuple, i, iterator);
+    }
+
+    return newtuple;
+}
+
+/******************************************************************************
  * Create a new reversed tuple from another tuple.
  *****************************************************************************/
 
