@@ -227,9 +227,21 @@ def test_seen_repr1():
     s = Seen()
     s.contains_add([s])
     if iteration_utilities.EQ_PY2:
-        assert repr(s) == 'Seen(set([]), seenlist=[[Seen(...)]])'
+        assert repr(s) == 'iteration_utilities.Seen(set([]), seenlist=[[...]])'
     else:
-        assert repr(s) == 'Seen(set(), seenlist=[[Seen(...)]])'
+        assert repr(s) == 'iteration_utilities.Seen(set(), seenlist=[[...]])'
+
+
+@memory_leak_decorator(collect=True, offset=1)
+def test_seen_repr2():
+    # Check that the representation is class name aware
+    class Fun(Seen):
+        pass
+
+    assert 'Fun' in repr(Fun())
+    assert 'Fun' in repr(Fun({T(1)}))
+    assert 'Fun' in repr(Fun(set(), []))
+    assert 'Fun' in repr(Fun(set(), [T(1)]))
 
 
 @memory_leak_decorator()

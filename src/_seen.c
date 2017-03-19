@@ -155,15 +155,16 @@ seen_repr(PyIUObject_Seen *self)
 
     ok = Py_ReprEnter((PyObject*)self);
     if (ok != 0) {
-        return ok > 0 ? PyUnicode_FromString("Seen(...)") : NULL;
+        return ok > 0 ? PyUnicode_FromString("...") : NULL;
     }
 
     if (self->seenlist != NULL && PyList_Size(self->seenlist) > 0) {
-        repr = PyUnicode_FromFormat("Seen(%R, seenlist=%R)",
+        repr = PyUnicode_FromFormat("%s(%R, seenlist=%R)",
+                                    Py_TYPE(self)->tp_name,
                                     self->seenset, self->seenlist);
     } else {
-        repr = PyUnicode_FromFormat("Seen(%R)",
-                                    self->seenset);
+        repr = PyUnicode_FromFormat("%s(%R)",
+                                    Py_TYPE(self)->tp_name, self->seenset);
     }
 
     Py_ReprLeave((PyObject *)self);
@@ -188,7 +189,7 @@ seen_richcompare(PyObject *v,
         case Py_NE: break;
         default: Py_RETURN_NOTIMPLEMENTED;
     }
-    if (!PyIUSeen_CheckExact(v) || !(PyIUSeen_CheckExact(w))) {
+    if (!PyIUSeen_Check(v) || !(PyIUSeen_Check(w))) {
         PyErr_Format(PyExc_TypeError,
                      "`Seen` instances can only compared to other `Seen` instances.");
         return NULL;
@@ -403,7 +404,7 @@ A simple example::\n\
     >>> x.contains_add(10)\n\
     True\n\
     >>> x  #doctest: +SKIP\n\
-    Seen({10})");
+    iteration_utilities.Seen({10})");
 
 /******************************************************************************
  * Methods
@@ -469,14 +470,14 @@ This class adds each item after `contains_add` call but also supports normal\n\
     >>> x.contains_add(2)\n\
     True\n\
     >>> x  # doctest: +SKIP\n\
-    Seen({2})\n\
+    iteration_utilities.Seen({2})\n\
     \n\
     >>> x.contains_add([1, 2])\n\
     False\n\
     >>> [1, 2] in x\n\
     True\n\
     >>> x  # doctest: +SKIP\n\
-    Seen({2}, unhashable=[[1, 2]])\n\
+    iteration_utilities.Seen({2}, unhashable=[[1, 2]])\n\
 \n\
 This class does only support ``in``, ``==``, ``!=`` and ``len``.\n\
 It is mostly included because it unified the code in `duplicates`,\n\

@@ -40,11 +40,11 @@ itemidxkey_new(PyTypeObject *type,
                                      &item, &idx, &key)) {
         return NULL;
     }
-    if (PyIU_ItemIdxKey_CheckExact(item)) {
+    if (PyIU_ItemIdxKey_Check(item)) {
         PyErr_Format(PyExc_TypeError, "cannot use `ItemIdxKey` instance as `item`.");
         return NULL;
     }
-    if (key != NULL && PyIU_ItemIdxKey_CheckExact(key)) {
+    if (key != NULL && PyIU_ItemIdxKey_Check(key)) {
         PyErr_Format(PyExc_TypeError, "cannot use `ItemIdxKey` instance as `key`.");
         return NULL;
     }
@@ -133,14 +133,16 @@ itemidxkey_repr(PyIUObject_ItemIdxKey *self)
 
     ok = Py_ReprEnter((PyObject*)self);
     if (ok != 0) {
-        return ok > 0 ? PyUnicode_FromString("ItemIdxKey(...)") : NULL;
+        return ok > 0 ? PyUnicode_FromString("...") : NULL;
     }
 
     if (self->key == NULL) {
-        repr = PyUnicode_FromFormat("ItemIdxKey(item=%R, idx=%zd)",
+        repr = PyUnicode_FromFormat("%s(item=%R, idx=%zd)",
+                                    Py_TYPE(self)->tp_name,
                                     self->item, self->idx);
     } else {
-        repr = PyUnicode_FromFormat("ItemIdxKey(item=%R, idx=%zd, key=%R)",
+        repr = PyUnicode_FromFormat("%s(item=%R, idx=%zd, key=%R)",
+                                    Py_TYPE(self)->tp_name,
                                     self->item, self->idx, self->key);
     }
     Py_ReprLeave((PyObject *)self);
@@ -272,7 +274,7 @@ itemidxkey_richcompare(PyObject *v,
         default: Py_RETURN_NOTIMPLEMENTED;
     }
     /* only allow ItemIdxKey to be compared. */
-    if (!PyIU_ItemIdxKey_CheckExact(v) || !PyIU_ItemIdxKey_CheckExact(w))
+    if (!PyIU_ItemIdxKey_Check(v) || !PyIU_ItemIdxKey_Check(w))
         Py_RETURN_NOTIMPLEMENTED;
 
     ok = PyIU_ItemIdxKey_Compare(v, w, op);
@@ -305,7 +307,7 @@ itemidxkey_setitem(PyIUObject_ItemIdxKey *self,
     if (o == NULL) {
         PyErr_Format(PyExc_TypeError, "cannot delete `item`.");
         return -1;
-    } else if (PyIU_ItemIdxKey_CheckExact(o)) {
+    } else if (PyIU_ItemIdxKey_Check(o)) {
         PyErr_Format(PyExc_TypeError, "cannot use `ItemIdxKey` instance as `item`.");
         return -1;
     }
@@ -380,7 +382,7 @@ itemidxkey_setkey(PyIUObject_ItemIdxKey *self,
                   PyObject *o,
                   void *closure)
 {
-    if (o != NULL && PyIU_ItemIdxKey_CheckExact(o)) {
+    if (o != NULL && PyIU_ItemIdxKey_Check(o)) {
         PyErr_Format(PyExc_TypeError, "cannot use `ItemIdxKey` instance as `key`.");
         return -1;
     }
