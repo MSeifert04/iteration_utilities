@@ -246,9 +246,7 @@ grouper_setstate(PyIUObject_Grouper *self,
     if (!PyArg_ParseTuple(state, "Oi", &result, &truncate)) {
         return NULL;
     }
-    if (result == Py_None) {
-        result = NULL;
-    }
+    PYIU_NULL_IF_NONE(result);
 
     Py_CLEAR(self->result);
     Py_XINCREF(result);

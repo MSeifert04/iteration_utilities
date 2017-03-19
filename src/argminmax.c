@@ -33,10 +33,7 @@ argminmax(PyObject *m,
              PyDict_GetItemString(kwargs, "default"))) {
         defaultisset = 1;
     }
-
-    if (keyfunc == Py_None) {
-        keyfunc = NULL;
-    }
+    PYIU_NULL_IF_NONE(keyfunc);
     Py_XINCREF(keyfunc);
 
     if (keyfunc != NULL) {

@@ -141,9 +141,7 @@ merge_new(PyTypeObject *type,
 
     reverse = reverse ? Py_GT : Py_LT;
 
-    if (keyfunc == Py_None) {
-        keyfunc = NULL;
-    }
+    PYIU_NULL_IF_NONE(keyfunc);
     Py_XINCREF(keyfunc);
 
     /* Create and fill struct */
@@ -291,7 +289,7 @@ merge_next(PyIUObject_Merge *self)
     PyIUObject_ItemIdxKey *next;
 
     /* No current then we create one. */
-    if (self->current == NULL || self->current == Py_None) {
+    if (self->current == NULL) {
         if (merge_init_current(self) < 0) {
             return NULL;
         }
@@ -399,6 +397,7 @@ merge_setstate(PyIUObject_Merge *self,
                           &keyfunc, &reverse, &current, &numactive)) {
         return NULL;
     }
+    PYIU_NULL_IF_NONE(current);
 
     if (keyfunc != Py_None) {
         funcargs = PyTuple_New(1);
@@ -414,7 +413,7 @@ merge_setstate(PyIUObject_Merge *self,
 
     Py_CLEAR(self->current);
     self->current = current;
-    Py_INCREF(self->current);
+    Py_XINCREF(self->current);
 
     self->numactive = numactive;
     self->reverse = reverse;
@@ -430,7 +429,7 @@ static PyObject *
 merge_lengthhint(PyIUObject_Merge *self)
 {
     Py_ssize_t i, len = 0;
-    if (self->current == NULL || self->current == Py_None) {
+    if (self->current == NULL) {
         for (i=0 ; i<PyTuple_Size(self->iteratortuple) ; i++) {
             len = len + PyObject_LengthHint(PyTuple_GET_ITEM(self->iteratortuple, i), 0);
         }

@@ -186,14 +186,10 @@ successive_setstate(PyIUObject_Successive *self,
         return NULL;
     }
 
+    PYIU_NULL_IF_NONE(result);
     Py_CLEAR(self->result);
-
-    if (result == Py_None) {
-        self->result = NULL;
-    } else {
-        Py_INCREF(result);
-        self->result = result;
-    }
+    self->result = result;
+    Py_XINCREF(result);
 
     Py_RETURN_NONE;
 }

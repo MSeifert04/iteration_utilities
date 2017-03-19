@@ -29,9 +29,7 @@ PyIU_MinMax(PyObject *m,
         return NULL;
     }
 
-    if (keyfunc == Py_None) {
-        keyfunc = NULL;
-    }
+    PYIU_NULL_IF_NONE(keyfunc);
     Py_XINCREF(keyfunc);
 
     if (positional && defaultitem != NULL) {

@@ -41,9 +41,8 @@ duplicates_new(PyTypeObject *type,
                                      &iterable, &key)) {
         goto Fail;
     }
-    if (key == Py_None) {
-        key = NULL;
-    }
+    PYIU_NULL_IF_NONE(key);
+
     if (key != NULL) {
         funcargs = PyTuple_New(1);
         if (funcargs == NULL) {

@@ -36,9 +36,8 @@ uniquejust_new(PyTypeObject *type,
     }
 
     /* Create and fill struct */
-    if (keyfunc == Py_None) {
-        keyfunc = NULL;
-    }
+    PYIU_NULL_IF_NONE(keyfunc);
+
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
         goto Fail;

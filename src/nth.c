@@ -98,6 +98,10 @@ nth_call(PyIUObject_Nth *self,
         return NULL;
     }
 
+    if (func == (PyObject *)&PyBool_Type) {
+        func = Py_None;
+    }
+
     if (retpred && retidx) {
         PyErr_Format(PyExc_ValueError,
                      "can only specify `retpred` or `retidx`.");
@@ -146,10 +150,10 @@ nth_call(PyIUObject_Nth *self,
             idx++;
             continue;
 
-        /* If "None" or "bool" is given as predicate we don't need to call the
-           function explicitly.
+        /* If "None" (or "bool") is given as predicate we don't need to call
+           the function explicitly.
            */
-        } else if (func == Py_None || func == (PyObject *)&PyBool_Type) {
+        } else if (func == Py_None) {
             ok = PyObject_IsTrue(item);
 
         /* Otherwise call the function.  */
@@ -298,6 +302,9 @@ default : any type, optional\n\
 \n\
 pred : callable, optional\n\
     If given return the nth item for which ``pred(item)`` is ``True``.\n\
+    \n\
+    .. note::\n\
+       ``pred=None`` is equivalent to ``pred=bool``.\n\
 \n\
 truthy : bool, optional\n\
     If ``False`` search for the nth item for which ``pred(item)`` is ``False``.\n\

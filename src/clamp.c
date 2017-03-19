@@ -36,12 +36,8 @@ clamp_new(PyTypeObject *type,
                                      &iterable, &low, &high, &inclusive, &remove)) {
         goto Fail;
     }
-    if (low == Py_None) {
-        low = NULL;
-    }
-    if (high == Py_None) {
-        high = NULL;
-    }
+    PYIU_NULL_IF_NONE(low);
+    PYIU_NULL_IF_NONE(high);
 
     /* Create and fill struct */
     iterator = PyObject_GetIter(iterable);

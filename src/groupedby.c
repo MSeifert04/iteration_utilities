@@ -34,9 +34,8 @@ PyIU_Groupby(PyObject *m,
         goto Fail;
     }
 
-    if (reduce == Py_None) {
-        reduce = NULL;
-    }
+    PYIU_NULL_IF_NONE(reduce);
+    PYIU_NULL_IF_NONE(key2);
 
     if (reduce == NULL && reducestart != NULL) {
         PyErr_Format(PyExc_TypeError,
@@ -76,7 +75,7 @@ PyIU_Groupby(PyObject *m,
         }
 
         /* Calculate the value for the dictionary (keep).  */
-        if (key2 == NULL || key2 == Py_None) {
+        if (key2 == NULL) {
             keep = item;
         } else {
             /* We use the same item again to calculate the keep so we don't need

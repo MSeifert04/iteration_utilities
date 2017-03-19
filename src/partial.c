@@ -662,12 +662,8 @@ partial_setstate(PyIUObject_Partial *self, PyObject *state)
     }
 
     Py_INCREF(fn);
-    if (dict == Py_None) {
-        dict = NULL;
-    }
-    else {
-        Py_INCREF(dict);
-    }
+    PYIU_NULL_IF_NONE(dict);
+    Py_XINCREF(dict);
 
     Py_CLEAR(self->fn);
     Py_CLEAR(self->args);
