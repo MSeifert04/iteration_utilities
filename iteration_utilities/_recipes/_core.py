@@ -368,7 +368,7 @@ def random_combination(iterable, r, replacement=False):
     pool = tuple(iterable)
     n = len(pool)
     if replacement:
-        indices = sorted(randrange(n) for i in range(r))
+        indices = sorted(randrange(n) for _ in range(r))
     else:
         indices = sorted(sample(range(n), r))
     return tuple(pool[i] for i in indices)

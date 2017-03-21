@@ -38,4 +38,4 @@ script:
   - coverage run --source=iteration_utilities setup.py test
 
 after_success:
-  coveralls
+  - coveralls

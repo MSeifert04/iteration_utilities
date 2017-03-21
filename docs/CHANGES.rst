@@ -2,8 +2,13 @@ Changelog for "iteration_utilities"
 -----------------------------------
 
 
-Version 0.4.1 or 0.5.0 (unreleased)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Version 0.4.1 (unreleased)
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- removed **unused** ``key`` parameter from ``combinations_from_relations``.
+
+- replaced ``Iterable.as_string`` parameter ``seperaror`` (sic!) by
+  ``seperator``.
 
 
 Version 0.4.0 (2017-03-20)

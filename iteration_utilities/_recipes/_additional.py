@@ -76,7 +76,7 @@ def argsorted(iterable, key=None, reverse=False):
                                  key=key, reverse=reverse)]
 
 
-def combinations_from_relations(dictionary, r, key=None):
+def combinations_from_relations(dictionary, r):
     """Yield combinations where only one item (or None) of each equivalence
     class is present.
 
