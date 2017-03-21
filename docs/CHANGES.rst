@@ -5,7 +5,7 @@ Changelog for "iteration_utilities"
 Version 0.4.1 (unreleased)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- removed unused parameter ``key`` from ``combinations_from_relations``.
+- removed **unused** ``key`` parameter from ``combinations_from_relations``.
 
 - replaced ``Iterable.as_string`` parameter ``seperaror`` (sic!) by
   ``seperator``.
