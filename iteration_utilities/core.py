@@ -71,7 +71,7 @@ class _Base(object):
     """Base class for method definitions that are shared by `Iterable` and
     `InfiniteIterable`.
     """
-    __slots__ = ('_iterable')
+    __slots__ = ('_iterable',)
 
     def __init__(self, iterable):
         self._iterable = iterable
@@ -435,11 +435,11 @@ class _Base(object):
         >>> Iterable(lst).deepflatten().as_list()
         [1, 2, 3, 1, 2, 3, 1, 2, 3]
 
-        >>> Iterable(lst).deepflatten(1, (list), (str)).as_list()
+        >>> Iterable(lst).deepflatten(1, list, str).as_list()
         [1, 2, 3, 1, 2, 3, [1, 2, 3]]
 
         >>> Iterable(lst).deepflatten(depth=1,
-        ...                           types=(list), ignore=(str)).as_list()
+        ...                           types=list, ignore=str).as_list()
         [1, 2, 3, 1, 2, 3, [1, 2, 3]]
         """
         return self._call(deepflatten, 0, depth=depth, types=types,
@@ -1278,7 +1278,7 @@ class Iterable(_Base):
     .. warning::
        These methods are (obviously) not avaiable for `InfiniteIterable`!
     """
-    __slots__ = ('_iterable')
+    __slots__ = ('_iterable',)
 
     if GE_PY34:
         def __length_hint__(self):
@@ -1389,7 +1389,7 @@ class Iterable(_Base):
         """
         return self.as_(Counter)
 
-    def as_string(self, seperaror=''):
+    def as_string(self, seperator=''):
         """Get the iterable as string.
 
         .. warning::
@@ -1410,7 +1410,7 @@ class Iterable(_Base):
         >>> Iterable(range(5)).as_string(' ')
         '0 1 2 3 4'
         """
-        return seperaror.join(map(str, self._iterable))
+        return seperator.join(map(str, self._iterable))
 
     def reversed(self):
         """See :py:func:`python:reversed`.
@@ -2130,11 +2130,11 @@ class InfiniteIterable(_Base):
         See :py:func:`~iteration_utilities.unique_justseen`.
 
     """
-    __slots__ = ('_iterable')
+    __slots__ = ('_iterable',)
 
 
 class ManyIterables(object):
-    __slots__ = ('_iterables')
+    __slots__ = ('_iterables',)
 
     def __init__(self, *iterables):
         """`ManyIterables` stores several `Iterables` and implements methods to
