@@ -1,5 +1,6 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
+import copy
 import pickle
 
 # 3rd party
@@ -190,6 +191,68 @@ def test_deepflatten_failure8():
 
     nothing = object()
     assert next(df, nothing) is nothing
+
+
+@memory_leak_decorator(collect=True)
+def test_deepflatten_failure9():
+    # trying to copy a deepflatten iterator
+    df = deepflatten(toT([1, 2, 3, 4]))
+    with pytest.raises(TypeError):
+        copy.copy(df)
+
+    # The broken behaviour was:
+    # i = deepflatten([toT(range(5))])
+    # advance the iterator so it's one level deep
+    # next(i)
+    # makes a shallow copy (thinks it is one level deep)
+    # j = copy.copy(i)
+    # exhaust the original
+    # list(i)
+    # trying to access the copy segfaults because the one-level deep
+    # item is set to None!
+    # list(j)
+
+
+@memory_leak_decorator(collect=True)
+def test_deepflatten_failure10():
+    # using __setstate__ to pass in an invalid iteratorlist
+    df = deepflatten(toT([1, 2, 3, 4]))
+    with pytest.raises(TypeError) as exc:
+        df.__setstate__(({'a', 'b', 'c'}, 0, 0))
+    assert 'iteratorlist' in str(exc)
+    # Broken behaviour was:
+    # i = deepflatten([list(range(5))])
+    # state = ({'a', 'b', 'c'}, 0, 0)
+    # i.__setstate__(state)
+    # next(i)
+
+
+@memory_leak_decorator(collect=True)
+def test_deepflatten_failure11():
+    # using __setstate__ to pass in an invalid iteratorlist (not iterator
+    # inside)
+    df = deepflatten(toT([1, 2, 3, 4]))
+    with pytest.raises(TypeError) as exc:
+        df.__setstate__(([set(toT([1, 2, 3, 4]))], 0, 0))
+    assert 'iteratorlist' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_deepflatten_failure12():
+    # using __setstate__ to pass in an invalid currentdepth (too low)
+    df = deepflatten(toT([1, 2, 3, 4]))
+    with pytest.raises(ValueError) as exc:
+        df.__setstate__(([iter(toT([1, 2, 3, 4]))], -3, 0))
+    assert 'currentdepth' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_deepflatten_failure13():
+    # using __setstate__ to pass in an invalid currentdepth (too high)
+    df = deepflatten(toT([1, 2, 3, 4]))
+    with pytest.raises(ValueError) as exc:
+        df.__setstate__(([iter(toT([1, 2, 3, 4]))], 5, 0))
+    assert 'currentdepth' in str(exc)
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

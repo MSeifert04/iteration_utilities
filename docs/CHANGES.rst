@@ -10,6 +10,13 @@ Version 0.4.1 (unreleased)
 - replaced ``Iterable.as_string`` parameter ``seperaror`` (sic!) by
   ``seperator``.
 
+- added some verification in ``deepflatten.__setstate__`` so it can't be used
+  to cause segmentation faults.
+
+- prevent ``copy.copy`` from copying ``deepflatten`` instances (for now),
+  because shallow copies could behave in unexpected ways (including crashes).
+  ``deepcopy`` instances can still be pickled or deep copied.
+
 
 Version 0.4.0 (2017-03-20)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
