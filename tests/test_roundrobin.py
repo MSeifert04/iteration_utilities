@@ -1,5 +1,6 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
+import itertools
 import operator
 import pickle
 
@@ -10,8 +11,9 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_leak import memory_leak_decorator
+import helper_funcs
 from helper_cls import T, toT, failingTIterator
+from helper_leak import memory_leak_decorator
 
 
 roundrobin = iteration_utilities.roundrobin
@@ -98,6 +100,72 @@ def test_roundrobin_failure5():
     with pytest.raises(TypeError) as exc:
         next(rr)
     assert 'eq expected 2 arguments, got 1' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_roundrobin_copy1():
+    helper_funcs.iterator_copy(roundrobin([T(1), T(2), T(3), T(4)]))
+
+
+@memory_leak_decorator(collect=True)
+def test_roundrobin_failure_setstate1():
+    # setstate active < 0
+    rr = roundrobin([T(1), T(2), T(3), T(4)])
+    with pytest.raises(ValueError):
+        rr.__setstate__((1, -1))
+
+
+@memory_leak_decorator(collect=True)
+def test_roundrobin_failure_setstate2():
+    # setstate numactive < 0
+    rr = roundrobin([T(1), T(2), T(3), T(4)])
+    with pytest.raises(ValueError):
+        rr.__setstate__((-1, 0))
+
+
+@memory_leak_decorator(collect=True)
+def test_roundrobin_failure_setstate3():
+    # setstate numactive <= active
+    rr = roundrobin([T(1), T(2), T(3), T(4)])
+    with pytest.raises(ValueError):
+        rr.__setstate__((1, 1))
+
+
+@memory_leak_decorator(collect=True)
+def test_roundrobin_failure_setstate4():
+    # setstate numactive <= active (numactive = 0)
+    rr = roundrobin()
+    with pytest.raises(ValueError):
+        rr.__setstate__((0, 1))
+
+
+@memory_leak_decorator(collect=True)
+def test_roundrobin_failure_setstate5():
+    # setstate numactive > len(iteratortuple)
+    rr = roundrobin([T(1), T(2), T(3), T(4)])
+    with pytest.raises(ValueError):
+        rr.__setstate__((2, 1))
+
+
+@memory_leak_decorator(collect=True)
+def test_roundrobin_failure_setstate6():
+    # setstate numactive > len(iteratortuple) (after exhausting one iterable)
+    rr = roundrobin([T(1)], [T(1), T(2), T(3), T(4)])
+    assert [i for i in itertools.islice(rr, 3)] == toT([1, 1, 2])
+    with pytest.raises(ValueError):
+        rr.__setstate__((2, 1))
+
+
+@memory_leak_decorator(collect=True)
+def test_roundrobin_failure_setstate7():
+    helper_funcs.iterator_setstate_list_fail(
+            roundrobin([T(1)], [T(1), T(2), T(3), T(4)]))
+
+
+@memory_leak_decorator(collect=True)
+def test_roundrobin_failure_setstate8():
+    helper_funcs.iterator_setstate_empty_fail(
+            roundrobin([T(1)], [T(1), T(2), T(3), T(4)]))
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

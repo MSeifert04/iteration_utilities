@@ -163,12 +163,20 @@ successive_next(PyIUObject_Successive *self)
 static PyObject *
 successive_reduce(PyIUObject_Successive *self)
 {
+    /* Seperate cases depending on the status of "result". We use and modify
+       it in next. It is copied in next when the refcount isn't 1, so we
+       don't need to copy it for reduce. However using "reduce" a lot will
+       definetly slow the function down. But it does not matter if the slowdown
+       is in "next" or "reduce". :)
+       */
     if (self->result == NULL) {
         return Py_BuildValue("O(On)", Py_TYPE(self),
-                             self->iterator, self->times);
+                             self->iterator,
+                             self->times);
     } else {
         return Py_BuildValue("O(On)(O)", Py_TYPE(self),
-                             self->iterator, self->times,
+                             self->iterator,
+                             self->times,
                              self->result);
     }
 }
@@ -182,11 +190,46 @@ successive_setstate(PyIUObject_Successive *self,
                     PyObject *state)
 {
     PyObject *result;
-    if (!PyArg_ParseTuple(state, "O", &result)) {
+
+    if (!PyTuple_Check(state)) {
+        PyErr_Format(PyExc_TypeError,
+                     "`%.200s.__setstate__` expected a `tuple`-like argument"
+                     ", got `%.200s` instead.",
+                     Py_TYPE(self)->tp_name, Py_TYPE(state)->tp_name);
         return NULL;
     }
 
-    PYIU_NULL_IF_NONE(result);
+    if (!PyArg_ParseTuple(state, "O:successive.__setstate__", &result)) {
+        return NULL;
+    }
+
+    /* The result must be a tuple, otherwise we could risk segfaults (because
+       "next" use PyTuple_GET_ITEM). It also needs to have the same size as
+       "self->times" otherwise the for-loop in "next" could go beyond the
+       tuple-size (again risking undefined behaviour).
+       */
+    if (!PyTuple_CheckExact(result)) {
+        PyErr_Format(PyExc_TypeError,
+                     "`%.200s.__setstate__` expected a `tuple` instance as "
+                     "first argument in the `state`, got %.200s.",
+                     Py_TYPE(self)->tp_name, Py_TYPE(result)->tp_name);
+        return NULL;
+    }
+    if (PyTuple_GET_SIZE(result) != self->times) {
+        PyErr_Format(PyExc_ValueError,
+                     "`%.200s.__setstate__` expected that the first argument "
+                     "in the `state`, satisfies `len(firstarg) == self->times`. "
+                     "But `%zd != %zd`.",
+                     Py_TYPE(self)->tp_name,
+                     PyTuple_GET_SIZE(result),
+                     self->times);
+        return NULL;
+    }
+
+    /* No need to  copy the "result". If it has a refcount different from
+       1 it will be copied in "next" before it is mutated.
+       */
+
     Py_CLEAR(self->result);
     self->result = result;
     Py_XINCREF(result);
@@ -225,8 +268,8 @@ static PyMethodDef successive_methods[] = {
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
     {"__length_hint__", (PyCFunction)successive_lengthhint, METH_NOARGS, PYIU_lenhint_doc},
 #endif
-    {"__reduce__", (PyCFunction)successive_reduce, METH_NOARGS, PYIU_reduce_doc},
-    {"__setstate__", (PyCFunction)successive_setstate, METH_O, PYIU_setstate_doc},
+    {"__reduce__",   (PyCFunction)successive_reduce,   METH_NOARGS, PYIU_reduce_doc},
+    {"__setstate__", (PyCFunction)successive_setstate, METH_O,      PYIU_setstate_doc},
     {NULL, NULL}
 };
 

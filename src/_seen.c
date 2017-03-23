@@ -372,7 +372,7 @@ seen_containsadd(PyObject *self,
  * Docstring
  *****************************************************************************/
 
-PyDoc_STRVAR(seen_containsadd_doc, "contains_add(o)\n\
+PyDoc_STRVAR(seen_containsadd_doc, "contains_add(o, /)\n\
 --\n\
 \n\
 Check if `o` is already contained in `self` and return the result.\n\

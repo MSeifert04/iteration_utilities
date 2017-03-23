@@ -42,6 +42,26 @@ def test_itemidxkey_repr3():
 
 
 @memory_leak_decorator(collect=True)
+def test_itemidxkey_repr4():
+    # Make sure the representation does not segfault if the representation of
+    # the item deletes the "key"...
+    iik = ItemIdxKey([10, 11], 2, [50, 100])
+
+    class DeleteKey(object):
+        def __repr__(self):
+            del iik.key
+            return 'DeleteKey()'
+
+    iik.item = DeleteKey()
+    iik
+    # asserting the representation isn't really the point, the point of this
+    # test is that the representation doesn't segfault. However making sure the
+    # representation is like that seems a "good idea".
+    assert repr(iik) == ('iteration_utilities.ItemIdxKey(item=DeleteKey(), '
+                         'idx=2, key=[50, 100])')
+
+
+@memory_leak_decorator(collect=True)
 def test_itemidxkey_failure1():
     # Too few arguments
     with pytest.raises(TypeError):

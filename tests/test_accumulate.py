@@ -10,8 +10,9 @@ import pytest
 import iteration_utilities
 
 # Test helper
+from helper_cls import T, toT, failingTIterator
+from helper_funcs import iterator_copy
 from helper_leak import memory_leak_decorator
-from helper_cls import T, failingTIterator
 
 
 accumulate = iteration_utilities.accumulate
@@ -95,6 +96,11 @@ def test_accumulate_failure6():
     # Too few arguments
     with pytest.raises(TypeError):
         accumulate()
+
+
+@memory_leak_decorator(collect=True)
+def test_accumulate_copy1():
+    iterator_copy(accumulate(toT([1, 2, 3])))
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

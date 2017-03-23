@@ -10,8 +10,9 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_leak import memory_leak_decorator
+import helper_funcs
 from helper_cls import T, toT, failingTIterator
+from helper_leak import memory_leak_decorator
 
 
 sideeffects = iteration_utilities.sideeffects
@@ -155,6 +156,79 @@ def test_sideeffects_failure8():
     # Too few arguments
     with pytest.raises(TypeError):
         sideeffects()
+
+
+@memory_leak_decorator(collect=True)
+def test_sideeffects_copy1():
+    helper_funcs.iterator_copy(sideeffects(toT([1, 2, 3, 4]), return_None))
+
+
+@memory_leak_decorator(collect=True)
+def test_sideeffects_failure_setstate1():
+    # If times==0 then the second argument must be None
+    se = sideeffects([T(1), T(2), T(3), T(4)], return_None)
+    with pytest.raises(TypeError):
+        se.__setstate__((0, ()))
+
+
+@memory_leak_decorator(collect=True)
+def test_sideeffects_failure_setstate2():
+    # The first argument must be smaller than the length of the second
+    se = sideeffects([T(1), T(2), T(3), T(4)], return_None, 1)
+    with pytest.raises(ValueError):
+        se.__setstate__((1, (T(1), )))
+
+
+@memory_leak_decorator(collect=True)
+def test_sideeffects_failure_setstate3():
+    # The first argument must not be smaller than zero
+    se = sideeffects([T(1), T(2), T(3), T(4)], return_None, 1)
+    with pytest.raises(ValueError):
+        se.__setstate__((-1, (T(1), )))
+
+
+@memory_leak_decorator(collect=True)
+def test_sideeffects_failure_setstate4():
+    # The length of the second argument must be equal to the "times".
+    se = sideeffects([T(1), T(2), T(3), T(4)], return_None, 1)
+    with pytest.raises(ValueError):
+        se.__setstate__((1, (T(1), T(2))))
+
+
+@memory_leak_decorator(collect=True)
+def test_sideeffects_failure_setstate5():
+    # If the second argument is None then the times must be zero
+    se = sideeffects([T(1), T(2), T(3), T(4)], return_None, 1)
+    with pytest.raises(TypeError):
+        se.__setstate__((0, None))
+
+
+@memory_leak_decorator(collect=True)
+def test_sideeffects_failure_setstate6():
+    # If the second argument is None then the first argument must be zero
+    se = sideeffects([T(1), T(2), T(3), T(4)], return_None, 0)
+    with pytest.raises(TypeError):
+        se.__setstate__((1, None))
+
+
+@memory_leak_decorator(collect=True)
+def test_sideeffects_failure_setstate7():
+    # The second argument must be a tuple or None
+    se = sideeffects([T(1), T(2), T(3), T(4)], return_None, 2)
+    with pytest.raises(TypeError):
+        se.__setstate__((1, [T(1), T(2)]))
+
+
+@memory_leak_decorator(collect=True)
+def test_sideeffects_failure_setstate8():
+    helper_funcs.iterator_setstate_list_fail(
+            sideeffects([T(1), T(2), T(3), T(4)], return_None, 2))
+
+
+@memory_leak_decorator(collect=True)
+def test_sideeffects_failure_setstate9():
+    helper_funcs.iterator_setstate_empty_fail(
+            sideeffects([T(1), T(2), T(3), T(4)], return_None, 2))
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

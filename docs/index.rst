@@ -71,6 +71,7 @@ Contents:
    callbacks
    operators
    tipps
+   copy_iterators
    misc
    api/cls
    api/core

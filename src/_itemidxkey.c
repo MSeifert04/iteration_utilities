@@ -96,6 +96,31 @@ PyIU_ItemIdxKey_FromC(PyObject *item,
 }
 
 /******************************************************************************
+ *
+ * Copy (only from C code)
+ *
+ *****************************************************************************/
+
+PyObject *
+PyIU_ItemIdxKey_Copy(PyObject *iik)
+{
+    PyIUObject_ItemIdxKey *n;
+    PyIUObject_ItemIdxKey *o = (PyIUObject_ItemIdxKey *)iik;
+
+    n = PyObject_GC_New(PyIUObject_ItemIdxKey, &PyIUType_ItemIdxKey);
+    if (n == NULL) {
+        return NULL;
+    }
+    Py_INCREF(o->item);
+    n->item = o->item;
+    n->idx = o->idx;
+    Py_XINCREF(o->key);
+    n->key = o->key;
+    PyObject_GC_Track(n);
+    return (PyObject *)n;
+}
+
+/******************************************************************************
  * Destructor
  *****************************************************************************/
 
@@ -141,9 +166,16 @@ itemidxkey_repr(PyIUObject_ItemIdxKey *self)
                                     Py_TYPE(self)->tp_name,
                                     self->item, self->idx);
     } else {
+        /* The representation of the item could modify/delete the key and then
+           the representation of the key could segfault. Better to make the key
+           undeletable as long as PyUnicode_FromFormat runs.
+           */
+        PyObject *tmpkey = self->key;
+        Py_INCREF(tmpkey);
         repr = PyUnicode_FromFormat("%s(item=%R, idx=%zd, key=%R)",
                                     Py_TYPE(self)->tp_name,
-                                    self->item, self->idx, self->key);
+                                    self->item, self->idx, tmpkey);
+        Py_DECREF(tmpkey);
     }
     Py_ReprLeave((PyObject *)self);
     return repr;
@@ -414,29 +446,9 @@ itemidxkey_reduce(PyIUObject_ItemIdxKey *self)
         return Py_BuildValue("O(On)", Py_TYPE(self),
                              self->item, self->idx);
     } else {
-        return Py_BuildValue("O(On)(O)", Py_TYPE(self),
+        return Py_BuildValue("O(OnO)", Py_TYPE(self),
                              self->item, self->idx, self->key);
     }
-}
-
-/******************************************************************************
- * Setstate
- *****************************************************************************/
-
-static PyObject *
-itemidxkey_setstate(PyIUObject_ItemIdxKey *self,
-                    PyObject *state)
-{
-    PyObject *key;
-    if (!PyArg_ParseTuple(state, "O", &key)) {
-        return NULL;
-    }
-
-    Py_CLEAR(self->key);
-    self->key = key;
-    Py_INCREF(self->key);
-
-    Py_RETURN_NONE;
 }
 
 /******************************************************************************
@@ -445,7 +457,6 @@ itemidxkey_setstate(PyIUObject_ItemIdxKey *self,
 
 static PyMethodDef itemidxkey_methods[] = {
     {"__reduce__",   (PyCFunction)itemidxkey_reduce,   METH_NOARGS, PYIU_reduce_doc},
-    {"__setstate__", (PyCFunction)itemidxkey_setstate, METH_O,      PYIU_setstate_doc},
     {NULL, NULL}
 };
 

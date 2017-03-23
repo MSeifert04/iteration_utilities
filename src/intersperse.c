@@ -89,10 +89,8 @@ intersperse_traverse(PyIUObject_Intersperse *self,
 static PyObject *
 intersperse_next(PyIUObject_Intersperse *self)
 {
-    PyObject *item;
-
     if (self->nextitem == NULL) {
-        item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator);
+        PyObject *item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator);
         if (item == NULL) {
             return NULL;
         }
@@ -109,7 +107,7 @@ intersperse_next(PyIUObject_Intersperse *self)
 
     /* There was a next item, return it and reset nextitem. */
     } else {
-        item = self->nextitem;
+        PyObject *item = self->nextitem;
         self->nextitem = NULL;
         return item;
     }
@@ -122,6 +120,12 @@ intersperse_next(PyIUObject_Intersperse *self)
 static PyObject *
 intersperse_reduce(PyIUObject_Intersperse *self)
 {
+    /* Seperate cases depending on nextitem == NULL because otherwise "None"
+       would be ambiguous. It could mean that we did not had a next item or
+       that the next item was None.
+       Better to make an "if" than to introduce another variable depending on
+       nextitem == NULL.
+       */
     PyObject *value;
     if (self->nextitem == NULL) {
         value = Py_BuildValue("O(OO)(i)", Py_TYPE(self),
@@ -129,11 +133,11 @@ intersperse_reduce(PyIUObject_Intersperse *self)
                               self->filler,
                               self->started);
     } else {
-        value = Py_BuildValue("O(OO)(Oi)", Py_TYPE(self),
+        value = Py_BuildValue("O(OO)(iO)", Py_TYPE(self),
                               self->iterator,
                               self->filler,
-                              self->nextitem,
-                              self->started);
+                              self->started,
+                              self->nextitem);
     }
     return value;
 }
@@ -147,23 +151,42 @@ intersperse_setstate(PyIUObject_Intersperse *self,
                      PyObject *state)
 {
     int started;
-    PyObject *nextitem;
+    PyObject *nextitem = NULL;
 
-    if (PyTuple_GET_SIZE(state) == 1) {
-        if (!PyArg_ParseTuple(state, "i", &started)) {
-            return NULL;
-        }
-        self->started = started;
-    } else {
-        if (!PyArg_ParseTuple(state, "Oi", &nextitem, &started)) {
-            return NULL;
-        }
-        self->started = started;
-
-        Py_CLEAR(self->nextitem);
-        self->nextitem = nextitem;
-        Py_INCREF(self->nextitem);
+    if (!PyTuple_Check(state)) {
+        PyErr_Format(PyExc_TypeError,
+                     "`%.200s.__setstate__` expected a `tuple`-like argument"
+                     ", got `%.200s` instead.",
+                     Py_TYPE(self)->tp_name, Py_TYPE(state)->tp_name);
+        return NULL;
     }
+
+    if (!PyArg_ParseTuple(state, "i|O:intersperse.__setstate__",
+                          &started, &nextitem)) {
+        return NULL;
+    }
+
+    /* No need to check the type of "next" because any python object is
+       valid.
+
+       However we can make sure that "nextitem == NULL" if "started == 0"
+       because otherwise this would produce an invalid "intersperse" instance.
+       Not a segfault but this comparison isn't really costly.
+       */
+    if (started == 0 && nextitem != NULL) {
+        PyErr_Format(PyExc_ValueError,
+                     "`%.200s.__setstate__` expected that the second argument "
+                     "in the `state` is not given when the first argument is "
+                     "0, got %R.",
+                     Py_TYPE(self)->tp_name, nextitem);
+        return NULL;
+    }
+
+    Py_CLEAR(self->nextitem);
+    self->nextitem = nextitem;
+    Py_XINCREF(self->nextitem);
+
+    self->started = started;
 
     Py_RETURN_NONE;
 }
@@ -199,8 +222,8 @@ static PyMethodDef intersperse_methods[] = {
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
     {"__length_hint__", (PyCFunction)intersperse_lengthhint, METH_NOARGS, PYIU_lenhint_doc},
 #endif
-    {"__reduce__", (PyCFunction)intersperse_reduce, METH_NOARGS, PYIU_reduce_doc},
-    {"__setstate__", (PyCFunction)intersperse_setstate, METH_O, PYIU_setstate_doc},
+    {"__reduce__",   (PyCFunction)intersperse_reduce,   METH_NOARGS, PYIU_reduce_doc},
+    {"__setstate__", (PyCFunction)intersperse_setstate, METH_O,      PYIU_setstate_doc},
     {NULL,              NULL}
 };
 

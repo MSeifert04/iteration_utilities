@@ -10,8 +10,9 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_leak import memory_leak_decorator
+import helper_funcs
 from helper_cls import T, toT, failingTIterator
+from helper_leak import memory_leak_decorator
 
 
 grouper = iteration_utilities.grouper
@@ -184,6 +185,21 @@ def test_grouper_failure6():
         grouper()
     with pytest.raises(TypeError):
         grouper(toT([1, 2, 3, 4]))
+
+
+@memory_leak_decorator(collect=True)
+def test_grouper_copy1():
+    helper_funcs.iterator_copy(grouper(toT(range(10)), 3))
+
+
+@memory_leak_decorator(collect=True)
+def test_grouper_failure_setstate1():
+    helper_funcs.iterator_setstate_list_fail(grouper(toT(range(10)), 3))
+
+
+@memory_leak_decorator(collect=True)
+def test_grouper_failure_setstate2():
+    helper_funcs.iterator_setstate_empty_fail(grouper(toT(range(10)), 3))
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

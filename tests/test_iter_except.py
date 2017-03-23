@@ -10,8 +10,9 @@ import pytest
 import iteration_utilities
 
 # Test helper
+from helper_cls import T, toT, failingTIterator
+from helper_funcs import iterator_copy
 from helper_leak import memory_leak_decorator
-from helper_cls import T
 
 
 iter_except = iteration_utilities.iter_except
@@ -53,6 +54,12 @@ def test_iterexcept_failure2():
     # too few arguments
     with pytest.raises(TypeError):
         iter_except()
+
+
+@memory_leak_decorator(collect=True)
+def test_iterexcept_copy1():
+    dct = {T('a'): T(10)}
+    iterator_copy(iter_except(dct.popitem, KeyError))
 
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,

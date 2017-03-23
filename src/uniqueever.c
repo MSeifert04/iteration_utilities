@@ -168,12 +168,10 @@ Fail:
 static PyObject *
 uniqueever_reduce(PyIUObject_UniqueEver *self)
 {
-    PyObject *value;
-    value = Py_BuildValue("O(OO)(O)", Py_TYPE(self),
-                          self->iterator,
-                          self->key ? self->key : Py_None,
-                          self->seen);
-    return value;
+    return Py_BuildValue("O(OO)(O)", Py_TYPE(self),
+                         self->iterator,
+                         self->key ? self->key : Py_None,
+                         self->seen);
 }
 
 /******************************************************************************
@@ -186,7 +184,26 @@ uniqueever_setstate(PyIUObject_UniqueEver *self,
 {
     PyObject *seen;
 
-    if (!PyArg_ParseTuple(state, "O", &seen)) {
+    if (!PyTuple_Check(state)) {
+        PyErr_Format(PyExc_TypeError,
+                     "`%.200s.__setstate__` expected a `tuple`-like argument"
+                     ", got `%.200s` instead.",
+                     Py_TYPE(self)->tp_name, Py_TYPE(state)->tp_name);
+        return NULL;
+    }
+
+    if (!PyArg_ParseTuple(state, "O:unique_everseen.__setstate__", &seen)) {
+        return NULL;
+    }
+
+    /* object passed in must be an instance of Seen. Otherwise the function
+       calls could result in an segmentation fault.
+       */
+    if (!PyIUSeen_CheckExact(seen)) {
+        PyErr_Format(PyExc_TypeError,
+                     "`%.200s.__setstate__` expected a `Seen` instance as "
+                     "first argument in the `state`, got %.200s.",
+                     Py_TYPE(self)->tp_name, Py_TYPE(seen)->tp_name);
         return NULL;
     }
 

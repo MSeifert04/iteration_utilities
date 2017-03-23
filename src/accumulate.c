@@ -163,6 +163,12 @@ accumulate_next(PyIUObject_Accumulate *self)
 static PyObject *
 accumulate_reduce(PyIUObject_Accumulate *self)
 {
+    /* Seperate cases depending on total == NULL because otherwise "None"
+       would be ambiguous. It could mean that we did not had a start or
+       that the start was None.
+       Better to make an "if" than to introduce another variable depending on
+       total == NULL.
+       */
     if (self->total != NULL) {
         return Py_BuildValue("O(OOO)",
                              Py_TYPE(self),

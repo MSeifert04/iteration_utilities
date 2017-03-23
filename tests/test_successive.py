@@ -10,8 +10,9 @@ import pytest
 import iteration_utilities
 
 # Test helper
+import helper_funcs
+from helper_cls import T, toT, failingTIterator
 from helper_leak import memory_leak_decorator
-from helper_cls import T, failingTIterator
 
 
 successive = iteration_utilities.successive
@@ -87,6 +88,47 @@ def test_successive_failure4():
     # Too few arguments
     with pytest.raises(TypeError):
         successive()
+
+
+@memory_leak_decorator(collect=True)
+def test_successive_copy1():
+    helper_funcs.iterator_copy(successive(toT([1, 2, 3, 4])))
+
+
+@memory_leak_decorator(collect=True)
+def test_successive_failure_setstate1():
+    # first argument must be a tuple
+    suc = successive([T(1), T(2), T(3), T(4)], 2)
+    with pytest.raises(TypeError):
+        suc.__setstate__(([T(1), T(2)], ))
+
+
+@memory_leak_decorator(collect=True)
+def test_successive_failure_setstate2():
+    # length of first argument not equal to times
+    suc = successive([T(1), T(2), T(3), T(4)], 2)
+    with pytest.raises(ValueError):
+        suc.__setstate__(((T(1), ), ))
+
+
+@memory_leak_decorator(collect=True)
+def test_successive_failure_setstate3():
+    # length of first argument not equal to times
+    suc = successive([T(1), T(2), T(3), T(4)], 2)
+    with pytest.raises(ValueError):
+        suc.__setstate__(((T(1), T(2), T(3)), ))
+
+
+@memory_leak_decorator(collect=True)
+def test_successive_failure_setstate4():
+    helper_funcs.iterator_setstate_list_fail(
+            successive([T(1), T(2), T(3), T(4)], 2))
+
+
+@memory_leak_decorator(collect=True)
+def test_successive_failure_setstate5():
+    helper_funcs.iterator_setstate_empty_fail(
+            successive([T(1), T(2), T(3), T(4)], 2))
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

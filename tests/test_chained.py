@@ -9,8 +9,9 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_leak import memory_leak_decorator
+import helper_funcs
 from helper_cls import T as Original_T
+from helper_leak import memory_leak_decorator
 
 
 chained = iteration_utilities.chained
@@ -79,6 +80,16 @@ def test_chained_failure4():
 def test_chained_failure5():
     with pytest.raises(TypeError):  # second func fails
         chained(lambda x: x*2, lambda x: x+1, all=True)(T('a'))
+
+
+@memory_leak_decorator(collect=True)
+def test_chained_failure_setstate1():
+    helper_funcs.iterator_setstate_list_fail(chained(lambda x: x))
+
+
+@memory_leak_decorator(collect=True)
+def test_chained_failure_setstate2():
+    helper_funcs.iterator_setstate_empty_fail(chained(lambda x: x))
 
 
 @memory_leak_decorator(offset=1)

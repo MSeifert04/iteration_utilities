@@ -11,8 +11,9 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_leak import memory_leak_decorator
+import helper_funcs
 from helper_cls import T, toT, failingTIterator
+from helper_leak import memory_leak_decorator
 
 
 merge = iteration_utilities.merge
@@ -235,10 +236,126 @@ def test_merge_failure13():
     assert 'eq expected 2 arguments, got 1' in str(exc)
 
 
+@memory_leak_decorator(collect=True)
+def test_merge_failure_setstate1():
+    # __setstate__ with numactive < 0 fails
+    mg = merge(toT(range(5)), toT(range(3, 10, 2)))
+    with pytest.raises(ValueError):
+        mg.__setstate__((None, 0, None, -1))
+
+
+@memory_leak_decorator(collect=True)
+def test_merge_failure_setstate2():
+    # __setstate__ with numactive > len(iterators) fails
+    mg = merge(toT(range(5)), toT(range(3, 10, 2)))
+    with pytest.raises(ValueError):
+        mg.__setstate__((None, 0, None, 3))
+
+
+@memory_leak_decorator(collect=True)
+def test_merge_failure_setstate3():
+    # __setstate__ with type(current) != tuple
+    mg = merge(toT(range(5)), toT(range(3, 10, 2)))
+    with pytest.raises(TypeError):
+        mg.__setstate__((None, 0, [], 2))
+
+
+@memory_leak_decorator(collect=True)
+def test_merge_failure_setstate4():
+    # __setstate__ with len(current) != len(iteratortuple)
+    from iteration_utilities import ItemIdxKey as IIK
+    mg = merge(toT(range(5)), toT(range(3, 10, 2)))
+    with pytest.raises(ValueError):
+        mg.__setstate__((None, 0, (IIK(-2, 0), ), 2))
+
+
+@memory_leak_decorator(collect=True)
+def test_merge_failure_setstate5():
+    # __setstate__ with current containing non-itemidxkey instances
+    mg = merge(toT(range(5)), toT(range(3, 10, 2)))
+    with pytest.raises(TypeError):
+        mg.__setstate__((None, 0, (1, 2), 2))
+
+
+@memory_leak_decorator(collect=True)
+def test_merge_failure_setstate6():
+    # __setstate__ with current containing itemidxkey with key even though
+    # no key function is given
+    from iteration_utilities import ItemIdxKey as IIK
+    mg = merge(toT(range(5)), toT(range(3, 10, 2)))
+    with pytest.raises(TypeError):
+        mg.__setstate__((None, 0, (IIK(-2, 0), IIK(-1, 1, 2)), 2))
+
+
+@memory_leak_decorator(collect=True)
+def test_merge_failure_setstate7():
+    # __setstate__ with current containing itemidxkey without key even though
+    # a key function is given
+    from iteration_utilities import ItemIdxKey as IIK
+    mg = merge(toT(range(5)), toT(range(3, 10, 2)))
+    with pytest.raises(TypeError):
+        mg.__setstate__((lambda x: x, 0, (IIK(-2, 0), IIK(-1, 1, 2)), 2))
+
+
+@memory_leak_decorator(collect=True)
+def test_merge_failure_setstate8():
+    # __setstate__ with current containing itemidxkey with index that is out
+    # of bounds
+    from iteration_utilities import ItemIdxKey as IIK
+    mg = merge(toT(range(5)), toT(range(3, 10, 2)))
+    with pytest.raises(ValueError):
+        mg.__setstate__((None, 0, (IIK(-2, 0), IIK(-1, 20)), 2))
+
+
+@memory_leak_decorator(collect=True)
+def test_merge_failure_setstate9():
+    helper_funcs.iterator_setstate_list_fail(
+            merge(toT(range(5)), toT(range(3, 10, 2))))
+
+
+@memory_leak_decorator(collect=True)
+def test_merge_failure_setstate10():
+    helper_funcs.iterator_setstate_empty_fail(
+            merge(toT(range(5)), toT(range(3, 10, 2))))
+
+
+@memory_leak_decorator(collect=True)
+def test_merge_copy1():
+    helper_funcs.iterator_copy(merge([T(0)], [T(1), T(2)], [T(2)]))
+
+
+@memory_leak_decorator(collect=True)
+def test_merge_reduce1():
+    # We shouldn't be able to alter the ItemIdxKey instances in the "current"
+    # tuple that is returned from reduce. We could remove or add the key
+    # attribute which would break the comparisons
+    df = merge([T(1), T(2), T(3)], [T(1), T(2), T(3)])
+    next(df)
+    # add a key even though we have no key function
+    df.__reduce__()[2][2][0].key = 10
+    list(df)
+
+
+@memory_leak_decorator(collect=True)
+def test_merge_setstate1():
+    # We shouldn't be able to alter the ItemIdxKey instances in the "current"
+    # tuple that is used to setstate. We could remove or add the key
+    # attribute which would break the comparisons
+    df = merge([T(1), T(2), T(3)], [T(1), T(2), T(3)])
+    next(df)
+    # we roundtrip the state but keep a reference so we can later add a key
+    # even though we have no key function
+    state = df.__reduce__()[2]
+    df.__setstate__(state)
+    state[2][0].key = 10
+    list(df)
+
+
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_merge_pickle1():
+    # normal
     mge = merge([T(0)], [T(1), T(2)], [T(2)])
     assert next(mge) == T(0)
     x = pickle.dumps(mge)
@@ -249,6 +366,7 @@ def test_merge_pickle1():
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_merge_pickle2():
+    # with key
     mge = merge([T(1), T(2)], [T(0)], [T(-2)], key=abs)
     assert next(mge) == T(0)
     x = pickle.dumps(mge)
@@ -259,10 +377,32 @@ def test_merge_pickle2():
                    reason='pickle does not work on Python 2')
 @memory_leak_decorator(offset=1)
 def test_merge_pickle3():
+    # reverse
     mge = merge([T(2), T(1)], [T(0)], [T(3)], reverse=True)
     assert next(mge) == T(3)
     x = pickle.dumps(mge)
     assert list(pickle.loads(x)) == toT([2, 1, 0])
+
+
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
+                   reason='pickle does not work on Python 2')
+@memory_leak_decorator(offset=1)
+def test_merge_pickle4():
+    # pickle unstarted merge instance
+    mge = merge([T(0)], [T(1), T(2)], [T(2)])
+    x = pickle.dumps(mge)
+    assert list(pickle.loads(x)) == toT([0, 1, 2, 2])
+
+
+@pytest.mark.xfail(iteration_utilities.EQ_PY2,
+                   reason='pickle does not work on Python 2')
+@memory_leak_decorator(offset=1)
+def test_merge_pickle5():
+    # pickle merge with no exhausted iterable
+    mge = merge([T(0), T(1)], [T(1), T(2)])
+    assert next(mge) == T(0)
+    x = pickle.dumps(mge)
+    assert list(pickle.loads(x)) == toT([1, 1, 2])
 
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,

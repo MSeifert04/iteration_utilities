@@ -10,8 +10,9 @@ import pytest
 import iteration_utilities
 
 # Test helper
+from helper_cls import T, toT, failingTIterator
+from helper_funcs import iterator_copy
 from helper_leak import memory_leak_decorator
-from helper_cls import T, failingTIterator
 
 
 starfilter = iteration_utilities.starfilter
@@ -123,6 +124,11 @@ def test_starfilter_failure9():
     # Too few arguments
     with pytest.raises(TypeError):
         starfilter()
+
+
+@memory_leak_decorator(collect=True)
+def test_starfilter_copy1():
+    iterator_copy(starfilter(operator.eq, [(T(1), T(1)), (T(2), T(2))]))
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

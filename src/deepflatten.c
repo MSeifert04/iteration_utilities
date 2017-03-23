@@ -260,42 +260,28 @@ deepflatten_next(PyIUObject_DeepFlatten *self)
 }
 
 /******************************************************************************
- * Copy
- *****************************************************************************/
-
-static PyObject *
-deepflatten_copy(PyIUObject_DeepFlatten *self)
-{
-    /* The expected behaviour for copy would be to share the state of the
-       original. That would mean that every time next(deepflatten) the position
-       of the current iterable has to be determined (the last not-None item
-       in the "iteratorlist"). That's definetly possible but would slow down
-       the next-call considerably. Using a shallow copy should be quite rare
-       and deepcopy and pickle work correct so why slow down the main use-case
-       of deepcopy (to flatten someting in one go). Therefore just raise a
-       NotImplementedError.
-       */
-    PyErr_Format(PyExc_TypeError,
-                 "can't do a shallow copy of `deepflatten` instances. Use \
-`deepcopy` or `pickle` instead");
-    return NULL;
-}
-
-/******************************************************************************
  * Reduce
  *****************************************************************************/
 
 static PyObject *
 deepflatten_reduce(PyIUObject_DeepFlatten *self)
 {
-    return Py_BuildValue("O(OnOO)(Oni)", Py_TYPE(self),
-                         PyList_GET_ITEM(self->iteratorlist, 0),  /* stub */
-                         self->depth,
-                         self->types ? self->types : Py_None,
-                         self->ignore ? self->ignore : Py_None,
-                         self->iteratorlist,
-                         self->currentdepth,
-                         self->isstring);
+    PyObject *res;
+    /* We need to copy the iteratorlist in case someone grabs it. This could
+       lead to segmentation faults if the list is partially deleted, the next
+       call to "next" could try to access an out-of-bounds index.
+       */
+    PyObject *itlist = PyList_GetSlice(self->iteratorlist, 0, PY_SSIZE_T_MAX);
+    res = Py_BuildValue("O(OnOO)(Oni)", Py_TYPE(self),
+                        PyList_GET_ITEM(self->iteratorlist, 0),  /* stub */
+                        self->depth,
+                        self->types ? self->types : Py_None,
+                        self->ignore ? self->ignore : Py_None,
+                        itlist,
+                        self->currentdepth,
+                        self->isstring);
+    Py_DECREF(itlist);
+    return res;
 }
 
 /******************************************************************************
@@ -310,26 +296,41 @@ deepflatten_setstate(PyIUObject_DeepFlatten *self,
     Py_ssize_t currentdepth;
     int isstring;
 
-    if (!PyArg_ParseTuple(state, "Oni",
+    if (!PyTuple_Check(state)) {
+        PyErr_Format(PyExc_TypeError,
+                     "`%.200s.__setstate__` expected a `tuple`-like argument"
+                     ", got `%.200s` instead.",
+                     Py_TYPE(self)->tp_name, Py_TYPE(state)->tp_name);
+        return NULL;
+    }
+
+    if (!PyArg_ParseTuple(state, "Oni:deepflatten.__setstate__",
                           &iteratorlist, &currentdepth, &isstring)) {
         return NULL;
     }
 
     if (!PyList_CheckExact(iteratorlist)) {
         PyErr_Format(PyExc_TypeError,
-                     "__setstate__ expected a list as iteratorlist.");
+                     "`%.200s.__setstate__` expected a `list` instance as "
+                     "first argument in the `state`, got %.200s.",
+                     Py_TYPE(self)->tp_name, Py_TYPE(iteratorlist)->tp_name);
         return NULL;
     }
     if (currentdepth < -1) {
         PyErr_Format(PyExc_ValueError,
-                     "__setstate__ expected a currentdepth >= -1.");
+                     "`%.200s.__setstate__` expected that the second (%zd) "
+                     "argument in the `state` is bigger than or equal to -1.",
+                     Py_TYPE(self)->tp_name, currentdepth);
         return NULL;
     } else {
         Py_ssize_t i;
         Py_ssize_t listlength = PyList_GET_SIZE(iteratorlist);
         if (currentdepth >= listlength) {
             PyErr_Format(PyExc_ValueError,
-                         "__setstate__ expected a currentdepth < len(iteratorlist).");
+                         "`%.200s.__setstate__` expected that the second (%zd) "
+                         "argument in the `state` is smaller than the length "
+                         "of the first argument (%zd)",
+                         Py_TYPE(self)->tp_name, currentdepth, listlength);
             return NULL;
         }
         /* The iteratorlist requires iterators in the list so make sure no
@@ -337,14 +338,25 @@ deepflatten_setstate(PyIUObject_DeepFlatten *self,
         for (i=0 ; i <= currentdepth ; i++) {
             if (!PyIter_Check(PyList_GET_ITEM(iteratorlist, i))) {
                 PyErr_Format(PyExc_TypeError,
-                             "__setstate__ expected iterators in iteratorlist.");
+                             "`%.200s.__setstate__` expected only iterators "
+                             "in the first argument in the `state`, got %.200s.",
+                             Py_TYPE(self)->tp_name,
+                             Py_TYPE(PyList_GET_ITEM(iteratorlist, i))->tp_name);
                 return NULL;
             }
         }
     }
 
+    /* We need to make sure nobody can alter the iteratorlist so we need a
+       copy.
+       */
+    iteratorlist = PyList_GetSlice(iteratorlist, 0, PY_SSIZE_T_MAX);
+    if (iteratorlist == NULL) {
+        return NULL;
+    }
+
     Py_CLEAR(self->iteratorlist);
-    Py_XINCREF(iteratorlist);
+    /* No need to incref iteratorlist, we copied it. */
     self->iteratorlist = iteratorlist;
     self->currentdepth = currentdepth;
     self->isstring = isstring;
@@ -356,7 +368,6 @@ deepflatten_setstate(PyIUObject_DeepFlatten *self,
  *****************************************************************************/
 
 static PyMethodDef deepflatten_methods[] = {
-    {"__copy__",     (PyCFunction)deepflatten_copy,     METH_NOARGS, "cannot shallow copy `deepflatten`."},
     {"__reduce__",   (PyCFunction)deepflatten_reduce,   METH_NOARGS, PYIU_reduce_doc},
     {"__setstate__", (PyCFunction)deepflatten_setstate, METH_O,      PYIU_setstate_doc},
     {NULL, NULL}

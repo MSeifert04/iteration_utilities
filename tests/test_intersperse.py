@@ -10,8 +10,9 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_leak import memory_leak_decorator
+import helper_funcs
 from helper_cls import T, toT, failingTIterator
+from helper_leak import memory_leak_decorator
 
 
 intersperse = iteration_utilities.intersperse
@@ -51,6 +52,29 @@ def test_intersperse_failure3():
     # Too few arguments
     with pytest.raises(TypeError):
         intersperse()
+
+
+@memory_leak_decorator(collect=True)
+def test_intersperse_copy1():
+    helper_funcs.iterator_copy(intersperse(toT([1, 2, 3]), T(0)))
+
+
+@memory_leak_decorator(collect=True)
+def test_intersperse_failure_setstate1():
+    # When start==0 then no second item should be given to setstate
+    its = intersperse(toT([1, 1]), None)
+    with pytest.raises(ValueError):
+        its.__setstate__((0, T(1)))
+
+
+@memory_leak_decorator(collect=True)
+def test_intersperse_failure_setstate2():
+    helper_funcs.iterator_setstate_list_fail(intersperse(toT([1, 1]), None))
+
+
+@memory_leak_decorator(collect=True)
+def test_intersperse_failure_setstate3():
+    helper_funcs.iterator_setstate_empty_fail(intersperse(toT([1, 1]), None))
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
