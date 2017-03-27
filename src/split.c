@@ -237,6 +237,12 @@ Fail:
 static PyObject *
 split_reduce(PyIUObject_Split *self)
 {
+    /* Seperate cases depending on next == NULL because otherwise "None"
+       would be ambiguous. It could mean that we did not had a next item or
+       that the next item was None.
+       Better to make an "if" than to introduce another variable depending on
+       next == NULL.
+       */
     if (self->next == NULL) {
         return Py_BuildValue("O(OOniiii)", Py_TYPE(self),
                              self->iterator,
@@ -269,13 +275,26 @@ split_setstate(PyIUObject_Split *self,
 {
     PyObject *next;
 
-    if (!PyArg_ParseTuple(state, "O", &next)) {
+    if (!PyTuple_Check(state)) {
+        PyErr_Format(PyExc_TypeError,
+                     "`%.200s.__setstate__` expected a `tuple`-like argument"
+                     ", got `%.200s` instead.",
+                     Py_TYPE(self)->tp_name, Py_TYPE(state)->tp_name);
         return NULL;
     }
+
+    if (!PyArg_ParseTuple(state, "O:split.__setstate__", &next)) {
+        return NULL;
+    }
+
+    /* No need to check the type of "next" because any python object is
+       valid.
+       */
 
     Py_CLEAR(self->next);
     Py_INCREF(next);
     self->next = next;
+
     Py_RETURN_NONE;
 }
 
@@ -284,8 +303,8 @@ split_setstate(PyIUObject_Split *self,
  *****************************************************************************/
 
 static PyMethodDef split_methods[] = {
-    {"__reduce__", (PyCFunction)split_reduce, METH_NOARGS, PYIU_reduce_doc},
-    {"__setstate__", (PyCFunction)split_setstate, METH_O, PYIU_setstate_doc},
+    {"__reduce__",   (PyCFunction)split_reduce,   METH_NOARGS, PYIU_reduce_doc},
+    {"__setstate__", (PyCFunction)split_setstate, METH_O,      PYIU_setstate_doc},
     {NULL, NULL}
 };
 

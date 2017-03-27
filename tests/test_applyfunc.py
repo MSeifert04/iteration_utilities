@@ -9,8 +9,9 @@ import pytest
 import iteration_utilities
 
 # Test helper
+from helper_cls import T, toT, failingTIterator
+from helper_funcs import iterator_copy
 from helper_leak import memory_leak_decorator
-from helper_cls import T
 
 
 applyfunc = iteration_utilities.applyfunc
@@ -40,6 +41,11 @@ def test_applyfunc_failure2():
     # Too few arguments
     with pytest.raises(TypeError):
         applyfunc(bool)
+
+
+@memory_leak_decorator(collect=True)
+def test_applyfunc_copy1():
+    iterator_copy(applyfunc(lambda x: x**T(2), T(2)))
 
 
 @memory_leak_decorator(offset=1)

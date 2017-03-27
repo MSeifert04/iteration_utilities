@@ -177,7 +177,16 @@ chained_setstate(PyIUObject_Chained *self,
 {
     int reverse, all;
 
-    if (!PyArg_ParseTuple(state, "ii", &reverse, &all)) {
+    if (!PyTuple_Check(state)) {
+        PyErr_Format(PyExc_TypeError,
+                     "`%.200s.__setstate__` expected a `tuple`-like argument"
+                     ", got `%.200s` instead.",
+                     Py_TYPE(self)->tp_name, Py_TYPE(state)->tp_name);
+        return NULL;
+    }
+
+    if (!PyArg_ParseTuple(state, "ii:chained.__setstate__",
+                          &reverse, &all)) {
         return NULL;
     }
 

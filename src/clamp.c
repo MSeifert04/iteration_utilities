@@ -36,6 +36,9 @@ clamp_new(PyTypeObject *type,
                                      &iterable, &low, &high, &inclusive, &remove)) {
         goto Fail;
     }
+    /* None cannot be compared so it's unlikely we exclude use-cases by
+       allowing low=None as equivalent to not giving any "low" argument.
+       */
     PYIU_NULL_IF_NONE(low);
     PYIU_NULL_IF_NONE(high);
 

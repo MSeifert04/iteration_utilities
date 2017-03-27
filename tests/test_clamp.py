@@ -10,8 +10,9 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_leak import memory_leak_decorator
 from helper_cls import T, toT, failingTIterator
+from helper_funcs import iterator_copy
+from helper_leak import memory_leak_decorator
 
 
 clamp = iteration_utilities.clamp
@@ -113,6 +114,11 @@ def test_clamp_failure5():
     # Too few arguments
     with pytest.raises(TypeError):
         clamp()
+
+
+@memory_leak_decorator(collect=True)
+def test_clamp_copy1():
+    iterator_copy(clamp([T(20), T(50)], T(10), T(100)))
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

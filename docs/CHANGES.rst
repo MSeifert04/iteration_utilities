@@ -5,17 +5,33 @@ Changelog for "iteration_utilities"
 Version 0.4.1 (unreleased)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+- minor speedup for ``next(merge)``.
+
 - removed **unused** ``key`` parameter from ``combinations_from_relations``.
 
 - replaced ``Iterable.as_string`` parameter ``seperaror`` (sic!) by
   ``seperator``.
 
-- added some verification in ``deepflatten.__setstate__`` so it can't be used
-  to cause segmentation faults.
+- included signature for ``__reduce__``, ``__setstate__`` and
+  ``__length_hint__`` methods.
 
-- prevent ``copy.copy`` from copying ``deepflatten`` instances (for now),
-  because shallow copies could behave in unexpected ways (including crashes).
-  ``deepcopy`` instances can still be pickled or deep copied.
+- fixed ``Seen.contains_add`` method signature.
+
+- fixed potential segfault in ``ItemIdxKey.__repr__``.
+
+- removed unnecessary ``__setstate__`` method for ``ItemIdxKey``.
+
+- various ``__setstate__`` and ``__reduce__`` methods were changed so they
+  can't used to cause segmentation faults, ``SystemError`` or blatantly wrong
+  behaviour. However, serializing or copying such an instance can significantly
+  slower as a result of this change. Unpickling these instances from previous
+  versions could be impossible and ``copy.copy`` is **not** suported (and
+  probably won't be ever because ``itertools.tee`` interacts with ``__copy__``
+  methods). Affected iterators: ``chained``, ``deepflatten``, ``duplicates``,
+  ``grouper``, ``intersperse``, ``merge``, ``roundrobin``, ``sideeffects``,
+  ``split``, ``successive``, ``unique_everseen``, ``unique_justseen``.
+
+
 
 
 Version 0.4.0 (2017-03-20)

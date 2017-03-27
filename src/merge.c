@@ -275,7 +275,8 @@ static PyObject *
 merge_next(PyIUObject_Merge *self)
 {
     PyObject *iterator, *item, *val, *keyval, *oldkeyval;
-    Py_ssize_t insert=0;
+    Py_ssize_t insert = 0;
+    Py_ssize_t active;
     PyIUObject_ItemIdxKey *next;
 
     /* No current then we create one. */
@@ -286,12 +287,14 @@ merge_next(PyIUObject_Merge *self)
     }
 
     /* Finished as soon as there are no more active iterators. */
-    if (self->numactive <= 0) {
+    if (self->numactive == 0) {
         return NULL;
     }
 
+    active = self->numactive - 1;
+
     /* Tuple containing the next value. */
-    next = (PyIUObject_ItemIdxKey *)PyTuple_GET_ITEM(self->current, self->numactive-1);
+    next = (PyIUObject_ItemIdxKey *)PyTuple_GET_ITEM(self->current, active);
     Py_INCREF(next);
 
     /* Value to be returned. */
@@ -303,9 +306,12 @@ merge_next(PyIUObject_Merge *self)
     item = (*Py_TYPE(iterator)->tp_iternext)(iterator);
 
     if (item == NULL) {
-        /* No need to keep the extra reference for the tuple because there is
-           no successive value.
+        /* No need to keep the extra reference for the ItemIdxKey because there
+           is no successive value and we replace the item in the current tuple
+           with NULL.
            */
+        PyTuple_SET_ITEM(self->current, active, NULL);
+        Py_DECREF(next);
         Py_DECREF(next);
         if (PyErr_Occurred()) {
             if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
@@ -316,7 +322,7 @@ merge_next(PyIUObject_Merge *self)
             }
         }
         Py_INCREF(val);
-        self->numactive--;
+        self->numactive = active;
     } else {
         if (self->keyfunc != NULL) {
             oldkeyval = next->key;
@@ -340,7 +346,7 @@ merge_next(PyIUObject_Merge *self)
 
         /* Insert the new value into the sorted current tuple. */
         insert = PyUI_TupleBisectRight_LastFirst(self->current, (PyObject *)next,
-                                                 self->numactive-1, self->reverse);
+                                                 active, self->reverse);
         if (insert == -1) {
             Py_DECREF(next);
             Py_DECREF(next);
@@ -362,13 +368,49 @@ merge_next(PyIUObject_Merge *self)
 static PyObject *
 merge_reduce(PyIUObject_Merge *self)
 {
-    PyObject * res;
+    PyObject *res;
+    PyObject *current;
+
+    /* We need to expose the "current" tuple. However this tuple is modifed
+       when calling next so we need a copy, otherwise people would have a
+       mutable tuple. That must NOT happen!
+       In case the number of elements in the tuple differs from the "numactive"
+       attribute we can simply slice the trailing NULLs away.
+       The "ItemIdxKey" instances inside the "current" tuple are mutable so
+       we need to make sure these cannot be altered from outside. So we need
+       to make more than a shallow copy...
+
+       The "iteratortuple" isn't changed in the "next" call so we can simply
+       expose it as-is.
+       */
+    if (self->current == NULL) {
+        current = Py_None;
+        Py_INCREF(current);
+    } else {
+        Py_ssize_t i;
+        current = PyTuple_New(self->numactive);
+        if (current == NULL) {
+            return NULL;
+        }
+        for (i=0 ; i < self->numactive ; i++) {
+            PyObject *iik1 = PyTuple_GET_ITEM(self->current, i);
+            PyObject *iik2 = PyIU_ItemIdxKey_Copy(iik1);
+            if (iik2 == NULL) {
+                return NULL;
+            }
+            PyTuple_SET_ITEM(current, i, iik2);
+        }
+    }
+    /* No need to copy the iteratortuple because we don't modify it anywhere
+       so we can easily get away by having more than one reference for it.
+       */
     res = Py_BuildValue("OO(OiOn)", Py_TYPE(self),
                         self->iteratortuple,
                         self->keyfunc ? self->keyfunc : Py_None,
                         self->reverse,
-                        self->current ? self->current : Py_None,
+                        current,
                         self->numactive);
+    Py_DECREF(current);
     return res;
 }
 
@@ -380,30 +422,194 @@ static PyObject *
 merge_setstate(PyIUObject_Merge *self,
                PyObject *state)
 {
-    PyObject *current, *keyfunc, *funcargs=NULL;
+    PyObject *current, *keyfunc;
     Py_ssize_t numactive;
     int reverse;
-    if (!PyArg_ParseTuple(state, "OiOn",
+
+    if (!PyTuple_Check(state)) {
+        PyErr_Format(PyExc_TypeError,
+                     "`%.200s.__setstate__` expected a `tuple`-like argument"
+                     ", got `%.200s` instead.",
+                     Py_TYPE(self)->tp_name, Py_TYPE(state)->tp_name);
+        return NULL;
+    }
+
+    if (!PyArg_ParseTuple(state, "OiOn:merge.__setstate__",
                           &keyfunc, &reverse, &current, &numactive)) {
         return NULL;
     }
-    PYIU_NULL_IF_NONE(current);
 
-    if (keyfunc != Py_None) {
-        funcargs = PyTuple_New(1);
+    PYIU_NULL_IF_NONE(current);
+    PYIU_NULL_IF_NONE(keyfunc);
+
+    /* If it's from a "reduce" call then it should work fine, but if someone
+       tries to feed anything in here we need to check the conditions the
+       next is based on:
+
+       - 0 <= numactive <= len(iteratortuple) == len(current) (except when no
+         current is initialized)
+       - current may only contain ItemIdxKey instances
+         - These must have NO key-attribute when keyfunc==NULL
+         - These must have A key-attribute when keyfunc!=NULL
+         - These must not have an idx that is out of range for the iteratortuple
+
+       These tests only make sure the function does not crash, the inputs may
+       result in useless results!
+       */
+
+    /* "numactive" must be positive and <= len(self->iteratortuple) otherwise
+        item access might segfault.
+       */
+    if (numactive < 0 || numactive > PyTuple_GET_SIZE(self->iteratortuple)) {
+        PyErr_Format(PyExc_ValueError,
+                     "`%.200s.__setstate__` expected that the fourth (%zd) "
+                     "argument in the `state` is not negative and is smaller "
+                     "or equal to the number of iterators (%zd).",
+                     Py_TYPE(self)->tp_name,
+                     numactive,
+                     PyTuple_GET_SIZE(self->iteratortuple));
+        return NULL;
+    }
+
+    if (current != NULL) {
+        Py_ssize_t i;
+        Py_ssize_t currentsize;
+
+        /* current must be a tuple, otherwise the PyTuple_GET_ITEM and
+           PyTuple_SET_ITEM operations in "next" will segfault.
+           */
+        if (!PyTuple_CheckExact(current)) {
+            PyErr_Format(PyExc_TypeError,
+                         "`%.200s.__setstate__` expected a `tuple` instance as "
+                         "third argument in the `state`, got %.200s.",
+                         Py_TYPE(self)->tp_name, Py_TYPE(current)->tp_name);
+            return NULL;
+        }
+        /* The length of the current tuple and the "numactive" value must be
+           identical, otherwise this might loose items (numactive smaller) or
+           segfault (numactive bigger) because it is used to index this tuple.
+           */
+        currentsize = PyTuple_GET_SIZE(current);
+        if (currentsize != numactive) {
+            PyErr_Format(PyExc_ValueError,
+                         "`%.200s.__setstate__` expected that the fourth (%zd) "
+                         "argument in the `state` is equal to the length of "
+                         "the third argument (%zd).",
+                         Py_TYPE(self)->tp_name, numactive, currentsize);
+            return NULL;
+        }
+
+        /* Unfortunatly we have to check each item in the "current" tuple
+           to make sure the "next" function doesn't segfault.
+           - Each item must be an "ItemIdxKey" item.
+           - Each ItemIdxKey must have a key attribute if we have a keyfunction
+             or mustn't have a key if we have no key function.
+           - Each ItemIdxKey idx attribute must have a value that isn't out
+             of bounds for the iteratortuple.
+           There are some additional checks that could be done but aren't
+           because they might have side-effects and could slow down this
+           function unnecessarily:
+           - The "idx" attribute of the ItemIdxKey instances should be unique
+             within the "current" tuple. Meaning there shouldn't be more than
+             one pointing to the same iterator.
+           - The "current" tuple is supposed to be sorted (either decreasing
+             if "reverse=False" or increasing otherwise) and using an unsorted
+             "current" will break the function. However this requirement isn't
+             enforced for the iterators when they are passed in so there is
+             actually already a way to "break" the function.
+           */
+        for (i=0 ; i < currentsize ; i++) {
+            Py_ssize_t idx;
+            PyObject *iik = PyTuple_GET_ITEM(current, i);
+
+            if (!PyIU_ItemIdxKey_CheckExact(iik)) {
+                PyErr_Format(PyExc_TypeError,
+                             "`%.200s.__setstate__` expected that the third "
+                             "argument in the `state` contains only "
+                             "`ItemIdxKey` instances, got %.200s.",
+                             Py_TYPE(self)->tp_name, Py_TYPE(iik)->tp_name);
+                return NULL;
+            }
+
+            if (keyfunc == NULL) {
+                if (((PyIUObject_ItemIdxKey *)iik)->key != NULL) {
+                    PyErr_Format(PyExc_TypeError,
+                                 "`%.200s.__setstate__` expected that `ItemIdxKey` "
+                                 "instances in the third argument in the `state` "
+                                 "have no `key` attribute when the first argument "
+                                 "is `None`.",
+                                 Py_TYPE(self)->tp_name);
+                    return NULL;
+                }
+            } else {
+                if (((PyIUObject_ItemIdxKey *)iik)->key == NULL) {
+                    PyErr_Format(PyExc_TypeError,
+                                 "`%.200s.__setstate__` expected that `ItemIdxKey` "
+                                 "instances in the third argument in the `state` "
+                                 "have a `key` attribute when the first argument "
+                                 "is not `None`.",
+                                 Py_TYPE(self)->tp_name);
+                    return NULL;
+                }
+            }
+
+            idx = ((PyIUObject_ItemIdxKey *)iik)->idx;
+            if (idx < 0 || idx >= PyTuple_GET_SIZE(self->iteratortuple)) {
+                PyErr_Format(PyExc_ValueError,
+                             "`%.200s.__setstate__` expected that `ItemIdxKey` "
+                             "instances in the third argument in the `state` "
+                             "have a `idx` attribute (%zd) that is smaller than "
+                             "the length of the `iteratortuple` (%zd)",
+                             Py_TYPE(self)->tp_name,
+                             idx,
+                             PyTuple_GET_SIZE(self->iteratortuple));
+                return NULL;
+            }
+        }
+    }
+
+    /* We need to make sure to copy the "current" because we will alter this
+       tuple inside the "next" calls. If someone would hold a reference their
+       tuple would change. This should never happen!
+       Also the ItemIdxKey instances are mutable from outside so these have
+       to be copied as well.
+       */
+    if (current != NULL) {
+        Py_ssize_t i;
+        PyObject *new_current = PyTuple_New(numactive);
+        if (new_current == NULL) {
+            return NULL;
+        }
+        for (i=0 ; i < numactive ; i++) {
+            PyObject *iik1 = PyTuple_GET_ITEM(current, i);
+            PyObject *iik2 = PyIU_ItemIdxKey_Copy(iik1);
+            if (iik2 == NULL) {
+                return NULL;
+            }
+            PyTuple_SET_ITEM(new_current, i, iik2);
+        }
+        current = new_current;
+    }
+
+    /* If we have a keyfunc we need to create funcargs if the class doesn't
+       have them already.
+       */
+    if (keyfunc != NULL && self->funcargs == NULL) {
+        PyObject *funcargs = PyTuple_New(1);
         if (funcargs == NULL) {
             return NULL;
         }
+        Py_CLEAR(self->funcargs);
         self->funcargs = funcargs;
-
-        Py_CLEAR(self->keyfunc);
-        self->keyfunc = keyfunc;
-        Py_INCREF(self->keyfunc);
     }
+
+    Py_CLEAR(self->keyfunc);
+    self->keyfunc = keyfunc;
+    Py_XINCREF(self->keyfunc);
 
     Py_CLEAR(self->current);
     self->current = current;
-    Py_XINCREF(self->current);
+    /* No need to incref the "current" because we copied it already! */
 
     self->numactive = numactive;
     self->reverse = reverse;
@@ -445,8 +651,8 @@ static PyMethodDef merge_methods[] = {
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
     {"__length_hint__", (PyCFunction)merge_lengthhint, METH_NOARGS, PYIU_lenhint_doc},
 #endif
-    {"__reduce__", (PyCFunction)merge_reduce, METH_NOARGS, PYIU_reduce_doc},
-    {"__setstate__", (PyCFunction)merge_setstate, METH_O, PYIU_setstate_doc},
+    {"__reduce__",   (PyCFunction)merge_reduce,   METH_NOARGS, PYIU_reduce_doc},
+    {"__setstate__", (PyCFunction)merge_setstate, METH_O,      PYIU_setstate_doc},
     {NULL, NULL}
 };
 

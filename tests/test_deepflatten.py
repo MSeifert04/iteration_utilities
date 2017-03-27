@@ -1,6 +1,5 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
-import copy
 import pickle
 
 # 3rd party
@@ -10,8 +9,9 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_leak import memory_leak_decorator
+import helper_funcs
 from helper_cls import T, toT, failingTIterator
+from helper_leak import memory_leak_decorator
 
 
 if iteration_utilities.EQ_PY2:
@@ -194,65 +194,76 @@ def test_deepflatten_failure8():
 
 
 @memory_leak_decorator(collect=True)
-def test_deepflatten_failure9():
-    # trying to copy a deepflatten iterator
-    df = deepflatten(toT([1, 2, 3, 4]))
-    with pytest.raises(TypeError):
-        copy.copy(df)
-
-    # The broken behaviour was:
-    # i = deepflatten([toT(range(5))])
-    # advance the iterator so it's one level deep
-    # next(i)
-    # makes a shallow copy (thinks it is one level deep)
-    # j = copy.copy(i)
-    # exhaust the original
-    # list(i)
-    # trying to access the copy segfaults because the one-level deep
-    # item is set to None!
-    # list(j)
+def test_deepflatten_copy1():
+    helper_funcs.iterator_copy(deepflatten(toT([1, 2, 3, 4])))
 
 
 @memory_leak_decorator(collect=True)
-def test_deepflatten_failure10():
+def test_deepflatten_failure_setstate1():
     # using __setstate__ to pass in an invalid iteratorlist
     df = deepflatten(toT([1, 2, 3, 4]))
-    with pytest.raises(TypeError) as exc:
+    with pytest.raises(TypeError):
         df.__setstate__(({'a', 'b', 'c'}, 0, 0))
-    assert 'iteratorlist' in str(exc)
-    # Broken behaviour was:
-    # i = deepflatten([list(range(5))])
-    # state = ({'a', 'b', 'c'}, 0, 0)
-    # i.__setstate__(state)
-    # next(i)
 
 
 @memory_leak_decorator(collect=True)
-def test_deepflatten_failure11():
+def test_deepflatten_failure_setstate2():
     # using __setstate__ to pass in an invalid iteratorlist (not iterator
     # inside)
     df = deepflatten(toT([1, 2, 3, 4]))
-    with pytest.raises(TypeError) as exc:
+    with pytest.raises(TypeError):
         df.__setstate__(([set(toT([1, 2, 3, 4]))], 0, 0))
-    assert 'iteratorlist' in str(exc)
 
 
 @memory_leak_decorator(collect=True)
-def test_deepflatten_failure12():
+def test_deepflatten_failure_setstate3():
     # using __setstate__ to pass in an invalid currentdepth (too low)
     df = deepflatten(toT([1, 2, 3, 4]))
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError):
         df.__setstate__(([iter(toT([1, 2, 3, 4]))], -3, 0))
-    assert 'currentdepth' in str(exc)
 
 
 @memory_leak_decorator(collect=True)
-def test_deepflatten_failure13():
+def test_deepflatten_failure_setstate4():
     # using __setstate__ to pass in an invalid currentdepth (too high)
     df = deepflatten(toT([1, 2, 3, 4]))
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError):
         df.__setstate__(([iter(toT([1, 2, 3, 4]))], 5, 0))
-    assert 'currentdepth' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_deepflatten_failure_setstate5():
+    helper_funcs.iterator_setstate_list_fail(deepflatten(toT([1, 2, 3, 4])))
+
+
+@memory_leak_decorator(collect=True)
+def test_deepflatten_failure_setstate6():
+    helper_funcs.iterator_setstate_empty_fail(deepflatten(toT([1, 2, 3, 4])))
+
+
+@memory_leak_decorator(collect=True)
+def test_deepflatten_reduce1():
+    # Earlier we were able to modify the iteratorlist (including deleting
+    # parts of it). That could lead to segmentation faults.
+    df = deepflatten(toT([1, 2, 3, 4, 5, 6]))
+    next(df)
+    # Clear the iteratorlist from all items.
+    df.__reduce__()[2][0][:] = []
+    next(df)
+
+
+@memory_leak_decorator(collect=True)
+def test_deepflatten_setstate1():
+    # We could keep a reference to the iteratorlist passed to setstate and
+    # mutate it (leading to incorrect behaviour and segfaults).
+    df = deepflatten(toT([1, 2, 3, 4, 5, 6]))
+    next(df)
+    # Easiest way is to roundtrip the state but keep the state as variable so
+    # we can modify it!
+    state = df.__reduce__()[2]
+    df.__setstate__(state)
+    state[0][:] = []
+    next(df)
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

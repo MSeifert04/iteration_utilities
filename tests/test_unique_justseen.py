@@ -9,8 +9,9 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_leak import memory_leak_decorator
+import helper_funcs
 from helper_cls import T, toT, failingTIterator
+from helper_leak import memory_leak_decorator
 
 
 unique_justseen = iteration_utilities.unique_justseen
@@ -87,6 +88,21 @@ def test_unique_justseen_failure5():
     # Too few arguments
     with pytest.raises(TypeError):
         unique_justseen()
+
+
+@memory_leak_decorator(collect=True)
+def test_unique_justseen_copy1():
+    helper_funcs.iterator_copy(unique_justseen([T(1), T(2), T(3)]))
+
+
+@memory_leak_decorator(collect=True)
+def test_unique_justseen_failure_setstate1():
+    helper_funcs.iterator_setstate_list_fail(unique_justseen(toT([1, 2, 3])))
+
+
+@memory_leak_decorator(collect=True)
+def test_unique_justseen_failure_setstate2():
+    helper_funcs.iterator_setstate_empty_fail(unique_justseen(toT([1, 2, 3])))
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

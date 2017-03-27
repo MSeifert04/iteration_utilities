@@ -10,8 +10,9 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_leak import memory_leak_decorator
+import helper_funcs
 from helper_cls import T, toT, failingTIterator
+from helper_leak import memory_leak_decorator
 
 
 duplicates = iteration_utilities.duplicates
@@ -117,6 +118,11 @@ def test_duplicates_failure5():
 
 
 @memory_leak_decorator(collect=True)
+def test_duplicates_copy1():
+    helper_funcs.iterator_copy(duplicates(toT([1, 1])))
+
+
+@memory_leak_decorator(collect=True)
 def test_duplicates_failure6():
     # Failure (no TypeError) when trying to hash the value
     class NoHash():
@@ -126,6 +132,24 @@ def test_duplicates_failure6():
     with pytest.raises(ValueError) as exc:
         list(duplicates([T(1), NoHash()]))
     assert 'bad class' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_duplicates_failure_setstate1():
+    # __setstate__ only accepts Seen instances
+    dp = duplicates(toT([1, 1]))
+    with pytest.raises(TypeError):
+        dp.__setstate__((set(toT(range(1, 3))),))
+
+
+@memory_leak_decorator(collect=True)
+def test_duplicates_failure_setstate2():
+    helper_funcs.iterator_setstate_list_fail(duplicates(toT([1, 1])))
+
+
+@memory_leak_decorator(collect=True)
+def test_duplicates_failure_setstate3():
+    helper_funcs.iterator_setstate_empty_fail(duplicates(toT([1, 1])))
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

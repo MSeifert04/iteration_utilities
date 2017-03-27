@@ -11,8 +11,9 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_leak import memory_leak_decorator
+import helper_funcs
 from helper_cls import T, toT, failingTIterator
+from helper_leak import memory_leak_decorator
 
 
 split = iteration_utilities.split
@@ -192,6 +193,23 @@ def test_split_failure10():
     with pytest.raises(ValueError) as exc:
         split(toT([1, 2, 3, 4]), T(2), eq=True, maxsplit=-2)
     assert '`maxsplit` must be -1 or greater.' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_split_copy1():
+    helper_funcs.iterator_copy(split(toT(range(1, 9)), equalsthreeT))
+
+
+@memory_leak_decorator(collect=True)
+def test_split_failure_setstate1():
+    helper_funcs.iterator_setstate_list_fail(
+            split(toT(range(1, 9)), equalsthreeT))
+
+
+@memory_leak_decorator(collect=True)
+def test_split_failure_setstate2():
+    helper_funcs.iterator_setstate_empty_fail(
+            split(toT(range(1, 9)), equalsthreeT))
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

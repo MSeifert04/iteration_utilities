@@ -10,8 +10,9 @@ import pytest
 import iteration_utilities
 
 # Test helper
+import helper_funcs
+from helper_cls import T, toT, failingTIterator
 from helper_leak import memory_leak_decorator
-from helper_cls import T, failingTIterator
 
 
 unique_everseen = iteration_utilities.unique_everseen
@@ -149,6 +150,29 @@ def test_uniqueeverseen_failure6():
     with pytest.raises(ValueError) as exc:
         list(unique_everseen([T(1), NoHash()]))
     assert 'bad class' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_uniqueeverseen_copy1():
+    helper_funcs.iterator_copy(unique_everseen(toT([1, 2, 1, 2])))
+
+
+@memory_leak_decorator(collect=True)
+def test_uniqueeverseen_failure_setstate1():
+    # __setstate__ only accepts Seen instances
+    dp = unique_everseen(toT([1, 1]))
+    with pytest.raises(TypeError):
+        dp.__setstate__((set(toT(range(1, 3))),))
+
+
+@memory_leak_decorator(collect=True)
+def test_uniqueeverseen_failure_setstate2():
+    helper_funcs.iterator_setstate_list_fail(unique_everseen(toT([1, 1])))
+
+
+@memory_leak_decorator(collect=True)
+def test_uniqueeverseen_failure_setstate3():
+    helper_funcs.iterator_setstate_empty_fail(unique_everseen(toT([1, 1])))
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

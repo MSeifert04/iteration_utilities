@@ -216,18 +216,22 @@ grouper_next(PyIUObject_Grouper *self)
 static PyObject *
 grouper_reduce(PyIUObject_Grouper *self)
 {
+    /* Seperate cases depending on fillvalue == NULL because otherwise "None"
+       would be ambiguous. It could mean that we did not had a fillvalue or
+       that the next item was None.
+       Better to make an "if" than to introduce another variable depending on
+       fillvalue == NULL.
+       */
     if (self->fillvalue == NULL) {
-        return Py_BuildValue("O(On)(Oi)", Py_TYPE(self),
+        return Py_BuildValue("O(On)(i)", Py_TYPE(self),
                              self->iterator,
                              self->times,
-                             self->result ? self->result : Py_None,
                              self->truncate);
     } else {
-        return Py_BuildValue("O(OnO)(Oi)", Py_TYPE(self),
+        return Py_BuildValue("O(OnO)(i)", Py_TYPE(self),
                              self->iterator,
                              self->times,
                              self->fillvalue,
-                             self->result ? self->result : Py_None,
                              self->truncate);
     }
 }
@@ -240,17 +244,24 @@ static PyObject *
 grouper_setstate(PyIUObject_Grouper *self,
                  PyObject *state)
 {
-    PyObject *result;
     int truncate;
 
-    if (!PyArg_ParseTuple(state, "Oi", &result, &truncate)) {
+    if (!PyTuple_Check(state)) {
+        PyErr_Format(PyExc_TypeError,
+                     "`%.200s.__setstate__` expected a `tuple`-like argument"
+                     ", got `%.200s` instead.",
+                     Py_TYPE(self)->tp_name, Py_TYPE(state)->tp_name);
         return NULL;
     }
-    PYIU_NULL_IF_NONE(result);
 
-    Py_CLEAR(self->result);
-    Py_XINCREF(result);
-    self->result = result;
+    if (!PyArg_ParseTuple(state, "i:grouper.__setstate__", &truncate)) {
+        return NULL;
+    }
+
+    /* truncate is just a boolean-like flag so there isn't anything that could
+       checked here.
+       */
+
     self->truncate = truncate;
     Py_RETURN_NONE;
 }
@@ -282,8 +293,8 @@ static PyMethodDef grouper_methods[] = {
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
     {"__length_hint__", (PyCFunction)grouper_lengthhint, METH_NOARGS, PYIU_lenhint_doc},
 #endif
-    {"__reduce__", (PyCFunction)grouper_reduce, METH_NOARGS, PYIU_reduce_doc},
-    {"__setstate__", (PyCFunction)grouper_setstate, METH_O, PYIU_setstate_doc},
+    {"__reduce__",   (PyCFunction)grouper_reduce,   METH_NOARGS, PYIU_reduce_doc},
+    {"__setstate__", (PyCFunction)grouper_setstate, METH_O,      PYIU_setstate_doc},
     {NULL, NULL}
 };
 

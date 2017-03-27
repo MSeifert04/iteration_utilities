@@ -160,20 +160,22 @@ Fail:
 static PyObject *
 uniquejust_reduce(PyIUObject_UniqueJust *self)
 {
-    PyObject *value;
-
+    /* Seperate cases depending on lastitem == NULL because otherwise "None"
+       would be ambiguous. It could mean that we did not had a last item or
+       that the last item was None.
+       Better to make an "if" than to introduce another variable depending on
+       lastitem == NULL.
+       */
     if (self->lastitem != NULL) {
-        value = Py_BuildValue("O(OO)(O)", Py_TYPE(self),
+        return Py_BuildValue("O(OO)(O)", Py_TYPE(self),
                              self->iterator,
                              self->keyfunc ? self->keyfunc : Py_None,
-                             self->lastitem ? self->lastitem : Py_None);
+                             self->lastitem);
     } else {
-        value = Py_BuildValue("O(OO)", Py_TYPE(self),
+        return Py_BuildValue("O(OO)", Py_TYPE(self),
                              self->iterator,
                              self->keyfunc ? self->keyfunc : Py_None);
     }
-
-    return value;
 }
 
 /******************************************************************************
@@ -186,9 +188,21 @@ uniquejust_setstate(PyIUObject_UniqueJust *self,
 {
     PyObject *lastitem;
 
-    if (!PyArg_ParseTuple(state, "O", &lastitem)) {
+    if (!PyTuple_Check(state)) {
+        PyErr_Format(PyExc_TypeError,
+                     "`%.200s.__setstate__` expected a `tuple`-like argument"
+                     ", got `%.200s` instead.",
+                     Py_TYPE(self)->tp_name, Py_TYPE(state)->tp_name);
         return NULL;
     }
+
+    if (!PyArg_ParseTuple(state, "O:unique_justseen.__setstate__", &lastitem)) {
+        return NULL;
+    }
+
+    /* No need to check the type of "lastitem" because any python object is
+       valid.
+       */
 
     Py_CLEAR(self->lastitem);
     self->lastitem = lastitem;
@@ -202,8 +216,8 @@ uniquejust_setstate(PyIUObject_UniqueJust *self,
  *****************************************************************************/
 
 static PyMethodDef uniquejust_methods[] = {
-    {"__reduce__", (PyCFunction)uniquejust_reduce, METH_NOARGS, PYIU_reduce_doc},
-    {"__setstate__", (PyCFunction)uniquejust_setstate, METH_O, PYIU_setstate_doc},
+    {"__reduce__",   (PyCFunction)uniquejust_reduce,   METH_NOARGS, PYIU_reduce_doc},
+    {"__setstate__", (PyCFunction)uniquejust_setstate, METH_O,      PYIU_setstate_doc},
     {NULL, NULL}
 };
 

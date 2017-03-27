@@ -9,8 +9,9 @@ import pytest
 import iteration_utilities
 
 # Test helper
+from helper_cls import T, toT, failingTIterator
+from helper_funcs import iterator_copy
 from helper_leak import memory_leak_decorator
-from helper_cls import T, toT
 
 
 tabulate = iteration_utilities.tabulate
@@ -77,6 +78,11 @@ def test_tabulate_failure4():
     # Too few arguments
     with pytest.raises(TypeError):
         tabulate()
+
+
+@memory_leak_decorator(collect=True)
+def test_tabulate_copy1():
+    iterator_copy(tabulate(T))
 
 
 @memory_leak_decorator(offset=1)

@@ -186,13 +186,33 @@ duplicates_setstate(PyIUObject_Duplicates *self,
 {
     PyObject *seen;
 
-    if (!PyArg_ParseTuple(state, "O", &seen)) {
+    if (!PyTuple_Check(state)) {
+        PyErr_Format(PyExc_TypeError,
+                     "`%.200s.__setstate__` expected a `tuple`-like argument"
+                     ", got `%.200s` instead.",
+                     Py_TYPE(self)->tp_name, Py_TYPE(state)->tp_name);
+        return NULL;
+    }
+
+    if (!PyArg_ParseTuple(state, "O:duplicates.__setstate__", &seen)) {
+        return NULL;
+    }
+
+    /* object passed in must be an instance of Seen. Otherwise the function
+       calls could result in an segmentation fault.
+       */
+    if (!PyIUSeen_CheckExact(seen)) {
+        PyErr_Format(PyExc_TypeError,
+                     "`%.200s.__setstate__` expected a `Seen` instance as "
+                     "first argument in the `state`, got %.200s.",
+                     Py_TYPE(self)->tp_name, Py_TYPE(seen)->tp_name);
         return NULL;
     }
 
     Py_CLEAR(self->seen);
     self->seen = seen;
     Py_INCREF(self->seen);
+
     Py_RETURN_NONE;
 }
 
