@@ -255,6 +255,18 @@ nth_call(PyIUObject_Nth *self,
 }
 
 /******************************************************************************
+ * Repr
+ *****************************************************************************/
+
+static PyObject *
+nth_repr(PyIUObject_Nth *self)
+{
+    return PyUnicode_FromFormat("%s(%zd)",
+                                Py_TYPE(self)->tp_name,
+                                self->index);
+}
+
+/******************************************************************************
  * Reduce
  *****************************************************************************/
 
@@ -403,7 +415,7 @@ PyTypeObject PyIUType_Nth = {
     0,                                                  /* tp_getattr */
     0,                                                  /* tp_setattr */
     0,                                                  /* tp_reserved */
-    0,                                                  /* tp_repr */
+    (reprfunc)nth_repr,                                 /* tp_repr */
     0,                                                  /* tp_as_number */
     0,                                                  /* tp_as_sequence */
     0,                                                  /* tp_as_mapping */

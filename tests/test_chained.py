@@ -32,6 +32,30 @@ class T(Original_T):
 
 
 @memory_leak_decorator()
+def test_chained_repr1():
+    x = chained(int, float)
+    r = repr(x)
+    assert 'chained' in r
+    assert 'int' in r
+    assert 'float' in r
+    assert 'reverse=False' in r
+    assert 'all=False' in r
+
+
+@memory_leak_decorator()
+def test_chained_repr2():
+    x = chained(int, float, complex, str, reverse=True, all=True)
+    r = repr(x)
+    assert 'chained' in r
+    assert 'int' in r
+    assert 'float' in r
+    assert 'complex' in r
+    assert 'str' in r
+    assert 'reverse=True' in r
+    assert 'all=True' in r
+
+
+@memory_leak_decorator()
 def test_chained_normal1():
     double_increment = chained(lambda x: x*2, lambda x: x+1)
     assert double_increment(T(10)) == T(21)

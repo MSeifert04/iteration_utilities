@@ -92,6 +92,29 @@ complement_call(PyIUObject_Complement *self,
 }
 
 /******************************************************************************
+ * Repr
+ *****************************************************************************/
+
+static PyObject *
+complement_repr(PyIUObject_Complement *self)
+{
+    PyObject *result = NULL;
+    int ok;
+
+    ok = Py_ReprEnter((PyObject *)self);
+    if (ok != 0) {
+        return ok > 0 ? PyUnicode_FromString("...") : NULL;
+    }
+
+    result = PyUnicode_FromFormat("%s(%R)",
+                                  Py_TYPE(self)->tp_name,
+                                  self->func);
+
+    Py_ReprLeave((PyObject *)self);
+    return result;
+}
+
+/******************************************************************************
  * Reduce
  *****************************************************************************/
 
@@ -164,7 +187,7 @@ PyTypeObject PyIUType_Complement = {
     0,                                                  /* tp_getattr */
     0,                                                  /* tp_setattr */
     0,                                                  /* tp_reserved */
-    0,                                                  /* tp_repr */
+    (reprfunc)complement_repr,                          /* tp_repr */
     0,                                                  /* tp_as_number */
     0,                                                  /* tp_as_sequence */
     0,                                                  /* tp_as_mapping */

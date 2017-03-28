@@ -17,6 +17,14 @@ flip = iteration_utilities.flip
 
 
 @memory_leak_decorator()
+def test_flip_repr1():
+    x = flip(int)
+    r = repr(x)
+    assert 'flip' in r
+    assert 'int' in r
+
+
+@memory_leak_decorator()
 def test_flip_normal1():
     assert not flip(isinstance)(float, 10)
 
