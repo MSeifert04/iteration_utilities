@@ -247,7 +247,7 @@ partial_new(PyTypeObject *type, PyObject *args, PyObject *kw)
                */
             Py_ssize_t i, stop;
 
-            pargs = PYUI_TupleCopy(part->args);
+            pargs = PyIU_TupleCopy(part->args);
             if (pargs == NULL) {
                 return NULL;
             }
@@ -388,7 +388,7 @@ partial_call(PyIUObject_Partial *self, PyObject *args, PyObject *kw)
                        change while the function is called. Why is self->args
                        exposed?
                        */
-                    argappl = PYUI_TupleCopy(self->args);
+                    argappl = PyIU_TupleCopy(self->args);
                     if (argappl == NULL) {
                         goto Fail;
                     }

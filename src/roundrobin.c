@@ -25,7 +25,7 @@ roundrobin_new(PyTypeObject *type,
     PyObject *iteratortuple = NULL;
 
     /* Create and fill struct */
-    iteratortuple = PyUI_CreateIteratorTuple(args);
+    iteratortuple = PyIU_CreateIteratorTuple(args);
     if (iteratortuple == NULL) {
         goto Fail;
     }
@@ -103,7 +103,7 @@ roundrobin_next(PyIUObject_Roundrobin *self)
            to the left.
            */
         } else {
-            PYUI_TupleRemove(self->iteratortuple, self->active, self->numactive);
+            PyIU_TupleRemove(self->iteratortuple, self->active, self->numactive);
         }
         self->numactive--;
         Py_DECREF(iterator);
@@ -148,7 +148,7 @@ roundrobin_reduce(PyIUObject_Roundrobin *self)
     if (PyTuple_GET_SIZE(self->iteratortuple) != self->numactive) {
         ittuple = PyTuple_GetSlice(self->iteratortuple, 0, self->numactive);
     } else {
-        ittuple = PYUI_TupleCopy(self->iteratortuple);
+        ittuple = PyIU_TupleCopy(self->iteratortuple);
     }
     /* The error handling for both branches. */
     if (ittuple == NULL) {

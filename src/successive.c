@@ -126,7 +126,7 @@ successive_next(PyIUObject_Successive *self)
 
         /* Remove the first item of the result. */
         temp = PyTuple_GET_ITEM(result, 0);
-        PYUI_TupleRemove(result, 0, self->times);
+        PyIU_TupleRemove(result, 0, self->times);
         Py_XDECREF(temp);
 
         /* Insert the new item (at the end) and return it. */
