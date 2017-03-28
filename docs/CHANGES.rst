@@ -34,6 +34,10 @@ Version 0.4.1 (unreleased)
 - added ``__repr__`` method for ``chained``, ``complement``, ``constant``,
   ``flip``, ``nth`` and ``packed``.
 
+- fixed a bug with ``partial`` when the function kept the arguments and a call
+  only provided exactly the number of arguments as there are placeholders in
+  the partial.
+
 
 Version 0.4.0 (2017-03-20)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
