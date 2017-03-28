@@ -37,7 +37,7 @@
  *****************************************************************************/
 
 Py_ssize_t
-PyUI_TupleBisectRight_LastFirst(PyObject *tuple,
+PyIU_TupleBisectRight_LastFirst(PyObject *tuple,
                                 PyObject *item,
                                 Py_ssize_t hi,
                                 int cmpop)
@@ -135,7 +135,7 @@ merge_new(PyTypeObject *type,
     Py_XINCREF(keyfunc);
 
     /* Create and fill struct */
-    iteratortuple = PyUI_CreateIteratorTuple(args);
+    iteratortuple = PyIU_CreateIteratorTuple(args);
     if (iteratortuple == NULL) {
         goto Fail;
     }
@@ -238,13 +238,13 @@ merge_init_current(PyIUObject_Merge *self)
             if (tuplelength == 0) {
                 PyTuple_SET_ITEM(current, 0, newitem);
             } else {
-                insert = PyUI_TupleBisectRight_LastFirst(current, newitem,
+                insert = PyIU_TupleBisectRight_LastFirst(current, newitem,
                                                          tuplelength,
                                                          self->reverse);
                 if (insert < 0) {
                     goto Fail;
                 }
-                PYUI_TupleInsert(current, insert, newitem, tuplelength+1);
+                PyIU_TupleInsert(current, insert, newitem, tuplelength+1);
             }
             tuplelength++;
         } else {
@@ -345,7 +345,7 @@ merge_next(PyIUObject_Merge *self)
         }
 
         /* Insert the new value into the sorted current tuple. */
-        insert = PyUI_TupleBisectRight_LastFirst(self->current, (PyObject *)next,
+        insert = PyIU_TupleBisectRight_LastFirst(self->current, (PyObject *)next,
                                                  active, self->reverse);
         if (insert == -1) {
             Py_DECREF(next);
@@ -354,7 +354,7 @@ merge_next(PyIUObject_Merge *self)
             Py_DECREF(val);
             return NULL;
         }
-        PYUI_TupleInsert(self->current, insert, (PyObject *)next, self->numactive);
+        PyIU_TupleInsert(self->current, insert, (PyObject *)next, self->numactive);
         Py_DECREF(next);
     }
     Py_DECREF(val);

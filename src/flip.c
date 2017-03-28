@@ -74,7 +74,7 @@ flip_call(PyIUObject_Flip *self,
     PyObject *result, *tmpargs;
 
     if (PyTuple_GET_SIZE(args) >= 2) {
-        tmpargs = PyUI_TupleReverse(args);
+        tmpargs = PyIU_TupleReverse(args);
         result = PyObject_Call(self->func, tmpargs, kwargs);
         Py_DECREF(tmpargs);
     } else {

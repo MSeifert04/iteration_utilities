@@ -121,7 +121,7 @@ static PyObject *PyIU_global_0tuple = NULL;
  *****************************************************************************/
 
 PyObject *
-PyUI_CreateIteratorTuple(PyObject *tuple)
+PyIU_CreateIteratorTuple(PyObject *tuple)
 {
     PyObject *newtuple;
     Py_ssize_t i;
@@ -149,7 +149,7 @@ PyUI_CreateIteratorTuple(PyObject *tuple)
  *****************************************************************************/
 
 PyObject *
-PyUI_TupleReverse(PyObject *tuple)
+PyIU_TupleReverse(PyObject *tuple)
 {
     PyObject *newtuple;
     Py_ssize_t i, j;
@@ -177,7 +177,7 @@ PyUI_TupleReverse(PyObject *tuple)
  *****************************************************************************/
 
 static PyObject *
-PYUI_TupleCopy(PyObject *tuple)
+PyIU_TupleCopy(PyObject *tuple)
 {
     PyObject *newtuple;
     Py_ssize_t i;
@@ -213,7 +213,7 @@ PYUI_TupleCopy(PyObject *tuple)
  *****************************************************************************/
 
 void
-PYUI_TupleInsert(PyObject *tuple,
+PyIU_TupleInsert(PyObject *tuple,
                  Py_ssize_t where,
                  PyObject *v,
                  Py_ssize_t num)
@@ -248,7 +248,7 @@ PYUI_TupleInsert(PyObject *tuple,
  *****************************************************************************/
 
 void
-PYUI_TupleRemove(PyObject *tuple,
+PyIU_TupleRemove(PyObject *tuple,
                  Py_ssize_t where,
                  Py_ssize_t num)
 {
