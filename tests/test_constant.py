@@ -17,6 +17,14 @@ const = iteration_utilities.constant
 
 
 @memory_leak_decorator()
+def test_constant_repr1():
+    x = const(2)
+    r = repr(x)
+    assert 'constant' in r
+    assert '2' in r
+
+
+@memory_leak_decorator()
 def test_constant_normal1():
     one = const(T(1))
     assert one() == T(1)

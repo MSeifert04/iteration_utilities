@@ -93,6 +93,29 @@ packed_call(PyIUObject_Packed *self,
 }
 
 /******************************************************************************
+ * Repr
+ *****************************************************************************/
+
+static PyObject *
+packed_repr(PyIUObject_Packed *self)
+{
+    PyObject *result = NULL;
+    int ok;
+
+    ok = Py_ReprEnter((PyObject *)self);
+    if (ok != 0) {
+        return ok > 0 ? PyUnicode_FromString("...") : NULL;
+    }
+
+    result = PyUnicode_FromFormat("%s(%R)",
+                                  Py_TYPE(self)->tp_name,
+                                  self->func);
+
+    Py_ReprLeave((PyObject *)self);
+    return result;
+}
+
+/******************************************************************************
  * Reduce
  *****************************************************************************/
 
@@ -181,7 +204,7 @@ PyTypeObject PyIUType_Packed = {
     0,                                                  /* tp_getattr */
     0,                                                  /* tp_setattr */
     0,                                                  /* tp_reserved */
-    0,                                                  /* tp_repr */
+    (reprfunc)packed_repr,                              /* tp_repr */
     0,                                                  /* tp_as_number */
     0,                                                  /* tp_as_sequence */
     0,                                                  /* tp_as_mapping */

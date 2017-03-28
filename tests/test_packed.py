@@ -18,6 +18,14 @@ packed = iteration_utilities.packed
 
 
 @memory_leak_decorator()
+def test_packed_repr1():
+    x = packed(int)
+    r = repr(x)
+    assert 'packed' in r
+    assert 'int' in r
+
+
+@memory_leak_decorator()
 def test_packed_normal1():
     eq = packed(operator.eq)
     assert eq((T(1), T(1)))

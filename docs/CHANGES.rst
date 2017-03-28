@@ -31,7 +31,8 @@ Version 0.4.1 (unreleased)
   ``grouper``, ``intersperse``, ``merge``, ``roundrobin``, ``sideeffects``,
   ``split``, ``successive``, ``unique_everseen``, ``unique_justseen``.
 
-
+- added ``__repr__`` method for ``chained``, ``complement``, ``constant``,
+  ``flip``, ``nth`` and ``packed``.
 
 
 Version 0.4.0 (2017-03-20)

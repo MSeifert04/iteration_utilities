@@ -155,6 +155,54 @@ chained_call(PyIUObject_Chained *self,
 }
 
 /******************************************************************************
+ * Repr
+ *****************************************************************************/
+
+static PyObject *
+chained_repr(PyIUObject_Chained *self)
+{
+    PyObject *result = NULL;
+    PyObject *arglist;
+    Py_ssize_t i, n;
+    int ok;
+
+    ok = Py_ReprEnter((PyObject *)self);
+    if (ok != 0) {
+        return ok > 0 ? PyUnicode_FromString("...") : NULL;
+    }
+
+    arglist = PyUnicode_FromString("");
+    if (arglist == NULL) {
+        goto done;
+    }
+
+    /* Pack positional arguments */
+    n = PyTuple_GET_SIZE(self->funcs);
+    for (i = 0; i < n; i++) {
+        PyObject *tmp = PyUnicode_FromFormat("%U%R, ",
+                                             arglist,
+                                             PyTuple_GET_ITEM(self->funcs, i));
+        Py_CLEAR(arglist);
+        arglist = tmp;
+        if (arglist == NULL) {
+            goto done;
+        }
+    }
+
+    result = PyUnicode_FromFormat("%s(%Ureverse=%R, all=%R)",
+                                  Py_TYPE(self)->tp_name,
+                                  arglist,
+                                  self->reverse ? Py_True : Py_False,
+                                  self->all ? Py_True : Py_False);
+    Py_DECREF(arglist);
+
+
+done:
+    Py_ReprLeave((PyObject *)self);
+    return result;
+}
+
+/******************************************************************************
  * Reduce
  *****************************************************************************/
 
@@ -277,7 +325,7 @@ PyTypeObject PyIUType_Chained = {
     0,                                                  /* tp_getattr */
     0,                                                  /* tp_setattr */
     0,                                                  /* tp_reserved */
-    0,                                                  /* tp_repr */
+    (reprfunc)chained_repr,                             /* tp_repr */
     0,                                                  /* tp_as_number */
     0,                                                  /* tp_as_sequence */
     0,                                                  /* tp_as_mapping */

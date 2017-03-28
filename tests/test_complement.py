@@ -16,6 +16,14 @@ complement = iteration_utilities.complement
 
 
 @memory_leak_decorator()
+def test_complement_repr1():
+    x = complement(int)
+    r = repr(x)
+    assert 'complement' in r
+    assert 'int' in r
+
+
+@memory_leak_decorator()
 def test_complement_normal1():
     assert not complement(lambda x: x is True)(True)
 
