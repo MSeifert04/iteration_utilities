@@ -5,7 +5,6 @@
 typedef struct {
     PyObject_HEAD
     PyObject *funcs;
-    int reverse;
     int all;
     PyObject *funcargs;
 } PyIUObject_Chained;
@@ -22,9 +21,8 @@ chained_new(PyTypeObject *type,
             PyObject *kwargs)
 {
     static char *kwlist[] = {"reverse", "all", NULL};
-    PyIUObject_Chained *self;
+    PyIUObject_Chained *self = NULL;
 
-    PyObject *funcargs=NULL;
     int reverse = 0;
     int all = 0;
 
@@ -39,27 +37,33 @@ chained_new(PyTypeObject *type,
                                      &reverse, &all)) {
         return NULL;
     }
-
-    if (!all) {
-        funcargs = PyTuple_New(1);
-        if (funcargs == NULL) {
-            goto Fail;
-        }
-    }
     /* Create struct */
     self = (PyIUObject_Chained *)type->tp_alloc(type, 0);
     if (self == NULL) {
         goto Fail;
     }
-    Py_INCREF(funcs);
-    self->funcs = funcs;
-    self->reverse = reverse;
+
+    if (!all) {
+        self->funcargs = PyTuple_New(1);
+        if (self->funcargs == NULL) {
+            goto Fail;
+        }
+    }
+
+    if (reverse) {
+        self->funcs = PyIU_TupleReverse(funcs);
+    } else {
+        self->funcs = PyIU_TupleCopy(funcs);
+    }
+    if (self->funcs == NULL) {
+        goto Fail;
+    }
+
     self->all = all;
-    self->funcargs = funcargs;
     return (PyObject *)self;
 
 Fail:
-    Py_XDECREF(funcargs);
+    Py_XDECREF(self);
     return NULL;
 }
 
@@ -95,62 +99,73 @@ chained_traverse(PyIUObject_Chained *self,
  *****************************************************************************/
 
 static PyObject *
+chained_call_normal(PyIUObject_Chained *self,
+                    PyObject *args,
+                    PyObject *kwargs)
+{
+    Py_ssize_t idx;
+
+    PyObject *temp = PyObject_Call(PyTuple_GET_ITEM(self->funcs, 0),
+                                   args, kwargs);
+    if (temp == NULL) {
+        return NULL;
+    }
+
+    for (idx=1 ; idx < PyTuple_GET_SIZE(self->funcs) ; idx++) {
+        PyObject *func = PyTuple_GET_ITEM(self->funcs, idx);
+        PyObject *oldtemp = temp;
+        PYIU_RECYCLE_ARG_TUPLE(self->funcargs, temp, Py_DECREF(oldtemp);
+                                                     return NULL);
+        temp = PyObject_Call(func, self->funcargs, NULL);
+        Py_DECREF(oldtemp);
+
+        if (temp == NULL) {
+            return NULL;
+        }
+    }
+
+    return temp;
+}
+
+static PyObject *
+chained_call_all(PyIUObject_Chained *self,
+                 PyObject *args,
+                 PyObject *kwargs)
+{
+    PyObject *result;
+    Py_ssize_t idx;
+    Py_ssize_t num_funcs = PyTuple_GET_SIZE(self->funcs);
+
+    /* Create a placeholder tuple for "all=True".  */
+    result = PyTuple_New(num_funcs);
+    if (result == NULL) {
+        return NULL;
+    }
+
+    for (idx=0 ; idx<num_funcs ; idx++) {
+        PyObject *func = PyTuple_GET_ITEM(self->funcs, idx);
+        PyObject *temp = PyObject_Call(func, args, kwargs);
+        PyTuple_SET_ITEM(result, idx, temp);
+
+        if (temp == NULL) {
+            Py_DECREF(result);
+            return NULL;
+        }
+    }
+
+    return result;
+}
+
+
+static PyObject *
 chained_call(PyIUObject_Chained *self,
              PyObject *args,
              PyObject *kwargs)
 {
-    PyObject *func;
-    PyObject *oldtemp;
-    PyObject *temp = NULL;
-    PyObject *result = NULL;
-    Py_ssize_t idx;
-    Py_ssize_t tuplesize = PyTuple_GET_SIZE(self->funcs);
-
-    /* Create a placeholder tuple for "all=True".  */
     if (self->all) {
-        result = PyTuple_New(tuplesize);
-        if (result == NULL) {
-            return NULL;
-        }
-    }
-
-    for (idx=0 ; idx<tuplesize ; idx++) {
-
-        /* Get the function. */
-        if (self->reverse) {
-            func = PyTuple_GET_ITEM(self->funcs, tuplesize - idx - 1);
-        } else {
-            func = PyTuple_GET_ITEM(self->funcs, idx);
-        }
-
-        /* Call the function and process the result. */
-        if (temp == NULL || self->all) {
-            temp = PyObject_Call(func, args, kwargs);
-            if (self->all) {
-                PyTuple_SET_ITEM(result, idx, temp);
-            }
-        } else {
-            oldtemp = temp;
-            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, temp, Py_DECREF(result);
-                                                         Py_DECREF(oldtemp);
-                                                         return NULL);
-            temp = PyObject_Call(func, self->funcargs, NULL);
-            Py_DECREF(oldtemp);
-        }
-
-        /* In case something went wrong when calling the function. */
-        if (temp == NULL) {
-            if (self->all) {
-                Py_DECREF(result);
-            }
-            return NULL;
-        }
-    }
-
-    if (self->all) {
-        return result;
+        return chained_call_all(self, args, kwargs);
     } else {
-        return temp;
+        return chained_call_normal(self, args, kwargs);
     }
 }
 
@@ -189,10 +204,9 @@ chained_repr(PyIUObject_Chained *self)
         }
     }
 
-    result = PyUnicode_FromFormat("%s(%Ureverse=%R, all=%R)",
+    result = PyUnicode_FromFormat("%s(%Uall=%R)",
                                   Py_TYPE(self)->tp_name,
                                   arglist,
-                                  self->reverse ? Py_True : Py_False,
                                   self->all ? Py_True : Py_False);
     Py_DECREF(arglist);
 
@@ -210,9 +224,9 @@ static PyObject *
 chained_reduce(PyIUObject_Chained *self,
                PyObject *unused)
 {
-    return Py_BuildValue("OO(ii)", Py_TYPE(self),
+    return Py_BuildValue("OO(i)", Py_TYPE(self),
                          self->funcs,
-                         self->reverse, self->all);
+                         self->all);
 }
 
 /******************************************************************************
@@ -223,7 +237,7 @@ static PyObject *
 chained_setstate(PyIUObject_Chained *self,
                  PyObject *state)
 {
-    int reverse, all;
+    int all;
 
     if (!PyTuple_Check(state)) {
         PyErr_Format(PyExc_TypeError,
@@ -233,12 +247,10 @@ chained_setstate(PyIUObject_Chained *self,
         return NULL;
     }
 
-    if (!PyArg_ParseTuple(state, "ii:chained.__setstate__",
-                          &reverse, &all)) {
+    if (!PyArg_ParseTuple(state, "i:chained.__setstate__", &all)) {
         return NULL;
     }
 
-    self->reverse = reverse;
     self->all = all;
     Py_RETURN_NONE;
 }

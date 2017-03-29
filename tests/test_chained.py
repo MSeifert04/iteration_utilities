@@ -38,7 +38,6 @@ def test_chained_repr1():
     assert 'chained' in r
     assert 'int' in r
     assert 'float' in r
-    assert 'reverse=False' in r
     assert 'all=False' in r
 
 
@@ -51,7 +50,6 @@ def test_chained_repr2():
     assert 'float' in r
     assert 'complex' in r
     assert 'str' in r
-    assert 'reverse=True' in r
     assert 'all=True' in r
 
 
