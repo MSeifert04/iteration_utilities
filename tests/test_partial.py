@@ -715,9 +715,9 @@ def test_partial_from_partial_basic5():
     assert p2(T(5)) == ((T(1), T(2), T(3), T(4), T(5)), {})
 
 
-@memory_leak_decorator()
+@memory_leak_decorator(collect=True)
 def test_partial_with_function_that_keeps_args():
     # A function that keeps it's args as-is was a problem with partial because
-    # it reused the arguments.
+    # it reused the arguments. chained is such a function (currently).
     chained = iteration_utilities.chained
     partial(chained, partial._, str)(complex)(10) == '(10+0j)'
