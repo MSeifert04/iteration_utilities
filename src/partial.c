@@ -355,136 +355,101 @@ Fail:
 static PyObject *
 partial_call(PyIUObject_Partial *self, PyObject *args, PyObject *kw)
 {
-    PyObject *ret;
-    PyObject *argappl = NULL;
-    PyObject *kwappl = NULL;
-    Py_ssize_t i;
+    PyObject *ret = NULL;
+    PyObject *finalargs = NULL;
+    PyObject *finalkw = NULL;
+    Py_ssize_t num_placeholders = self->numph;
+    Py_ssize_t selfargsize = PyTuple_GET_SIZE(self->args);
+    Py_ssize_t passargsize = PyTuple_GET_SIZE(args);
 
-    if (PyTuple_GET_SIZE(self->args) == 0) {
-        argappl = args;
+    if (selfargsize == 0) {
+        /* No own args, so we can simply use these passed to the function. */
+        finalargs = args;
         Py_INCREF(args);
-    } else if (PyTuple_GET_SIZE(args) == 0) {
-        if (self->numph) {
+    } else if (passargsize == 0) {
+        /* No passed arguments, we can simply reuse the own arguments except
+           when these contain placeholders.
+           */
+        if (num_placeholders) {
             PyErr_SetString(PyExc_TypeError,
                             "not enough values to fill the placeholders.");
-            return NULL;
+            goto Fail;
         }
-        argappl = self->args;
+        finalargs = self->args;
         Py_INCREF(self->args);
     } else {
-        if (self->numph) {
-            Py_ssize_t tuplesize = PyTuple_GET_SIZE(args);
-            if (tuplesize == self->numph) {
-                /* Exactly that many arguments as there are placeholders, just
-                   fill in the blanks.
-                   */
-                if (Py_REFCNT(self->args) == 1) {
-                    argappl = self->args;
-                    Py_INCREF(argappl);
-                } else {
-                    /* We need a new argappl because someone else holds a
-                       reference to the the args attribute. This will be a bit
-                       slower but better than the surprise of having a tuple
-                       change while the function is called. Why is self->args
-                       exposed?
-                       */
-                    argappl = PyIU_TupleCopy(self->args);
-                    if (argappl == NULL) {
-                        goto Fail;
-                    }
-                }
-                /* Temporary replace the placeholders with the given args.
-                   These are switched back to placeholders after the function
-                   call. Let's just hope that nobody decrefs them out of
-                   existence.
-                   CAREFUL: These items live on a stolen reference!!!
-                   */
-                for (i = 0 ; i < self->numph ; i++) {
-                    PyTuple_SET_ITEM(argappl,
-                                     self->posph[i],
-                                     PyTuple_GET_ITEM(args, i));
-                }
-            } else if (tuplesize > self->numph) {
-                /* More arguments than placeholders, fill in the placeholders
-                   and concat the remaining items.
-                   To keep the state clean first try to slice the passed in
-                   args (those which shouldn't fill the placeholders), then
-                   concat the self->args and the slice (creating a new
-                   reference) so we can simply fill in the blanks without
-                   potentially altering the original self->args
-                   */
-                PyObject *tmp = PyTuple_GetSlice(args,
-                                                 self->numph, PY_SSIZE_T_MAX);
-                if (tmp == NULL) {
-                    return NULL;
-                }
-                argappl = PySequence_Concat(self->args, tmp);
-                Py_DECREF(tmp);
-                if (argappl == NULL) {
-                    goto Fail;
-                }
-                /* See above.
-                   CAREFUL: These items live on a stolen reference!!!
-                   */
-                for (i = 0 ; i < self->numph ; i++) {
-                    PyTuple_SET_ITEM(argappl,
-                                     self->posph[i],
-                                     PyTuple_GET_ITEM(args, i));
-                }
-            } else {
-                PyErr_SetString(PyExc_TypeError,
-                                "not enough values to fill the placeholders.");
-                return NULL;
-            }
+        /* In case both the own arguments and the passed arguments contain
+           at least one item we need to create a new tuple that contains them
+           all (filling potential placeholders).
+           */
+        if (num_placeholders > passargsize) {
+            PyErr_SetString(PyExc_TypeError,
+                            "not enough values to fill the placeholders.");
+            goto Fail;
+        }
+        /* In theory it would be possible to not create a new tuple for the
+           call but only if the function doesn't keep that tuple (some
+           functions could!). So probably best to always create a new tuple.
+           */
+        finalargs = PyTuple_New(selfargsize + passargsize - num_placeholders);
+        if (finalargs == NULL) {
+            return NULL;
         } else {
-            argappl = PySequence_Concat(self->args, args);
-            if (argappl == NULL) {
-                goto Fail;
+            Py_ssize_t i, j;
+            /* Copy the elements from the self->args into the new tuple
+               including the placeholders.
+               */
+            for (i=0 ; i<selfargsize ; i++) {
+                PyObject *tmp = PyTuple_GET_ITEM(self->args, i);
+                Py_INCREF(tmp);
+                PyTuple_SET_ITEM(finalargs, i, tmp);
+            }
+            /* Replace the placeholders with the first items of the passed
+               arguments. This doesn't decrement the reference count for the
+               placeholders yet.
+               */
+            for (i=0 ; i<num_placeholders ; i++) {
+                PyObject *tmp = PyTuple_GET_ITEM(args, i);
+                Py_INCREF(tmp);
+                PyTuple_SET_ITEM(finalargs, self->posph[i], tmp);
+            }
+            /* Now decrement the placeholders. */
+            for (i=0 ; i<num_placeholders ; i++) {
+                Py_DECREF(PYIU_Placeholder);
+            }
+            /* Now insert the remaining items of the passed arguments into the
+               final tuple.
+               */
+            for (i=num_placeholders, j=selfargsize ; i<passargsize ; i++, j++) {
+                PyObject *tmp = PyTuple_GET_ITEM(args, i);
+                Py_INCREF(tmp);
+                PyTuple_SET_ITEM(finalargs, j, tmp);
             }
         }
-
     }
 
     if (PyDict_Size(self->kw) == 0) {
-        kwappl = kw;
-        Py_XINCREF(kwappl);
+        finalkw = kw;
+        Py_XINCREF(finalkw);
     } else {
-        kwappl = PyDict_Copy(self->kw);
-        if (kwappl == NULL) {
+        finalkw = PyDict_Copy(self->kw);
+        if (finalkw == NULL) {
             goto Fail;
         }
         if (kw != NULL) {
-            if (PyDict_Merge(kwappl, kw, 1) != 0) {
+            if (PyDict_Merge(finalkw, kw, 1) != 0) {
                 goto Fail;
             }
         }
     }
 
     /* Actually call the function. */
-    ret = PyObject_Call(self->fn, argappl, kwappl);
-
-    /* Before decref'ing argappl we need to be make sure that there are no
-       items inside that live on a borrowed reference!!! */
-    if (self->numph) {
-        for (i = 0 ; i < self->numph ; i++) {
-            PyTuple_SET_ITEM(argappl, self->posph[i], PYIU_Placeholder);
-        }
-    }
-    Py_DECREF(argappl);
-    Py_XDECREF(kwappl);
-    return ret;
+    ret = PyObject_Call(self->fn, finalargs, finalkw);
 
 Fail:
-    /* Before decref'ing argappl we need to be make sure that there are no
-       items inside that live on a borrowed reference!!! */
-    if (self->numph && argappl != NULL) {
-        for (i = 0 ; i < self->numph ; i++) {
-            PyTuple_SET_ITEM(argappl, self->posph[i], PYIU_Placeholder);
-        }
-    }
-    Py_XDECREF(argappl);
-    Py_XDECREF(kwappl);
-    return NULL;
+    Py_XDECREF(finalargs);
+    Py_XDECREF(finalkw);
+    return ret;
 }
 
 
