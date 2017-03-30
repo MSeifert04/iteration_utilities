@@ -25,9 +25,10 @@ chained_new(PyTypeObject *type,
 
     int reverse = 0;
     int all = 0;
+    Py_ssize_t num_funcs = PyTuple_GET_SIZE(funcs);
 
     /* Parse arguments */
-    if (PyTuple_GET_SIZE(funcs) <= 0) {
+    if (num_funcs == 0) {
         PyErr_Format(PyExc_TypeError, "at least 1 function must be given.");
         goto Fail;
     }
@@ -37,6 +38,7 @@ chained_new(PyTypeObject *type,
                                      &reverse, &all)) {
         return NULL;
     }
+
     /* Create struct */
     self = (PyIUObject_Chained *)type->tp_alloc(type, 0);
     if (self == NULL) {
@@ -50,11 +52,86 @@ chained_new(PyTypeObject *type,
         }
     }
 
-    if (reverse) {
-        self->funcs = PyIU_TupleReverse(funcs);
+    /* In case we want consecutive function calls (and not all) of them we can
+       unwrap other "chained" instances inside the function-tuple passed in.
+       */
+    if (all == 0 && type == &PyIUType_Chained) {
+        Py_ssize_t finalsize = 0;
+        Py_ssize_t i;  /* Index for the input "funcs". */
+        Py_ssize_t j;  /* Index for the out "funcs". */
+        /* First pass over the data to get the number of functions. This is
+           mostly unnecessary except when there are other "chained" instances
+           inside the functions. These can be unwrapped.
+           */
+        for (i=0 ; i<num_funcs ; i++) {
+            PyObject *function = PyTuple_GET_ITEM(funcs, i);
+            if (Py_TYPE(function) == &PyIUType_Chained &&
+                    ((PyIUObject_Chained *)function)->all == 0) {
+                finalsize += PyTuple_GET_SIZE(((PyIUObject_Chained *)function)->funcs);
+            } else {
+                finalsize++;
+            }
+        }
+        /* The second step involves creating a suitable tuple and inserting
+           the functions while unwrapping "chained" instances that have
+           "all == 0". We don't want to unwrap "all" chained instances because
+           these don't participate in "chains" and would produce other results
+           if unwrapped. One could argue that unwrapping "all"-chained inside
+           other "all"-chained might make sense but it would change the way
+           the function works and not to forget: That behaviour would be
+           confusing.
+
+           Special care has to be taken for "reversed" because even though all
+           other functions are inserted in reversed order an unwrapped
+           "chained" instance must be inserted in the original order so not to
+           change the order of execution compared to the case when they would
+           not be unwrapped.
+           */
+        self->funcs = PyTuple_New(finalsize);
+        if (self->funcs == NULL) {
+            goto Fail;
+        }
+        j = reverse ? (finalsize - 1) : 0;
+        for (i=0 ; i<num_funcs ; i++) {
+            PyObject *function = PyTuple_GET_ITEM(funcs, i);
+            if (Py_TYPE(function) == &PyIUType_Chained &&
+                    ((PyIUObject_Chained *)function)->all == 0) {
+                Py_ssize_t k;
+                PyIUObject_Chained *sub = (PyIUObject_Chained *)function;
+                Py_ssize_t sub_size = PyTuple_GET_SIZE(sub->funcs);
+                /* Prepare the index for inserting the array in normal order
+                   even when "reversed" is given.
+                   */
+                j = reverse ? (j - sub_size + 1) : j;
+                for (k=0 ; k<sub_size ; k++) {
+                    PyObject *subfunc = PyTuple_GET_ITEM(sub->funcs, k);
+                    Py_INCREF(subfunc);
+                    PyTuple_SET_ITEM(self->funcs, j, subfunc);
+                    j++;
+                }
+                /* The index needs to jump back to the original position in
+                   case a "chained" instance was unwrapped while "reverse" was
+                   given.
+                   */
+                j = reverse ? (j - sub_size - 1) : j;
+            } else {
+                /* This is the normal behaviour without unwrapping. Just change
+                   the insertion index differently depending on "reverse".
+                   */
+                Py_INCREF(function);
+                PyTuple_SET_ITEM(self->funcs, j, function);
+                j = reverse ? (j - 1) : (j + 1);
+            }
+        }
+
     } else {
-        self->funcs = PyIU_TupleCopy(funcs);
+        if (reverse) {
+            self->funcs = PyIU_TupleReverse(funcs);
+        } else {
+            self->funcs = PyIU_TupleCopy(funcs);
+        }
     }
+
     if (self->funcs == NULL) {
         goto Fail;
     }

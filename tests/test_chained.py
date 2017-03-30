@@ -31,6 +31,10 @@ class T(Original_T):
         return self.__class__(self.value ** other)
 
 
+class ChainedSubclass(chained):
+    pass
+
+
 @memory_leak_decorator()
 def test_chained_repr1():
     x = chained(int, float)
@@ -51,6 +55,73 @@ def test_chained_repr2():
     assert 'complex' in r
     assert 'str' in r
     assert 'all=True' in r
+
+
+@memory_leak_decorator()
+def test_chained_from_chained1():
+    # Verify that unwrapping works
+    x = chained(int, chained(float, complex), str)
+    funcs = x.__reduce__()[1]
+    assert funcs[0] is int
+    assert funcs[1] is float
+    assert funcs[2] is complex
+    assert funcs[3] is str
+
+
+@memory_leak_decorator()
+def test_chained_from_chained2():
+    # Verify that unwrapping works (chained from chained)
+    x = chained(chained(float, complex))
+    funcs = x.__reduce__()[1]
+    assert funcs[0] is float
+    assert funcs[1] is complex
+
+
+@memory_leak_decorator()
+def test_chained_from_chained3():
+    # Verify that unwrapping works
+    x = chained(int, chained(float, complex), str, reverse=True)
+    funcs = x.__reduce__()[1]
+    assert funcs[0] is str
+    assert funcs[1] is float  # still second!
+    assert funcs[2] is complex  # still third!
+    assert funcs[3] is int
+
+
+@memory_leak_decorator()
+def test_chained_from_chained4():
+    # Verify that unwrapping works with multiple chained
+    x = chained(chained(int, list),
+                chained(float, complex),
+                chained(str, tuple, set))
+    funcs = x.__reduce__()[1]
+    assert funcs[0] is int
+    assert funcs[1] is list
+    assert funcs[2] is float
+    assert funcs[3] is complex
+    assert funcs[4] is str
+    assert funcs[5] is tuple
+    assert funcs[6] is set
+
+
+@memory_leak_decorator()
+def test_chained_from_chained5():
+    # Verify that unwrapping does NOT work if the inner chained has all
+    x = chained(int, chained(float, complex, all=True), str)
+    funcs = x.__reduce__()[1]
+    assert funcs[0] is int
+    assert type(funcs[1]) is chained  # no unwrapping
+    assert funcs[2] is str
+
+
+@memory_leak_decorator()
+def test_chained_from_chained6():
+    # Verify that unwrapping does NOT work if the outer chained has all
+    x = chained(int, chained(float, complex), str, all=True)
+    funcs = x.__reduce__()[1]
+    assert funcs[0] is int
+    assert type(funcs[1]) is chained  # no unwrapping
+    assert funcs[2] is str
 
 
 @memory_leak_decorator()
