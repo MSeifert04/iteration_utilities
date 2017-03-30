@@ -1,5 +1,5 @@
 /******************************************************************************
- * Licensed under Apache License Version 2.0 - see LICENSE.rst
+ * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
 

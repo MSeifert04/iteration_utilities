@@ -1,5 +1,5 @@
 /******************************************************************************
- * Licensed under Apache License Version 2.0 - see LICENSE.rst
+ * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
 PyObject PlaceholderStruct;
@@ -148,17 +148,7 @@ Fail:
 
 
 /******************************************************************************
- * The following code is has a different license:
- *
- * PSF license - see licenses/LICENSE_PYTHON.rst
- *
- * These functions are _roughly_ identical to the one in "functoolsmodule.c" in
- * CPython.
- *
- * Changes with respect to the original Python functions are licensed under
- * the "iteration_utilities" license:
- * Apache License Version 2.0 - see LICENSE.rst
- *
+ * Parts are taken from the CPython package (PSF licensed).
  *****************************************************************************/
 
 

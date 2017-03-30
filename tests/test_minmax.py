@@ -1,3 +1,5 @@
+# Licensed under Apache License Version 2.0 - see LICENSE
+
 # Built-ins
 from __future__ import absolute_import, division, print_function
 
@@ -156,7 +158,7 @@ def test_minmax_stability6():
     assert minmax(T((T(5), T(5))), T((T(3), T(5))),
                   T((T(1), T(5))), T((T(1), T(3))),
                   key=lambda x: x.value[0]) == (T((T(1), T(5))),
-                                                 T((T(5), T(5))))
+                                                T((T(5), T(5))))
 
 
 @memory_leak_decorator()

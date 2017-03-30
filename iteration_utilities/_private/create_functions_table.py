@@ -1,3 +1,5 @@
+# Licensed under Apache License Version 2.0 - see LICENSE
+
 def create_included_function_list():
     """Creates an RST table to insert in the "docs/index.rst" file for the
     complete overview of the package.

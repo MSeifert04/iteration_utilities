@@ -1,8 +1,11 @@
+# Licensed under Apache License Version 2.0 - see LICENSE
+
+# Parts are taken from the CPython package (PSF licensed).
+
 """
 API: Official recipes
 ---------------------
 """
-# Licensed under PSF license - see licenses/LICENSE_PYTHON.rst
 
 # Built-ins
 from __future__ import absolute_import, division, print_function
