@@ -1,5 +1,8 @@
 /******************************************************************************
- * Licensed under Apache License Version 2.0 - see LICENSE.rst
+ * Licensed under Apache License Version 2.0 - see LICENSE
+ *****************************************************************************/
+
+/******************************************************************************
  *
  * Helper class that mimics a 2-tuple when compared but dynamically decides
  * which item to compare (item or key) and assumes that the idx is always

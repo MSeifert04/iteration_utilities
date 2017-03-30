@@ -1,3 +1,5 @@
+# Licensed under Apache License Version 2.0 - see LICENSE
+
 """
 This module contains callable test cases.
 """

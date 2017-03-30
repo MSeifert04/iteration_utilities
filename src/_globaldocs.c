@@ -1,15 +1,12 @@
 /******************************************************************************
- * Licensed under Apache License Version 2.0 - see LICENSE.rst
+ * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
 /******************************************************************************
  *
- * Documentation for __reduce__
+ * Documentation for __reduce__, __setstate__ and __length_hint__
  *
- * This section has a differing license because this was copied from the
- * itertoolsmodule.c file of CPython.
- *
- * Licensed under PSF license - see licenses/LICENSE_PYTHON.rst
+ * Parts are taken from the CPython package (PSF licensed).
  *
  *****************************************************************************/
 

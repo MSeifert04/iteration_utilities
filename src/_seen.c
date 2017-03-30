@@ -1,5 +1,8 @@
 /******************************************************************************
- * Licensed under Apache License Version 2.0 - see LICENSE.rst
+ * Licensed under Apache License Version 2.0 - see LICENSE
+ *****************************************************************************/
+
+/******************************************************************************
  *
  * Helper class that wraps a set and list. This class is simply for convenience
  * so "contains and add if not contained"-operations are seperated from the

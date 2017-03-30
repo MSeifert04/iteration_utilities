@@ -1,3 +1,5 @@
+# Licensed under Apache License Version 2.0 - see LICENSE
+
 """
 from iteration_utilities._private import create_functions_table, create_method_lists
 from iteration_utilities.core import _Base, Iterable, InfiniteIterable, ManyIterables

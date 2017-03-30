@@ -1,3 +1,5 @@
+# Licensed under Apache License Version 2.0 - see LICENSE
+
 from ._utils import *
 from ._cfuncs import *
 from ._recipes import *
