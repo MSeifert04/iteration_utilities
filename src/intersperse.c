@@ -177,8 +177,8 @@ intersperse_setstate(PyIUObject_Intersperse *self,
         PyErr_Format(PyExc_ValueError,
                      "`%.200s.__setstate__` expected that the second argument "
                      "in the `state` is not given when the first argument is "
-                     "0, got %R.",
-                     Py_TYPE(self)->tp_name, nextitem);
+                     "0, got %.200s.",
+                     Py_TYPE(self)->tp_name, Py_TYPE(nextitem)->tp_name);
         return NULL;
     }
 
