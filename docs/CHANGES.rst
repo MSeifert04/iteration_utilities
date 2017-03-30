@@ -41,6 +41,10 @@ Version 0.4.1 (unreleased)
 - Applying ``flip`` on another ``flip`` instance now simply returns the
   original function.
 
+- ``chained`` now unwraps (if possible) other ``chained`` instances when
+  creating a new instance. This is only done if this **won't** change the
+  current behaviour.
+
 
 Version 0.4.0 (2017-03-20)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
