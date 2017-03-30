@@ -38,6 +38,9 @@ Version 0.4.1 (unreleased)
   only provided exactly the number of arguments as there are placeholders in
   the partial.
 
+- Applying ``flip`` on another ``flip`` instance now simply returns the
+  original function.
+
 
 Version 0.4.0 (2017-03-20)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
