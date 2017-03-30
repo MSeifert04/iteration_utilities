@@ -25,9 +25,10 @@ chained_new(PyTypeObject *type,
 
     int reverse = 0;
     int all = 0;
+    Py_ssize_t num_funcs = PyTuple_GET_SIZE(funcs);
 
     /* Parse arguments */
-    if (PyTuple_GET_SIZE(funcs) <= 0) {
+    if (num_funcs == 0) {
         PyErr_Format(PyExc_TypeError, "at least 1 function must be given.");
         goto Fail;
     }
@@ -37,6 +38,7 @@ chained_new(PyTypeObject *type,
                                      &reverse, &all)) {
         return NULL;
     }
+
     /* Create struct */
     self = (PyIUObject_Chained *)type->tp_alloc(type, 0);
     if (self == NULL) {
@@ -50,11 +52,59 @@ chained_new(PyTypeObject *type,
         }
     }
 
-    if (reverse) {
-        self->funcs = PyIU_TupleReverse(funcs);
+    /* In case we want consecutive function calls (and not all) of them we can
+       unwrap other "chained" instances inside the function-tuple passed in.
+       */
+    if (!all && type == &PyIUType_Chained) {
+        Py_ssize_t finalsize = 0;
+        Py_ssize_t i;
+        Py_ssize_t j;
+        for (i=0 ; i<num_funcs ; i++) {
+            PyObject *function = PyTuple_GET_ITEM(funcs, i);
+            if (Py_TYPE(function) == &PyIUType_Chained) {
+                finalsize += PyTuple_GET_SIZE(((PyIUObject_Chained *)function)->funcs);
+            } else {
+                finalsize++;
+            }
+        }
+        /* In case there were "chained" instances inside the funcs the number
+           of "found" will be different from "num_funs" and we can simply
+           create a new tuple of length "finalsize".
+           */
+        self->funcs = PyTuple_New(finalsize);
+        if (self->funcs == NULL) {
+            goto Fail;
+        }
+        j = reverse ? (finalsize - 1) : 0;
+        for (i=0 ; i<num_funcs ; i++) {
+            PyObject *function = PyTuple_GET_ITEM(funcs, i);
+            if (Py_TYPE(function) == &PyIUType_Chained) {
+                Py_ssize_t k;
+                PyIUObject_Chained *sub = (PyIUObject_Chained *)function;
+                Py_ssize_t sub_size = PyTuple_GET_SIZE(sub->funcs);
+                j = reverse ? (j - sub_size + 1) : j;
+                for (k=0 ; k<sub_size ; k++) {
+                    PyObject *subfunc = PyTuple_GET_ITEM(sub->funcs, k);
+                    Py_INCREF(subfunc);
+                    PyTuple_SET_ITEM(self->funcs, j, subfunc);
+                    j++;
+                }
+                j = reverse ? (j - sub_size - 1) : j;
+            } else {
+                Py_INCREF(function);
+                PyTuple_SET_ITEM(self->funcs, j, function);
+                j = reverse ? (j - 1) : (j + 1);
+            }
+        }
+
     } else {
-        self->funcs = PyIU_TupleCopy(funcs);
+        if (reverse) {
+            self->funcs = PyIU_TupleReverse(funcs);
+        } else {
+            self->funcs = PyIU_TupleCopy(funcs);
+        }
     }
+
     if (self->funcs == NULL) {
         goto Fail;
     }
