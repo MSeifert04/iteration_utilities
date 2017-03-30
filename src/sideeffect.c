@@ -299,8 +299,8 @@ sideeffects_setstate(PyIUObject_Sideeffects *self,
             PyErr_Format(PyExc_TypeError,
                          "`%.200s.__setstate__` expected `None` as second "
                          "argument in the `state` when `self->times == 0`, "
-                         "got %R.",
-                         Py_TYPE(self)->tp_name, collected);
+                         "got %.200s.",
+                         Py_TYPE(self)->tp_name, Py_TYPE(collected)->tp_name);
             return NULL;
         }
         /* The "count" must not be negative or bigger/equal to the size of

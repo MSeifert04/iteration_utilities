@@ -1,6 +1,12 @@
 Changelog for "iteration_utilities"
 -----------------------------------
 
+Version 0.5.1 (2017-03-30)
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- fixed major mistake that made 0.5.0 unusable. (``%R`` formatter isn't allowed
+  in ``PyErr_Format``).
+
 
 Version 0.5.0 (2017-03-30)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
