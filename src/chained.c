@@ -61,7 +61,8 @@ chained_new(PyTypeObject *type,
         Py_ssize_t j;
         for (i=0 ; i<num_funcs ; i++) {
             PyObject *function = PyTuple_GET_ITEM(funcs, i);
-            if (Py_TYPE(function) == &PyIUType_Chained) {
+            if (Py_TYPE(function) == &PyIUType_Chained &&
+                    ((PyIUObject_Chained *)function)->all == 0) {
                 finalsize += PyTuple_GET_SIZE(((PyIUObject_Chained *)function)->funcs);
             } else {
                 finalsize++;
@@ -78,7 +79,8 @@ chained_new(PyTypeObject *type,
         j = reverse ? (finalsize - 1) : 0;
         for (i=0 ; i<num_funcs ; i++) {
             PyObject *function = PyTuple_GET_ITEM(funcs, i);
-            if (Py_TYPE(function) == &PyIUType_Chained) {
+            if (Py_TYPE(function) == &PyIUType_Chained &&
+                    ((PyIUObject_Chained *)function)->all == 0) {
                 Py_ssize_t k;
                 PyIUObject_Chained *sub = (PyIUObject_Chained *)function;
                 Py_ssize_t sub_size = PyTuple_GET_SIZE(sub->funcs);
