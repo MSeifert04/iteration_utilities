@@ -2,7 +2,7 @@ Changelog for "iteration_utilities"
 -----------------------------------
 
 
-Version 0.4.1 (unreleased)
+Version 0.5.0 (2017-03-30)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - minor speedup for ``next(merge)``.
