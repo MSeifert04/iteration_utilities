@@ -27,6 +27,17 @@ flip_new(PyTypeObject *type,
         return NULL;
     }
 
+    /* If the object is another flip we can simply return it's function because
+       two flips are equivalent to no flip. However subclasses should be
+       excluded from this behaviour so also check that the first argument is
+       in fact "flip" and not a subclass.
+       */
+    if (Py_TYPE(func) == &PyIUType_Flip && type == &PyIUType_Flip) {
+        PyObject *ret = ((PyIUObject_Flip *)func)->func;
+        Py_INCREF(ret);
+        return ret;
+    }
+
     /* Create struct */
     self = (PyIUObject_Flip *)type->tp_alloc(type, 0);
     if (self == NULL) {

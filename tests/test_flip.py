@@ -16,12 +16,33 @@ from helper_cls import T
 flip = iteration_utilities.flip
 
 
+class FlipSubclass(flip):
+    pass
+
+
 @memory_leak_decorator()
 def test_flip_repr1():
     x = flip(int)
     r = repr(x)
     assert 'flip' in r
     assert 'int' in r
+
+
+@memory_leak_decorator()
+def test_flip_double_flip1():
+    x = flip(int)
+    y = flip(x)
+    # Simply returned the original function instead of flipping the
+    # arguments twice.
+    assert y is int
+
+
+@memory_leak_decorator()
+def test_flip_double_flip2():
+    # A subclass should prevent the behaviour that it simply returns the
+    # original function when flipped.
+    assert FlipSubclass(flip(int)) is not int
+    assert flip(FlipSubclass(int)) is not int
 
 
 @memory_leak_decorator()
