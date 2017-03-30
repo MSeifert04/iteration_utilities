@@ -1,6 +1,6 @@
 # Legal stuff
 include README.rst
-include LICENSE.rst
+include LICENSE.txt
 recursive-include licenses *
 
 # Source code
