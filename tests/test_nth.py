@@ -203,7 +203,7 @@ def test_nth_failures9():
     # too few arguments for __call__
     with pytest.raises(ValueError) as exc:
         nth(1)([T(0), T(1), T(2)], retpred=1, retidx=1)
-    assert 'can only specify `retpred` or `retidx`.' in str(exc)
+    assert '`retpred` or `retidx`' in str(exc)
 
 
 @memory_leak_decorator(collect=True)

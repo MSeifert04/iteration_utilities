@@ -531,10 +531,10 @@ def test_placeholder():
 def test_placeholder_new():
     with pytest.raises(TypeError) as exc:
         type(partial._)(1)
-    assert "PlaceholderType takes no arguments" in str(exc)
+    assert "`PlaceholderType` takes no arguments." in str(exc)
     with pytest.raises(TypeError) as exc:
         type(partial._)(a=1)
-    assert "PlaceholderType takes no arguments" in str(exc)
+    assert "`PlaceholderType` takes no arguments." in str(exc)
 
 
 @memory_leak_decorator()
@@ -592,7 +592,7 @@ def test_partial_placeholder_missing_args():
 
     with pytest.raises(TypeError) as exc:
         p()
-    assert "not enough values to fill the placeholders." in str(exc)
+    assert "not enough values" in str(exc)
 
     # partial with multiple placeholders and too many or too few arguments
     p = partial(isinstance, partial._, partial._)
@@ -600,11 +600,11 @@ def test_partial_placeholder_missing_args():
 
     with pytest.raises(TypeError) as exc:
         p()
-    assert "not enough values to fill the placeholders." in str(exc)
+    assert "not enough values" in str(exc)
 
     with pytest.raises(TypeError) as exc:
         p(T(1))
-    assert ("not enough values to fill the placeholders." in str(exc))
+    assert ("not enough values" in str(exc))
 
 
 @memory_leak_decorator()
@@ -648,7 +648,7 @@ def test_partial_from_partial_with_one_placeholder_fail():
     p2 = partial(p1)
     with pytest.raises(TypeError) as exc:
         p2()
-    assert ("not enough values to fill the placeholders." in str(exc))
+    assert "not enough values" in str(exc)
 
 
 @memory_leak_decorator()

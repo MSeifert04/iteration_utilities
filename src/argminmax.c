@@ -18,13 +18,16 @@ argminmax(PyObject *m,
 
     if (positional) {
         sequence = args;
-    } else if (!PyArg_UnpackTuple(args, "argmin/argmax", 1, 1, &sequence)) {
+    } else if (!PyArg_UnpackTuple(args, cmpop == Py_LT ? "argmin" : "argmax",
+                                  1, 1, &sequence)) {
         return NULL;
     }
 
-    if (!PyArg_ParseTupleAndKeywords(PyIU_global_0tuple, kwargs,
-                                     "|On:argmin_max", kwlist,
-                                     &keyfunc, &defaultitem)) {
+    if (!PyArg_ParseTupleAndKeywords(
+            PyIU_global_0tuple, kwargs,
+            cmpop == Py_LT ? "|On:argmin" : "|On:argmax",
+            kwlist,
+            &keyfunc, &defaultitem)) {
         return NULL;
     }
 
@@ -45,8 +48,9 @@ argminmax(PyObject *m,
 
     if (positional && defaultisset) {
         PyErr_Format(PyExc_TypeError,
-                     "Cannot specify a default for argmin/argmax with multiple "
-                     "positional arguments");
+                     "Cannot specify a `default` for `%s` with "
+                     "multiple positional arguments",
+                     cmpop == Py_LT ? "argmin" : "argmax");
         goto Fail;
     }
 
@@ -109,7 +113,8 @@ argminmax(PyObject *m,
             maxidx = defaultitem;
         } else {
             PyErr_Format(PyExc_ValueError,
-                         "argmin/argmax arg is an empty sequence");
+                         "`%s` `iterable` is an empty sequence",
+                         cmpop == Py_LT ? "argmin" : "argmax");
             return NULL;
         }
     }

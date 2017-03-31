@@ -131,8 +131,7 @@ def test_split_failure4():
     with pytest.raises(ValueError) as exc:
         split(toT([1, 2, 3, 4]), T(2), eq=True,
               keep=True, keep_before=True)
-    assert ('only one or none of `keep`, `keep_before`, '
-            '`keep_after` may be set.' in str(exc))
+    assert '`keep`, `keep_before`, `keep_after`' in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -141,8 +140,7 @@ def test_split_failure5():
     with pytest.raises(ValueError) as exc:
         split(toT([1, 2, 3, 4]), T(2), eq=True,
               keep=True, keep_after=True)
-    assert ('only one or none of `keep`, `keep_before`, '
-            '`keep_after` may be set.' in str(exc))
+    assert '`keep`, `keep_before`, `keep_after`' in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -151,8 +149,7 @@ def test_split_failure6():
     with pytest.raises(ValueError) as exc:
         split(toT([1, 2, 3, 4]), T(2), eq=True,
               keep_before=True, keep_after=True)
-    assert ('only one or none of `keep`, `keep_before`, '
-            '`keep_after` may be set.' in str(exc))
+    assert '`keep`, `keep_before`, `keep_after`' in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -161,8 +158,7 @@ def test_split_failure11():
     with pytest.raises(ValueError) as exc:
         split(toT([1, 2, 3, 4]), T(2), eq=True,
               keep=True, keep_before=True, keep_after=True)
-    assert ('only one or none of `keep`, `keep_before`, '
-            '`keep_after` may be set.' in str(exc))
+    assert '`keep`, `keep_before`, `keep_after`' in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -194,7 +190,7 @@ def test_split_failure10():
     # maxsplit <= -2
     with pytest.raises(ValueError) as exc:
         split(toT([1, 2, 3, 4]), T(2), eq=True, maxsplit=-2)
-    assert '`maxsplit` must be -1 or greater.' in str(exc)
+    assert '`maxsplit`' in str(exc)
 
 
 @memory_leak_decorator(collect=True)

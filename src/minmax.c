@@ -33,9 +33,9 @@ PyIU_MinMax(PyObject *m,
     Py_XINCREF(keyfunc);
 
     if (positional && defaultitem != NULL) {
-        PyErr_Format(PyExc_TypeError,
-                     "Cannot specify a default for minmax with multiple "
-                     "positional arguments");
+        PyErr_SetString(PyExc_TypeError,
+                        "Cannot specify a default for `minmax` with multiple "
+                        "positional arguments");
         goto Fail;
     }
 
@@ -221,7 +221,8 @@ PyIU_MinMax(PyObject *m,
             Py_INCREF(defaultitem);
             Py_INCREF(defaultitem);
         } else {
-            PyErr_Format(PyExc_ValueError, "minmax arg is an empty sequence");
+            PyErr_SetString(PyExc_ValueError,
+                            "`minmax` `iterable` is an empty sequence");
             goto Fail;
         }
     } else {

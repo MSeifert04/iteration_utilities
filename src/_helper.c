@@ -18,7 +18,7 @@
 
 #if PY_MAJOR_VERSION == 2
 #define Py_RETURN_NOTIMPLEMENTED \
-    return PyErr_Format(PyExc_TypeError, "not implemented."), NULL
+    return PyErr_SetString(PyExc_TypeError, "not implemented."), NULL
 #endif
 
 /******************************************************************************

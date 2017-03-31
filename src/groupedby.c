@@ -20,7 +20,7 @@ PyIU_Groupby(PyObject *m,
     PyObject *funcargs2 = NULL;
     PyObject *(*iternext)(PyObject *);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|OOO:groupby", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|OOO:groupedby", kwlist,
                                      &iterable, &keyfunc, &valfunc, &reducefunc,
                                      &reducestart)) {
         goto Fail;
@@ -30,8 +30,9 @@ PyIU_Groupby(PyObject *m,
     PYIU_NULL_IF_NONE(valfunc);
 
     if (reducefunc == NULL && reducestart != NULL) {
-        PyErr_Format(PyExc_TypeError,
-                     "cannot specify `reducestart` if no `reduce` is given.");
+        PyErr_SetString(PyExc_TypeError,
+                        "cannot specify `reducestart` argument for "
+                        "`groupedby` if no `reduce` is given.");
         goto Fail;
     }
 

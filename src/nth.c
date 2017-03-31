@@ -103,8 +103,9 @@ nth_call(PyIUObject_Nth *self,
     }
 
     if (retpred && retidx) {
-        PyErr_Format(PyExc_ValueError,
-                     "can only specify `retpred` or `retidx`.");
+        PyErr_SetString(PyExc_ValueError,
+                        "can only specify `retpred` or `retidx` argument "
+                        "for `nth`.");
         return NULL;
     }
 
@@ -249,7 +250,8 @@ nth_call(PyIUObject_Nth *self,
 
     /* No item, no default raises an IndexError.  */
     } else {
-        PyErr_Format(PyExc_IndexError, "not enough values.");
+        PyErr_SetString(PyExc_IndexError,
+                        "`iterable` for `nth` does not contain enough values.");
         return NULL;
     }
 }

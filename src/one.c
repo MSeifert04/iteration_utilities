@@ -23,8 +23,8 @@ PyIU_One(PyObject *m,
                 return NULL;
             }
         }
-        PyErr_Format(PyExc_ValueError,
-                     "not enough values to unpack (expected 1, got 0)");
+        PyErr_SetString(PyExc_ValueError,
+                        "not enough values to unpack in `one` (expected 1, got 0)");
         return NULL;
     }
 
@@ -33,8 +33,8 @@ PyIU_One(PyObject *m,
         Py_DECREF(iterator);
         Py_DECREF(item1);
         Py_DECREF(item2);
-        PyErr_Format(PyExc_ValueError,
-                     "too many values to unpack (expected 1).");
+        PyErr_SetString(PyExc_ValueError,
+                        "too many values to unpack in `one` (expected 1).");
         return NULL;
     }
 

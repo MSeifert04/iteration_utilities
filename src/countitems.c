@@ -18,14 +18,16 @@ PyIU_Count(PyObject *m,
     Py_ssize_t sum_int = 0;
     int ok, eq=0;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|Oi:count", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|Oi:count_items", kwlist,
                                      &iterable, &pred, &eq)) {
         return NULL;
     }
     PYIU_NULL_IF_NONE(pred);
 
     if (eq && pred == NULL) {
-        PyErr_Format(PyExc_TypeError, "`pred` must be specified if `eq=True`.");
+        PyErr_SetString(PyExc_TypeError,
+                        "`pred` argument for `count_items` must be specified "
+                        "if `eq=True`.");
         goto Fail;
     }
 
@@ -85,7 +87,8 @@ PyIU_Count(PyObject *m,
            process some iterable that's longer than the maximum py_ssize_t...
            */
         if (sum_int == PY_SSIZE_T_MAX) {
-            PyErr_Format(PyExc_TypeError, "`iterable` is too long to count.");
+            PyErr_SetString(PyExc_TypeError,
+                            "`iterable` for `count_items` is too long to count.");
             goto Fail;
         }
     }

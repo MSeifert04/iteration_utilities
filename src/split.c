@@ -45,13 +45,15 @@ split_new(PyTypeObject *type,
         goto Fail;
     }
     if (maxsplit <= -2) {
-        PyErr_Format(PyExc_ValueError, "`maxsplit` must be -1 or greater.");
+        PyErr_SetString(PyExc_ValueError,
+                        "`maxsplit` argument for `split` must be -1 or greater.");
         goto Fail;
     }
     if ((keep_delimiter ? 1 : 0) + (keep_before ? 1 : 0) +
             (keep_after ? 1 : 0) > 1 ) {
-        PyErr_Format(PyExc_ValueError,
-                     "only one or none of `keep`, `keep_before`, `keep_after` may be set.");
+        PyErr_SetString(PyExc_ValueError,
+                        "only one or none of `keep`, `keep_before`, "
+                        "`keep_after` arguments for `split` may be set.");
         goto Fail;
     }
 

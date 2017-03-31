@@ -95,13 +95,13 @@ seen_new(PyTypeObject *type,
     } else {
         Py_INCREF(seenset);
         if (!PySet_CheckExact(seenset)) {
-            PyErr_Format(PyExc_TypeError, "`seenset` must be a set.");
+            PyErr_SetString(PyExc_TypeError, "`seenset` must be a set.");
             goto Fail;
         }
     }
 
     if (seenlist != NULL && !PyList_CheckExact(seenlist)) {
-        PyErr_Format(PyExc_TypeError, "`seenlist` must be a list.");
+        PyErr_SetString(PyExc_TypeError, "`seenlist` must be a list.");
         goto Fail;
     }
 
@@ -193,8 +193,9 @@ seen_richcompare(PyObject *v,
         default: Py_RETURN_NOTIMPLEMENTED;
     }
     if (!PyIUSeen_Check(v) || !(PyIUSeen_Check(w))) {
-        PyErr_Format(PyExc_TypeError,
-                     "`Seen` instances can only compared to other `Seen` instances.");
+        PyErr_SetString(PyExc_TypeError,
+                        "`Seen` instances can only compared to other `Seen` "
+                        "instances.");
         return NULL;
     }
     l = (PyIUObject_Seen *)v;
@@ -349,7 +350,7 @@ PyIUSeen_ContainsAdd(PyObject *self,
        However the API is not exported so only crashes in-library stuff.
 
     if (!PyIUSeen_CheckExact(self)) {
-        PyErr_Format(PyExc_TypeError, "only works for `Seen` instances.");
+        PyErr_SetString(PyExc_TypeError, "only works for `Seen` instances.");
         return NULL;
     }
     */

@@ -235,11 +235,11 @@ deepflatten_next(PyIUObject_DeepFlatten *self)
            */
         if ((Py_ssize_t)Py_GetRecursionLimit() < self->currentdepth) {
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 5)
-            PyErr_Format(PyExc_RecursionError,
+            PyErr_SetString(PyExc_RecursionError,
 #else
-            PyErr_Format(PyExc_RuntimeError,
+            PyErr_SetString(PyExc_RuntimeError,
 #endif
-                         "deepflatten reached maximum recursion depth.");
+                            "`deepflatten` reached maximum recursion depth.");
             Py_DECREF(activeiterator);
             return NULL;
         }
