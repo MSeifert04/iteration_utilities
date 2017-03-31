@@ -95,13 +95,19 @@ seen_new(PyTypeObject *type,
     } else {
         Py_INCREF(seenset);
         if (!PySet_CheckExact(seenset)) {
-            PyErr_SetString(PyExc_TypeError, "`seenset` must be a set.");
+            PyErr_Format(PyExc_TypeError,
+                         "`seenset` argument for `Seen` must be a set or "
+                         "None, not `%.200s`.",
+                         Py_TYPE(seenset)->tp_name);
             goto Fail;
         }
     }
 
     if (seenlist != NULL && !PyList_CheckExact(seenlist)) {
-        PyErr_SetString(PyExc_TypeError, "`seenlist` must be a list.");
+        PyErr_Format(PyExc_TypeError,
+                     "`seenlist` argument for `Seen` must be a list or None, "
+                     "not `%.200s`.",
+                     Py_TYPE(seenlist)->tp_name);
         goto Fail;
     }
 

@@ -45,12 +45,14 @@ itemidxkey_new(PyTypeObject *type,
     }
     if (PyIU_ItemIdxKey_Check(item)) {
         PyErr_SetString(PyExc_TypeError,
-                        "cannot use `ItemIdxKey` instance as `item`.");
+                        "`item` argument for `ItemIdxKey` must not be a "
+                        "`ItemIdxKey` instance.");
         return NULL;
     }
     if (key != NULL && PyIU_ItemIdxKey_Check(key)) {
         PyErr_SetString(PyExc_TypeError,
-                        "cannot use `ItemIdxKey` instance as `key`.");
+                        "`key` argument for `ItemIdxKey` must not be a "
+                        "`ItemIdxKey` instance.");
         return NULL;
     }
 
@@ -84,7 +86,7 @@ PyIU_ItemIdxKey_FromC(PyObject *item,
        should never be NULL we can neglect this check for the sake of
        performance:
     if (item == NULL) {
-        PyErr_SetString(PyExc_TypeError, "`item` must be given.");
+        PyErr_SetString(PyExc_TypeError, "`ItemIdxKey.item` must be given.");
         return NULL;
     }
     */
@@ -342,11 +344,13 @@ itemidxkey_setitem(PyIUObject_ItemIdxKey *self,
                    void *closure)
 {
     if (o == NULL) {
-        PyErr_SetString(PyExc_TypeError, "cannot delete `item`.");
+        PyErr_SetString(PyExc_TypeError,
+                        "cannot delete `item` attribute of `ItemIdxKey`.");
         return -1;
     } else if (PyIU_ItemIdxKey_Check(o)) {
         PyErr_SetString(PyExc_TypeError,
-                        "cannot use `ItemIdxKey` instance as `item`.");
+                        "cannot use `ItemIdxKey` instance as `item` of "
+                        "`ItemIdxKey`.");
         return -1;
     }
     Py_DECREF(self->item);
@@ -377,7 +381,8 @@ itemidxkey_setidx(PyIUObject_ItemIdxKey *self,
 {
     Py_ssize_t idx;
     if (o == NULL) {
-        PyErr_SetString(PyExc_TypeError, "cannot delete `idx`.");
+        PyErr_SetString(PyExc_TypeError,
+                        "cannot delete `idx` attribute of `ItemIdxKey`.");
         return -1;
     }
     #if PY_MAJOR_VERSION == 2
@@ -388,7 +393,9 @@ itemidxkey_setidx(PyIUObject_ItemIdxKey *self,
     if (PyLong_Check(o)) {
         idx = PyLong_AsSsize_t(o);
     } else {
-        PyErr_SetString(PyExc_TypeError, "an integer is required.");
+        PyErr_SetString(PyExc_TypeError,
+                        "an integer is required as `idx` attribute of "
+                        "`ItemIdxKey`.");
         return -1;
     }
 
@@ -422,7 +429,8 @@ itemidxkey_setkey(PyIUObject_ItemIdxKey *self,
 {
     if (o != NULL && PyIU_ItemIdxKey_Check(o)) {
         PyErr_SetString(PyExc_TypeError,
-                        "cannot use `ItemIdxKey` instance as `key`.");
+                        "cannot use `ItemIdxKey` instance as `key` attribute "
+                        "of `ItemIdxKey`.");
         return -1;
     }
     Py_XDECREF(self->key);
