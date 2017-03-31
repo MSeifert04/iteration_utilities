@@ -29,7 +29,8 @@ chained_new(PyTypeObject *type,
 
     /* Parse arguments */
     if (num_funcs == 0) {
-        PyErr_Format(PyExc_TypeError, "at least 1 function must be given.");
+        PyErr_SetString(PyExc_TypeError,
+                        "`chained` expected at least one function.");
         goto Fail;
     }
 

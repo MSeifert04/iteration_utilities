@@ -80,8 +80,8 @@ PyIU_RemoveFromDictWhereValueIs(PyObject *m,
     toberemoved = malloc((size_t)dctsize * sizeof(PyObject*));
 
     if (toberemoved == NULL) {
-        PyErr_Format(PyExc_MemoryError,
-                     "Memory Error when trying to allocate temporary array.");
+        PyErr_SetString(PyExc_MemoryError,
+                        "Memory Error when trying to allocate temporary array.");
         return NULL;
     }
 

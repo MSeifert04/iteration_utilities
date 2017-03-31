@@ -340,7 +340,7 @@ def test_seen_failures2():
     # seenset not a set
     with pytest.raises(TypeError) as exc:
         Seen(frozenset({10, 20}))
-    assert '`seenset` must be a set.' in str(exc)
+    assert '`seenset`' in str(exc) and 'set' in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -348,7 +348,7 @@ def test_seen_failures3():
     # seenlist must be a list
     with pytest.raises(TypeError) as exc:
         Seen({10, 20}, tuple([1, 2, 3]))
-    assert '`seenlist` must be a list.' in str(exc)
+    assert '`seenlist`' in str(exc) and 'list' in str(exc)
 
 
 @memory_leak_decorator(collect=True)

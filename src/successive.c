@@ -34,7 +34,7 @@ successive_new(PyTypeObject *type,
     }
     if (times <= 0) {
         PyErr_Format(PyExc_ValueError,
-                     "times must be greater than 0.");
+                     "`times` argument for `successive` must be greater than 0.");
         goto Fail;
     }
 

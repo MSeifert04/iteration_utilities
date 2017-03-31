@@ -33,8 +33,8 @@ static PyMethodDef placeholder_methods[] = {
 static PyObject *
 placeholder_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 {
-    if (PyTuple_GET_SIZE(args) || (kwargs && PyDict_Size(kwargs))) {
-        PyErr_SetString(PyExc_TypeError, "PlaceholderType takes no arguments");
+    if (PyTuple_GET_SIZE(args) || (kwargs != NULL && PyDict_Size(kwargs))) {
+        PyErr_SetString(PyExc_TypeError, "`PlaceholderType` takes no arguments.");
         return NULL;
     }
     Py_INCREF(PYIU_Placeholder);
@@ -119,8 +119,9 @@ PyIUPlaceholder_PosInTuple(PyObject *tup, Py_ssize_t cnts)
     Py_ssize_t i;
 
     if (pos == NULL) {
-        PyErr_Format(PyExc_MemoryError,
-                     "Memory Error when trying to allocate array for partial.");
+        PyErr_SetString(PyExc_MemoryError,
+                        "Memory Error when trying to allocate array for "
+                        "`partial`.");
         goto Fail;
     }
 
@@ -133,8 +134,8 @@ PyIUPlaceholder_PosInTuple(PyObject *tup, Py_ssize_t cnts)
     }
 
     if (j != cnts) {
-        PyErr_Format(PyExc_TypeError,
-                     "Something went wrong... totally wrong!");
+        PyErr_SetString(PyExc_TypeError,
+                        "Something went wrong... totally wrong!");
         goto Fail;
     }
 
@@ -207,7 +208,7 @@ partial_new(PyTypeObject *type, PyObject *args, PyObject *kw)
 
     if (PyTuple_GET_SIZE(args) < 1) {
         PyErr_SetString(PyExc_TypeError,
-                        "type 'partial' takes at least one argument");
+                        "`partial` takes at least one argument");
         goto Fail;
     }
 
@@ -266,7 +267,7 @@ partial_new(PyTypeObject *type, PyObject *args, PyObject *kw)
 
     if (!PyCallable_Check(func)) {
         PyErr_SetString(PyExc_TypeError,
-                        "the first argument must be callable");
+                        "the first argument for `partial` must be callable");
         goto Fail;
     }
     self->posph = NULL;
@@ -362,7 +363,8 @@ partial_call(PyIUObject_Partial *self, PyObject *args, PyObject *kw)
            */
         if (num_placeholders) {
             PyErr_SetString(PyExc_TypeError,
-                            "not enough values to fill the placeholders.");
+                            "not enough values to fill the placeholders in "
+                            "`partial`.");
             goto Fail;
         }
         finalargs = self->args;
@@ -374,7 +376,8 @@ partial_call(PyIUObject_Partial *self, PyObject *args, PyObject *kw)
            */
         if (num_placeholders > passargsize) {
             PyErr_SetString(PyExc_TypeError,
-                            "not enough values to fill the placeholders.");
+                            "not enough values to fill the placeholders in "
+                            "`partial`.");
             goto Fail;
         }
         /* In theory it would be possible to not create a new tuple for the
@@ -479,13 +482,13 @@ partial_set_dict(PyIUObject_Partial *self, PyObject *value)
     /* It is illegal to del p.__dict__ */
     if (value == NULL) {
         PyErr_SetString(PyExc_TypeError,
-                        "a partial object's dictionary may not be deleted");
+                        "a `partial` object's dictionary may not be deleted");
         return -1;
     }
     /* Can only set __dict__ to a dictionary */
     if (!PyDict_Check(value)) {
         PyErr_SetString(PyExc_TypeError,
-                        "setting partial object's dictionary to a non-dict");
+                        "setting `partial` object's dictionary to a non-dict");
         return -1;
     }
     tmp = self->dict;
@@ -591,7 +594,7 @@ partial_setstate(PyIUObject_Partial *self, PyObject *state)
             !PyCallable_Check(fn) ||
             !PyTuple_Check(fnargs) ||
             (kw != Py_None && !PyDict_Check(kw))) {
-        PyErr_SetString(PyExc_TypeError, "invalid partial state");
+        PyErr_SetString(PyExc_TypeError, "invalid `partial` state");
         return NULL;
     }
 

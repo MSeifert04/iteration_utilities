@@ -39,12 +39,14 @@ grouper_new(PyTypeObject *type,
         goto Fail;
     }
     if (fillvalue != NULL && truncate != 0) {
-        PyErr_Format(PyExc_TypeError,
-                     "cannot specify both `truncate` and `fillvalue`.");
+        PyErr_SetString(PyExc_TypeError,
+                        "cannot specify both the `truncate` and the "
+                        "`fillvalue` argument for `grouper`.");
         goto Fail;
     }
     if (times <= 0) {
-        PyErr_Format(PyExc_ValueError, "`n` must be greater than 0.");
+        PyErr_SetString(PyExc_ValueError,
+                        "`n` argument for `grouper` must be greater than 0.");
         goto Fail;
     }
 
