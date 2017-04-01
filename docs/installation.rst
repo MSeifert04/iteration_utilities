@@ -62,6 +62,7 @@ Tests:
 Documentation:
 
 - sphinx
+- six
 - numpydoc
 
 
