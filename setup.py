@@ -1,4 +1,4 @@
-from setuptools import setup, Extension
+from setuptools import setup, Extension, find_packages
 
 from glob import glob
 from os import path
@@ -29,7 +29,7 @@ pytest_runner = ['pytest-runner'] if needs_pytest else []
 setup(name='iteration_utilities',
       version=version(),
 
-      description='Functional programming utilities for Python 2 and 3.',
+      description='Utilities based on Pythons iterators and generators.',
       long_description=readme(),
       # Somehow the keywords get lost if I use a list of strings so this is
       # just a longish string...
@@ -60,11 +60,7 @@ setup(name='iteration_utilities',
       author='Michael Seifert',
       author_email='michaelseifert04@yahoo.de',
 
-      packages=[
-          'iteration_utilities',
-          'iteration_utilities._recipes',
-          'iteration_utilities._helpers',
-          ],
+      packages=find_packages(exclude=['ez_setup']),
 
       install_requires=[
           ],
