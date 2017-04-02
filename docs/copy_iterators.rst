@@ -9,8 +9,8 @@ options:
 - :py:mod:`pickle`
 - :py:func:`copy.deepcopy`
 
-Given these three possibilities the iterators in ``iteration_utilities`` should
-**never** be copied using :py:func:`copy.copy`. Generally
+Given these three possibilities the iterators in :py:mod:`iteration_utilities`
+should **never** be copied using :py:func:`copy.copy`. Generally
 :py:func:`itertools.tee` should be the best choice except when file
 serialization is needed. Then :py:mod:`pickle` should be used. The
 :py:func:`copy.deepcopy` function makes, like ``pickle`` a deep (recursive)

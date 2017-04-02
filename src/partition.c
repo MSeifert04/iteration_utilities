@@ -155,7 +155,7 @@ true_values : list\n\
 \n\
 See also\n\
 --------\n\
-._core.ipartition : Generator variant of partition.\n\
+.ipartition : Generator variant of partition.\n\
 \n\
 Examples\n\
 --------\n\

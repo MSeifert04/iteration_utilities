@@ -397,10 +397,10 @@ return the result of ``pred(item)``::\n\
 \n\
 There are already three predefined instances:\n\
 \n\
-- ``first`` : equivalent to ``nth(0)``.\n\
-- ``second`` : equivalent to ``nth(1)``.\n\
-- ``third`` : equivalent to ``nth(2)``.\n\
-- ``last`` : equivalent to ``nth(-1)``.");
+- :py:func:`~iteration_utilities.first`: equivalent to ``nth(0)``.\n\
+- :py:func:`~iteration_utilities.second`: equivalent to ``nth(1)``.\n\
+- :py:func:`~iteration_utilities.third`: equivalent to ``nth(2)``.\n\
+- :py:func:`~iteration_utilities.last`: equivalent to ``nth(-1)``.");
 
 /******************************************************************************
  * Type

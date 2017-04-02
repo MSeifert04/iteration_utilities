@@ -181,7 +181,7 @@ class _Base(object):
     @staticmethod
     def from_itersubclasses(object):
         """See \
-:py:func:`~iteration_utilities._recipes._additional.itersubclasses`.
+:py:func:`~iteration_utilities.itersubclasses`.
 
         Examples
         --------
@@ -276,7 +276,7 @@ class _Base(object):
 
     @staticmethod
     def from_repeatfunc(func, *args, **times):
-        """See :py:func:`~iteration_utilities._recipes._core.repeatfunc`.
+        """See :py:func:`~iteration_utilities.repeatfunc`.
 
         Examples
         --------
@@ -532,7 +532,7 @@ class _Base(object):
         return self._call(filterfalse, 1, predicate)
 
     def flatten(self):
-        """See :py:func:`~iteration_utilities._recipes._core.flatten`.
+        """See :py:func:`~iteration_utilities.flatten`.
 
         Examples
         --------
@@ -544,7 +544,7 @@ class _Base(object):
 
     def getitem(self, item):
         """See \
-:py:func:`~iteration_utilities._recipes._additional.getitem`
+:py:func:`~iteration_utilities.getitem`
 
         Parameters
         ----------
@@ -672,7 +672,7 @@ class _Base(object):
         return meth(islice, 0, *args)
 
     def insert(self, element, idx, unpack=_default):
-        """See :py:func:`~iteration_utilities._recipes._additional.insert`
+        """See :py:func:`~iteration_utilities.insert`
 
         Examples
         --------
@@ -723,7 +723,7 @@ class _Base(object):
         return self._call(map, 1, function)
 
     def ncycles(self, n):
-        """See :py:func:`~iteration_utilities._recipes._core.ncycles`.
+        """See :py:func:`~iteration_utilities.ncycles`.
 
         Examples
         --------
@@ -737,7 +737,7 @@ class _Base(object):
         return self._call(ncycles, 0, n=n)
 
     def pad(self, fillvalue=_default, nlead=_default, ntail=_default):
-        """See :py:func:`~iteration_utilities._recipes._additional.pad`.
+        """See :py:func:`~iteration_utilities.pad`.
 
         Examples
         --------
@@ -781,7 +781,7 @@ class _Base(object):
         return self._call(permutations, 0, r=r)
 
     def powerset(self):
-        """See :py:func:`~iteration_utilities._recipes._core.powerset`.
+        """See :py:func:`~iteration_utilities.powerset`.
 
         Examples
         --------
@@ -792,7 +792,7 @@ class _Base(object):
         return self._call(powerset, 0)
 
     def remove(self, idx=_default, start=_default, stop=_default):
-        """See :py:func:`~iteration_utilities._recipes._additional.remove`.
+        """See :py:func:`~iteration_utilities.remove`.
 
         Examples
         --------
@@ -816,7 +816,7 @@ class _Base(object):
 
     def replace(self, element, idx=_default, start=_default, stop=_default,
                 unpack=_default):
-        """See :py:func:`~iteration_utilities._recipes._additional.replace`.
+        """See :py:func:`~iteration_utilities.replace`.
 
         Examples
         --------
@@ -850,7 +850,7 @@ class _Base(object):
                     stop=stop, unpack=unpack)
 
     def replicate(self, times):
-        """See :py:func:`~iteration_utilities._recipes._additional.replicate`.
+        """See :py:func:`~iteration_utilities.replicate`.
 
         Examples
         --------
@@ -932,7 +932,7 @@ class _Base(object):
         return self._call(successive, 0, times=times)
 
     def tail(self, n):
-        """See :py:func:`~iteration_utilities._recipes._core.tail`.
+        """See :py:func:`~iteration_utilities.tail`.
 
         Examples
         --------
@@ -1013,182 +1013,181 @@ class Iterable(_Base):
 
     Methods
     -------
-    :py:meth:`~Iterable.accumulate`
+    :py:meth:`~.Iterable.accumulate`
         See :py:func:`~iteration_utilities.accumulate`.
-    :py:meth:`~Iterable.as_`
+    :py:meth:`~.Iterable.as_`
         Convert `Iterable` to other class.
-    :py:meth:`~Iterable.as_counter`
-        See :py:meth:`as_`.
-    :py:meth:`~Iterable.as_dict`
-        See :py:meth:`as_`.
-    :py:meth:`~Iterable.as_frozenset`
-        See :py:meth:`as_`.
-    :py:meth:`~Iterable.as_list`
-        See :py:meth:`as_`.
-    :py:meth:`~Iterable.as_ordereddict`
-        See :py:meth:`as_`.
-    :py:meth:`~Iterable.as_set`
-        See :py:meth:`as_`.
-    :py:meth:`~Iterable.as_string`
+    :py:meth:`~.Iterable.as_counter`
+        See :py:meth:`.as_`.
+    :py:meth:`~.Iterable.as_dict`
+        See :py:meth:`.as_`.
+    :py:meth:`~.Iterable.as_frozenset`
+        See :py:meth:`.as_`.
+    :py:meth:`~.Iterable.as_list`
+        See :py:meth:`.as_`.
+    :py:meth:`~.Iterable.as_ordereddict`
+        See :py:meth:`.as_`.
+    :py:meth:`~.Iterable.as_set`
+        See :py:meth:`.as_`.
+    :py:meth:`~.Iterable.as_string`
         Get the iterable as string.
-    :py:meth:`~Iterable.as_tuple`
-        See :py:meth:`as_`.
-    :py:meth:`~Iterable.clamp`
+    :py:meth:`~.Iterable.as_tuple`
+        See :py:meth:`.as_`.
+    :py:meth:`~.Iterable.clamp`
         See :py:func:`~iteration_utilities.clamp`.
-    :py:meth:`~Iterable.combinations`
+    :py:meth:`~.Iterable.combinations`
         See :py:func:`itertools.combinations`.
-    :py:meth:`~Iterable.combinations_with_replacement`
+    :py:meth:`~.Iterable.combinations_with_replacement`
         See :py:func:`itertools.combinations_with_replacement`.
-    :py:meth:`~Iterable.compress`
+    :py:meth:`~.Iterable.compress`
         See :py:func:`itertools.compress`.
-    :py:meth:`~Iterable.cycle`
+    :py:meth:`~.Iterable.cycle`
         See :py:func:`itertools.cycle`.
-    :py:meth:`~Iterable.deepflatten`
+    :py:meth:`~.Iterable.deepflatten`
         See :py:func:`~iteration_utilities.deepflatten`.
-    :py:meth:`~Iterable.dropwhile`
+    :py:meth:`~.Iterable.dropwhile`
         See :py:func:`itertools.dropwhile`.
-    :py:meth:`~Iterable.duplicates`
+    :py:meth:`~.Iterable.duplicates`
         See :py:func:`~iteration_utilities.duplicates`.
-    :py:meth:`~Iterable.enumerate`
+    :py:meth:`~.Iterable.enumerate`
         See :py:func:`python:enumerate`.
-    :py:meth:`~Iterable.filter`
+    :py:meth:`~.Iterable.filter`
         See :py:func:`python:filter`.
-    :py:meth:`~Iterable.filterfalse`
+    :py:meth:`~.Iterable.filterfalse`
         See :py:func:`itertools.filterfalse`.
-    :py:meth:`~Iterable.flatten`
-        See :py:func:`~iteration_utilities._recipes._core.flatten`.
-    :py:meth:`~Iterable.from_applyfunc`
+    :py:meth:`~.Iterable.flatten`
+        See :py:func:`~iteration_utilities.flatten`.
+    :py:meth:`~.Iterable.from_applyfunc`
         See :py:func:`~iteration_utilities.applyfunc`.
-    :py:meth:`~Iterable.from_count`
+    :py:meth:`~.Iterable.from_count`
         See :py:func:`itertools.count`.
-    :py:meth:`~Iterable.from_iterfunc_exception`
+    :py:meth:`~.Iterable.from_iterfunc_exception`
         See :py:func:`~iteration_utilities.iter_except`.
-    :py:meth:`~Iterable.from_iterfunc_sentinel`
+    :py:meth:`~.Iterable.from_iterfunc_sentinel`
         See :py:func:`python:iter`.
-    :py:meth:`~Iterable.from_itersubclasses`
-        See \
-:py:func:`~iteration_utilities._recipes._additional.itersubclasses`.
-    :py:meth:`~Iterable.from_repeat`
+    :py:meth:`~.Iterable.from_itersubclasses`
+        See :py:func:`~iteration_utilities.itersubclasses`.
+    :py:meth:`~.Iterable.from_repeat`
         See :py:func:`itertools.repeat`.
-    :py:meth:`~Iterable.from_repeatfunc`
-        See :py:func:`~iteration_utilities._recipes._core.repeatfunc`.
-    :py:meth:`~Iterable.from_tabulate`
+    :py:meth:`~.Iterable.from_repeatfunc`
+        See :py:func:`~iteration_utilities.repeatfunc`.
+    :py:meth:`~.Iterable.from_tabulate`
         See :py:func:`~iteration_utilities.tabulate`.
-    :py:meth:`~Iterable.get_all`
+    :py:meth:`~.Iterable.get_all`
         See :py:func:`python:all`.
-    :py:meth:`~Iterable.get_all_distinct`
-        See :py:func:`~iteration_utilities._cfuncs.all_distinct`.
-    :py:meth:`~Iterable.get_all_equal`
-        See :py:func:`~iteration_utilities._cfuncs.all_equal`.
-    :py:meth:`~Iterable.get_all_monotone`
-        See :py:func:`~iteration_utilities._cfuncs.all_monotone`.
-    :py:meth:`~Iterable.get_any`
+    :py:meth:`~.Iterable.get_all_distinct`
+        See :py:func:`~iteration_utilities.all_distinct`.
+    :py:meth:`~.Iterable.get_all_equal`
+        See :py:func:`~iteration_utilities.all_equal`.
+    :py:meth:`~.Iterable.get_all_monotone`
+        See :py:func:`~iteration_utilities.all_monotone`.
+    :py:meth:`~.Iterable.get_any`
         See :py:func:`python:any`.
-    :py:meth:`~Iterable.get_argmax`
-        See :py:func:`~iteration_utilities._cfuncs.argmax`.
-    :py:meth:`~Iterable.get_argmin`
-        See :py:func:`~iteration_utilities._cfuncs.argmin`.
-    :py:meth:`~Iterable.get_argsorted`
-        See :py:func:`~iteration_utilities._recipes._additional.argsorted`.
-    :py:meth:`~Iterable.get_count_items`
-        See :py:func:`~iteration_utilities._cfuncs.count_items`.
-    :py:meth:`~Iterable.get_first`
+    :py:meth:`~.Iterable.get_argmax`
+        See :py:func:`~iteration_utilities.argmax`.
+    :py:meth:`~.Iterable.get_argmin`
+        See :py:func:`~iteration_utilities.argmin`.
+    :py:meth:`~.Iterable.get_argsorted`
+        See :py:func:`~iteration_utilities.argsorted`.
+    :py:meth:`~.Iterable.get_count_items`
+        See :py:func:`~iteration_utilities.count_items`.
+    :py:meth:`~.Iterable.get_first`
         See :py:func:`~iteration_utilities.nth`.
-    :py:meth:`~Iterable.get_fsum`
+    :py:meth:`~.Iterable.get_fsum`
         See :py:func:`math.fsum`.
-    :py:meth:`~Iterable.get_groupedby`
-        See :py:func:`~iteration_utilities._cfuncs.groupedby`.
-    :py:meth:`~Iterable.get_last`
+    :py:meth:`~.Iterable.get_groupedby`
+        See :py:func:`~iteration_utilities.groupedby`.
+    :py:meth:`~.Iterable.get_last`
         See :py:func:`~iteration_utilities.nth`.
-    :py:meth:`~Iterable.get_max`
+    :py:meth:`~.Iterable.get_max`
         See :py:func:`python:max`.
-    :py:meth:`~Iterable.get_mean`
+    :py:meth:`~.Iterable.get_mean`
         See :py:func:`statistics.mean`.
-    :py:meth:`~Iterable.get_median`
+    :py:meth:`~.Iterable.get_median`
         See :py:func:`statistics.median`.
-    :py:meth:`~Iterable.get_median_grouped`
+    :py:meth:`~.Iterable.get_median_grouped`
         See :py:func:`statistics.median_grouped`.
-    :py:meth:`~Iterable.get_median_high`
+    :py:meth:`~.Iterable.get_median_high`
         See :py:func:`statistics.median_high`.
-    :py:meth:`~Iterable.get_median_low`
+    :py:meth:`~.Iterable.get_median_low`
         See :py:func:`statistics.median_low`.
-    :py:meth:`~Iterable.get_min`
+    :py:meth:`~.Iterable.get_min`
         See :py:func:`python:min`.
-    :py:meth:`~Iterable.get_minmax`
-        See :py:func:`~iteration_utilities._cfuncs.minmax`.
-    :py:meth:`~Iterable.get_mode`
+    :py:meth:`~.Iterable.get_minmax`
+        See :py:func:`~iteration_utilities.minmax`.
+    :py:meth:`~.Iterable.get_mode`
         See :py:func:`statistics.mode`.
-    :py:meth:`~Iterable.get_nlargest`
+    :py:meth:`~.Iterable.get_nlargest`
         See :py:func:`heapq.nlargest`.
-    :py:meth:`~Iterable.get_nsmallest`
+    :py:meth:`~.Iterable.get_nsmallest`
         See :py:func:`heapq.nsmallest`.
-    :py:meth:`~Iterable.get_nth`
+    :py:meth:`~.Iterable.get_nth`
         See :py:func:`~iteration_utilities.nth`.
-    :py:meth:`~Iterable.get_one`
-        See :py:func:`~iteration_utilities._cfuncs.one`.
-    :py:meth:`~Iterable.get_partition`
-        See :py:func:`~iteration_utilities._cfuncs.partition`.
-    :py:meth:`~Iterable.get_pstdev`
+    :py:meth:`~.Iterable.get_one`
+        See :py:func:`~iteration_utilities.one`.
+    :py:meth:`~.Iterable.get_partition`
+        See :py:func:`~iteration_utilities.partition`.
+    :py:meth:`~.Iterable.get_pstdev`
         See :py:func:`statistics.pstdev`.
-    :py:meth:`~Iterable.get_pvariance`
+    :py:meth:`~.Iterable.get_pvariance`
         See :py:func:`statistics.pvariance`.
-    :py:meth:`~Iterable.get_reduce`
+    :py:meth:`~.Iterable.get_reduce`
         See :py:func:`functools.reduce`.
-    :py:meth:`~Iterable.get_second`
+    :py:meth:`~.Iterable.get_second`
         See :py:func:`~iteration_utilities.nth`.
-    :py:meth:`~Iterable.get_sorted`
+    :py:meth:`~.Iterable.get_sorted`
         See :py:func:`python:sorted`.
-    :py:meth:`~Iterable.get_stdev`
+    :py:meth:`~.Iterable.get_stdev`
         See :py:func:`statistics.stdev`.
-    :py:meth:`~Iterable.get_sum`
+    :py:meth:`~.Iterable.get_sum`
         See :py:func:`python:sum`.
-    :py:meth:`~Iterable.get_third`
+    :py:meth:`~.Iterable.get_third`
         See :py:func:`~iteration_utilities.nth`.
-    :py:meth:`~Iterable.get_variance`
+    :py:meth:`~.Iterable.get_variance`
         See :py:func:`statistics.variance`.
-    :py:meth:`~Iterable.getitem`
-        See :py:func:`~iteration_utilities._recipes._additional.getitem`
-    :py:meth:`~Iterable.grouper`
+    :py:meth:`~.Iterable.getitem`
+        See :py:func:`~iteration_utilities.getitem`
+    :py:meth:`~.Iterable.grouper`
         See :py:func:`~iteration_utilities.grouper`.
-    :py:meth:`~Iterable.insert`
-        See :py:func:`~iteration_utilities._recipes._additional.insert`
-    :py:meth:`~Iterable.intersperse`
+    :py:meth:`~.Iterable.insert`
+        See :py:func:`~iteration_utilities.insert`
+    :py:meth:`~.Iterable.intersperse`
         See :py:func:`~iteration_utilities.intersperse`.
-    :py:meth:`~Iterable.islice`
+    :py:meth:`~.Iterable.islice`
         See :py:func:`itertools.islice`.
-    :py:meth:`~Iterable.map`
+    :py:meth:`~.Iterable.map`
         See :py:func:`python:map`.
-    :py:meth:`~Iterable.ncycles`
-        See :py:func:`~iteration_utilities._recipes._core.ncycles`.
-    :py:meth:`~Iterable.pad`
-        See :py:func:`~iteration_utilities._recipes._additional.pad`.
-    :py:meth:`~Iterable.permutations`
+    :py:meth:`~.Iterable.ncycles`
+        See :py:func:`~iteration_utilities.ncycles`.
+    :py:meth:`~.Iterable.pad`
+        See :py:func:`~iteration_utilities.pad`.
+    :py:meth:`~.Iterable.permutations`
         See :py:func:`itertools.permutations`.
-    :py:meth:`~Iterable.powerset`
-        See :py:func:`~iteration_utilities._recipes._core.powerset`.
-    :py:meth:`~Iterable.remove`
-        See :py:func:`~iteration_utilities._recipes._additional.remove`.
-    :py:meth:`~Iterable.replace`
-        See :py:func:`~iteration_utilities._recipes._additional.replace`.
-    :py:meth:`~Iterable.replicate`
-        See :py:func:`~iteration_utilities._recipes._additional.replicate`.
-    :py:meth:`~Iterable.reversed`
+    :py:meth:`~.Iterable.powerset`
+        See :py:func:`~iteration_utilities.powerset`.
+    :py:meth:`~.Iterable.remove`
+        See :py:func:`~iteration_utilities.remove`.
+    :py:meth:`~.Iterable.replace`
+        See :py:func:`~iteration_utilities.replace`.
+    :py:meth:`~.Iterable.replicate`
+        See :py:func:`~iteration_utilities.replicate`.
+    :py:meth:`~.Iterable.reversed`
         See :py:func:`python:reversed`.
-    :py:meth:`~Iterable.split`
+    :py:meth:`~.Iterable.split`
         See :py:func:`~iteration_utilities.split`.
-    :py:meth:`~Iterable.starfilter`
+    :py:meth:`~.Iterable.starfilter`
         See :py:func:`~iteration_utilities.starfilter`.
-    :py:meth:`~Iterable.starmap`
+    :py:meth:`~.Iterable.starmap`
         See :py:func:`itertools.starmap`.
-    :py:meth:`~Iterable.successive`
+    :py:meth:`~.Iterable.successive`
         See :py:func:`~iteration_utilities.successive`.
-    :py:meth:`~Iterable.tail`
-        See :py:func:`~iteration_utilities._recipes._core.tail`.
-    :py:meth:`~Iterable.takewhile`
+    :py:meth:`~.Iterable.tail`
+        See :py:func:`~iteration_utilities.tail`.
+    :py:meth:`~.Iterable.takewhile`
         See :py:func:`itertools.takewhile`.
-    :py:meth:`~Iterable.unique_everseen`
+    :py:meth:`~.Iterable.unique_everseen`
         See :py:func:`~iteration_utilities.unique_everseen`.
-    :py:meth:`~Iterable.unique_justseen`
+    :py:meth:`~.Iterable.unique_justseen`
         See :py:func:`~iteration_utilities.unique_justseen`.
 
     Notes
@@ -1197,7 +1196,7 @@ class Iterable(_Base):
     .. warning::
        If the `iterable` is infinite you should **not** create the `Iterable`
        instance directly (i.e. ``Iterable(count())``. You could use the
-       ``Iterable.from_count()`` or create an :py:class:`InfiniteIterable`:
+       ``Iterable.from_count()`` or create an :py:class:`.InfiniteIterable`:
        ``InfiniteIterable(count())``.
 
     Examples
@@ -1238,8 +1237,8 @@ class Iterable(_Base):
         972
         1090
 
-    Using some methods (:py:meth:`Iterable.cycle`) create an
-    :py:class:`InfiniteIterable`::
+    Using some methods (:py:meth:`.Iterable.cycle`) create an
+    :py:class:`.InfiniteIterable`::
 
         >>> Iterable(range(10)).cycle()  # doctest: +ELLIPSIS
         <InfiniteIterable: <itertools.cycle object at ...>>
@@ -1256,8 +1255,8 @@ class Iterable(_Base):
         <Iterable: repeat(10, 2)>
 
     This logic allows to be aware if the iterable is infinitly long or not.
-    Some methods can also convert an :py:class:`InfiniteIterable` to a normal
-    :py:class:`Iterable` again::
+    Some methods can also convert an :py:class:`.InfiniteIterable` to a normal
+    :py:class:`.Iterable` again::
 
         >>> Iterable.from_count().islice(2, 5)  # doctest: +ELLIPSIS
         <Iterable: <itertools.islice object at ...>>
@@ -1266,7 +1265,7 @@ class Iterable(_Base):
 # doctest: +ELLIPSIS
         <Iterable: <itertools.takewhile object at ...>>
 
-    :py:class:`Iterable` implements some constructors for Python types as
+    :py:class:`.Iterable` implements some constructors for Python types as
     methods::
 
         >>> Iterable(range(10)).as_list()
@@ -1306,7 +1305,7 @@ class Iterable(_Base):
         return cls(self._iterable)
 
     def as_list(self):
-        """See :py:meth:`as_`.
+        """See :py:meth:`.as_`.
 
         Examples
         --------
@@ -1317,7 +1316,7 @@ class Iterable(_Base):
         return self.as_(list)
 
     def as_tuple(self):
-        """See :py:meth:`as_`.
+        """See :py:meth:`.as_`.
 
         Examples
         --------
@@ -1328,7 +1327,7 @@ class Iterable(_Base):
         return self.as_(tuple)
 
     def as_set(self):
-        """See :py:meth:`as_`.
+        """See :py:meth:`.as_`.
 
         Examples
         --------
@@ -1340,7 +1339,7 @@ class Iterable(_Base):
     as_set.__doc__ = as_set.__doc__.format('set([1])' if EQ_PY2 else '{1}')
 
     def as_frozenset(self):
-        """See :py:meth:`as_`.
+        """See :py:meth:`.as_`.
 
         Examples
         --------
@@ -1353,7 +1352,7 @@ class Iterable(_Base):
                                                        '{5}')
 
     def as_dict(self):
-        """See :py:meth:`as_`.
+        """See :py:meth:`.as_`.
 
         Examples
         --------
@@ -1364,7 +1363,7 @@ class Iterable(_Base):
         return self.as_(dict)
 
     def as_ordereddict(self):
-        """See :py:meth:`as_`.
+        """See :py:meth:`.as_`.
 
         Examples
         --------
@@ -1375,7 +1374,7 @@ class Iterable(_Base):
         return self.as_(OrderedDict)
 
     def as_counter(self):
-        """See :py:meth:`as_`.
+        """See :py:meth:`.as_`.
 
         Examples
         --------
@@ -1394,7 +1393,7 @@ class Iterable(_Base):
         """Get the iterable as string.
 
         .. warning::
-           This method **does not** use :py:meth:`as_`. and differs from
+           This method **does not** use :py:meth:`.as_`. and differs from
            ``str(Iterable(sth))``! It uses :py:meth:`str.join`.
 
         Parameters
@@ -1454,7 +1453,7 @@ class Iterable(_Base):
         return self._get(all, 0)
 
     def get_all_distinct(self):
-        """See :py:func:`~iteration_utilities._cfuncs.all_distinct`.
+        """See :py:func:`~iteration_utilities.all_distinct`.
 
         Examples
         --------
@@ -1468,7 +1467,7 @@ class Iterable(_Base):
         return self._get(all_distinct, 0)
 
     def get_all_equal(self):
-        """See :py:func:`~iteration_utilities._cfuncs.all_equal`.
+        """See :py:func:`~iteration_utilities.all_equal`.
 
         Examples
         --------
@@ -1482,7 +1481,7 @@ class Iterable(_Base):
         return self._get(all_equal, 0)
 
     def get_all_monotone(self, decreasing=_default, strict=_default):
-        """See :py:func:`~iteration_utilities._cfuncs.all_monotone`.
+        """See :py:func:`~iteration_utilities.all_monotone`.
 
         Examples
         --------
@@ -1514,7 +1513,7 @@ strict=False)
         return self._get(any, 0)
 
     def get_argmax(self, key=_default, default=_default):
-        """See :py:func:`~iteration_utilities._cfuncs.argmax`.
+        """See :py:func:`~iteration_utilities.argmax`.
 
         Examples
         --------
@@ -1534,7 +1533,7 @@ strict=False)
         return self._get(argmax, 0, key=key, default=default)
 
     def get_argmin(self, key=_default, default=_default):
-        """See :py:func:`~iteration_utilities._cfuncs.argmin`.
+        """See :py:func:`~iteration_utilities.argmin`.
 
         Examples
         --------
@@ -1554,7 +1553,7 @@ strict=False)
         return self._get(argmin, 0, key=key, default=default)
 
     def get_argsorted(self, key=_default, reverse=_default):
-        """See :py:func:`~iteration_utilities._recipes._additional.argsorted`.
+        """See :py:func:`~iteration_utilities.argsorted`.
 
         Examples
         --------
@@ -1574,7 +1573,7 @@ strict=False)
         return self._get(argsorted, 0, key=key, reverse=reverse)
 
     def get_count_items(self, pred=_default, eq=_default):
-        """See :py:func:`~iteration_utilities._cfuncs.count_items`.
+        """See :py:func:`~iteration_utilities.count_items`.
 
         Examples
         --------
@@ -1619,7 +1618,7 @@ strict=False)
 
     def get_groupedby(self, key, keep=_default, reduce=_default,
                       reducestart=_default):
-        """See :py:func:`~iteration_utilities._cfuncs.groupedby`.
+        """See :py:func:`~iteration_utilities.groupedby`.
 
         Examples
         --------
@@ -1732,7 +1731,7 @@ strict=False)
             return self._get(min, 0, key=key, default=default)
 
     def get_minmax(self, key=_default, default=_default):
-        """See :py:func:`~iteration_utilities._cfuncs.minmax`.
+        """See :py:func:`~iteration_utilities.minmax`.
 
         Examples
         --------
@@ -1793,7 +1792,7 @@ strict=False)
         return self._get(nsmallest, 1, n, key=key)
 
     def get_one(self):
-        """See :py:func:`~iteration_utilities._cfuncs.one`.
+        """See :py:func:`~iteration_utilities.one`.
 
         Examples
         --------
@@ -1804,7 +1803,7 @@ strict=False)
         return self._get(one, 0)
 
     def get_partition(self, func=_default):
-        """See :py:func:`~iteration_utilities._cfuncs.partition`.
+        """See :py:func:`~iteration_utilities.partition`.
 
         Examples
         --------
@@ -2026,13 +2025,13 @@ strict=False)
 
 
 class InfiniteIterable(_Base):
-    """Like :py:class:`Iterable` but indicates that the wrapped iterable is
+    """Like :py:class:`.Iterable` but indicates that the wrapped iterable is
     infinitly long.
 
     .. warning::
        The ``Iterable.as_*`` methods are not avaiable for `InfiniteIterable`
        because it would be impossible to create these types. Use
-       :py:meth:`Iterable.islice` or :py:meth:`Iterable.takewhile` to convert
+       :py:meth:`.Iterable.islice` or :py:meth:`.Iterable.takewhile` to convert
        an infinite iterable to a finite iterable. It is still possible to
        iterate over the iterable with ``for item in ...`` or using the Python
        constructors like ``list`` directly. This may fail fatally!
@@ -2040,94 +2039,94 @@ class InfiniteIterable(_Base):
     Mostly it is not necessary to use `InfiniteIterable` directly because the
     corresponding methods on `Iterable` return an `InfiniteIterable` when
     appropriate. However using ``isinstance(some_iterable, InfiniteIterable)``
-    could be used to determine if the :py:class:`Iterable` is infinite!
+    could be used to determine if the :py:class:`.Iterable` is infinite!
 
     Methods
     -------
-    :py:meth:`~InfiniteIterable.accumulate`
+    :py:meth:`~.InfiniteIterable.accumulate`
         See :py:func:`~iteration_utilities.accumulate`.
-    :py:meth:`~InfiniteIterable.clamp`
+    :py:meth:`~.InfiniteIterable.clamp`
         See :py:func:`~iteration_utilities.clamp`.
-    :py:meth:`~InfiniteIterable.combinations`
+    :py:meth:`~.InfiniteIterable.combinations`
         See :py:func:`itertools.combinations`.
-    :py:meth:`~InfiniteIterable.combinations_with_replacement`
+    :py:meth:`~.InfiniteIterable.combinations_with_replacement`
         See :py:func:`itertools.combinations_with_replacement`.
-    :py:meth:`~InfiniteIterable.compress`
+    :py:meth:`~.InfiniteIterable.compress`
         See :py:func:`itertools.compress`.
-    :py:meth:`~InfiniteIterable.cycle`
+    :py:meth:`~.InfiniteIterable.cycle`
         See :py:func:`itertools.cycle`.
-    :py:meth:`~InfiniteIterable.deepflatten`
+    :py:meth:`~.InfiniteIterable.deepflatten`
         See :py:func:`~iteration_utilities.deepflatten`.
-    :py:meth:`~InfiniteIterable.dropwhile`
+    :py:meth:`~.InfiniteIterable.dropwhile`
         See :py:func:`itertools.dropwhile`.
-    :py:meth:`~InfiniteIterable.duplicates`
+    :py:meth:`~.InfiniteIterable.duplicates`
         See :py:func:`~iteration_utilities.duplicates`.
-    :py:meth:`~InfiniteIterable.enumerate`
+    :py:meth:`~.InfiniteIterable.enumerate`
         See :py:func:`python:enumerate`.
-    :py:meth:`~InfiniteIterable.filter`
+    :py:meth:`~.InfiniteIterable.filter`
         See :py:func:`python:filter`.
-    :py:meth:`~InfiniteIterable.filterfalse`
+    :py:meth:`~.InfiniteIterable.filterfalse`
         See :py:func:`itertools.filterfalse`.
-    :py:meth:`~InfiniteIterable.flatten`
-        See :py:func:`~iteration_utilities._recipes._core.flatten`.
-    :py:meth:`~InfiniteIterable.from_applyfunc`
+    :py:meth:`~.InfiniteIterable.flatten`
+        See :py:func:`~iteration_utilities.flatten`.
+    :py:meth:`~.InfiniteIterable.from_applyfunc`
         See :py:func:`~iteration_utilities.applyfunc`.
-    :py:meth:`~InfiniteIterable.from_count`
+    :py:meth:`~.InfiniteIterable.from_count`
         See :py:func:`itertools.count`.
-    :py:meth:`~InfiniteIterable.from_iterfunc_exception`
+    :py:meth:`~.InfiniteIterable.from_iterfunc_exception`
         See :py:func:`~iteration_utilities.iter_except`.
-    :py:meth:`~InfiniteIterable.from_iterfunc_sentinel`
+    :py:meth:`~.InfiniteIterable.from_iterfunc_sentinel`
         See :py:func:`python:iter`.
-    :py:meth:`~InfiniteIterable.from_itersubclasses`
+    :py:meth:`~.InfiniteIterable.from_itersubclasses`
         See \
-:py:func:`~iteration_utilities._recipes._additional.itersubclasses`.
-    :py:meth:`~InfiniteIterable.from_repeat`
+:py:func:`~iteration_utilities.itersubclasses`.
+    :py:meth:`~.InfiniteIterable.from_repeat`
         See :py:func:`itertools.repeat`.
-    :py:meth:`~InfiniteIterable.from_repeatfunc`
-        See :py:func:`~iteration_utilities._recipes._core.repeatfunc`.
-    :py:meth:`~InfiniteIterable.from_tabulate`
+    :py:meth:`~.InfiniteIterable.from_repeatfunc`
+        See :py:func:`~iteration_utilities.repeatfunc`.
+    :py:meth:`~.InfiniteIterable.from_tabulate`
         See :py:func:`~iteration_utilities.tabulate`.
-    :py:meth:`~InfiniteIterable.getitem`
-        See :py:func:`~iteration_utilities._recipes._additional.getitem`
-    :py:meth:`~InfiniteIterable.grouper`
+    :py:meth:`~.InfiniteIterable.getitem`
+        See :py:func:`~iteration_utilities.getitem`
+    :py:meth:`~.InfiniteIterable.grouper`
         See :py:func:`~iteration_utilities.grouper`.
-    :py:meth:`~InfiniteIterable.insert`
-        See :py:func:`~iteration_utilities._recipes._additional.insert`
-    :py:meth:`~InfiniteIterable.intersperse`
+    :py:meth:`~.InfiniteIterable.insert`
+        See :py:func:`~iteration_utilities.insert`
+    :py:meth:`~.InfiniteIterable.intersperse`
         See :py:func:`~iteration_utilities.intersperse`.
-    :py:meth:`~InfiniteIterable.islice`
+    :py:meth:`~.InfiniteIterable.islice`
         See :py:func:`itertools.islice`.
-    :py:meth:`~InfiniteIterable.map`
+    :py:meth:`~.InfiniteIterable.map`
         See :py:func:`python:map`.
-    :py:meth:`~InfiniteIterable.ncycles`
-        See :py:func:`~iteration_utilities._recipes._core.ncycles`.
-    :py:meth:`~InfiniteIterable.pad`
-        See :py:func:`~iteration_utilities._recipes._additional.pad`.
-    :py:meth:`~InfiniteIterable.permutations`
+    :py:meth:`~.InfiniteIterable.ncycles`
+        See :py:func:`~iteration_utilities.ncycles`.
+    :py:meth:`~.InfiniteIterable.pad`
+        See :py:func:`~iteration_utilities.pad`.
+    :py:meth:`~.InfiniteIterable.permutations`
         See :py:func:`itertools.permutations`.
-    :py:meth:`~InfiniteIterable.powerset`
-        See :py:func:`~iteration_utilities._recipes._core.powerset`.
-    :py:meth:`~InfiniteIterable.remove`
-        See :py:func:`~iteration_utilities._recipes._additional.remove`.
-    :py:meth:`~InfiniteIterable.replace`
-        See :py:func:`~iteration_utilities._recipes._additional.replace`.
-    :py:meth:`~InfiniteIterable.replicate`
-        See :py:func:`~iteration_utilities._recipes._additional.replicate`.
-    :py:meth:`~InfiniteIterable.split`
+    :py:meth:`~.InfiniteIterable.powerset`
+        See :py:func:`~iteration_utilities.powerset`.
+    :py:meth:`~.InfiniteIterable.remove`
+        See :py:func:`~iteration_utilities.remove`.
+    :py:meth:`~.InfiniteIterable.replace`
+        See :py:func:`~iteration_utilities.replace`.
+    :py:meth:`~.InfiniteIterable.replicate`
+        See :py:func:`~iteration_utilities.replicate`.
+    :py:meth:`~.InfiniteIterable.split`
         See :py:func:`~iteration_utilities.split`.
-    :py:meth:`~InfiniteIterable.starfilter`
+    :py:meth:`~.InfiniteIterable.starfilter`
         See :py:func:`~iteration_utilities.starfilter`.
-    :py:meth:`~InfiniteIterable.starmap`
+    :py:meth:`~.InfiniteIterable.starmap`
         See :py:func:`itertools.starmap`.
-    :py:meth:`~InfiniteIterable.successive`
+    :py:meth:`~.InfiniteIterable.successive`
         See :py:func:`~iteration_utilities.successive`.
-    :py:meth:`~InfiniteIterable.tail`
-        See :py:func:`~iteration_utilities._recipes._core.tail`.
-    :py:meth:`~InfiniteIterable.takewhile`
+    :py:meth:`~.InfiniteIterable.tail`
+        See :py:func:`~iteration_utilities.tail`.
+    :py:meth:`~.InfiniteIterable.takewhile`
         See :py:func:`itertools.takewhile`.
-    :py:meth:`~InfiniteIterable.unique_everseen`
+    :py:meth:`~.InfiniteIterable.unique_everseen`
         See :py:func:`~iteration_utilities.unique_everseen`.
-    :py:meth:`~InfiniteIterable.unique_justseen`
+    :py:meth:`~.InfiniteIterable.unique_justseen`
         See :py:func:`~iteration_utilities.unique_justseen`.
 
     """

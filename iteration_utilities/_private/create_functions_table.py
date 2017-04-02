@@ -33,7 +33,7 @@ def create_included_function_list():
 
     it = (Iterable(it)
           # Create a Sphinx link from function name and module
-          .map(lambda i: ':py:func:`~{}.{}`'.format(i[1].__module__, i[0]))
+          .map(lambda i: ':py:func:`~iteration_utilities.{}`'.format(i[0]))
           # Group into 4s so we get a 4 column Table
           .grouper(4, fillvalue='')
           # Convert to list because Table expects it.

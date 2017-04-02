@@ -16,7 +16,7 @@
 
 #include "chained.c"
 #include "complement.c"
-#include "const.c"
+#include "constant.c"
 #include "flip.c"
 #include "packed.c"
 #include "partial.c"
@@ -63,41 +63,72 @@
 
 static PyMethodDef PyIU_methods[] = {
 
-    {"is_None",     (PyCFunction)PyIU_IsNone,     METH_O,  PyIU_IsNone_doc},
-    {"is_not_None", (PyCFunction)PyIU_IsNotNone,  METH_O,  PyIU_IsNotNone_doc},
-    {"is_even",     (PyCFunction)PyIU_IsEven,     METH_O,  PyIU_IsEven_doc},
-    {"is_odd",      (PyCFunction)PyIU_IsOdd,      METH_O,  PyIU_IsOdd_doc},
-    {"is_iterable", (PyCFunction)PyIU_IsIterable, METH_O,  PyIU_IsIterable_doc},
+    {"is_None",     (PyCFunction)PyIU_IsNone,     METH_O,
+     PyIU_IsNone_doc},
+    {"is_not_None", (PyCFunction)PyIU_IsNotNone,  METH_O,
+     PyIU_IsNotNone_doc},
+    {"is_even",     (PyCFunction)PyIU_IsEven,     METH_O,
+     PyIU_IsEven_doc},
+    {"is_odd",      (PyCFunction)PyIU_IsOdd,      METH_O,
+     PyIU_IsOdd_doc},
+    {"is_iterable", (PyCFunction)PyIU_IsIterable, METH_O,
+     PyIU_IsIterable_doc},
 
-    {"square",     (PyCFunction)PyIU_MathSquare,     METH_O,       PyIU_MathSquare_doc},
-    {"double",     (PyCFunction)PyIU_MathDouble,     METH_O,       PyIU_MathDouble_doc},
-    {"reciprocal", (PyCFunction)PyIU_MathReciprocal, METH_O,       PyIU_MathReciprocal_doc},
-    {"radd",       (PyCFunction)PyIU_MathRadd,       METH_VARARGS, PyIU_MathRadd_doc},
-    {"rsub",       (PyCFunction)PyIU_MathRsub,       METH_VARARGS, PyIU_MathRsub_doc},
-    {"rmul",       (PyCFunction)PyIU_MathRmul,       METH_VARARGS, PyIU_MathRmul_doc},
-    {"rdiv",       (PyCFunction)PyIU_MathRdiv,       METH_VARARGS, PyIU_MathRdiv_doc},
-    {"rfdiv",      (PyCFunction)PyIU_MathRfdiv,      METH_VARARGS, PyIU_MathRfdiv_doc},
-    {"rpow",       (PyCFunction)PyIU_MathRpow,       METH_VARARGS, PyIU_MathRpow_doc},
-    {"rmod",       (PyCFunction)PyIU_MathRmod,       METH_VARARGS, PyIU_MathRmod_doc},
+    {"square",     (PyCFunction)PyIU_MathSquare,     METH_O,
+     PyIU_MathSquare_doc},
+    {"double",     (PyCFunction)PyIU_MathDouble,     METH_O,
+     PyIU_MathDouble_doc},
+    {"reciprocal", (PyCFunction)PyIU_MathReciprocal, METH_O,
+     PyIU_MathReciprocal_doc},
+    {"radd",       (PyCFunction)PyIU_MathRadd,       METH_VARARGS,
+     PyIU_MathRadd_doc},
+    {"rsub",       (PyCFunction)PyIU_MathRsub,       METH_VARARGS,
+     PyIU_MathRsub_doc},
+    {"rmul",       (PyCFunction)PyIU_MathRmul,       METH_VARARGS,
+     PyIU_MathRmul_doc},
+    {"rdiv",       (PyCFunction)PyIU_MathRdiv,       METH_VARARGS,
+     PyIU_MathRdiv_doc},
+    {"rfdiv",      (PyCFunction)PyIU_MathRfdiv,      METH_VARARGS,
+     PyIU_MathRfdiv_doc},
+    {"rpow",       (PyCFunction)PyIU_MathRpow,       METH_VARARGS,
+     PyIU_MathRpow_doc},
+    {"rmod",       (PyCFunction)PyIU_MathRmod,       METH_VARARGS,
+     PyIU_MathRmod_doc},
 
-    {"_parse_args",   (PyCFunction)PyIU_TupleToList_and_InsertItemAtIndex,  METH_VARARGS, PyIU_TupleToList_and_InsertItemAtIndex_doc},
-    {"_parse_kwargs", (PyCFunction)PyIU_RemoveFromDictWhereValueIs,         METH_VARARGS, PyIU_RemoveFromDictWhereValueIs_doc},
+    {"_parse_args",   (PyCFunction)PyIU_TupleToList_and_InsertItemAtIndex,  METH_VARARGS,
+     PyIU_TupleToList_and_InsertItemAtIndex_doc},
+    {"_parse_kwargs", (PyCFunction)PyIU_RemoveFromDictWhereValueIs,         METH_VARARGS,
+     PyIU_RemoveFromDictWhereValueIs_doc},
 
-    {"return_identity",  (PyCFunction)PyIU_ReturnIdentity, METH_O,                       PyIU_ReturnIdentity_doc},
-    {"return_first_arg", (PyCFunction)PyIU_ReturnFirstArg, METH_VARARGS | METH_KEYWORDS, PyIU_ReturnFirstArg_doc},
-    {"return_called",    (PyCFunction)PyIU_ReturnCalled,   METH_O,                       PyIU_ReturnCalled_doc},
+    {"return_identity",  (PyCFunction)PyIU_ReturnIdentity, METH_O,
+     PyIU_ReturnIdentity_doc},
+    {"return_first_arg", (PyCFunction)PyIU_ReturnFirstArg, METH_VARARGS | METH_KEYWORDS,
+     PyIU_ReturnFirstArg_doc},
+    {"return_called",    (PyCFunction)PyIU_ReturnCalled,   METH_O,
+     PyIU_ReturnCalled_doc},
 
-    {"argmin",       (PyCFunction)PyIU_Argmin,      METH_VARARGS | METH_KEYWORDS, PyIU_Argmin_doc},
-    {"argmax",       (PyCFunction)PyIU_Argmax,      METH_VARARGS | METH_KEYWORDS, PyIU_Argmax_doc},
-    {"all_distinct", (PyCFunction)PyIU_AllDistinct, METH_O,                       PyIU_AllDistinct_doc},
-    {"all_equal",    (PyCFunction)PyIU_AllEqual,    METH_O,                       PyIU_AllEqual_doc},
-    {"all_monotone", (PyCFunction)PyIU_Monotone,    METH_VARARGS | METH_KEYWORDS, PyIU_Monotone_doc},
-    {"count_items",  (PyCFunction)PyIU_Count,       METH_VARARGS | METH_KEYWORDS, PyIU_Count_doc},
-    {"dotproduct",   (PyCFunction)PyIU_DotProduct,  METH_VARARGS,                 PyIU_DotProduct_doc},
-    {"groupedby",    (PyCFunction)PyIU_Groupby,     METH_VARARGS | METH_KEYWORDS, PyIU_Groupby_doc},
-    {"minmax",       (PyCFunction)PyIU_MinMax,      METH_VARARGS | METH_KEYWORDS, PyIU_MinMax_doc},
-    {"one",          (PyCFunction)PyIU_One,         METH_O,                       PyIU_One_doc},
-    {"partition",    (PyCFunction)PyIU_Partition,   METH_VARARGS | METH_KEYWORDS, PyIU_Partition_doc},
+    {"argmin",       (PyCFunction)PyIU_Argmin,      METH_VARARGS | METH_KEYWORDS,
+     PyIU_Argmin_doc},
+    {"argmax",       (PyCFunction)PyIU_Argmax,      METH_VARARGS | METH_KEYWORDS,
+     PyIU_Argmax_doc},
+    {"all_distinct", (PyCFunction)PyIU_AllDistinct, METH_O,
+     PyIU_AllDistinct_doc},
+    {"all_equal",    (PyCFunction)PyIU_AllEqual,    METH_O,
+     PyIU_AllEqual_doc},
+    {"all_monotone", (PyCFunction)PyIU_Monotone,    METH_VARARGS | METH_KEYWORDS,
+     PyIU_Monotone_doc},
+    {"count_items",  (PyCFunction)PyIU_Count,       METH_VARARGS | METH_KEYWORDS,
+     PyIU_Count_doc},
+    {"dotproduct",   (PyCFunction)PyIU_DotProduct,  METH_VARARGS,
+     PyIU_DotProduct_doc},
+    {"groupedby",    (PyCFunction)PyIU_Groupby,     METH_VARARGS | METH_KEYWORDS,
+     PyIU_Groupby_doc},
+    {"minmax",       (PyCFunction)PyIU_MinMax,      METH_VARARGS | METH_KEYWORDS,
+     PyIU_MinMax_doc},
+    {"one",          (PyCFunction)PyIU_One,         METH_O,
+     PyIU_One_doc},
+    {"partition",    (PyCFunction)PyIU_Partition,   METH_VARARGS | METH_KEYWORDS,
+     PyIU_Partition_doc},
 
     {NULL, NULL}
 };
@@ -218,20 +249,34 @@ PyDoc_STRVAR(PyIU_module_doc, "API: C Functions\n----------------");
         }
 
         /* Add pre-defined instances. */
-        PyIU_returnTrue = constant_new(&PyIUType_Constant, Py_BuildValue("(O)", Py_True), NULL);
+        PyIU_returnTrue = constant_new(&PyIUType_Constant,
+                                       Py_BuildValue("(O)", Py_True),
+                                       NULL);
         PyModule_AddObject(m, PyIU_returnTrue_name, PyIU_returnTrue);
-        PyIU_returnFalse = constant_new(&PyIUType_Constant, Py_BuildValue("(O)", Py_False), NULL);
+        PyIU_returnFalse = constant_new(&PyIUType_Constant,
+                                        Py_BuildValue("(O)", Py_False),
+                                        NULL);
         PyModule_AddObject(m, PyIU_returnFalse_name, PyIU_returnFalse);
-        PyIU_returnNone = constant_new(&PyIUType_Constant, Py_BuildValue("(O)", Py_None), NULL);
+        PyIU_returnNone = constant_new(&PyIUType_Constant,
+                                       Py_BuildValue("(O)", Py_None),
+                                       NULL);
         PyModule_AddObject(m, PyIU_returnNone_name, PyIU_returnNone);
 
-        PyIU_ReduceFirst = nth_new(&PyIUType_Nth, Py_BuildValue("(n)", 0), NULL);
+        PyIU_ReduceFirst = nth_new(&PyIUType_Nth,
+                                   Py_BuildValue("(n)", 0),
+                                   NULL);
         PyModule_AddObject(m, PyIU_ReduceFirst_name, PyIU_ReduceFirst);
-        PyIU_ReduceSecond = nth_new(&PyIUType_Nth, Py_BuildValue("(n)", 1), NULL);
+        PyIU_ReduceSecond = nth_new(&PyIUType_Nth,
+                                    Py_BuildValue("(n)", 1),
+                                    NULL);
         PyModule_AddObject(m, PyIU_ReduceSecond_name, PyIU_ReduceSecond);
-        PyIU_ReduceThird = nth_new(&PyIUType_Nth, Py_BuildValue("(n)", 2), NULL);
+        PyIU_ReduceThird = nth_new(&PyIUType_Nth,
+                                   Py_BuildValue("(n)", 2),
+                                   NULL);
         PyModule_AddObject(m, PyIU_ReduceThird_name, PyIU_ReduceThird);
-        PyIU_ReduceLast = nth_new(&PyIUType_Nth, Py_BuildValue("(n)", minus_one), NULL);
+        PyIU_ReduceLast = nth_new(&PyIUType_Nth,
+                                  Py_BuildValue("(n)", minus_one),
+                                  NULL);
         PyModule_AddObject(m, PyIU_ReduceLast_name, PyIU_ReduceLast);
 
         #if PY_MAJOR_VERSION == 2

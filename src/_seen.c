@@ -448,7 +448,7 @@ static PySequenceMethods seen_as_sequence = {
 PyDoc_STRVAR(seen_doc, "Seen(seenset=None, seenlist=None)\n\
 --\n\
 \n\
-Helper class which adds the items after each `contains_add` check.\n\
+Helper class which adds the items after each :py:meth:`.contains_add` check.\n\
 \n\
 Parameters\n\
 ----------\n\
@@ -490,8 +490,10 @@ This class adds each item after `contains_add` call but also supports normal\n\
     iteration_utilities.Seen({2}, unhashable=[[1, 2]])\n\
 \n\
 This class does only support ``in``, ``==``, ``!=`` and ``len``.\n\
-It is mostly included because it unified the code in `duplicates`,\n\
-`unique_everseen` and `all_distinct` and might be useful in other \n\
+It is mostly included because it unified the code in \n\
+:py:func:`~iteration_utilities.duplicates`,\n\
+:py:func:`~iteration_utilities.unique_everseen`, and \n\
+:py:func:`~iteration_utilities.all_distinct` and might be useful in other \n\
 applications.");
 
 /******************************************************************************

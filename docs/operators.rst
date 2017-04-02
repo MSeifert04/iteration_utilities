@@ -2,38 +2,37 @@ Operators
 ---------
 
 The Python operator module [0]_ contains a large variety of operators and
-``iteration_utilities`` only tries to fill in some missing ones:
+:py:mod:`iteration_utilities` only tries to fill in some missing ones:
 
 Reverse arithmetic operators
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. py:currentmodule:: iteration_utilities._cfuncs
+- :py:func:`~iteration_utilities.reciprocal`, equivalent to ``lambda x: 1 / x``
 
-- :py:func:`reciprocal`, equivalent to ``lambda x: 1 / x``
-
-+----------------------+--------------------------+
-|      Function        |        Equivalent        |
-+======================+==========================+
-| :py:func:`radd`      | ``lambda x, y: y + x``   |
-+----------------------+--------------------------+
-| :py:func:`rsub`      | ``lambda x, y: y - x``   |
-+----------------------+--------------------------+
-| :py:func:`rmul`      | ``lambda x, y: y * x``   |
-+----------------------+--------------------------+
-| :py:func:`rdiv`      | ``lambda x, y: y / x``   |
-+----------------------+--------------------------+
-| :py:func:`rfdiv`     | ``lambda x, y: y // x``  |
-+----------------------+--------------------------+
-| :py:func:`rpow`      | ``lambda x, y: y ** x``  |
-+----------------------+--------------------------+
-| :py:func:`rmod`      | ``lambda x, y: y % x``   |
-+----------------------+--------------------------+
++-------------------------------------------+--------------------------+
+| Function                                  |        Equivalent        |
++===========================================+==========================+
+| :py:func:`~iteration_utilities.radd`      | ``lambda x, y: y + x``   |
++-------------------------------------------+--------------------------+
+| :py:func:`~iteration_utilities.rsub`      | ``lambda x, y: y - x``   |
++-------------------------------------------+--------------------------+
+| :py:func:`~iteration_utilities.rmul`      | ``lambda x, y: y * x``   |
++-------------------------------------------+--------------------------+
+| :py:func:`~iteration_utilities.rdiv`      | ``lambda x, y: y / x``   |
++-------------------------------------------+--------------------------+
+| :py:func:`~iteration_utilities.rfdiv`     | ``lambda x, y: y // x``  |
++-------------------------------------------+--------------------------+
+| :py:func:`~iteration_utilities.rpow`      | ``lambda x, y: y ** x``  |
++-------------------------------------------+--------------------------+
+| :py:func:`~iteration_utilities.rmod`      | ``lambda x, y: y % x``   |
++-------------------------------------------+--------------------------+
 
 Math operators
 ^^^^^^^^^^^^^^
 
-- :py:func:`double`, equivalent to ``lambda x: x * 2``
-- :py:func:`square`, equivalent to ``lambda x: x ** 2``
+- :py:func:`~iteration_utilities.double`, equivalent to ``lambda x: x * 2``
+- :py:func:`~iteration_utilities.square`, equivalent to ``lambda x: x ** 2``
+- :py:func:`~iteration_utilities.reciprocal`, equivalent to ``lambda x: 1 / x``
 
 And of course the standard operators from the operator module:
 
@@ -82,17 +81,21 @@ And the bitwise operators:
 +--------------------------------------+--------------------------+
 
 .. note::
-   The ``math`` module contains several more!
+   The :mod:`math` module contains several more!
 
 
 Comparison operators
 ^^^^^^^^^^^^^^^^^^^^
 
-- :py:func:`is_even`, equivalent to ``lambda x: (x % 2) == 0``.
-- :py:func:`is_odd`, equivalent to ``lambda x: (x % 2) != 0``.
-- :py:func:`is_None`, equivalent to ``lambda x: x is None``.
-- :py:func:`is_not_None`, equivalent to ``lambda x: x is not None``.
-- :py:func:`is_iterable`, roughly equivalent to
+- :py:func:`~iteration_utilities.is_even`, equivalent to
+  ``lambda x: (x % 2) == 0``.
+- :py:func:`~iteration_utilities.is_odd`, equivalent to
+  ``lambda x: (x % 2) != 0``.
+- :py:func:`~iteration_utilities.is_None`, equivalent to
+  ``lambda x: x is None``.
+- :py:func:`~iteration_utilities.is_not_None`, equivalent to
+  ``lambda x: x is not None``.
+- :py:func:`~iteration_utilities.is_iterable`, roughly equivalent to
   ``lambda x: isinstance(x, collections.Iterable)``.
 
 And the comparison operators from the Python library:

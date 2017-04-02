@@ -2,15 +2,15 @@ Iterable, InfiniteIterable and ManyIterables
 --------------------------------------------
 
 .. warning::
-   :py:class:`~iteration_utilities.core.Iterable`,
-   :py:class:`~iteration_utilities.core.InfiniteIterable` and
-   :py:class:`~iteration_utilities.core.ManyIterables`
+   :py:class:`~iteration_utilities.Iterable`,
+   :py:class:`~iteration_utilities.InfiniteIterable` and
+   :py:class:`~iteration_utilities.ManyIterables`
    are currently experimental.
 
-``iteration_utilities`` introduces these three classes that can be used as
-wrapper for Python iterables. These classes implement the generators present
-in the Python builtins, the ``itertools``-module and ``iteration_utilities``
-as methods.
+:py:mod:`iteration_utilities` introduces these three classes that can be used
+as wrapper for Python iterables. These classes implement the generators present
+in the Python builtins, the :py:mod:`itertools`-module and
+:py:mod:`iteration_utilities` as methods.
 
 These can be broadly classified in 4 categories:
 
@@ -20,7 +20,7 @@ Creating an Iterable
 The constructor allows wrapping a specified `iterable` like a `list` or
 `range` object. But it also has several staticmethods for creating an
 `Iterable` by other means, these have the prefix ``from_``. For example the
-:py:meth:`~iteration_utilities.core.Iterable.from_repeat` allows to create an
+:py:meth:`iteration_utilities.Iterable.from_repeat` allows to create an
 `Iterable` by using :py:func:`itertools.repeat`.
 
 
@@ -72,7 +72,7 @@ Currently folding methods like ``sum()`` are implemented with the prefix
 ``get_``.
 
 .. note::
-   See the documentation of :py:class:`~iteration_utilities.core.Iterable`
+   See the documentation of :py:class:`~iteration_utilities.Iterable`
    to see which methods are possible or read the next chapters for more
    background information.
 

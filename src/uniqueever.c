@@ -258,8 +258,10 @@ uniqueever_getkey(PyIUObject_UniqueEver *self,
  *****************************************************************************/
 
 static PyGetSetDef uniqueever_getsetlist[] = {
-    {"seen",     (getter)uniqueever_getseen, NULL},
-    {"key",      (getter)uniqueever_getkey,  NULL},
+    {"seen",     (getter)uniqueever_getseen, NULL,
+     "(:py:class:`~iteration_utilities.Seen`) Already seen values."},
+    {"key",      (getter)uniqueever_getkey, NULL,
+     "(callable or `None`) The key function."},
     {NULL}
 };
 
@@ -285,13 +287,6 @@ Returns\n\
 -------\n\
 iterable : generator\n\
     An iterable containing all unique values ever seen in the `iterable`.\n\
-\n\
-Attributes\n\
-----------\n\
-seen : Seen\n\
-    Already seen (and hashable) values.\n\
-key : callable, None\n\
-    The key function.\n\
 \n\
 Notes\n\
 -----\n\

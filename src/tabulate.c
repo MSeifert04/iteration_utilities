@@ -173,7 +173,7 @@ Examples\n\
 --------\n\
 Since the return is an infinite generator you need some other function\n\
 to extract only the needed values. For example\n\
-:py:func:`~iteration_utilities._recipes._additional.getitem`::\n\
+:py:func:`~iteration_utilities.getitem`::\n\
 \n\
     >>> from iteration_utilities import tabulate, getitem\n\
     >>> from math import sqrt\n\

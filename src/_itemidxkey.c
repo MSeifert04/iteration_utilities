@@ -444,9 +444,12 @@ itemidxkey_setkey(PyIUObject_ItemIdxKey *self,
  *****************************************************************************/
 
 static PyGetSetDef itemidxkey_getsetlist[] = {
-    {"item", (getter)itemidxkey_getitem, (setter)itemidxkey_setitem, NULL},
-    {"idx",  (getter)itemidxkey_getidx,  (setter)itemidxkey_setidx,  NULL},
-    {"key",  (getter)itemidxkey_getkey,  (setter)itemidxkey_setkey,  NULL},
+    {"item", (getter)itemidxkey_getitem, (setter)itemidxkey_setitem,
+     "(any type) The `item` to sort."},
+    {"idx",  (getter)itemidxkey_getidx,  (setter)itemidxkey_setidx,
+     "(:py:class:`int`) The original position of the `item`."},
+    {"key",  (getter)itemidxkey_getkey,  (setter)itemidxkey_setkey,
+     "(any type) The result of a key function applied to the `item`."},
     {NULL}
 };
 
@@ -490,22 +493,13 @@ Parameters\n\
 item : any type\n\
     The original `item`.\n\
 \n\
-idx : number\n\
+idx : int\n\
     The position (index) of the `item`.\n\
 \n\
 key : any type, optional\n\
     If given (even as ``None``) this should be the `item` processed by the \n\
     `key` function. If it is set then comparisons will compare the `key` \n\
     instead of the `item`.\n\
-\n\
-Attributes\n\
-----------\n\
-item : any type\n\
-    The `item` to sort.\n\
-idx : integer\n\
-    The original position of the `item`.\n\
-key : any type\n\
-    The result of a key function applied to the `item`.\n\
 \n\
 Notes\n\
 -----\n\

@@ -118,28 +118,31 @@ static PyMethodDef constant_methods[] = {
     {NULL, NULL}
 };
 
+#define OFF(x) offsetof(PyIUObject_Constant, x)
+static PyMemberDef constant_memberlist[] = {
+    {"item",            T_OBJECT,       OFF(item),        READONLY,
+     "(any type) The value that is returned each time the instance is called."},
+    {NULL}  /* Sentinel */
+};
+#undef OFF
+
 /******************************************************************************
  * Docstring
  *****************************************************************************/
 
-PyDoc_STRVAR(constant_doc, "constant(x)\n\
+PyDoc_STRVAR(constant_doc, "constant(item, /)\n\
 --\n\
 \n\
-Class that always returns `x` when called.\n\
+Class that always returns a constant value when called.\n\
 \n\
 Parameters\n\
 ----------\n\
-x : any type\n\
-    The item that should be returned when called. Positional only parameter.\n\
-\n\
-Methods\n\
--------\n\
-__call__(\\*args, \\*\\*kwargs)\n\
-    Returns `x`.\n\
+item : any type\n\
+    The item that should be returned when called.\n\
 \n\
 Examples\n\
 --------\n\
-Creating `const` instances::\n\
+Creating :py:class:`~iteration_utilities.constant` instances::\n\
 \n\
     >>> from iteration_utilities import constant\n\
     >>> five = constant(5)\n\
@@ -152,9 +155,9 @@ Creating `const` instances::\n\
 \n\
 There are already three predefined instances:\n\
 \n\
-- ``return_True`` : always returns `True`.\n\
-- ``return_False`` : always returns `False`.\n\
-- ``return_None`` : always returns `None`.\n\
+- :py:func:`~iteration_utilities.return_True`: equivalent to ``constant(True)``.\n\
+- :py:func:`~iteration_utilities.return_False`: equivalent to ``constant(False)``.\n\
+- :py:func:`~iteration_utilities.return_None`: equivalent to ``constant(None)``.\n\
 \n\
 For example::\n\
 \n\
@@ -202,7 +205,7 @@ PyTypeObject PyIUType_Constant = {
     0,                                                  /* tp_iter */
     0,                                                  /* tp_iternext */
     constant_methods,                                   /* tp_methods */
-    0,                                                  /* tp_members */
+    constant_memberlist,                                /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */

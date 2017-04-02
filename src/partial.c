@@ -45,8 +45,8 @@ PyDoc_STRVAR(placeholder_doc, "PlaceholderType(/)\n\
 --\n\
 \n\
 A placeholder for :py:func:`iteration_utilities.partial`. It defines the\n\
-class for ``iteration_utilities.partial._`` and \n\
-``iteration_utilities.Placeholder``.\n\
+class for :attr:`iteration_utilities.partial._` and \n\
+:py:const:`iteration_utilities.Placeholder`.\n\
 ");
 
 PyTypeObject Placeholder_Type = {
@@ -449,15 +449,16 @@ Fail:
 #define OFF(x) offsetof(PyIUObject_Partial, x)
 static PyMemberDef partial_memberlist[] = {
     {"func",            T_OBJECT,       OFF(fn),        READONLY,
-     "Function object to use in future partial calls."},
+     "(callable) Function object to use in future partial calls."},
     {"args",            T_OBJECT,       OFF(args),      READONLY,
-     "Tuple of arguments to future partial calls."},
+     "(:py:class:`tuple`) arguments for future partial calls."},
     {"keywords",        T_OBJECT,       OFF(kw),        READONLY,
-     "Dictionary of keyword arguments to future partial calls."},
+     "(:py:class:`dict`) keyword arguments for future partial calls."},
     {"num_placeholders",T_PYSSIZET,     OFF(numph),     READONLY,
-     "Number of placeholders in the args."},
+     "(:py:class:`int`) Number of placeholders in the args."},
     {NULL}  /* Sentinel */
 };
+#undef OFF
 
 #if PY_MAJOR_VERSION == 2 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION < 3)
 static PyObject *
@@ -673,9 +674,9 @@ args : any type\n\
     The positional arguments for `func`.\n\
     \n\
     .. note::\n\
-       Using ``partial._`` as one or multiple positional arguments will be\n\
-       interpreted as placeholder that need to be filled when the `partial`\n\
-       instance is called.\n\
+       Using :py:attr:`.partial._` as one or multiple positional arguments \n\
+       will be interpreted as placeholder that need to be filled when the \n\
+       `~iteration_utilities.partial` instance is called.\n\
 \n\
 kwargs : any type\n\
     The keyword arguments for `func`.\n\
@@ -708,22 +709,19 @@ especially useful if a function does not allow keyword arguments::\n\
 \n\
 In this case the `isint` function is equivalent but faster than\n\
 ``lambda x: isinstance(x, int)``.\n\
-The ``partial._`` attribute or the ``iteration_utilities.Placeholder`` or\n\
-instances of :py:func:`iteration_utilities.PlaceholderType` can be used\n\
-as placeholders for the positional arguments.\n\
+The :py:attr:`.partial._` attribute or the \n\
+:py:const:`~iteration_utilities.Placeholder`  or instances of \n\
+:py:func:`~iteration_utilities.PlaceholderType` can be used as placeholders \n\
+for the positional arguments.\n\
 \n\
-For example most iterators in `iteration_utilities` take the `iterable` as\n\
-the first argument so other arguments can be easily added::\n\
+For example most iterators in :py:mod:`iteration_utilities` take the `iterable` \n\
+as the first argument so other arguments can be easily added::\n\
 \n\
     >>> from iteration_utilities import accumulate, Placeholder\n\
     >>> from operator import mul\n\
     >>> cumprod = partial(accumulate, Placeholder, mul)\n\
     >>> list(cumprod([1,2,3,4,5]))\n\
     [1, 2, 6, 24, 120]\n\
-\n\
-Attributes\n\
-----------\n\
-_ : ``iteration_utilities.Placeholder``\n\
 ");
 
 PyTypeObject PyIUType_Partial = {

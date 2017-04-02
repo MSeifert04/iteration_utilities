@@ -31,8 +31,8 @@ Builtin Library functions
 - :py:func:`functools.reduce` (in Python 2 part of the builtins), reduces the
   iterable by successivly applying a binary function.
 
-``reduce()`` is probably the most general function that could be used to
-recreate all the builtin functions. For example:
+:py:func:`functools.reduce` is probably the most general function that could be
+used to recreate all the builtin functions. For example:
 
 - ``reduce(lambda x, y: x and y, iterable)`` is equivalent to ``all()``
 - ``reduce(lambda x, y: x or y, iterable)`` is equivalent to ``any()``
@@ -42,7 +42,8 @@ recreate all the builtin functions. For example:
 - ``reduce(lambda x, y: x + 1, iterable, 0)`` is equivalent to ``len()``
 
 .. warning::
-   These ``reduce()`` functions are much slower than the builtins!
+   These :py:func:`functools.reduce` functions are much slower than the
+   builtins!
 
 There are several other fold functions in the standard library and in third-
 party packages, most notably:
@@ -57,61 +58,65 @@ party packages, most notably:
 Additional
 ^^^^^^^^^^
 
-The ``iteration_utilities`` package includes some additional fold functions:
+The :py:mod:`iteration_utilities` package includes some additional fold functions:
 
-.. py:currentmodule:: iteration_utilities._cfuncs
+- :py:func:`~iteration_utilities.all_distinct`, reduces the iterable to a
+  boolean value indicating if all the items are distinct.
+- :py:func:`~iteration_utilities.all_equal`, reduces the iterable to a boolean
+  value indicating if all the items are equal.
+- :py:func:`~iteration_utilities.all_monotone`, reduces the iterable to a
+  boolean value indicating if all the items are (strictly) bigger or smaller
+  than their predecessor.
+- :py:func:`~iteration_utilities.argmax`, reduces the iterable to the index of
+  the maximum.
+- :py:func:`~iteration_utilities.argmin`, reduces the iterable to the index of
+  the minimum.
+- :py:func:`~iteration_utilities.count_items`, reduces the iterable to the
+  number of (matching) items.
+- :py:func:`~iteration_utilities.minmax`, reduces the iterable to a tuple
+  containing the mimumum and maximum value.
 
-- :py:func:`all_distinct`, reduces the iterable to a boolean value indicating
-  if all the items are distinct.
-- :py:func:`all_equal`, reduces the iterable to a boolean value indicating
-  if all the items are equal.
-- :py:func:`all_monotone`, reduces the iterable to a boolean value indicating
-  if all the items are (strictly) bigger or smaller than their predecessor.
-- :py:func:`argmax`, reduces the iterable to the index of the maximum.
-- :py:func:`argmin`, reduces the iterable to the index of the minimum.
-- :py:func:`count_items`, reduces the iterable to the number of (matching) items.
-- :py:func:`minmax`, reduces the iterable to a tuple containing the mimumum
-  and maximum value.
-
-.. py:currentmodule:: iteration_utilities
-
-- :py:func:`nth`, reduces the iterable to it's nth value.
-- ``first()``, reduces the iterable to it's first value. See also `nth`.
-- ``second()``, reduces the iterable to it's second value. See also `nth`.
-- ``third()``, reduces the iterable to it's third value. See also `nth`.
-- ``last()``, reduces the iterable to it's last value. See also `nth`.
+- :py:func:`~iteration_utilities.nth`, reduces the iterable to it's nth value.
+- :py:func:`~iteration_utilities.first`, reduces the iterable to it's first
+  value. See also :py:func:`~iteration_utilities.nth`.
+- :py:func:`~iteration_utilities.second`, reduces the iterable to it's second
+  value. See also :py:func:`~iteration_utilities.nth`.
+- :py:func:`~iteration_utilities.third`, reduces the iterable to it's third
+  value. See also :py:func:`~iteration_utilities.nth`.
+- :py:func:`~iteration_utilities.last`, reduces the iterable to it's last
+  value. See also :py:func:`~iteration_utilities.nth`.
 
 
 
 Helper functions
 ^^^^^^^^^^^^^^^^
 
-Included in the ``iteration_utilities`` package are several helper functions
+Included in the :py:mod:`iteration_utilities` package are several helper functions
 that are based on normal Python code but chosen to evaluate faster than
 alternatives:
 
-- :py:func:`~iteration_utilities._helpers._performance.all_isinstance`, reduces
-  the iterable to the truthiness of isinstance applied to all items.
-- :py:func:`~iteration_utilities._helpers._performance.any_isinstance`, reduces
-  the iterable to the truthiness of isinstance applied to all items.
-- :py:func:`~iteration_utilities._cfuncs.dotproduct`, reduces two
-  iterables to the result of the dotproduct.
+- :py:func:`~iteration_utilities.all_isinstance`, reduces the iterable to the
+  truthiness of :py:func:`isinstance` applied to all items.
+- :py:func:`~iteration_utilities.any_isinstance`, reduces the iterable to the
+  truthiness of :py:func:`isinstance` applied to all items.
+- :py:func:`~iteration_utilities.dotproduct`, reduces two iterables to the
+  result of the dotproduct.
 
 
 Fold to other data structure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Most fold functions reduce an iterable by discarding most of the iterable.
-However ``iteration_utilities`` includes functions that discard no elements or
-only a few:
+However :py:mod:`iteration_utilities` includes functions that discard no
+elements or only a few:
 
-- :py:func:`~iteration_utilities._recipes._additional.argsorted`, create a list
+- :py:func:`~iteration_utilities.argsorted`, create a list
   of indices that would sort the iterable.
-- :py:func:`~iteration_utilities._cfuncs.groupedby`, create a dictionary
+- :py:func:`~iteration_utilities.groupedby`, create a dictionary
   containing lists representing the groups of values of the iterable.
 - :py:func:`heapq.nlargest`, create a list containing the `n` largest items.
 - :py:func:`heapq.nsmallest`, create a list containing the `n` smallest items.
-- :py:func:`~iteration_utilities._cfuncs.partition`, create a list containing
+- :py:func:`~iteration_utilities.partition`, create a list containing
   the items which do not fulfill some predicate and one containing the items
   that do.
 - :py:func:`sorted`, create a sorted list from an iterable.
@@ -138,34 +143,30 @@ and also two short-circuit operators:
 - ``or``, evaluates the right side only if the left side is falsy.
 
 
-The ``iteration_utilities`` package includes some additional short-circuit
-functions:
+:py:mod:`iteration_utilities` includes some additional short-circuit functions:
 
-.. py:currentmodule:: iteration_utilities._cfuncs
+- :py:func:`~iteration_utilities.all_distinct`, stops as soon as a duplicate item is found.
+- :py:func:`~iteration_utilities.all_equal`, stops as soon as a deviating item is found.
+- :py:func:`~iteration_utilities.all_monotone`, stops as soon as a item is found violating monotony.
+- :py:func:`~iteration_utilities.one`, get the one and only item of an iterable.
 
-- :py:func:`all_distinct`, stops as soon as a duplicate item is found.
-- :py:func:`all_equal`, stops as soon as a deviating item is found.
-- :py:func:`all_monotone`, stops as soon as a item is found violating monotony.
-- :py:func:`one`, get the one and only item of an iterable.
-
-.. py:currentmodule:: iteration_utilities
-
-- :py:func:`nth`, stops after the nth item.
-- ``first()``, like ``nth`` this function stops after the first item.
-- ``second()``, like ``nth`` this function stops after the second item.
-- ``third()``, like ``nth`` this function stops after the third item.
+- :py:func:`~iteration_utilities.nth`, stops after the nth item.
+- :py:func:`~iteration_utilities.first`, like ``nth`` this function stops after
+  the first item.
+- :py:func:`~iteration_utilities.second`, like ``nth`` this function stops after
+  the second item.
+- :py:func:`~iteration_utilities.third`, like ``nth`` this function stops after
+  the third item.
 
 
-Included in the ``iteration_utilities`` package are several helper functions
+Included in the :py:mod:`iteration_utilities` package are several helper functions
 that are based on normal Python code but chosen to evaluate faster than
 alternatives:
 
-.. py:currentmodule:: iteration_utilities._helpers._performance
-
-- :py:func:`all_isinstance`, stops as soon as one item is not an instance of
-  the specified types.
-- :py:func:`any_isinstance`, stops as soon as one item is an instance of the
-  specified types.
+- :py:func:`~iteration_utilities.all_isinstance`, stops as soon as one item is
+  not an instance of the specified types.
+- :py:func:`~iteration_utilities.any_isinstance`, stops as soon as one item is
+  an instance of the specified types.
 
 
 
