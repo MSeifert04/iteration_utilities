@@ -17,3 +17,8 @@ partial
       (:py:data:`~iteration_utilities.Placeholder`) Allows easy access to a
       placeholder without having to import
       :py:data:`~iteration_utilities.Placeholder`.
+
+   .. attribute:: __dict__
+
+      (:py:class:`dict`) instances have a normal ``__dict__`` member and
+      support instance attributes.

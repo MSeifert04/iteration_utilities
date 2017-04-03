@@ -301,154 +301,115 @@ split_setstate(PyIUObject_Split *self,
 }
 
 /******************************************************************************
- * Methods
+ * Type
  *****************************************************************************/
 
 static PyMethodDef split_methods[] = {
-    {"__reduce__",    (PyCFunction)split_reduce,    METH_NOARGS,
-     PYIU_reduce_doc},
-    {"__setstate__",  (PyCFunction)split_setstate,  METH_O,
-     PYIU_setstate_doc},
-    {NULL, NULL}
+
+    {"__reduce__",                                      /* ml_name */
+     (PyCFunction)split_reduce,                         /* ml_meth */
+     METH_NOARGS,                                       /* ml_flags */
+     PYIU_reduce_doc                                    /* ml_doc */
+     },
+
+    {"__setstate__",                                    /* ml_name */
+     (PyCFunction)split_setstate,                       /* ml_meth */
+     METH_O,                                            /* ml_flags */
+     PYIU_setstate_doc                                  /* ml_doc */
+     },
+
+    {NULL, NULL}                                        /* sentinel */
 };
 
 #define OFF(x) offsetof(PyIUObject_Split, x)
 static PyMemberDef split_memberlist[] = {
-    {"key",          T_OBJECT,    OFF(delimiter),       READONLY,
-     "(callable or any type) The function or value by which to split (readonly)."},
-    {"maxsplit",     T_PYSSIZET,  OFF(maxsplit),        READONLY,
-     "(:py:class:`int`) The number of maximum splits (readonly)."},
-    {"keep",         T_BOOL,      OFF(keep_delimiter),  READONLY,
-     "(:py:class:`bool`) Keep the delimiter (readonly)."},
-    {"keep_before",  T_BOOL,      OFF(keep_before),     READONLY,
-     "(:py:class:`bool`) Keep the delimiter as last item of the last group "
-     "(readonly)."},
-    {"keep_after",   T_BOOL,      OFF(keep_after),      READONLY,
-     "(:py:class:`bool`) Keep the delimiter as first item of the next group "
-     "(readonly)."},
-    {"eq",           T_BOOL,      OFF(cmp),             READONLY,
-     "(:py:class:`bool`) Instead of calling :py:attr:`key` compare the items "
-     "with it (readonly)."},
-    {NULL}  /* Sentinel */
+
+    {"key",                                             /* name */
+     T_OBJECT,                                          /* type */
+     OFF(delimiter),                                    /* offset */
+     READONLY,                                          /* flags */
+     split_prop_key_doc                                 /* doc */
+     },
+
+    {"maxsplit",                                        /* name */
+     T_PYSSIZET,                                        /* type */
+     OFF(maxsplit),                                     /* offset */
+     READONLY,                                          /* flags */
+     split_prop_maxsplit_doc /* doc */
+     },
+
+    {"keep",                                            /* name */
+     T_BOOL,                                            /* type */
+     OFF(keep_delimiter),                               /* offset */
+     READONLY,                                          /* flags */
+     split_prop_keep_doc /* doc */
+     },
+
+    {"keep_before",                                     /* name */
+     T_BOOL,                                            /* type */
+     OFF(keep_before),                                  /* offset */
+     READONLY,                                          /* flags */
+     split_prop_keepbefore_doc                          /* doc */
+     },
+
+    {"keep_after",                                      /* name */
+     T_BOOL,                                            /* type */
+     OFF(keep_after),                                   /* offset */
+     READONLY,                                          /* flags */
+     split_prop_keepafter_doc                           /* doc */
+     },
+
+    {"eq",                                              /* name */
+     T_BOOL,                                            /* type */
+     OFF(cmp),                                          /* offset */
+     READONLY,                                          /* flags */
+     split_prop_eq_doc                                  /* doc */
+     },
+
+    {NULL}                                              /* sentinel */
 };
 #undef OFF
 
-/******************************************************************************
- * Docstring
- *****************************************************************************/
-
-PyDoc_STRVAR(split_doc, "split(iterable, key, maxsplit=-1, keep=False, keep_before=False, keep_after=False, eq=False)\n\
---\n\
-\n\
-Splits an `iterable` by a `key` function or delimiter.\n\
-\n\
-Parameters\n\
-----------\n\
-iterable : iterable\n\
-    The `iterable` to split.\n\
-\n\
-key : callable\n\
-    The function by which to split the `iterable` (split where\n\
-    ``key(item) == True``).\n\
-\n\
-maxsplit : :py:class:`int`, optional\n\
-    The number of maximal splits. If ``maxsplit=-1`` then there is no limit.\n\
-    Default is ``-1``.\n\
-\n\
-keep : :py:class:`bool`\n\
-    If ``True`` also include the items where ``key(item)=True`` as seperate list.\n\
-    Default is ``False``.\n\
-\n\
-keep_before : :py:class:`bool`\n\
-    If ``True`` also include the items where ``key(item)=True`` in the list before splitting.\n\
-    Default is ``False``.\n\
-\n\
-keep_after : :py:class:`bool`\n\
-    If ``True`` also include the items where ``key(item)=True`` as first item in the list after splitting.\n\
-    Default is ``False``.\n\
-\n\
-eq : :py:class:`bool`\n\
-    If ``True`` split the `iterable` where ``key == item`` instead of\n\
-    ``key(item) == True``. This can significantly speed up the function if a\n\
-    single delimiter is used.\n\
-    Default is ``False``.\n\
-\n\
-Returns\n\
--------\n\
-splitted_iterable : generator\n\
-    Generator containing the splitted `iterable` (lists).\n\
-\n\
-Raises\n\
--------\n\
-TypeError\n\
-    If ``maxsplit`` is smaller than ``-2``. If more than one of the ``keep``\n\
-    arguments is ``True``.\n\
-\n\
-Examples\n\
---------\n\
->>> from iteration_utilities import split\n\
->>> list(split(range(1, 10), lambda x: x%3==0))\n\
-[[1, 2], [4, 5], [7, 8]]\n\
-\n\
->>> list(split(range(1, 10), lambda x: x%3==0, keep=True))\n\
-[[1, 2], [3], [4, 5], [6], [7, 8], [9]]\n\
-\n\
->>> list(split(range(1, 10), lambda x: x%3==0, keep_before=True))\n\
-[[1, 2, 3], [4, 5, 6], [7, 8, 9]]\n\
-\n\
->>> list(split(range(1, 10), lambda x: x%3==0, keep_after=True))\n\
-[[1, 2], [3, 4, 5], [6, 7, 8], [9]]\n\
-\n\
->>> list(split(range(1, 10), lambda x: x%3==0, maxsplit=1))\n\
-[[1, 2], [4, 5, 6, 7, 8, 9]]\n\
-\n\
->>> list(split([1,2,3,4,5,3,7,8,3], 3, eq=True))\n\
-[[1, 2], [4, 5], [7, 8]]");
-
-/******************************************************************************
- * Type
- *****************************************************************************/
-
 PyTypeObject PyIUType_Split = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.split",                        /* tp_name */
-    sizeof(PyIUObject_Split),                           /* tp_basicsize */
-    0,                                                  /* tp_itemsize */
+    (const char *)"iteration_utilities.split",          /* tp_name */
+    (Py_ssize_t)sizeof(PyIUObject_Split),               /* tp_basicsize */
+    (Py_ssize_t)0,                                      /* tp_itemsize */
     /* methods */
     (destructor)split_dealloc,                          /* tp_dealloc */
-    0,                                                  /* tp_print */
-    0,                                                  /* tp_getattr */
-    0,                                                  /* tp_setattr */
+    (printfunc)0,                                       /* tp_print */
+    (getattrfunc)0,                                     /* tp_getattr */
+    (setattrfunc)0,                                     /* tp_setattr */
     0,                                                  /* tp_reserved */
-    0,                                                  /* tp_repr */
-    0,                                                  /* tp_as_number */
-    0,                                                  /* tp_as_sequence */
-    0,                                                  /* tp_as_mapping */
-    0,                                                  /* tp_hash */
-    0,                                                  /* tp_call */
-    0,                                                  /* tp_str */
-    PyObject_GenericGetAttr,                            /* tp_getattro */
-    0,                                                  /* tp_setattro */
-    0,                                                  /* tp_as_buffer */
+    (reprfunc)0,                                        /* tp_repr */
+    (PyNumberMethods *)0,                               /* tp_as_number */
+    (PySequenceMethods *)0,                             /* tp_as_sequence */
+    (PyMappingMethods *)0,                              /* tp_as_mapping */
+    (hashfunc)0,                                        /* tp_hash */
+    (ternaryfunc)0,                                     /* tp_call */
+    (reprfunc)0,                                        /* tp_str */
+    (getattrofunc)PyObject_GenericGetAttr,              /* tp_getattro */
+    (setattrofunc)0,                                    /* tp_setattro */
+    (PyBufferProcs *)0,                                 /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
-    split_doc,                                          /* tp_doc */
+    (const char *)split_doc,                            /* tp_doc */
     (traverseproc)split_traverse,                       /* tp_traverse */
-    0,                                                  /* tp_clear */
-    0,                                                  /* tp_richcompare */
-    0,                                                  /* tp_weaklistoffset */
-    PyObject_SelfIter,                                  /* tp_iter */
+    (inquiry)0,                                         /* tp_clear */
+    (richcmpfunc)0,                                     /* tp_richcompare */
+    (Py_ssize_t)0,                                      /* tp_weaklistoffset */
+    (getiterfunc)PyObject_SelfIter,                     /* tp_iter */
     (iternextfunc)split_next,                           /* tp_iternext */
     split_methods,                                      /* tp_methods */
     split_memberlist,                                   /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */
-    0,                                                  /* tp_descr_get */
-    0,                                                  /* tp_descr_set */
-    0,                                                  /* tp_dictoffset */
-    0,                                                  /* tp_init */
-    PyType_GenericAlloc,                                /* tp_alloc */
-    split_new,                                          /* tp_new */
-    PyObject_GC_Del,                                    /* tp_free */
+    (descrgetfunc)0,                                    /* tp_descr_get */
+    (descrsetfunc)0,                                    /* tp_descr_set */
+    (Py_ssize_t)0,                                      /* tp_dictoffset */
+    (initproc)0,                                        /* tp_init */
+    (allocfunc)PyType_GenericAlloc,                     /* tp_alloc */
+    (newfunc)split_new,                                 /* tp_new */
+    (freefunc)PyObject_GC_Del,                          /* tp_free */
 };

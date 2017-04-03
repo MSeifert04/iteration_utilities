@@ -153,6 +153,18 @@ seen_traverse(PyIUObject_Seen *self,
 }
 
 /******************************************************************************
+ * Clear
+ *****************************************************************************/
+
+static int
+seen_clear(PyIUObject_Seen *self)
+{
+    Py_CLEAR(self->seenset);
+    Py_CLEAR(self->seenlist);
+    return 0;
+}
+
+/******************************************************************************
  * Representation
  *****************************************************************************/
 
@@ -379,182 +391,100 @@ seen_containsadd(PyObject *self,
 }
 
 /******************************************************************************
- * Docstring
+ * Type
  *****************************************************************************/
 
-PyDoc_STRVAR(seen_containsadd_doc, "contains_add(o, /)\n\
---\n\
-\n\
-Check if `o` is already contained in `self` and return the result.\n\
-But also adds `o` to `self` if it's not contained.\n\
-\n\
-Parameters\n\
-----------\n\
-o : any type\n\
-    The object to check if it's contained in `self` and added to\n\
-    `self` if not.\n\
-\n\
-Returns\n\
--------\n\
-contained : :py:class:`bool`\n\
-    ``True`` if `o` is contained in `self` otherwise ``False``.\n\
-\n\
-Examples\n\
---------\n\
-A simple example::\n\
-\n\
-    >>> from iteration_utilities import Seen\n\
-    >>> x = Seen()\n\
-    >>> 10 in x\n\
-    False\n\
-    >>> x.contains_add(10)\n\
-    False\n\
-    >>> 10 in x\n\
-    True\n\
-    >>> x.contains_add(10)\n\
-    True\n\
-    >>> x  #doctest: +SKIP\n\
-    iteration_utilities.Seen({10})");
-
-/******************************************************************************
- * Methods
- *****************************************************************************/
+static PySequenceMethods seen_as_sequence = {
+    (lenfunc)seen_len,                                  /* sq_length */
+    (binaryfunc)0,                                      /* sq_concat */
+    (ssizeargfunc)0,                                    /* sq_repeat */
+    (ssizeargfunc)0,                                    /* sq_item */
+    (void *)0,                                          /* unused */
+    (ssizeobjargproc)0,                                 /* sq_ass_item */
+    (void *)0,                                          /* unused */
+    (objobjproc)seen_containsnoadd_direct,              /* sq_contains */
+    (binaryfunc)0,                                      /* sq_inplace_concat */
+    (ssizeargfunc)0,                                    /* sq_inplace_repeat */
+};
 
 static PyMethodDef seen_methods[] = {
-    {"__reduce__",    (PyCFunction)seen_reduce,       METH_NOARGS,
-     PYIU_reduce_doc},
-    {"contains_add",  (PyCFunction)seen_containsadd,  METH_O,
-     seen_containsadd_doc},
-    {NULL, NULL}
+
+    {"__reduce__",                                      /* ml_name */
+     (PyCFunction)seen_reduce,                          /* ml_meth */
+     METH_NOARGS,                                       /* ml_flags */
+     PYIU_reduce_doc                                    /* ml_doc */
+     },
+
+    {"contains_add",                                    /* ml_name */
+     (PyCFunction)seen_containsadd,                     /* ml_meth */
+     METH_O,                                            /* ml_flags */
+     seen_containsadd_doc                               /* ml_doc */
+     },
+
+    {NULL, NULL}                                        /* sentinel */
 };
 
 #define OFF(x) offsetof(PyIUObject_Seen, x)
 static PyMemberDef seen_memberlist[] = {
-    {"seenset",   T_OBJECT,  OFF(seenset),  READONLY,
-     "(:py:class:`set`) The (hashable) seen values (readonly)."},
-    {"seenlist",  T_OBJECT,  OFF(seenlist), READONLY,
-     "(:py:class:`list` or None) The (unhashable) seen values (readonly)."},
-    {NULL}  /* Sentinel */
+
+    {"seenset",                                         /* name */
+     T_OBJECT,                                          /* type */
+     OFF(seenset),                                      /* offset */
+     READONLY,                                          /* flags */
+     seen_prop_seenset_doc                              /* doc */
+     },
+
+    {"seenlist",                                        /* name */
+     T_OBJECT,                                          /* type */
+     OFF(seenlist),                                     /* offset */
+     READONLY,                                          /* flags */
+     seen_prop_seenlist_doc                             /* doc */
+     },
+
+    {NULL}                                              /* sentinel */
 };
 #undef OFF
 
-/******************************************************************************
- * Sequence
- *****************************************************************************/
-
-static PySequenceMethods seen_as_sequence = {
-    seen_len,                                                /* sq_length */
-    0,                                                       /* sq_concat */
-    0,                                                       /* sq_repeat */
-    0,                                                       /* sq_item */
-    0,                                                       /* sq_slice */
-    0,                                                       /* sq_ass_item */
-    0,                                                       /* sq_ass_slice */
-    (objobjproc)seen_containsnoadd_direct,                   /* sq_contains */
-};
-
-/******************************************************************************
- * Docstring
- *****************************************************************************/
-
-PyDoc_STRVAR(seen_doc, "Seen(seenset=None, seenlist=None)\n\
---\n\
-\n\
-Helper class which adds the items after each :py:meth:`.contains_add` check.\n\
-\n\
-Parameters\n\
-----------\n\
-seenset : :py:class:`set` or None, optional\n\
-    A `set` containing initial values.\n\
-\n\
-seenlist : :py:class:`list` or None, optional\n\
-    A `list` containing only unhashable initial values.\n\
-    \n\
-    .. note::\n\
-        The `seenlist` must not contain hashable values (these will be \n\
-        ignored for all practical purposes)!\n\
-\n\
-Examples\n\
---------\n\
-This class adds each item after :py:meth:`.contains_add` call but also \n\
-supports normal :py:meth:`in <.__contains__>` operations::\n\
-\n\
-    >>> from iteration_utilities import Seen\n\
-    >>> x = Seen()\n\
-    >>> # normal \"in\" operations do not add the element to the instance\n\
-    >>> 1 in x\n\
-    False\n\
-    >>> 1 in x\n\
-    False\n\
-    \n\
-    >>> # \"contains_add\" checks if the item is contained but also adds it\n\
-    >>> x.contains_add(2)\n\
-    False\n\
-    >>> x.contains_add(2)\n\
-    True\n\
-    >>> x  # doctest: +SKIP\n\
-    iteration_utilities.Seen({2})\n\
-    \n\
-    >>> x.contains_add([1, 2])\n\
-    False\n\
-    >>> [1, 2] in x\n\
-    True\n\
-    >>> x  # doctest: +SKIP\n\
-    iteration_utilities.Seen({2}, unhashable=[[1, 2]])\n\
-\n\
-This class does only support :py:meth:`in <.__contains__>`, \n\
-:py:meth:`== <.__eq__>`, :py:meth:`\\!= <.__ne__>` and \n\
-:py:meth:`len <.__len__>`.\n\
-It is mostly included because it unified the code in \n\
-:py:func:`~iteration_utilities.duplicates`,\n\
-:py:func:`~iteration_utilities.unique_everseen`, and \n\
-:py:func:`~iteration_utilities.all_distinct` and might be useful in other \n\
-applications.");
-
-/******************************************************************************
- * Type
- *****************************************************************************/
-
 PyTypeObject PyIUType_Seen = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.Seen",                         /* tp_name */
-    sizeof(PyIUObject_Seen),                            /* tp_basicsize */
-    0,                                                  /* tp_itemsize */
+    (const char *)"iteration_utilities.Seen",           /* tp_name */
+    (Py_ssize_t)sizeof(PyIUObject_Seen),                /* tp_basicsize */
+    (Py_ssize_t)0,                                      /* tp_itemsize */
     /* methods */
     (destructor)seen_dealloc,                           /* tp_dealloc */
-    0,                                                  /* tp_print */
-    0,                                                  /* tp_getattr */
-    0,                                                  /* tp_setattr */
+    (printfunc)0,                                       /* tp_print */
+    (getattrfunc)0,                                     /* tp_getattr */
+    (setattrfunc)0,                                     /* tp_setattr */
     0,                                                  /* tp_reserved */
     (reprfunc)seen_repr,                                /* tp_repr */
-    0,                                                  /* tp_as_number */
-    &seen_as_sequence,                                  /* tp_as_sequence */
-    0,                                                  /* tp_as_mapping */
-    0,                                                  /* tp_hash  */
-    0,                                                  /* tp_call */
-    0,                                                  /* tp_str */
-    0,                                                  /* tp_getattro */
-    0,                                                  /* tp_setattro */
-    0,                                                  /* tp_as_buffer */
+    (PyNumberMethods *)0,                               /* tp_as_number */
+    (PySequenceMethods *)&seen_as_sequence,             /* tp_as_sequence */
+    (PyMappingMethods *)0,                              /* tp_as_mapping */
+    (hashfunc)0,                                        /* tp_hash  */
+    (ternaryfunc)0,                                     /* tp_call */
+    (reprfunc)0,                                        /* tp_str */
+    (getattrofunc)0,                                    /* tp_getattro */
+    (setattrofunc)0,                                    /* tp_setattro */
+    (PyBufferProcs *)0,                                 /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
-    seen_doc,                                           /* tp_doc */
+    (const char *)seen_doc,                             /* tp_doc */
     (traverseproc)seen_traverse,                        /* tp_traverse */
-    0,                                                  /* tp_clear */
-    seen_richcompare,                                   /* tp_richcompare */
-    0,                                                  /* tp_weaklistoffset */
-    0,                                                  /* tp_iter */
-    0,                                                  /* tp_iternext */
+    (inquiry)seen_clear,                                /* tp_clear */
+    (richcmpfunc)seen_richcompare,                      /* tp_richcompare */
+    (Py_ssize_t)0,                                      /* tp_weaklistoffset */
+    (getiterfunc)0,                                     /* tp_iter */
+    (iternextfunc)0,                                    /* tp_iternext */
     seen_methods,                                       /* tp_methods */
     seen_memberlist,                                    /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */
-    0,                                                  /* tp_descr_get */
-    0,                                                  /* tp_descr_set */
-    0,                                                  /* tp_dictoffset */
-    0,                                                  /* tp_init */
-    0,                                                  /* tp_alloc */
-    seen_new,                                           /* tp_new */
-    PyObject_GC_Del,                                    /* tp_free */
+    (descrgetfunc)0,                                    /* tp_descr_get */
+    (descrsetfunc)0,                                    /* tp_descr_set */
+    (Py_ssize_t)0,                                      /* tp_dictoffset */
+    (initproc)0,                                        /* tp_init */
+    (allocfunc)0,                                       /* tp_alloc */
+    (newfunc)seen_new,                                  /* tp_new */
+    (freefunc)PyObject_GC_Del,                          /* tp_free */
 };

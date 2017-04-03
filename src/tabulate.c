@@ -136,119 +136,81 @@ tabulate_reduce(PyIUObject_Tabulate *self)
 }
 
 /******************************************************************************
- * Methods
+ * Type
  *****************************************************************************/
 
 static PyMethodDef tabulate_methods[] = {
-    {"__reduce__",  (PyCFunction)tabulate_reduce,  METH_NOARGS,
-     PYIU_reduce_doc},
-    {NULL, NULL}
+
+    {"__reduce__",                                      /* ml_name */
+     (PyCFunction)tabulate_reduce,                      /* ml_meth */
+     METH_NOARGS,                                       /* ml_flags */
+     PYIU_reduce_doc                                    /* ml_doc */
+     },
+
+    {NULL, NULL}                                        /* sentinel */
 };
 
 #define OFF(x) offsetof(PyIUObject_Tabulate, x)
 static PyMemberDef tabulate_memberlist[] = {
-    {"func",     T_OBJECT,  OFF(func),  READONLY,
-     "(callable) The function to tabulate (readonly)."},
-    {"current",  T_OBJECT,  OFF(cnt),  READONLY,
-     "(any type) The current value to tabulate (readonly)."},
-    {NULL}  /* Sentinel */
+
+    {"func",                                            /* name */
+     T_OBJECT,                                          /* type */
+     OFF(func),                                         /* offset */
+     READONLY,                                          /* flags */
+     tabulate_prop_func_doc                             /* doc */
+     },
+
+    {"current",                                         /* name */
+     T_OBJECT,                                          /* type */
+     OFF(cnt),                                          /* offset */
+     READONLY,                                          /* flags */
+     tabulate_prop_current_doc                          /* doc */
+     },
+
+    {NULL}                                              /* sentinel */
 };
 #undef OFF
 
-/******************************************************************************
- * Docstring
- *****************************************************************************/
-
-PyDoc_STRVAR(tabulate_doc, "tabulate(func, start=0)\n\
---\n\
-\n\
-Return ``function(0)``, ``function(1)``, ...\n\
-\n\
-Parameters\n\
-----------\n\
-func : callable\n\
-    The `function` to apply.\n\
-\n\
-start : any type, optional\n\
-    The starting value to apply the `function` on. Each time `tabulate` is\n\
-    called this value will be incremented by one.\n\
-    Default is ``0``.\n\
-\n\
-Returns\n\
--------\n\
-tabulated : generator\n\
-    An infinite generator containing the results of the `function` applied\n\
-    on the values beginning by `start`.\n\
-\n\
-Examples\n\
---------\n\
-Since the return is an infinite generator you need some other function\n\
-to extract only the needed values. For example\n\
-:py:func:`~iteration_utilities.getitem`::\n\
-\n\
-    >>> from iteration_utilities import tabulate, getitem\n\
-    >>> from math import sqrt\n\
-    >>> t = tabulate(sqrt, 0)\n\
-    >>> list(getitem(t, stop=3))\n\
-    [0.0, 1.0, 1.4142135623730951]\n\
-\n\
-.. warning::\n\
-    This will return an infinitly long generator so do **not** try to do\n\
-    something like ``list(tabulate())``!\n\
-\n\
-This is equivalent to:\n\
-\n\
-.. code::\n\
-\n\
-    import itertools\n\
-    \n\
-    def tabulate(function, start=0)\n\
-        return map(function, itertools.count(start))");
-
-/******************************************************************************
- * Type
- *****************************************************************************/
-
 PyTypeObject PyIUType_Tabulate = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.tabulate",                     /* tp_name */
-    sizeof(PyIUObject_Tabulate),                        /* tp_basicsize */
-    0,                                                  /* tp_itemsize */
+    (const char *)"iteration_utilities.tabulate",       /* tp_name */
+    (Py_ssize_t)sizeof(PyIUObject_Tabulate),            /* tp_basicsize */
+    (Py_ssize_t)0,                                      /* tp_itemsize */
     /* methods */
     (destructor)tabulate_dealloc,                       /* tp_dealloc */
-    0,                                                  /* tp_print */
-    0,                                                  /* tp_getattr */
-    0,                                                  /* tp_setattr */
+    (printfunc)0,                                       /* tp_print */
+    (getattrfunc)0,                                     /* tp_getattr */
+    (setattrfunc)0,                                     /* tp_setattr */
     0,                                                  /* tp_reserved */
-    0,                                                  /* tp_repr */
-    0,                                                  /* tp_as_number */
-    0,                                                  /* tp_as_sequence */
-    0,                                                  /* tp_as_mapping */
-    0,                                                  /* tp_hash */
-    0,                                                  /* tp_call */
-    0,                                                  /* tp_str */
-    PyObject_GenericGetAttr,                            /* tp_getattro */
-    0,                                                  /* tp_setattro */
-    0,                                                  /* tp_as_buffer */
+    (reprfunc)0,                                        /* tp_repr */
+    (PyNumberMethods *)0,                               /* tp_as_number */
+    (PySequenceMethods *)0,                             /* tp_as_sequence */
+    (PyMappingMethods *)0,                              /* tp_as_mapping */
+    (hashfunc)0,                                        /* tp_hash */
+    (ternaryfunc)0,                                     /* tp_call */
+    (reprfunc)0,                                        /* tp_str */
+    (getattrofunc)PyObject_GenericGetAttr,              /* tp_getattro */
+    (setattrofunc)0,                                    /* tp_setattro */
+    (PyBufferProcs *)0,                                 /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
-    tabulate_doc,                                       /* tp_doc */
+    (const char *)tabulate_doc,                         /* tp_doc */
     (traverseproc)tabulate_traverse,                    /* tp_traverse */
-    0,                                                  /* tp_clear */
-    0,                                                  /* tp_richcompare */
-    0,                                                  /* tp_weaklistoffset */
-    PyObject_SelfIter,                                  /* tp_iter */
+    (inquiry)0,                                         /* tp_clear */
+    (richcmpfunc)0,                                     /* tp_richcompare */
+    (Py_ssize_t)0,                                      /* tp_weaklistoffset */
+    (getiterfunc)PyObject_SelfIter,                     /* tp_iter */
     (iternextfunc)tabulate_next,                        /* tp_iternext */
     tabulate_methods,                                   /* tp_methods */
     tabulate_memberlist,                                /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */
-    0,                                                  /* tp_descr_get */
-    0,                                                  /* tp_descr_set */
-    0,                                                  /* tp_dictoffset */
-    0,                                                  /* tp_init */
-    0,                                                  /* tp_alloc */
-    tabulate_new,                                       /* tp_new */
-    PyObject_GC_Del,                                    /* tp_free */
+    (descrgetfunc)0,                                    /* tp_descr_get */
+    (descrsetfunc)0,                                    /* tp_descr_set */
+    (Py_ssize_t)0,                                      /* tp_dictoffset */
+    (initproc)0,                                        /* tp_init */
+    (allocfunc)0,                                       /* tp_alloc */
+    (newfunc)tabulate_new,                              /* tp_new */
+    (freefunc)PyObject_GC_Del,                          /* tp_free */
 };

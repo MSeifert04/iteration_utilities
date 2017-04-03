@@ -264,95 +264,74 @@ roundrobin_lengthhint(PyIUObject_Roundrobin *self)
 #endif
 
 /******************************************************************************
- * Methods
- *****************************************************************************/
-
-static PyMethodDef roundrobin_methods[] = {
-#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
-    {"__length_hint__",  (PyCFunction)roundrobin_lengthhint,  METH_NOARGS,
-     PYIU_lenhint_doc},
-#endif
-    {"__reduce__",       (PyCFunction)roundrobin_reduce,      METH_NOARGS,
-     PYIU_reduce_doc},
-    {"__setstate__",     (PyCFunction)roundrobin_setstate,    METH_O,
-     PYIU_setstate_doc},
-    {NULL, NULL}
-};
-
-/******************************************************************************
- * Docstring
- *****************************************************************************/
-
-PyDoc_STRVAR(roundrobin_doc, "roundrobin(*iterables)\n\
---\n\
-\n\
-Round-Robin implementation ([0]_).\n\
-\n\
-Parameters\n\
-----------\n\
-iterables : iterable\n\
-    `Iterables` to combine using the round-robin. Any amount of iterables\n\
-    are supported.\n\
-\n\
-Returns\n\
--------\n\
-roundrobin : generator\n\
-    Iterable filled with the values of the `iterables`.\n\
-\n\
-Examples\n\
---------\n\
->>> from iteration_utilities import roundrobin\n\
->>> list(roundrobin('ABC', 'D', 'EF'))\n\
-['A', 'D', 'E', 'B', 'F', 'C']\n\
-\n\
-References\n\
-----------\n\
-.. [0] https://en.wikipedia.org/wiki/Round-robin_scheduling");
-
-/******************************************************************************
  * Type
  *****************************************************************************/
 
+static PyMethodDef roundrobin_methods[] = {
+
+#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
+    {"__length_hint__",                                 /* ml_name */
+     (PyCFunction)roundrobin_lengthhint,                /* ml_meth */
+     METH_NOARGS,                                       /* ml_flags */
+     PYIU_lenhint_doc                                   /* ml_doc */
+     },
+#endif
+
+    {"__reduce__",                                      /* ml_name */
+     (PyCFunction)roundrobin_reduce,                    /* ml_meth */
+     METH_NOARGS,                                       /* ml_flags */
+     PYIU_reduce_doc                                    /* ml_doc */
+     },
+
+    {"__setstate__",                                    /* ml_name */
+     (PyCFunction)roundrobin_setstate,                  /* ml_meth */
+     METH_O,                                            /* ml_flags */
+     PYIU_setstate_doc                                  /* ml_doc */
+     },
+
+    {NULL, NULL}                                        /* sentinel */
+};
+
 PyTypeObject PyIUType_Roundrobin = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.roundrobin",                   /* tp_name */
-    sizeof(PyIUObject_Roundrobin),                      /* tp_basicsize */
-    0,                                                  /* tp_itemsize */
+    (const char *)"iteration_utilities.roundrobin",     /* tp_name */
+    (Py_ssize_t)sizeof(PyIUObject_Roundrobin),          /* tp_basicsize */
+    (Py_ssize_t)0,                                      /* tp_itemsize */
     /* methods */
     (destructor)roundrobin_dealloc,                     /* tp_dealloc */
-    0,                                                  /* tp_print */
-    0,                                                  /* tp_getattr */
-    0,                                                  /* tp_setattr */
+    (printfunc)0,                                       /* tp_print */
+    (getattrfunc)0,                                     /* tp_getattr */
+    (setattrfunc)0,                                     /* tp_setattr */
     0,                                                  /* tp_reserved */
-    0,                                                  /* tp_repr */
-    0,                                                  /* tp_as_number */
-    0,                                                  /* tp_as_sequence */
-    0,                                                  /* tp_as_mapping */
-    0,                                                  /* tp_hash */
-    0,                                                  /* tp_call */
-    0,                                                  /* tp_str */
-    PyObject_GenericGetAttr,                            /* tp_getattro */
-    0,                                                  /* tp_setattro */
-    0,                                                  /* tp_as_buffer */
+    (reprfunc)0,                                        /* tp_repr */
+    (PyNumberMethods *)0,                               /* tp_as_number */
+    (PySequenceMethods *)0,                             /* tp_as_sequence */
+    (PyMappingMethods *)0,                              /* tp_as_mapping */
+    (hashfunc)0,                                        /* tp_hash */
+    (ternaryfunc)0,                                     /* tp_call */
+    (reprfunc)0,                                        /* tp_str */
+    (getattrofunc)PyObject_GenericGetAttr,              /* tp_getattro */
+    (setattrofunc)0,                                    /* tp_setattro */
+    (PyBufferProcs *)0,                                 /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
-    roundrobin_doc,                                     /* tp_doc */
+    (const char *)roundrobin_doc,                       /* tp_doc */
     (traverseproc)roundrobin_traverse,                  /* tp_traverse */
-    0,                                                  /* tp_clear */
-    0,                                                  /* tp_richcompare */
-    0,                                                  /* tp_weaklistoffset */
-    PyObject_SelfIter,                                  /* tp_iter */
+    (inquiry)0,                                         /* tp_clear */
+    (richcmpfunc)0,                                     /* tp_richcompare */
+    (Py_ssize_t)0,                                      /* tp_weaklistoffset */
+    (getiterfunc)PyObject_SelfIter,                     /* tp_iter */
     (iternextfunc)roundrobin_next,                      /* tp_iternext */
     roundrobin_methods,                                 /* tp_methods */
     0,                                                  /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */
-    0,                                                  /* tp_descr_get */
-    0,                                                  /* tp_descr_set */
-    0,                                                  /* tp_dictoffset */
-    0,                                                  /* tp_init */
-    PyType_GenericAlloc,                                /* tp_alloc */
-    roundrobin_new,                                     /* tp_new */
-    PyObject_GC_Del,                                    /* tp_free */
+    (descrgetfunc)0,                                    /* tp_descr_get */
+    (descrsetfunc)0,                                    /* tp_descr_set */
+    (Py_ssize_t)0,                                      /* tp_dictoffset */
+    (initproc)0,                                        /* tp_init */
+    (allocfunc)PyType_GenericAlloc,                     /* tp_alloc */
+    (newfunc)roundrobin_new,                            /* tp_new */
+    (freefunc)PyObject_GC_Del,                          /* tp_free */
 };

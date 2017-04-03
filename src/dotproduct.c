@@ -78,28 +78,3 @@ Fail:
     Py_XDECREF(result);
     return NULL;
 }
-
-/******************************************************************************
- * Docstring
- *****************************************************************************/
-
-PyDoc_STRVAR(PyIU_DotProduct_doc, "dotproduct(vec1, vec2)\n\
---\n\
-\n\
-Dot product (matrix multiplication) of two vectors.\n\
-\n\
-Parameters\n\
-----------\n\
-vec1, vec2 : iterable\n\
-    Any `iterables` to calculate the dot product. Positional-only parameter.\n\
-\n\
-Returns\n\
--------\n\
-dotproduct : number\n\
-    The dot product - the sum of the element-wise multiplication.\n\
-\n\
-Examples\n\
---------\n\
->>> from iteration_utilities import dotproduct\n\
->>> dotproduct([1,2,3,4], [1,2,3,4])\n\
-30");

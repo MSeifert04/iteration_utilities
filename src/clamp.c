@@ -177,141 +177,103 @@ clamp_lengthhint(PyIUObject_Clamp *self)
 #endif
 
 /******************************************************************************
- * Methods
+ * Type
  *****************************************************************************/
 
 static PyMethodDef clamp_methods[] = {
+
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
-    {"__length_hint__",  (PyCFunction)clamp_lengthhint,  METH_NOARGS,
-     PYIU_lenhint_doc},
+    {"__length_hint__",                                 /* ml_name */
+     (PyCFunction)clamp_lengthhint,                     /* ml_meth */
+     METH_NOARGS,                                       /* ml_flags */
+     PYIU_lenhint_doc                                   /* ml_doc */
+     },
 #endif
-    {"__reduce__",       (PyCFunction)clamp_reduce,      METH_NOARGS,
-     PYIU_reduce_doc},
-    {NULL, NULL}
+
+    {"__reduce__",                                      /* ml_name */
+     (PyCFunction)clamp_reduce,                         /* ml_meth */
+     METH_NOARGS,                                       /* ml_flags */
+     PYIU_reduce_doc                                    /* ml_doc */
+     },
+
+    {NULL, NULL}                                        /* sentinel */
 };
 
 #define OFF(x) offsetof(PyIUObject_Clamp, x)
 static PyMemberDef clamp_memberlist[] = {
-    {"low",        T_OBJECT,  OFF(low),        READONLY,
-     "(any type) The lower bound for `clamp` (readonly)."},
-    {"high",       T_OBJECT,  OFF(high),       READONLY,
-     "(any type) The upper bound for `clamp` (readonly)."},
-    {"inclusive",  T_BOOL,    OFF(inclusive),  READONLY,
-     "(:py:class:`bool`) Are the bounds inclusive (readonly)."},
-    {"remove",     T_BOOL,    OFF(remove),     READONLY,
-     "(:py:class:`bool`) Remove the outliers or clamp them to nearest bound "
-     "(readonly)."},
-    {NULL}  /* Sentinel */
+
+    {"low",                                             /* name */
+     T_OBJECT,                                          /* type */
+     OFF(low),                                          /* offset */
+     READONLY,                                          /* flags */
+     clamp_prop_low_doc                                 /* doc */
+     },
+
+    {"high",                                            /* name */
+     T_OBJECT,                                          /* type */
+     OFF(high),                                         /* offset */
+     READONLY,                                          /* flags */
+     clamp_prop_high_doc                                /* doc */
+     },
+
+    {"inclusive",                                       /* name */
+     T_BOOL,                                            /* type */
+     OFF(inclusive),                                    /* offset */
+     READONLY,                                          /* flags */
+     clamp_prop_inclusive_doc                           /* doc */
+     },
+
+    {"remove",                                          /* name */
+     T_BOOL,                                            /* type */                                       /* type */
+     OFF(remove),                                       /* offset */
+     READONLY,                                          /* flags */
+     clamp_prop_remove_doc                              /* doc */
+     },
+
+    {NULL}                                              /* sentinel */
 };
 #undef OFF
 
-/******************************************************************************
- * Docstring
- *****************************************************************************/
-
-PyDoc_STRVAR(clamp_doc, "clamp(iterable, low=None, high=None, inclusive=False, remove=True)\n\
---\n\
-\n\
-Remove values which are not between `low` and `high`.\n\
-\n\
-Parameters\n\
-----------\n\
-iterable : iterable\n\
-    Clamp the values from this `iterable`.\n\
-\n\
-low : any type, optional\n\
-    The lower bound for clamp. If not given or ``None`` there is no lower \n\
-    bound.\n\
-\n\
-high : any type, optional\n\
-    The upper bound for clamp. If not given or ``None`` there is no upper \n\
-    bound.\n\
-\n\
-inclusive : :py:class:`bool`, optional\n\
-    If ``True`` also remove values that are equal to `low` and `high`.\n\
-    Default is ``False``.\n\
-\n\
-remove : :py:class:`bool`, optional\n\
-    If ``True`` remove the items outside the range given by ``low`` and\n\
-    ``high``, otherwise replace them with ``low`` if they are lower or\n\
-    ``high`` if they are higher.\n\
-    Default is ``True``.\n\
-\n\
-    .. versionadded:: 0.2\n\
-\n\
-Returns\n\
--------\n\
-clamped : generator\n\
-    A generator containing the values of `iterable` which are between `low`\n\
-    and `high`.\n\
-\n\
-Examples\n\
---------\n\
-This function is equivalent to a generator expression like:\n\
-``(item for item in iterable if low <= item <= high)`` or\n\
-``(item for item in iterable if low < item < high)`` if `inclusive=True`.\n\
-Or a similar `filter`: ``filter(lambda item: low <= item <= high, iterable)``\n\
-But it also allows for either ``low`` or ``high`` to be ignored and is faster.\n\
-Some simple examples::\n\
-\n\
-    >>> from iteration_utilities import clamp\n\
-    >>> list(clamp(range(5), low=2))\n\
-    [2, 3, 4]\n\
-    >>> list(clamp(range(5), high=2))\n\
-    [0, 1, 2]\n\
-    >>> list(clamp(range(1000), low=2, high=8, inclusive=True))\n\
-    [3, 4, 5, 6, 7]\n\
-\n\
-If ``remove=False`` the function will replace values instead::\n\
-\n\
-    >>> list(clamp(range(10), low=4, high=8, remove=False))\n\
-    [4, 4, 4, 4, 4, 5, 6, 7, 8, 8]\n\
-");
-
-/******************************************************************************
- * Type
- *****************************************************************************/
-
 PyTypeObject PyIUType_Clamp = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.clamp",                        /* tp_name */
-    sizeof(PyIUObject_Clamp),                           /* tp_basicsize */
-    0,                                                  /* tp_itemsize */
+    (const char *)"iteration_utilities.clamp",          /* tp_name */
+    (Py_ssize_t)sizeof(PyIUObject_Clamp),               /* tp_basicsize */
+    (Py_ssize_t)0,                                      /* tp_itemsize */
     /* methods */
     (destructor)clamp_dealloc,                          /* tp_dealloc */
-    0,                                                  /* tp_print */
-    0,                                                  /* tp_getattr */
-    0,                                                  /* tp_setattr */
+    (printfunc)0,                                       /* tp_print */
+    (getattrfunc)0,                                     /* tp_getattr */
+    (setattrfunc)0,                                     /* tp_setattr */
     0,                                                  /* tp_reserved */
-    0,                                                  /* tp_repr */
-    0,                                                  /* tp_as_number */
-    0,                                                  /* tp_as_sequence */
-    0,                                                  /* tp_as_mapping */
-    0,                                                  /* tp_hash */
-    0,                                                  /* tp_call */
-    0,                                                  /* tp_str */
-    PyObject_GenericGetAttr,                            /* tp_getattro */
-    0,                                                  /* tp_setattro */
-    0,                                                  /* tp_as_buffer */
+    (reprfunc)0,                                        /* tp_repr */
+    (PyNumberMethods *)0,                               /* tp_as_number */
+    (PySequenceMethods *)0,                             /* tp_as_sequence */
+    (PyMappingMethods *)0,                              /* tp_as_mapping */
+    (hashfunc)0,                                        /* tp_hash */
+    (ternaryfunc)0,                                     /* tp_call */
+    (reprfunc)0,                                        /* tp_str */
+    (getattrofunc)PyObject_GenericGetAttr,              /* tp_getattro */
+    (setattrofunc)0,                                    /* tp_setattro */
+    (PyBufferProcs *)0,                                 /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
-    clamp_doc,                                          /* tp_doc */
+    (const char *)clamp_doc,                            /* tp_doc */
     (traverseproc)clamp_traverse,                       /* tp_traverse */
-    0,                                                  /* tp_clear */
-    0,                                                  /* tp_richcompare */
-    0,                                                  /* tp_weaklistoffset */
-    PyObject_SelfIter,                                  /* tp_iter */
+    (inquiry)0,                                         /* tp_clear */
+    (richcmpfunc)0,                                     /* tp_richcompare */
+    (Py_ssize_t)0,                                      /* tp_weaklistoffset */
+    (getiterfunc)PyObject_SelfIter,                     /* tp_iter */
     (iternextfunc)clamp_next,                           /* tp_iternext */
     clamp_methods,                                      /* tp_methods */
     clamp_memberlist,                                   /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */
-    0,                                                  /* tp_descr_get */
-    0,                                                  /* tp_descr_set */
-    0,                                                  /* tp_dictoffset */
-    0,                                                  /* tp_init */
-    PyType_GenericAlloc,                                /* tp_alloc */
-    clamp_new,                                          /* tp_new */
-    PyObject_GC_Del,                                    /* tp_free */
+    (descrgetfunc)0,                                    /* tp_descr_get */
+    (descrsetfunc)0,                                    /* tp_descr_set */
+    (Py_ssize_t)0,                                      /* tp_dictoffset */
+    (initproc)0,                                        /* tp_init */
+    (allocfunc)PyType_GenericAlloc,                     /* tp_alloc */
+    (newfunc)clamp_new,                                 /* tp_new */
+    (freefunc)PyObject_GC_Del,                          /* tp_free */
 };

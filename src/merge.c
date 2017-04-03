@@ -16,8 +16,6 @@
  *
  *****************************************************************************/
 
-
-
 /******************************************************************************
  * ------------------------------- HELPER -------------------------------------
  *
@@ -92,7 +90,6 @@ PyIU_TupleBisectRight_LastFirst(PyObject *tuple,
     }
     return lo;
 }
-
 
 
 typedef struct {
@@ -647,143 +644,95 @@ merge_lengthhint(PyIUObject_Merge *self)
 #endif
 
 /******************************************************************************
- * Methods
+ * Type
  *****************************************************************************/
 
 static PyMethodDef merge_methods[] = {
+
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
-    {"__length_hint__",  (PyCFunction)merge_lengthhint,  METH_NOARGS,
-     PYIU_lenhint_doc},
+    {"__length_hint__",                                 /* ml_name */
+     (PyCFunction)merge_lengthhint,                     /* ml_meth */
+     METH_NOARGS,                                       /* ml_flags */
+     PYIU_lenhint_doc                                   /* ml_doc */
+     },
+
 #endif
-    {"__reduce__",       (PyCFunction)merge_reduce,      METH_NOARGS,
-     PYIU_reduce_doc},
-    {"__setstate__",     (PyCFunction)merge_setstate,    METH_O,
-     PYIU_setstate_doc},
-    {NULL, NULL}
+    {"__reduce__",                                      /* ml_name */
+     (PyCFunction)merge_reduce,                         /* ml_meth */
+     METH_NOARGS,                                       /* ml_flags */
+     PYIU_reduce_doc                                    /* ml_doc */
+     },
+
+    {"__setstate__",                                    /* ml_name */
+     (PyCFunction)merge_setstate,                       /* ml_meth */
+     METH_O,                                            /* ml_flags */
+     PYIU_setstate_doc                                  /* ml_doc */
+     },
+
+    {NULL, NULL}                                        /* sentinel */
 };
 
 #define OFF(x) offsetof(PyIUObject_Merge, x)
 static PyMemberDef merge_memberlist[] = {
-    {"key",      T_OBJECT,  OFF(keyfunc),  READONLY,
-     "(callable or None) The key function used by merge (readonly)."},
-    {"reverse",  T_BOOL,    OFF(reverse),  READONLY,
-     "(:py:class:`bool`) Indicates if merged by ``>`` instead of ``<`` "
-     "(readonly)."},
-    {NULL}  /* Sentinel */
+
+    {"key",                                             /* name */
+     T_OBJECT,                                          /* type */
+     OFF(keyfunc),                                      /* offset */
+     READONLY,                                          /* flags */
+     merge_prop_key_doc                                 /* doc */
+     },
+
+    {"reverse",                                         /* name */
+     T_BOOL,                                            /* type */
+     OFF(reverse),                                      /* offset */
+     READONLY,                                          /* flags */
+     merge_prop_reverse_doc                             /* doc */
+     },
+
+    {NULL}                                              /* sentinel */
 };
 #undef OFF
 
-/******************************************************************************
- * Docstring
- *****************************************************************************/
-
-PyDoc_STRVAR(merge_doc, "merge(*iterables, /, key=None, reverse=False)\n\
---\n\
-\n\
-Merge sorted `iterables` into one.\n\
-\n\
-Parameters\n\
-----------\n\
-iterables : iterable\n\
-    Any amount of already sorted `iterable` objects.\n\
-\n\
-key : callable or None, optional\n\
-    If not given compare the item themselves otherwise compare the\n\
-    result of ``key(item)``, like the `key` parameter for\n\
-    :py:func:`sorted`.\n\
-\n\
-reverse : :py:class:`bool`, optional\n\
-    If ``True`` then merge in decreasing order instead of increasing order.\n\
-    Default is ``False``.\n\
-\n\
-Returns\n\
--------\n\
-merged : generator\n\
-    The merged iterables as generator.\n\
-\n\
-See also\n\
---------\n\
-heapq.merge : Equivalent since Python 3.5 but in most cases slower!\n\
-    Earlier Python versions did not support the `key` or `reverse` argument.\n\
-\n\
-sorted : ``sorted(itertools.chain(*iterables))`` supports the same options\n\
-    and *can* be faster.\n\
-\n\
-Examples\n\
---------\n\
-To merge multiple sorted `iterables`::\n\
-\n\
-    >>> from iteration_utilities import merge\n\
-    >>> list(merge([1, 3, 5, 7, 9], [2, 4, 6, 8, 10]))\n\
-    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]\n\
-\n\
-It's stable and allows a `key` function::\n\
-\n\
-    >>> seq1 = [(1, 3), (3, 3)]\n\
-    >>> seq2 = [(-1, 3), (-3, 3)]\n\
-    >>> list(merge(seq1, seq2, key=lambda x: abs(x[0])))\n\
-    [(1, 3), (-1, 3), (3, 3), (-3, 3)]\n\
-\n\
-Also possible to `reverse` (biggest to smallest order) the merge::\n\
-\n\
-    >>> list(merge([5,1,-8], [10, 2, 1, 0], reverse=True))\n\
-    [10, 5, 2, 1, 1, 0, -8]\n\
-\n\
-But also more than two `iterables`::\n\
-\n\
-    >>> list(merge([1, 10, 11], [2, 9], [3, 8], [4, 7], [5, 6], range(10)))\n\
-    [0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 11]\n\
-\n\
-However if the `iterabes` are not sorted the result will be unsorted\n\
-(partially sorted)::\n\
-\n\
-    >>> list(merge(range(10), [6,1,3,2,6,1,6]))\n\
-    [0, 1, 2, 3, 4, 5, 6, 6, 1, 3, 2, 6, 1, 6, 7, 8, 9]");
-
-/******************************************************************************
- * Type
- *****************************************************************************/
-
 PyTypeObject PyIUType_Merge = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.merge",                        /* tp_name */
-    sizeof(PyIUObject_Merge),                           /* tp_basicsize */
-    0,                                                  /* tp_itemsize */
+    (const char *)"iteration_utilities.merge",          /* tp_name */
+    (Py_ssize_t)sizeof(PyIUObject_Merge),               /* tp_basicsize */
+    (Py_ssize_t)0,                                      /* tp_itemsize */
     /* methods */
     (destructor)merge_dealloc,                          /* tp_dealloc */
-    0,                                                  /* tp_print */
-    0,                                                  /* tp_getattr */
-    0,                                                  /* tp_setattr */
+    (printfunc)0,                                       /* tp_print */
+    (getattrfunc)0,                                     /* tp_getattr */
+    (setattrfunc)0,                                     /* tp_setattr */
     0,                                                  /* tp_reserved */
-    0,                                                  /* tp_repr */
-    0,                                                  /* tp_as_number */
-    0,                                                  /* tp_as_sequence */
-    0,                                                  /* tp_as_mapping */
-    0,                                                  /* tp_hash */
-    0,                                                  /* tp_call */
-    0,                                                  /* tp_str */
-    PyObject_GenericGetAttr,                            /* tp_getattro */
-    0,                                                  /* tp_setattro */
-    0,                                                  /* tp_as_buffer */
+    (reprfunc)0,                                        /* tp_repr */
+    (PyNumberMethods *)0,                               /* tp_as_number */
+    (PySequenceMethods *)0,                             /* tp_as_sequence */
+    (PyMappingMethods *)0,                              /* tp_as_mapping */
+    (hashfunc)0,                                        /* tp_hash */
+    (ternaryfunc)0,                                     /* tp_call */
+    (reprfunc)0,                                        /* tp_str */
+    (getattrofunc)PyObject_GenericGetAttr,              /* tp_getattro */
+    (setattrofunc)0,                                    /* tp_setattro */
+    (PyBufferProcs *)0,                                 /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
-    merge_doc,                                          /* tp_doc */
+    (const char *)merge_doc,                            /* tp_doc */
     (traverseproc)merge_traverse,                       /* tp_traverse */
-    0,                                                  /* tp_clear */
-    0,                                                  /* tp_richcompare */
-    0,                                                  /* tp_weaklistoffset */
-    PyObject_SelfIter,                                  /* tp_iter */
+    (inquiry)0,                                         /* tp_clear */
+    (richcmpfunc)0,                                     /* tp_richcompare */
+    (Py_ssize_t)0,                                      /* tp_weaklistoffset */
+    (getiterfunc)PyObject_SelfIter,                     /* tp_iter */
     (iternextfunc)merge_next,                           /* tp_iternext */
     merge_methods,                                      /* tp_methods */
     merge_memberlist,                                   /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */
-    0,                                                  /* tp_descr_get */
-    0,                                                  /* tp_descr_set */
-    0,                                                  /* tp_dictoffset */
-    0,                                                  /* tp_init */
-    PyType_GenericAlloc,                                /* tp_alloc */
-    merge_new,                                          /* tp_new */
-    PyObject_GC_Del,                                    /* tp_free */
+    (descrgetfunc)0,                                    /* tp_descr_get */
+    (descrsetfunc)0,                                    /* tp_descr_set */
+    (Py_ssize_t)0,                                      /* tp_dictoffset */
+    (initproc)0,                                        /* tp_init */
+    (allocfunc)PyType_GenericAlloc,                     /* tp_alloc */
+    (newfunc)merge_new,                                 /* tp_new */
+    (freefunc)PyObject_GC_Del,                          /* tp_free */
 };
