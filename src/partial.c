@@ -676,7 +676,7 @@ args : any type\n\
     .. note::\n\
        Using :py:attr:`.partial._` as one or multiple positional arguments \n\
        will be interpreted as placeholder that need to be filled when the \n\
-       `~iteration_utilities.partial` instance is called.\n\
+       :py:class:`~iteration_utilities.partial` instance is called.\n\
 \n\
 kwargs : any type\n\
     The keyword arguments for `func`.\n\
@@ -690,12 +690,12 @@ partial : callable\n\
 \n\
 Notes\n\
 -----\n\
-While placeholders can be used for the `args` they can't be used for the\n\
-`kwargs`.\n\
+While placeholders can be used for the :py:attr:`args` they can't be used \n\
+for the :py:attr:`keywords`.\n\
 \n\
 Examples\n\
 --------\n\
-The :py:func:`iteration_utilities.partial` can be used as slightly slower\n\
+The :py:class:`iteration_utilities.partial` can be used as slightly slower\n\
 drop-in replacement for :py:func:`functools.partial`. However it offers the\n\
 possibility to pass in placeholders as positional arguments. This can be\n\
 especially useful if a function does not allow keyword arguments::\n\

@@ -357,11 +357,11 @@ Parameters\n\
 funcs\n\
     Any number of callables.\n\
 \n\
-reverse : bool, optional\n\
+reverse : :py:class:`bool`, optional\n\
     If ``True`` apply the the `funcs` in reversed order.\n\
     Default is ``False``.\n\
 \n\
-all : bool, optional\n\
+all : :py:class:`bool`, optional\n\
     If ``True`` apply each of the `funcs` seperatly and return a tuple\n\
     containing the individual results when calling the instance.\n\
 \n\
@@ -369,13 +369,6 @@ Returns\n\
 -------\n\
 chained_func : callable\n\
     The chained `funcs`.\n\
-\n\
-Methods\n\
--------\n\
-__call__(\\*args, \\*\\*kwargs)\n\
-   Returns ``func1(...(funcn(*args, **kwargs)))``.\n\
-   Or ``funcn(...(func1(*args, **kwargs)))`` (if `reverse` is True).\n\
-   Or ``func1(*args, **kwargs), ..., funcn(*args, **kwargs)`` if `all` is True.\n\
 \n\
 Examples\n\
 --------\n\

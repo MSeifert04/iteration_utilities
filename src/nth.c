@@ -289,6 +289,14 @@ static PyMethodDef nth_methods[] = {
     {NULL, NULL}
 };
 
+#define OFF(x) offsetof(PyIUObject_Nth, x)
+static PyMemberDef nth_memberlist[] = {
+    {"n",            T_PYSSIZET,       OFF(index),        READONLY,
+     "(:py:class:`int`) The index to get (readonly)."},
+    {NULL}  /* Sentinel */
+};
+#undef OFF
+
 /******************************************************************************
  * Docstring
  *****************************************************************************/
@@ -300,7 +308,7 @@ Class that returns the `n`-th found value.\n\
 \n\
 Parameters\n\
 ----------\n\
-n : int\n\
+n : :py:class:`int`\n\
     The index of the wanted item. If negative the last item is searched.\n\
     \n\
     .. note::\n\
@@ -320,28 +328,23 @@ pred : callable, optional\n\
     .. note::\n\
        ``pred=None`` is equivalent to ``pred=bool``.\n\
 \n\
-truthy : bool, optional\n\
+truthy : :py:class:`bool`, optional\n\
     If ``False`` search for the nth item for which ``pred(item)`` is ``False``.\n\
     Default is ``True``.\n\
 \n\
     .. note::\n\
        Parameter is ignored if `pred` is not given.\n\
 \n\
-retpred : bool, optional\n\
+retpred : :py:class:`bool`, optional\n\
     If given return ``pred(item)`` instead of ``item``.\n\
     Default is ``False``.\n\
 \n\
     .. note::\n\
        Parameter is ignored if `pred` is not given.\n\
 \n\
-retidx : bool, optional\n\
+retidx : :py:class:`bool`, optional\n\
     If given return the index of the `n`-th element instead of the value.\n\
     Default is ``False``.\n\
-\n\
-Methods\n\
--------\n\
-__call__(iterable[, default, pred, truthy, retpred, retidx]))\n\
-    Find the `n`-th element.\n\
 \n\
 Returns\n\
 -------\n\
@@ -437,7 +440,7 @@ PyTypeObject PyIUType_Nth = {
     0,                                                  /* tp_iter */
     0,                                                  /* tp_iternext */
     nth_methods,                                        /* tp_methods */
-    0,                                                  /* tp_members */
+    nth_memberlist,                                     /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */

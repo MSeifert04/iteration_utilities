@@ -387,7 +387,7 @@ Parameters\n\
 iterable : iterable\n\
     Any `iterable` to flatten.\n\
 \n\
-depth : int or None, optional\n\
+depth : :py:class:`int` or None, optional\n\
     Flatten `depth` levels of nesting or all if ``depth=-1``.\n\
     Default is ``-1``.\n\
 \n\

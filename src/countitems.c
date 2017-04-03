@@ -143,7 +143,7 @@ pred : callable, any type, None, optional\n\
 \n\
     Default is ``None``.\n\
 \n\
-eq : bool, optional\n\
+eq : :py:class:`bool`, optional\n\
     If ``True`` compare each item in the `iterable` to `pred` instead of\n\
     calling ``pred(item)``.\n\
     Default is ``False``.\n\

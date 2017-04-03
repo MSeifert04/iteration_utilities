@@ -87,5 +87,6 @@ Some basic examples::\n\
     'b'\n\
 \n\
 .. warning::\n\
-    `one` will access the first two values of the `iterable` so it should\n\
-    only be used if the `iterable` must only contain one item!");
+    :py:func:`~iteration_utilities.one` will access the first two values of \n\
+    the `iterable` so it shoul only be used if the `iterable` must only \n\
+    contain one item!");

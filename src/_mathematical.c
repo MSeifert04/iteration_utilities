@@ -148,8 +148,9 @@ square : any type\n\
 \n\
 Examples\n\
 --------\n\
-It is not possible to apply ``functools.partial`` to ``pow`` so that one has\n\
-a one-argument square function and is significantly faster than ``lambda x: x**2``::\n\
+It is not possible to apply :py:func:`functools.partial` to :py:func:`pow` \n\
+so that one has a one-argument square function and is significantly faster \n\
+than ``lambda x: x**2``::\n\
 \n\
     >>> from iteration_utilities import square\n\
     >>> square(1)\n\

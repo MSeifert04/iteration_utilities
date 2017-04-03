@@ -5,4 +5,6 @@ return_None
 
 .. function:: return_None(*args, **kwargs)
 
-   See :py:func:`~iteration_utilities.constant`.
+   This callable is equivalent to ``constant(None)``.
+
+   .. seealso:: :py:class:`~iteration_utilities.constant`

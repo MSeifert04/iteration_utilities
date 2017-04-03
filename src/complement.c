@@ -134,6 +134,14 @@ static PyMethodDef complement_methods[] = {
     {NULL, NULL}
 };
 
+#define OFF(x) offsetof(PyIUObject_Complement, x)
+static PyMemberDef complement_memberlist[] = {
+    {"func",            T_OBJECT,       OFF(func),        READONLY,
+     "(callable) The function that is complemented (readonly)."},
+    {NULL}  /* Sentinel */
+};
+#undef OFF
+
 /******************************************************************************
  * Docstring
  *****************************************************************************/
@@ -141,8 +149,8 @@ static PyMethodDef complement_methods[] = {
 PyDoc_STRVAR(complement_doc, "complement(func)\n\
 --\n\
 \n\
-Invert a predicate function. homonymous function in the `toolz` package \n\
-([0]_) but significantly modified.\n\
+Invert a predicate function. There is a homonymous function in the `toolz` \n\
+package ([0]_) but significantly modified.\n\
 \n\
 Parameters\n\
 ----------\n\
@@ -165,8 +173,8 @@ Examples\n\
     [1, 2, 3, 4]\n\
 \n\
 .. note::\n\
-    The same could be done with `itertools.filterfalse` or \n\
-    `iteration_utilities.is_not_None`.\n\
+    The example code could also be done with :py:func:`itertools.filterfalse` \n\
+    or :py:func:`iteration_utilities.is_not_None`.\n\
 \n\
 References\n\
 ----------\n\
@@ -207,7 +215,7 @@ PyTypeObject PyIUType_Complement = {
     0,                                                  /* tp_iter */
     0,                                                  /* tp_iternext */
     complement_methods,                                 /* tp_methods */
-    0,                                                  /* tp_members */
+    complement_memberlist,                              /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */

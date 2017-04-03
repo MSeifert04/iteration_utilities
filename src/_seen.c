@@ -396,7 +396,7 @@ o : any type\n\
 \n\
 Returns\n\
 -------\n\
-contained : bool\n\
+contained : :py:class:`bool`\n\
     ``True`` if `o` is contained in `self` otherwise ``False``.\n\
 \n\
 Examples\n\
@@ -425,6 +425,16 @@ static PyMethodDef seen_methods[] = {
     {"contains_add", (PyCFunction)seen_containsadd, METH_O,      seen_containsadd_doc},
     {NULL, NULL}
 };
+
+#define OFF(x) offsetof(PyIUObject_Seen, x)
+static PyMemberDef seen_memberlist[] = {
+    {"seenset",          T_OBJECT,       OFF(seenset),         READONLY,
+     "(:py:class:`set`) The (hashable) seen values (readonly)."},
+    {"seenlist",         T_OBJECT,       OFF(seenlist),        READONLY,
+     "(:py:class:`list` or None) The (unhashable) seen values (readonly)."},
+    {NULL}  /* Sentinel */
+};
+#undef OFF
 
 /******************************************************************************
  * Sequence
@@ -463,8 +473,8 @@ seenlist : list, optional\n\
 \n\
 Examples\n\
 --------\n\
-This class adds each item after `contains_add` call but also supports normal\n\
-``in`` operations::\n\
+This class adds each item after :py:meth:`.contains_add` call but also \n\
+supports normal :py:meth:`in <.__contains__>` operations::\n\
 \n\
     >>> from iteration_utilities import Seen\n\
     >>> x = Seen()\n\
@@ -489,7 +499,9 @@ This class adds each item after `contains_add` call but also supports normal\n\
     >>> x  # doctest: +SKIP\n\
     iteration_utilities.Seen({2}, unhashable=[[1, 2]])\n\
 \n\
-This class does only support ``in``, ``==``, ``!=`` and ``len``.\n\
+This class does only support :py:meth:`in <.__contains__>`, \n\
+:py:meth:`== <.__eq__>`, :py:meth:`\!= <.__ne__>` and \n\
+:py:meth:`len <.__len__>`.\n\
 It is mostly included because it unified the code in \n\
 :py:func:`~iteration_utilities.duplicates`,\n\
 :py:func:`~iteration_utilities.unique_everseen`, and \n\
@@ -531,7 +543,7 @@ PyTypeObject PyIUType_Seen = {
     0,                                                  /* tp_iter */
     0,                                                  /* tp_iternext */
     seen_methods,                                       /* tp_methods */
-    0,                                                  /* tp_members */
+    seen_memberlist,                                    /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */

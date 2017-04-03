@@ -328,23 +328,23 @@ key : callable\n\
     The function by which to split the `iterable` (split where\n\
     ``key(item) == True``).\n\
 \n\
-maxsplit : int, optional\n\
+maxsplit : :py:class:`int`, optional\n\
     The number of maximal splits. If ``maxsplit=-1`` then there is no limit.\n\
     Default is ``-1``.\n\
 \n\
-keep : bool\n\
+keep : :py:class:`bool`\n\
     If ``True`` also include the items where ``key(item)=True`` as seperate list.\n\
     Default is ``False``.\n\
 \n\
-keep_before : bool\n\
+keep_before : :py:class:`bool`\n\
     If ``True`` also include the items where ``key(item)=True`` in the list before splitting.\n\
     Default is ``False``.\n\
 \n\
-keep_after : bool\n\
+keep_after : :py:class:`bool`\n\
     If ``True`` also include the items where ``key(item)=True`` as first item in the list after splitting.\n\
     Default is ``False``.\n\
 \n\
-eq : bool\n\
+eq : :py:class:`bool`\n\
     If ``True`` split the `iterable` where ``key == item`` instead of\n\
     ``key(item) == True``. This can significantly speed up the function if a\n\
     single delimiter is used.\n\

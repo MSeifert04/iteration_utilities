@@ -288,7 +288,7 @@ Parameters\n\
 iterable : iterable\n\
     Get the successive elements from this `iterable`.\n\
 \n\
-times : integer, optional\n\
+times : :py:class:`int`, optional\n\
     The number of successive elements.\n\
     Default is ``2``.\n\
 \n\

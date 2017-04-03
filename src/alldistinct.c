@@ -75,7 +75,7 @@ iterable : iterable\n\
 \n\
 Returns\n\
 -------\n\
-distinct : bool\n\
+distinct : :py:class:`bool`\n\
     ``True`` if no two values are equal and ``False`` if there is at least\n\
     one duplicate in `iterable`.\n\
 \n\

@@ -201,6 +201,16 @@ static PyMethodDef accumulate_methods[] = {
     {NULL, NULL}
 };
 
+#define OFF(x) offsetof(PyIUObject_Accumulate, x)
+static PyMemberDef accumulate_memberlist[] = {
+    {"func",            T_OBJECT,       OFF(binop),        READONLY,
+     "(callable or None) The function used for accumulation (readonly)."},
+    {"current",         T_OBJECT,       OFF(total),        READONLY,
+     "(any type) The current accumulated total (readonly)."},
+    {NULL}  /* Sentinel */
+};
+#undef OFF
+
 /******************************************************************************
  * Docstring
  *****************************************************************************/
@@ -320,7 +330,7 @@ PyTypeObject PyIUType_Accumulate = {
     PyObject_SelfIter,                                  /* tp_iter */
     (iternextfunc)accumulate_next,                      /* tp_iternext */
     accumulate_methods,                                 /* tp_methods */
-    0,                                                  /* tp_members */
+    accumulate_memberlist,                              /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */

@@ -139,11 +139,19 @@ static PyMethodDef flip_methods[] = {
     {NULL, NULL}
 };
 
+#define OFF(x) offsetof(PyIUObject_Flip, x)
+static PyMemberDef flip_memberlist[] = {
+    {"func",            T_OBJECT,       OFF(func),        READONLY,
+     "(callable) The function with flipped arguments (readonly)."},
+    {NULL}  /* Sentinel */
+};
+#undef OFF
+
 /******************************************************************************
  * Docstring
  *****************************************************************************/
 
-PyDoc_STRVAR(flip_doc, "flip(x)\n\
+PyDoc_STRVAR(flip_doc, "flip(x, /)\n\
 --\n\
 \n\
 Class that reverses the positional arguments to a `func` when called.\n\
@@ -152,12 +160,6 @@ Parameters\n\
 ----------\n\
 func : callable\n\
     The function that should be called with the flipped (reversed) arguments.\n\
-    Positional-only parameter.\n\
-\n\
-Methods\n\
--------\n\
-__call__(\\*args, \\*\\*kwargs)\n\
-    Returns ``func(*tuple(reversed(args)), **kwargs)``.\n\
 \n\
 Examples\n\
 --------\n\
@@ -208,7 +210,7 @@ PyTypeObject PyIUType_Flip = {
     0,                                                  /* tp_iter */
     0,                                                  /* tp_iternext */
     flip_methods,                                       /* tp_methods */
-    0,                                                  /* tp_members */
+    flip_memberlist,                                    /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */

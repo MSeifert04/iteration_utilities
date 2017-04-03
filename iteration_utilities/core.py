@@ -548,7 +548,7 @@ class _Base(object):
 
         Parameters
         ----------
-        item : integer, slice
+        item : :py:class:`int` or :py:class:`slice`
             The item or items to retrieve
 
         Returns
@@ -1289,7 +1289,7 @@ class Iterable(_Base):
 
         Parameters
         ----------
-        cls : type
+        cls : :py:class:`type`
             Convert the content of `Iterable` to this class.
 
         Returns
@@ -1393,12 +1393,12 @@ class Iterable(_Base):
         """Get the iterable as string.
 
         .. warning::
-           This method **does not** use :py:meth:`.as_`. and differs from
-           ``str(Iterable(sth))``! It uses :py:meth:`str.join`.
+           This method **does not** use :py:meth:`.as_` and differs from
+           ``str(Iterable(sth))``; It uses :py:meth:`str.join`.
 
         Parameters
         ----------
-        seperator : str, optional
+        seperator : :py:class:`str`, optional
             The seperator between each item from the iterable in the output
             string.
 
@@ -1802,7 +1802,7 @@ strict=False)
         """
         return self._get(one, 0)
 
-    def get_partition(self, func=_default):
+    def get_partition(self, pred=_default):
         """See :py:func:`~iteration_utilities.partition`.
 
         Examples
@@ -1811,7 +1811,7 @@ strict=False)
         >>> Iterable(range(5)).get_partition(is_even)
         ([1, 3], [0, 2, 4])
         """
-        return self._get(partition, 0, func=func)
+        return self._get(partition, 0, pred=pred)
 
     def get_reduce(self, *args):
         """See :py:func:`functools.reduce`.

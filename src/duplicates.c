@@ -229,42 +229,15 @@ static PyMethodDef duplicates_methods[] = {
     {NULL, NULL}
 };
 
-/******************************************************************************
- * Seen property
- *****************************************************************************/
-
-static PyObject *
-duplicates_getseen(PyIUObject_Duplicates *self,
-                   void *closure)
-{
-    Py_INCREF(self->seen);
-    return self->seen;
-}
-
-/******************************************************************************
- * key property
- *****************************************************************************/
-
-static PyObject *
-duplicates_getkey(PyIUObject_Duplicates *self,
-                  void *closure)
-{
-    if (self->key == NULL) {
-        Py_RETURN_NONE;
-    }
-    Py_INCREF(self->key);
-    return self->key;
-}
-
-/******************************************************************************
- * Properties
- *****************************************************************************/
-
-static PyGetSetDef duplicates_getsetlist[] = {
-    {"seen",     (getter)duplicates_getseen,     NULL},
-    {"key",      (getter)duplicates_getkey,      NULL},
-    {NULL}
+#define OFF(x) offsetof(PyIUObject_Duplicates, x)
+static PyMemberDef duplicates_memberlist[] = {
+    {"seen",            T_OBJECT,       OFF(seen),        READONLY,
+     "(:py:class:`~iteration_utilities.Seen`) Already seen values."},
+    {"key",             T_OBJECT,       OFF(key),        READONLY,
+     "(callable or `None`) The key function."},
+    {NULL}  /* Sentinel */
 };
+#undef OFF
 
 /******************************************************************************
  * Docstring
@@ -288,13 +261,6 @@ Returns\n\
 -------\n\
 iterable : generator\n\
     An iterable containing all duplicates values of the `iterable`.\n\
-\n\
-Attributes\n\
-----------\n\
-seen : Seen\n\
-    Already seen values.\n\
-key : callable, None\n\
-    The key function.\n\
 \n\
 Notes\n\
 -----\n\
@@ -355,8 +321,8 @@ PyTypeObject PyIUType_Duplicates = {
     PyObject_SelfIter,                                  /* tp_iter */
     (iternextfunc)duplicates_next,                      /* tp_iternext */
     duplicates_methods,                                 /* tp_methods */
-    0,                                                  /* tp_members */
-    duplicates_getsetlist,                              /* tp_getset */
+    duplicates_memberlist,                              /* tp_members */
+    0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */
     0,                                                  /* tp_descr_get */

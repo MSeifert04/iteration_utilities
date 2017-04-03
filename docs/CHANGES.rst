@@ -4,6 +4,9 @@ Changelog for "iteration_utilities"
 Version 0.5.3 (unreleased)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+- Renamed ``func`` parameter name of ``partition`` to ``pred``.
+
+- Renamed ``function`` parameter name of ``tabulate`` to ``func``.
 
 
 Version 0.5.2 (2017-03-30)

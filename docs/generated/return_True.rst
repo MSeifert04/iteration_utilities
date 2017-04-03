@@ -5,4 +5,6 @@ return_True
 
 .. function:: return_True(*args, **kwargs)
 
-   See :py:func:`~iteration_utilities.constant`.
+   This callable is equivalent to ``constant(True)``.
+
+   .. seealso:: :py:class:`~iteration_utilities.constant`

@@ -210,11 +210,11 @@ high : any type, optional\n\
     The upper bound for clamp. If not given or ``None`` there is no upper \n\
     bound.\n\
 \n\
-inclusive : bool, optional\n\
+inclusive : :py:class:`bool`, optional\n\
     If ``True`` also remove values that are equal to `low` and `high`.\n\
     Default is ``False``.\n\
 \n\
-remove : bool, optional\n\
+remove : :py:class:`bool`, optional\n\
     If ``True`` remove the items outside the range given by ``low`` and\n\
     ``high``, otherwise replace them with ``low`` if they are lower or\n\
     ``high`` if they are higher.\n\

@@ -5,4 +5,6 @@ return_False
 
 .. function:: return_False(*args, **kwargs)
 
-   See :py:func:`~iteration_utilities.constant`.
+   This callable is equivalent to ``constant(False)``.
+
+   .. seealso:: :py:class:`~iteration_utilities.constant`

@@ -121,7 +121,7 @@ static PyMethodDef constant_methods[] = {
 #define OFF(x) offsetof(PyIUObject_Constant, x)
 static PyMemberDef constant_memberlist[] = {
     {"item",            T_OBJECT,       OFF(item),        READONLY,
-     "(any type) The value that is returned each time the instance is called."},
+     "(any type) The value that is returned each time the instance is called (readonly)."},
     {NULL}  /* Sentinel */
 };
 #undef OFF

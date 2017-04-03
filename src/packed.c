@@ -87,7 +87,7 @@ packed_call(PyIUObject_Packed *self,
         packed = newpacked;
     }
 
-    res = PyObject_Call(self->func, packed, NULL);
+    res = PyObject_Call(self->func, packed, kwargs);
     Py_DECREF(packed);
     return res;
 }
@@ -135,11 +135,19 @@ static PyMethodDef packed_methods[] = {
     {NULL, NULL}
 };
 
+#define OFF(x) offsetof(PyIUObject_Packed, x)
+static PyMemberDef packed_memberlist[] = {
+    {"func",            T_OBJECT,       OFF(func),        READONLY,
+     "(callable) The function with packed arguments (readonly)."},
+    {NULL}  /* Sentinel */
+};
+#undef OFF
+
 /******************************************************************************
  * Docstring
  *****************************************************************************/
 
-PyDoc_STRVAR(packed_doc, "packed(func)\n\
+PyDoc_STRVAR(packed_doc, "packed(func, /)\n\
 --\n\
 \n\
 Class that always returns ``func(*x)`` when called with ``packed(func)(x)``.\n\
@@ -150,16 +158,10 @@ Parameters\n\
 ----------\n\
 func : callable\n\
     The function that should be called when the packed-instance is called.\n\
-    Positional-only parameter.\n\
-\n\
-Methods\n\
--------\n\
-__call__(x)\n\
-    Returns `func(\\*x)`.\n\
 \n\
 Examples\n\
 --------\n\
-Creating `packed` instances::\n\
+Creating :py:class:`~iteration_utilities.packed` instances::\n\
 \n\
     >>> from iteration_utilities import packed\n\
     >>> from operator import eq\n\
@@ -176,7 +178,8 @@ This is a convenience class that emulates the behaviour of \n\
     >>> list(starmap(eq, [(2, 2), (3, 3), (2, 3)]))\n\
     [True, True, False]\n\
 \n\
-and :py:func:`iteration_utilities.starfilter` (compared to :py:func:`filter`)::\n\
+and :py:func:`~iteration_utilities.starfilter` (compared to \n\
+:py:func:`filter`)::\n\
 \n\
     >>> from iteration_utilities import starfilter\n\
     >>> list(filter(packed(eq), [(2, 2), (3, 3), (2, 3)]))\n\
@@ -185,8 +188,8 @@ and :py:func:`iteration_utilities.starfilter` (compared to :py:func:`filter`)::\
     [(2, 2), (3, 3)]\n\
 \n\
 Of course in these cases the appropriate `star`-function can be used but \n\
-in case a function does not have such a convenience function already `packed`\n\
-can be used.\n\
+in case a function does not have such a convenience function already \n\
+:py:class:`~iteration_utilities.packed` can be used.\n\
 ");
 
 /******************************************************************************
@@ -224,7 +227,7 @@ PyTypeObject PyIUType_Packed = {
     0,                                                  /* tp_iter */
     0,                                                  /* tp_iternext */
     packed_methods,                                     /* tp_methods */
-    0,                                                  /* tp_members */
+    packed_memberlist,                                  /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */

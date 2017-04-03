@@ -493,7 +493,7 @@ Parameters\n\
 item : any type\n\
     The original `item`.\n\
 \n\
-idx : int\n\
+idx : :py:class:`int`\n\
     The position (index) of the `item`.\n\
 \n\
 key : any type, optional\n\
@@ -503,11 +503,13 @@ key : any type, optional\n\
 \n\
 Notes\n\
 -----\n\
-Comparisons involving `ItemIdxKey` have some limitations:\n\
+Comparisons involving :py:class:`~iteration_utilities.ItemIdxKey` have some \n\
+limitations:\n\
 \n\
-- Both have to be `ItemIdxKey` instances.\n\
-- If the first operand has no `key` then the `items` are compared.\n\
-- The `idx` must be different.\n\
+- Both have to be :py:class:`~iteration_utilities.ItemIdxKey` instances.\n\
+- If the first operand has no :py:attr:`.key` then the :py:attr:`.item` are \n\
+  compared.\n\
+- The :py:attr:`.idx` must be different.\n\
 - only ``<`` and ``>`` are supported!\n\
 \n\
 The implementation is rougly like:\n\
@@ -549,21 +551,22 @@ The implementation is rougly like:\n\
 .. note::\n\
    The actual C makes the initialization and comparisons several times faster\n\
    than the above illustrated Python class! But it's only slightly faster\n\
-   than comparing `tuple` or `list`. If you do not plan to support `reverse`\n\
-   or `key` then there is no need to use this class!\n\
+   than comparing :py:class:`tuple` or :py:class:`list`. If you do not plan \n\
+   to support `reverse` or `key` then there is no need to use this class!\n\
 \n\
 .. warning::\n\
-   You should **never** insert a `ItemIdxKey` instance as `item` or `key` in\n\
-   another `ItemIdxKey` instance. This would yield false results and breaks\n\
-   your computer! (the latter might not be true.)\n\
+   You should **never** insert a :py:class:`~iteration_utilities.ItemIdxKey` \n\
+   instance as :py:attr:`.item` or :py:attr:`.key` in another\n\
+   :py:class:`~iteration_utilities.ItemIdxKey` instance. This would yield \n\
+   wrong results and breaks your computer! (the latter might not be true.)\n\
 \n\
 Examples\n\
 --------\n\
 Stability is one of the distinct features of sorting algorithms. This class\n\
 aids in supporting those algorithms which allow `reverse` and `key`.\n\
 This means that comparisons require absolute lesser (or greater if `reverse`)\n\
-if the `idx` is bigger but only require lesser or equal (or greater or equal)\n\
-if the `idx` is smaller. This class implements exactly these conditions::\n\
+if the :py:attr:`.idx` is bigger but only require lesser or equal (or greater or equal)\n\
+if the :py:attr:`.idx` is smaller. This class implements exactly these conditions::\n\
 \n\
     >>> # Use < for normal sorting.\n\
     >>> ItemIdxKey(10, 2) < ItemIdxKey(10, 3)\n\
@@ -572,24 +575,24 @@ if the `idx` is smaller. This class implements exactly these conditions::\n\
     >>> ItemIdxKey(10, 2) > ItemIdxKey(10, 3)\n\
     True\n\
 \n\
-The result may seem surprising but if the `item` (or `key`) is equal then\n\
-in either normal or `reverse` sorting the one with the smaller `idx` should\n\
-come first! If the `items` (or `keys`) differ they take precedence.\n\
+The result may seem surprising but if the :py:attr:`.item` (or :py:attr:`.key`) is equal then\n\
+in either normal or `reverse` sorting the one with the smaller :py:attr:`.idx` should\n\
+come first! If the :py:attr:`.item` (or :py:attr:`.key`) differ they take precedence.\n\
 \n\
     >>> ItemIdxKey(10, 2) < ItemIdxKey(11, 3)\n\
     True\n\
     >>> ItemIdxKey(10, 2) > ItemIdxKey(11, 3)\n\
     False\n\
 \n\
-But it compares the `key` instead of the `item` if it's given::\n\
+But it compares the :py:attr:`.key` instead of the :py:attr:`.item` if it's given::\n\
 \n\
     >>> ItemIdxKey(0, 2, 20) < ItemIdxKey(10, 3, 19)\n\
     False\n\
     >>> ItemIdxKey(0, 2, 20) > ItemIdxKey(10, 3, 19)\n\
     True\n\
 \n\
-This allows to sort based on `item` or `key` but always to access the `item`\n\
-for the value that should be sorted.");
+This allows to sort based on :py:attr:`.item` or :py:attr:`.key` but always \n\
+to access the :py:attr:`.item` for the value that should be sorted.");
 
 
 /******************************************************************************

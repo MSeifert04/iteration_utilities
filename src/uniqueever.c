@@ -226,44 +226,15 @@ static PyMethodDef uniqueever_methods[] = {
     {NULL, NULL}
 };
 
-/******************************************************************************
- * Seen property
- *****************************************************************************/
-
-static PyObject *
-uniqueever_getseen(PyIUObject_UniqueEver *self,
-                   void *closure)
-{
-    Py_INCREF(self->seen);
-    return self->seen;
-}
-
-/******************************************************************************
- * key property
- *****************************************************************************/
-
-static PyObject *
-uniqueever_getkey(PyIUObject_UniqueEver *self,
-                  void *closure)
-{
-    if (self->key == NULL) {
-        Py_RETURN_NONE;
-    }
-    Py_INCREF(self->key);
-    return self->key;
-}
-
-/******************************************************************************
- * Properties
- *****************************************************************************/
-
-static PyGetSetDef uniqueever_getsetlist[] = {
-    {"seen",     (getter)uniqueever_getseen, NULL,
+#define OFF(x) offsetof(PyIUObject_UniqueEver, x)
+static PyMemberDef uniqueever_memberlist[] = {
+    {"seen",            T_OBJECT,       OFF(seen),        READONLY,
      "(:py:class:`~iteration_utilities.Seen`) Already seen values."},
-    {"key",      (getter)uniqueever_getkey, NULL,
+    {"key",             T_OBJECT,       OFF(key),        READONLY,
      "(callable or `None`) The key function."},
-    {NULL}
+    {NULL}  /* Sentinel */
 };
+#undef OFF
 
 /******************************************************************************
  * Docstring
@@ -352,8 +323,8 @@ PyTypeObject PyIUType_UniqueEver = {
     PyObject_SelfIter,                                  /* tp_iter */
     (iternextfunc)uniqueever_next,                      /* tp_iternext */
     uniqueever_methods,                                 /* tp_methods */
-    0,                                                  /* tp_members */
-    uniqueever_getsetlist,                              /* tp_getset */
+    uniqueever_memberlist,                              /* tp_members */
+    0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */
     0,                                                  /* tp_descr_get */

@@ -141,10 +141,11 @@ Successivly apply `func` on `value`.\n\
 Parameters\n\
 ----------\n\
 func : callable\n\
-    The function to apply. The `value` is given as first argument.\n\
+    The function to apply. The `value` is given as first argument to the \n\
+    `func`, no other arguments will be passed during the function call.\n\
 \n\
 initial : any type\n\
-    The value on which to apply the function.\n\
+    The `initial` `value` for the function.\n\
 \n\
 Returns\n\
 -------\n\

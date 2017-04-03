@@ -7,7 +7,7 @@ PyIU_Partition(PyObject *m,
                PyObject *args,
                PyObject *kwargs)
 {
-    static char *kwlist[] = {"iterable", "func", NULL};
+    static char *kwlist[] = {"iterable", "pred", NULL};
     PyObject *iterable = NULL;
     PyObject *func = NULL;
     PyObject *iterator = NULL;
@@ -130,7 +130,7 @@ Fail:
  * Docstring
  *****************************************************************************/
 
-PyDoc_STRVAR(PyIU_Partition_doc, "partition(iterable, func=None)\n\
+PyDoc_STRVAR(PyIU_Partition_doc, "partition(iterable, pred=None)\n\
 --\n\
 \n\
 Use a predicate to partition entries into ``False`` entries and ``True``\n\
@@ -141,21 +141,21 @@ Parameters\n\
 iterable : iterable\n\
     `Iterable` to partition.\n\
 \n\
-func : callable or None, optional\n\
+pred : callable or None, optional\n\
     The predicate which determines the partition.\n\
     Default is ``None``.\n\
 \n\
 Returns\n\
 -------\n\
 false_values : list\n\
-    An list containing the values for which the predicate was False.\n\
+    An list containing the values for which the `pred` was False.\n\
 \n\
 true_values : list\n\
-    An list containing the values for which the predicate was True.\n\
+    An list containing the values for which the `pred` was True.\n\
 \n\
 See also\n\
 --------\n\
-.ipartition : Generator variant of partition.\n\
+.ipartition : Generator variant of :py:func:`~iteration_utilities.partition`.\n\
 \n\
 Examples\n\
 --------\n\
@@ -165,5 +165,6 @@ Examples\n\
 ([0, 2, 4, 6, 8], [1, 3, 5, 7, 9])\n\
 \n\
 .. warning::\n\
-    In case the `pred` is expensive then ``partition`` can be noticable\n\
-    faster than ``ipartition``.");
+    In case the `pred` is expensive then \n\
+    :py:func:`~iteration_utilities.partition` can be noticable\n\
+    faster than :py:func:`~iteration_utilities.ipartition`.");

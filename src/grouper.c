@@ -323,7 +323,7 @@ fillvalue : any type, optional\n\
     than the group before. Using ``fillvalue=None`` is different from not \n\
     giving a `fillvalue` in that the last group will be filled with ``None``.\n\
 \n\
-truncate : bool, optional\n\
+truncate : :py:class:`bool`, optional\n\
     As alternative to `fillvalue` the last group is discarded if it is\n\
     shorter than `n` and `truncate` is ``True``.\n\
     Default is ``False``.\n\

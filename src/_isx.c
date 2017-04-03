@@ -151,7 +151,7 @@ value : any type \n\
 \n\
 Returns\n\
 -------\n\
-is_none : bool\n\
+is_none : :py:class:`bool`\n\
     ``True`` if `value` is ``None`` otherwise it returns ``False``.\n\
 \n\
 Examples\n\
@@ -185,7 +185,7 @@ value : any type \n\
 \n\
 Returns\n\
 -------\n\
-is_not_none : bool\n\
+is_not_none : :py:class:`bool`\n\
     ``False`` if `value` is ``None`` otherwise it returns ``True``.\n\
 \n\
 Examples\n\
@@ -211,7 +211,7 @@ value : any type \n\
 \n\
 Returns\n\
 -------\n\
-is_even : bool\n\
+is_even : :py:class:`bool`\n\
     ``True`` if `value` is even otherwise it returns ``False``.\n\
 \n\
 Examples\n\
@@ -239,7 +239,7 @@ value : any type \n\
 \n\
 Returns\n\
 -------\n\
-is_odd : bool\n\
+is_odd : :py:class:`bool`\n\
     ``True`` if `value` is odd otherwise it returns ``False``.\n\
 \n\
 Examples\n\
@@ -267,7 +267,7 @@ value : any type \n\
 \n\
 Returns\n\
 -------\n\
-is_iterable : bool\n\
+is_iterable : :py:class:`bool`\n\
     ``True`` if `value` is iterable otherwise it returns ``False``.\n\
 \n\
 Examples\n\

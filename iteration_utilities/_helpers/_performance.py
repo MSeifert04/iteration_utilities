@@ -21,21 +21,22 @@ __all__ = ['all_isinstance', 'any_isinstance']
 
 
 def all_isinstance(iterable, types):
-    """Like :py:func:`isinstance` but checks if all items in `iterable` are
-    instances of `types`.
+    """Like :py:func:`isinstance` but for `iterables`.
+
+    Checks if all items in `iterable` are instances of `types`.
 
     Parameters
     ----------
     iterable : iterable
         Each item of the `iterable` is tested with ``isinstance(item, types)``.
 
-    types : object or tuple of objects
+    types : :py:class:`type` or :py:class:`tuple` of types
         Test for this type if it's a single class or test if the item is of any
-        of the types (if types is a tuple).
+        of the types (if types is a :py:class:`tuple`).
 
     Returns
     -------
-    all : bool
+    all : :py:class:`bool`
         ``True`` if all elements in `iterable` are instances of `types`,
         ``False`` if not.
 
@@ -58,21 +59,22 @@ def all_isinstance(iterable, types):
 
 
 def any_isinstance(iterable, types):
-    """Like :py:func:`isinstance` but checks if any item in `iterable` is an
-    instance of `types`.
+    """Like :py:func:`isinstance` but for `iterables`.
+
+    Checks if any item in `iterable` is an instance of `types`.
 
     Parameters
     ----------
     iterable : iterable
         Each item of the `iterable` is tested with ``isinstance(item, types)``.
 
-    types : object or tuple of objects
+    types : :py:class:`type` or :py:class:`tuple` of types
         Test for this type if it's a single class or test if the item is of any
-        of the types (if types is a tuple).
+        of the types (if types is a :py:class:`tuple`).
 
     Returns
     -------
-    all : bool
+    all : :py:class:`bool`
         ``True`` if any elements in `iterable` is an instance of `types`,
         ``False`` if not.
 

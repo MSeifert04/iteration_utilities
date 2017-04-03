@@ -426,7 +426,7 @@ iterable : iterable\n\
 func : callable\n\
     Function that is called for the side effects.\n\
 \n\
-times : int, optional\n\
+times : :py:class:`int`, optional\n\
     Call the function each `times` items with the last `times` items. \n\
     If ``0`` the argument for `func` will be the item itself. For any \n\
     number greater than zero the argument will be a tuple.\n\

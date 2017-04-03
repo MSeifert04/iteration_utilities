@@ -179,13 +179,13 @@ iterable : iterable\n\
 key : callable, optional\n\
     If not given then compare the values, otherwise compare ``key(item)``.\n\
 \n\
-default : int, optional\n\
+default : :py:class:`int`, optional\n\
     If given an empty `iterable` will return `default` instead of raising a \n\
     ``ValueError``.\n\
 \n\
 Returns\n\
 -------\n\
-argmin : int\n\
+argmin : :py:class:`int`\n\
     The index of the minimum or default if the `iterable` was empty.\n\
 \n\
 Examples\n\
@@ -225,13 +225,13 @@ iterable : iterable\n\
 key : callable, optional\n\
     If not given then compare the values, otherwise compare ``key(item)``.\n\
 \n\
-default : int, optional\n\
+default : :py:class:`int`, optional\n\
     If not given raise ``ValueError`` if the `iterable` is empty otherwise\n\
     return ``default``\n\
 \n\
 Returns\n\
 -------\n\
-argmax : int\n\
+argmax : :py:class:`int`\n\
     The index of the maximum or default if the `iterable` was empty.\n\
 \n\
 Examples\n\

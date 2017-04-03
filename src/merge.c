@@ -678,7 +678,7 @@ key : callable or None, optional\n\
     result of ``key(item)``, like the `key` parameter for\n\
     :py:func:`sorted`.\n\
 \n\
-reverse : boolean, optional\n\
+reverse : :py:class:`bool`, optional\n\
     If ``True`` then merge in decreasing order instead of increasing order.\n\
     Default is ``False``.\n\
 \n\

@@ -20,7 +20,7 @@ tabulate_new(PyTypeObject *type,
              PyObject *args,
              PyObject *kwargs)
 {
-    static char *kwlist[] = {"function", "start", NULL};
+    static char *kwlist[] = {"func", "start", NULL};
     PyIUObject_Tabulate *self;
 
     PyObject *func, *cnt=NULL, *funcargs=NULL;
@@ -148,17 +148,17 @@ static PyMethodDef tabulate_methods[] = {
  * Docstring
  *****************************************************************************/
 
-PyDoc_STRVAR(tabulate_doc, "tabulate(function, start=0)\n\
+PyDoc_STRVAR(tabulate_doc, "tabulate(func, start=0)\n\
 --\n\
 \n\
 Return ``function(0)``, ``function(1)``, ...\n\
 \n\
 Parameters\n\
 ----------\n\
-function : callable\n\
+func : callable\n\
     The `function` to apply.\n\
 \n\
-start : int, optional\n\
+start : any type, optional\n\
     The starting value to apply the `function` on. Each time `tabulate` is\n\
     called this value will be incremented by one.\n\
     Default is ``0``.\n\
@@ -190,6 +190,7 @@ This is equivalent to:\n\
 .. code::\n\
 \n\
     import itertools\n\
+    \n\
     def tabulate(function, start=0)\n\
         return map(function, itertools.count(start))");
 

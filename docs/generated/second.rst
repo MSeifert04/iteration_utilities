@@ -5,4 +5,6 @@ second
 
 .. function:: second(iterable[, default, pred, truthy, retpred, retidx])
 
-   See :py:func:`~iteration_utilities.nth`.
+   This callable is equivalent to ``nth(1)``.
+
+   .. seealso:: :py:class:`~iteration_utilities.nth`

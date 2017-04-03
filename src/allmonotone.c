@@ -75,12 +75,12 @@ Parameters\n\
 iterable : iterable\n\
     Any `iterable` to test.\n\
 \n\
-decreasing : bool, optional\n\
+decreasing : :py:class:`bool`, optional\n\
     If ``False`` check if the values are monotonic increasing, otherwise\n\
     check for monotone decreasing.\n\
     Default is ``False``.\n\
 \n\
-strict : bool, optional\n\
+strict : :py:class:`bool`, optional\n\
     If ``True`` check if the elements are strictly greater or smaller\n\
     (``>`` or ``<``) than their predecessor. Otherwise use ``>=`` and ``<=``.\n\
 \n\
