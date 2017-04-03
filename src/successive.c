@@ -266,12 +266,23 @@ successive_lengthhint(PyIUObject_Successive *self)
 
 static PyMethodDef successive_methods[] = {
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
-    {"__length_hint__", (PyCFunction)successive_lengthhint, METH_NOARGS, PYIU_lenhint_doc},
+    {"__length_hint__",  (PyCFunction)successive_lengthhint,  METH_NOARGS,
+     PYIU_lenhint_doc},
 #endif
-    {"__reduce__",   (PyCFunction)successive_reduce,   METH_NOARGS, PYIU_reduce_doc},
-    {"__setstate__", (PyCFunction)successive_setstate, METH_O,      PYIU_setstate_doc},
+    {"__reduce__",       (PyCFunction)successive_reduce,      METH_NOARGS,
+     PYIU_reduce_doc},
+    {"__setstate__",     (PyCFunction)successive_setstate,    METH_O,
+     PYIU_setstate_doc},
     {NULL, NULL}
 };
+
+#define OFF(x) offsetof(PyIUObject_Successive, x)
+static PyMemberDef successive_memberlist[] = {
+    {"times",  T_PYSSIZET,  OFF(times),  READONLY,
+     "(:py:class:`int`) The number of successive items (readonly)."},
+    {NULL}  /* Sentinel */
+};
+#undef OFF
 
 /******************************************************************************
  * Docstring
@@ -349,7 +360,7 @@ PyTypeObject PyIUType_Successive = {
     PyObject_SelfIter,                                  /* tp_iter */
     (iternextfunc)successive_next,                      /* tp_iternext */
     successive_methods,                                 /* tp_methods */
-    0,                                                  /* tp_members */
+    successive_memberlist,                              /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */

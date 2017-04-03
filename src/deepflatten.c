@@ -368,10 +368,28 @@ deepflatten_setstate(PyIUObject_DeepFlatten *self,
  *****************************************************************************/
 
 static PyMethodDef deepflatten_methods[] = {
-    {"__reduce__",   (PyCFunction)deepflatten_reduce,   METH_NOARGS, PYIU_reduce_doc},
-    {"__setstate__", (PyCFunction)deepflatten_setstate, METH_O,      PYIU_setstate_doc},
+    {"__reduce__",    (PyCFunction)deepflatten_reduce,    METH_NOARGS,
+     PYIU_reduce_doc},
+    {"__setstate__",  (PyCFunction)deepflatten_setstate,  METH_O,
+     PYIU_setstate_doc},
     {NULL, NULL}
 };
+
+#define OFF(x) offsetof(PyIUObject_DeepFlatten, x)
+static PyMemberDef deepflatten_memberlist[] = {
+    {"types",         T_OBJECT,    OFF(types),         READONLY,
+     "(:py:class:`type` or :py:class:`tuple` thereof) The types to flatten or "
+     "None if `deepflatten` attempts to flatten every type (readonly)."},
+    {"ignore",        T_OBJECT,    OFF(ignore),        READONLY,
+     "(:py:class:`type` or :py:class:`tuple` thereof) The types that are not "
+     "flattened (readonly)."},
+    {"depth",         T_PYSSIZET,  OFF(depth),         READONLY,
+     "(:py:class:`int`) Up to this depth the iterable is flattened (readonly)."},
+    {"currentdepth",  T_PYSSIZET,  OFF(currentdepth),  READONLY,
+     "(:py:class:`int`) The current depth inside the iterable (readonly)."},
+    {NULL}  /* Sentinel */
+};
+#undef OFF
 
 /******************************************************************************
  * Docstring
@@ -524,7 +542,7 @@ PyTypeObject PyIUType_DeepFlatten = {
     PyObject_SelfIter,                                  /* tp_iter */
     (iternextfunc)deepflatten_next,                     /* tp_iternext */
     deepflatten_methods,                                /* tp_methods */
-    0,                                                  /* tp_members */
+    deepflatten_memberlist,                             /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */

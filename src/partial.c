@@ -448,14 +448,14 @@ Fail:
 
 #define OFF(x) offsetof(PyIUObject_Partial, x)
 static PyMemberDef partial_memberlist[] = {
-    {"func",            T_OBJECT,       OFF(fn),        READONLY,
-     "(callable) Function object to use in future partial calls."},
-    {"args",            T_OBJECT,       OFF(args),      READONLY,
-     "(:py:class:`tuple`) arguments for future partial calls."},
-    {"keywords",        T_OBJECT,       OFF(kw),        READONLY,
-     "(:py:class:`dict`) keyword arguments for future partial calls."},
-    {"num_placeholders",T_PYSSIZET,     OFF(numph),     READONLY,
-     "(:py:class:`int`) Number of placeholders in the args."},
+    {"func",              T_OBJECT,    OFF(fn),     READONLY,
+     "(callable) Function object to use in future partial calls (readonly)."},
+    {"args",              T_OBJECT,    OFF(args),   READONLY,
+     "(:py:class:`tuple`) arguments for future partial calls (readonly)."},
+    {"keywords",          T_OBJECT,    OFF(kw),     READONLY,
+     "(:py:class:`dict`) keyword arguments for future partial calls (readonly)."},
+    {"num_placeholders",  T_PYSSIZET,  OFF(numph),  READONLY,
+     "(:py:class:`int`) Number of placeholders in the args (readonly)."},
     {NULL}  /* Sentinel */
 };
 #undef OFF

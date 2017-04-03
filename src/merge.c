@@ -652,12 +652,26 @@ merge_lengthhint(PyIUObject_Merge *self)
 
 static PyMethodDef merge_methods[] = {
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
-    {"__length_hint__", (PyCFunction)merge_lengthhint, METH_NOARGS, PYIU_lenhint_doc},
+    {"__length_hint__",  (PyCFunction)merge_lengthhint,  METH_NOARGS,
+     PYIU_lenhint_doc},
 #endif
-    {"__reduce__",   (PyCFunction)merge_reduce,   METH_NOARGS, PYIU_reduce_doc},
-    {"__setstate__", (PyCFunction)merge_setstate, METH_O,      PYIU_setstate_doc},
+    {"__reduce__",       (PyCFunction)merge_reduce,      METH_NOARGS,
+     PYIU_reduce_doc},
+    {"__setstate__",     (PyCFunction)merge_setstate,    METH_O,
+     PYIU_setstate_doc},
     {NULL, NULL}
 };
+
+#define OFF(x) offsetof(PyIUObject_Merge, x)
+static PyMemberDef merge_memberlist[] = {
+    {"key",      T_OBJECT,  OFF(keyfunc),  READONLY,
+     "(callable or None) The key function used by merge (readonly)."},
+    {"reverse",  T_BOOL,    OFF(reverse),  READONLY,
+     "(:py:class:`bool`) Indicates if merged by ``>`` instead of ``<`` "
+     "(readonly)."},
+    {NULL}  /* Sentinel */
+};
+#undef OFF
 
 /******************************************************************************
  * Docstring
@@ -761,7 +775,7 @@ PyTypeObject PyIUType_Merge = {
     PyObject_SelfIter,                                  /* tp_iter */
     (iternextfunc)merge_next,                           /* tp_iternext */
     merge_methods,                                      /* tp_methods */
-    0,                                                  /* tp_members */
+    merge_memberlist,                                   /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */

@@ -131,13 +131,14 @@ packed_reduce(PyIUObject_Packed *self,
  *****************************************************************************/
 
 static PyMethodDef packed_methods[] = {
-    {"__reduce__", (PyCFunction)packed_reduce, METH_NOARGS, PYIU_reduce_doc},
+    {"__reduce__",  (PyCFunction)packed_reduce,  METH_NOARGS,
+     PYIU_reduce_doc},
     {NULL, NULL}
 };
 
 #define OFF(x) offsetof(PyIUObject_Packed, x)
 static PyMemberDef packed_memberlist[] = {
-    {"func",            T_OBJECT,       OFF(func),        READONLY,
+    {"func",  T_OBJECT,  OFF(func),  READONLY,
      "(callable) The function with packed arguments (readonly)."},
     {NULL}  /* Sentinel */
 };

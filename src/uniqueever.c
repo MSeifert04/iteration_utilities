@@ -221,17 +221,19 @@ uniqueever_setstate(PyIUObject_UniqueEver *self,
  *****************************************************************************/
 
 static PyMethodDef uniqueever_methods[] = {
-    {"__reduce__",   (PyCFunction)uniqueever_reduce,   METH_NOARGS, PYIU_reduce_doc},
-    {"__setstate__", (PyCFunction)uniqueever_setstate, METH_O,      PYIU_setstate_doc},
+    {"__reduce__",    (PyCFunction)uniqueever_reduce,    METH_NOARGS,
+     PYIU_reduce_doc},
+    {"__setstate__",  (PyCFunction)uniqueever_setstate,  METH_O,
+     PYIU_setstate_doc},
     {NULL, NULL}
 };
 
 #define OFF(x) offsetof(PyIUObject_UniqueEver, x)
 static PyMemberDef uniqueever_memberlist[] = {
-    {"seen",            T_OBJECT,       OFF(seen),        READONLY,
-     "(:py:class:`~iteration_utilities.Seen`) Already seen values."},
-    {"key",             T_OBJECT,       OFF(key),        READONLY,
-     "(callable or `None`) The key function."},
+    {"seen",  T_OBJECT,  OFF(seen),  READONLY,
+     "(:py:class:`~iteration_utilities.Seen`) Already seen values (readonly)."},
+    {"key",   T_OBJECT,  OFF(key),   READONLY,
+     "(callable or None) The key function (readonly)."},
     {NULL}  /* Sentinel */
 };
 #undef OFF

@@ -224,17 +224,19 @@ duplicates_setstate(PyIUObject_Duplicates *self,
  *****************************************************************************/
 
 static PyMethodDef duplicates_methods[] = {
-    {"__reduce__",   (PyCFunction)duplicates_reduce,   METH_NOARGS, PYIU_reduce_doc},
-    {"__setstate__", (PyCFunction)duplicates_setstate, METH_O,      PYIU_setstate_doc},
+    {"__reduce__",    (PyCFunction)duplicates_reduce,    METH_NOARGS,
+     PYIU_reduce_doc},
+    {"__setstate__",  (PyCFunction)duplicates_setstate,  METH_O,
+     PYIU_setstate_doc},
     {NULL, NULL}
 };
 
 #define OFF(x) offsetof(PyIUObject_Duplicates, x)
 static PyMemberDef duplicates_memberlist[] = {
-    {"seen",            T_OBJECT,       OFF(seen),        READONLY,
-     "(:py:class:`~iteration_utilities.Seen`) Already seen values."},
-    {"key",             T_OBJECT,       OFF(key),        READONLY,
-     "(callable or `None`) The key function."},
+    {"seen",  T_OBJECT,  OFF(seen),  READONLY,
+     "(:py:class:`~iteration_utilities.Seen`) Already seen values (readonly)."},
+    {"key",   T_OBJECT,  OFF(key),   READONLY,
+     "(callable or `None`) The key function (readonly)."},
     {NULL}  /* Sentinel */
 };
 #undef OFF

@@ -421,16 +421,18 @@ A simple example::\n\
  *****************************************************************************/
 
 static PyMethodDef seen_methods[] = {
-    {"__reduce__",   (PyCFunction)seen_reduce,      METH_NOARGS, PYIU_reduce_doc},
-    {"contains_add", (PyCFunction)seen_containsadd, METH_O,      seen_containsadd_doc},
+    {"__reduce__",    (PyCFunction)seen_reduce,       METH_NOARGS,
+     PYIU_reduce_doc},
+    {"contains_add",  (PyCFunction)seen_containsadd,  METH_O,
+     seen_containsadd_doc},
     {NULL, NULL}
 };
 
 #define OFF(x) offsetof(PyIUObject_Seen, x)
 static PyMemberDef seen_memberlist[] = {
-    {"seenset",          T_OBJECT,       OFF(seenset),         READONLY,
+    {"seenset",   T_OBJECT,  OFF(seenset),  READONLY,
      "(:py:class:`set`) The (hashable) seen values (readonly)."},
-    {"seenlist",         T_OBJECT,       OFF(seenlist),        READONLY,
+    {"seenlist",  T_OBJECT,  OFF(seenlist), READONLY,
      "(:py:class:`list` or None) The (unhashable) seen values (readonly)."},
     {NULL}  /* Sentinel */
 };
@@ -462,14 +464,15 @@ Helper class which adds the items after each :py:meth:`.contains_add` check.\n\
 \n\
 Parameters\n\
 ----------\n\
-seenset : set, optional\n\
+seenset : :py:class:`set` or None, optional\n\
     A `set` containing initial values.\n\
 \n\
-seenlist : list, optional\n\
+seenlist : :py:class:`list` or None, optional\n\
     A `list` containing only unhashable initial values.\n\
     \n\
     .. note::\n\
-        If the `seenlist` contains hashable values these will be ignored!\n\
+        The `seenlist` must not contain hashable values (these will be \n\
+        ignored for all practical purposes)!\n\
 \n\
 Examples\n\
 --------\n\
@@ -500,7 +503,7 @@ supports normal :py:meth:`in <.__contains__>` operations::\n\
     iteration_utilities.Seen({2}, unhashable=[[1, 2]])\n\
 \n\
 This class does only support :py:meth:`in <.__contains__>`, \n\
-:py:meth:`== <.__eq__>`, :py:meth:`\!= <.__ne__>` and \n\
+:py:meth:`== <.__eq__>`, :py:meth:`\\!= <.__ne__>` and \n\
 :py:meth:`len <.__len__>`.\n\
 It is mostly included because it unified the code in \n\
 :py:func:`~iteration_utilities.duplicates`,\n\

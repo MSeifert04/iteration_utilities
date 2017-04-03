@@ -305,10 +305,33 @@ split_setstate(PyIUObject_Split *self,
  *****************************************************************************/
 
 static PyMethodDef split_methods[] = {
-    {"__reduce__",   (PyCFunction)split_reduce,   METH_NOARGS, PYIU_reduce_doc},
-    {"__setstate__", (PyCFunction)split_setstate, METH_O,      PYIU_setstate_doc},
+    {"__reduce__",    (PyCFunction)split_reduce,    METH_NOARGS,
+     PYIU_reduce_doc},
+    {"__setstate__",  (PyCFunction)split_setstate,  METH_O,
+     PYIU_setstate_doc},
     {NULL, NULL}
 };
+
+#define OFF(x) offsetof(PyIUObject_Split, x)
+static PyMemberDef split_memberlist[] = {
+    {"key",          T_OBJECT,    OFF(delimiter),       READONLY,
+     "(callable or any type) The function or value by which to split (readonly)."},
+    {"maxsplit",     T_PYSSIZET,  OFF(maxsplit),        READONLY,
+     "(:py:class:`int`) The number of maximum splits (readonly)."},
+    {"keep",         T_BOOL,      OFF(keep_delimiter),  READONLY,
+     "(:py:class:`bool`) Keep the delimiter (readonly)."},
+    {"keep_before",  T_BOOL,      OFF(keep_before),     READONLY,
+     "(:py:class:`bool`) Keep the delimiter as last item of the last group "
+     "(readonly)."},
+    {"keep_after",   T_BOOL,      OFF(keep_after),      READONLY,
+     "(:py:class:`bool`) Keep the delimiter as first item of the next group "
+     "(readonly)."},
+    {"eq",           T_BOOL,      OFF(cmp),             READONLY,
+     "(:py:class:`bool`) Instead of calling :py:attr:`key` compare the items "
+     "with it (readonly)."},
+    {NULL}  /* Sentinel */
+};
+#undef OFF
 
 /******************************************************************************
  * Docstring
@@ -417,7 +440,7 @@ PyTypeObject PyIUType_Split = {
     PyObject_SelfIter,                                  /* tp_iter */
     (iternextfunc)split_next,                           /* tp_iternext */
     split_methods,                                      /* tp_methods */
-    0,                                                  /* tp_members */
+    split_memberlist,                                   /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */

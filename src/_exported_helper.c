@@ -2,7 +2,6 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-
 /******************************************************************************
  * This file contains functions that are meant as helpers, they are especially
  * written to speed up parts of the Python code, they shouldn't be considered

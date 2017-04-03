@@ -114,14 +114,16 @@ constant_reduce(PyIUObject_Constant *self,
  *****************************************************************************/
 
 static PyMethodDef constant_methods[] = {
-    {"__reduce__", (PyCFunction)constant_reduce, METH_NOARGS, PYIU_reduce_doc},
+    {"__reduce__",  (PyCFunction)constant_reduce,  METH_NOARGS,
+     PYIU_reduce_doc},
     {NULL, NULL}
 };
 
 #define OFF(x) offsetof(PyIUObject_Constant, x)
 static PyMemberDef constant_memberlist[] = {
-    {"item",            T_OBJECT,       OFF(item),        READONLY,
-     "(any type) The value that is returned each time the instance is called (readonly)."},
+    {"item",  T_OBJECT,  OFF(item),  READONLY,
+     "(any type) The value that is returned each time the instance is called "
+     "(readonly)."},
     {NULL}  /* Sentinel */
 };
 #undef OFF

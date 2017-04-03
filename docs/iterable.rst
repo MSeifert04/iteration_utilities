@@ -17,24 +17,25 @@ These can be broadly classified in 4 categories:
 Creating an Iterable
 ^^^^^^^^^^^^^^^^^^^^
 
-The constructor allows wrapping a specified `iterable` like a `list` or
-`range` object. But it also has several staticmethods for creating an
-`Iterable` by other means, these have the prefix ``from_``. For example the
+The constructor allows wrapping a specified `iterable` like a :py:class:`list`
+or :py:class:`range` object. But it also has several staticmethods for creating
+an :py:class:`~iteration_utilities.Iterable` by other means, these have the
+prefix ``from_``. For example the
 :py:meth:`iteration_utilities.Iterable.from_repeat` allows to create an
-`Iterable` by using :py:func:`itertools.repeat`.
+:py:class:`~iteration_utilities.Iterable` using :py:func:`itertools.repeat`.
 
 
 Modifying and chaining operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-As soon as the `Iterable` is created one can process it. Each of the normal
-(not prefixed methods) returns the result of the operation (as generator!)
-so these can be arbitarly chained. This allows to chain several operations
-sequentially.
+As soon as the :py:class:`~iteration_utilities.Iterable` is created one can
+process it. Each of the normal (not prefixed methods) returns the result of
+the operation (as generator!) so these can be arbitarly chained. This allows to
+chain several operations sequentially.
 
-This can be demonstrated best with an actual example. Suppose we have a list of
-strings of numbers and we want to convert each letter to an integer and then
-sum the numbers below 3::
+This can be demonstrated best with an actual example. Suppose we have a
+:py:class:`list` of strings of numbers and we want to convert each letter to an
+integer and then sum the numbers below 3::
 
     >>> # Python example
     >>> from itertools import chain
@@ -53,22 +54,23 @@ sum the numbers below 3::
 Conversion methods
 ^^^^^^^^^^^^^^^^^^
 
-The `Iterable` implements the iteration protocol so it's possible to use it
-everywhere where an iterable is needed. For example with ``for item in ...``
-or to construct containers, i.e. ``list()``. For convenience (and to prevent
-some problems with infinite iterables) finite `Iterables` also have methods to
+The :py:class:`~iteration_utilities.Iterable` implements the iteration protocol
+so it's possible to use it everywhere where an iterable is needed. For example
+with ``for item in ...`` or to construct containers, i.e. ``list()``. For
+convenience (and to prevent some problems with infinite iterables) finite
+:py:class:`~iteration_utilities.Iterable` also have methods to
 convert them to the desired class. These are prefixed with ``as_``.
-`InfiniteIterables` **don't** have these to avoid creating an infinitly long
-`list`.
+:py:class:`~iteration_utilities.InfiniteIterable` **don't** have these to avoid
+creating an infinitly long :py:class:`list`.
 
 .. warning::
-   However `InfiniteIterables` also implement the iteration protocol and could
-   be passed to `list`, with severe consequences. So use the ``as_*`` and
-   ``get_*`` methods which will still throw an ``AttributeError`` but at least
-   they won't create an ``MemoryError`` or freeze your computer! You have been
-   warned!
+   However :py:class:`~iteration_utilities.InfiniteIterable` also implement the
+   iteration protocol and could be passed to :py:class:`list`, with severe
+   consequences. So use the ``as_*`` and ``get_*`` methods which will still
+   throw an :py:class:`AttributeError` but at least they won't create an
+   :py:class:`MemoryError` or freeze your computer! You have been warned!
 
-Currently folding methods like ``sum()`` are implemented with the prefix
+Currently folding methods like :py:func:`sum` are implemented with the prefix
 ``get_``.
 
 .. note::
@@ -79,10 +81,14 @@ Currently folding methods like ``sum()`` are implemented with the prefix
 Operating on several iterables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The `ManyIterables` class implements the methods that operate on several
-iterables and return a single `Iterable` or `InfiniteIterable`.
+The :py:class:`~iteration_utilities.ManyIterables` class implements the methods
+that operate on several iterables and return a single
+:py:class:`~iteration_utilities.Iterable` or
+:py:class:`~iteration_utilities.InfiniteIterable`.
 
-However it is very important that the `iterables` given to `ManyIterables`
-clearly indicate if they are infinite, otherwise the methods won't know if
-the result should be finite or infinite. These infinite iterables should be
-wrapped in `InfiniteIterable` or created by the ``Iterable.from_*`` methods.
+However it is very important that the `iterables` given to
+:py:class:`~iteration_utilities.ManyIterables` clearly indicate if they are
+infinite, otherwise the methods won't know if the result should be finite or
+infinite. These infinite iterables should be wrapped in
+:py:class:`~iteration_utilities.InfiniteIterable` or created by the
+``Iterable.from_*`` methods.

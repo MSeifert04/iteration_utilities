@@ -293,12 +293,29 @@ grouper_lengthhint(PyIUObject_Grouper *self)
 
 static PyMethodDef grouper_methods[] = {
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
-    {"__length_hint__", (PyCFunction)grouper_lengthhint, METH_NOARGS, PYIU_lenhint_doc},
+    {"__length_hint__",  (PyCFunction)grouper_lengthhint,  METH_NOARGS,
+     PYIU_lenhint_doc},
 #endif
-    {"__reduce__",   (PyCFunction)grouper_reduce,   METH_NOARGS, PYIU_reduce_doc},
-    {"__setstate__", (PyCFunction)grouper_setstate, METH_O,      PYIU_setstate_doc},
+    {"__reduce__",       (PyCFunction)grouper_reduce,      METH_NOARGS,
+     PYIU_reduce_doc},
+    {"__setstate__",     (PyCFunction)grouper_setstate,    METH_O,
+     PYIU_setstate_doc},
     {NULL, NULL}
 };
+
+#define OFF(x) offsetof(PyIUObject_Grouper, x)
+static PyMemberDef grouper_memberlist[] = {
+    {"fillvalue",  T_OBJECT,    OFF(fillvalue),  READONLY,
+     "(any type) The fillvalue if the last group does not contain enough "
+     "items (readonly)."},
+    {"times",      T_PYSSIZET,  OFF(times),      READONLY,
+     "(:py:class:`int`) The size of each group (readonly)."},
+    {"truncate",   T_BOOL,      OFF(truncate),   READONLY,
+     "(:py:class:`int`) ``True`` if an incomplete last group is discarded "
+     "(readonly)."},
+    {NULL}  /* Sentinel */
+};
+#undef OFF
 
 /******************************************************************************
  * Docstring
@@ -386,7 +403,7 @@ PyTypeObject PyIUType_Grouper = {
     PyObject_SelfIter,                                  /* tp_iter */
     (iternextfunc)grouper_next,                         /* tp_iternext */
     grouper_methods,                                    /* tp_methods */
-    0,                                                  /* tp_members */
+    grouper_memberlist,                                 /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */

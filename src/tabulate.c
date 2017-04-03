@@ -140,9 +140,20 @@ tabulate_reduce(PyIUObject_Tabulate *self)
  *****************************************************************************/
 
 static PyMethodDef tabulate_methods[] = {
-    {"__reduce__", (PyCFunction)tabulate_reduce, METH_NOARGS, PYIU_reduce_doc},
+    {"__reduce__",  (PyCFunction)tabulate_reduce,  METH_NOARGS,
+     PYIU_reduce_doc},
     {NULL, NULL}
 };
+
+#define OFF(x) offsetof(PyIUObject_Tabulate, x)
+static PyMemberDef tabulate_memberlist[] = {
+    {"func",     T_OBJECT,  OFF(func),  READONLY,
+     "(callable) The function to tabulate (readonly)."},
+    {"current",  T_OBJECT,  OFF(cnt),  READONLY,
+     "(any type) The current value to tabulate (readonly)."},
+    {NULL}  /* Sentinel */
+};
+#undef OFF
 
 /******************************************************************************
  * Docstring
@@ -229,7 +240,7 @@ PyTypeObject PyIUType_Tabulate = {
     PyObject_SelfIter,                                  /* tp_iter */
     (iternextfunc)tabulate_next,                        /* tp_iternext */
     tabulate_methods,                                   /* tp_methods */
-    0,                                                  /* tp_members */
+    tabulate_memberlist,                                /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */

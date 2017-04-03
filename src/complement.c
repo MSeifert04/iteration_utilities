@@ -130,13 +130,14 @@ complement_reduce(PyIUObject_Complement *self,
  *****************************************************************************/
 
 static PyMethodDef complement_methods[] = {
-    {"__reduce__", (PyCFunction)complement_reduce, METH_NOARGS, PYIU_reduce_doc},
+    {"__reduce__",  (PyCFunction)complement_reduce,  METH_NOARGS,
+     PYIU_reduce_doc},
     {NULL, NULL}
 };
 
 #define OFF(x) offsetof(PyIUObject_Complement, x)
 static PyMemberDef complement_memberlist[] = {
-    {"func",            T_OBJECT,       OFF(func),        READONLY,
+    {"func",  T_OBJECT,  OFF(func),  READONLY,
      "(callable) The function that is complemented (readonly)."},
     {NULL}  /* Sentinel */
 };

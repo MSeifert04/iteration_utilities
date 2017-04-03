@@ -216,10 +216,22 @@ uniquejust_setstate(PyIUObject_UniqueJust *self,
  *****************************************************************************/
 
 static PyMethodDef uniquejust_methods[] = {
-    {"__reduce__",   (PyCFunction)uniquejust_reduce,   METH_NOARGS, PYIU_reduce_doc},
-    {"__setstate__", (PyCFunction)uniquejust_setstate, METH_O,      PYIU_setstate_doc},
+    {"__reduce__",    (PyCFunction)uniquejust_reduce,    METH_NOARGS,
+     PYIU_reduce_doc},
+    {"__setstate__",  (PyCFunction)uniquejust_setstate,  METH_O,
+     PYIU_setstate_doc},
     {NULL, NULL}
 };
+
+#define OFF(x) offsetof(PyIUObject_UniqueJust, x)
+static PyMemberDef uniquejust_memberlist[] = {
+    {"key",       T_OBJECT,  OFF(keyfunc),   READONLY,
+     "(callable or None) The key function (readonly)."},
+    {"lastitem",  T_OBJECT,  OFF(lastitem),  READONLY,
+     "(any type) The last seen item (readonly)."},
+    {NULL}  /* Sentinel */
+};
+#undef OFF
 
 /******************************************************************************
  * Docstring
@@ -289,7 +301,7 @@ PyTypeObject PyIUType_UniqueJust = {
     PyObject_SelfIter,                                  /* tp_iter */
     (iternextfunc)uniquejust_next,                      /* tp_iternext */
     uniquejust_methods,                                 /* tp_methods */
-    0,                                                  /* tp_members */
+    uniquejust_memberlist,                              /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */

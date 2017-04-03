@@ -338,10 +338,23 @@ chained_setstate(PyIUObject_Chained *self,
  *****************************************************************************/
 
 static PyMethodDef chained_methods[] = {
-    {"__reduce__", (PyCFunction)chained_reduce, METH_NOARGS, PYIU_reduce_doc},
-    {"__setstate__", (PyCFunction)chained_setstate, METH_O, PYIU_setstate_doc},
+    {"__reduce__",    (PyCFunction)chained_reduce,    METH_NOARGS,
+     PYIU_reduce_doc},
+    {"__setstate__",  (PyCFunction)chained_setstate,  METH_O,
+     PYIU_setstate_doc},
     {NULL, NULL}
 };
+
+#define OFF(x) offsetof(PyIUObject_Chained, x)
+static PyMemberDef chained_memberlist[] = {
+    {"funcs",  T_OBJECT,  OFF(funcs),  READONLY,
+     "(:py:class:`tuple`) The functions to be used (readonly)."},
+    {"all",    T_BOOL,    OFF(all),    READONLY,
+     "(:py:class:`bool`) Apply functions on each other (``False``) or "
+     "seperate (readonly)."},
+    {NULL}  /* Sentinel */
+};
+#undef OFF
 
 /******************************************************************************
  * Docstring
@@ -428,7 +441,7 @@ PyTypeObject PyIUType_Chained = {
     0,                                                  /* tp_iter */
     0,                                                  /* tp_iternext */
     chained_methods,                                    /* tp_methods */
-    0,                                                  /* tp_members */
+    chained_memberlist,                                 /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */

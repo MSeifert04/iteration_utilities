@@ -125,9 +125,20 @@ applyfunc_reduce(PyIUObject_Applyfunc *self)
  *****************************************************************************/
 
 static PyMethodDef applyfunc_methods[] = {
-    {"__reduce__", (PyCFunction)applyfunc_reduce, METH_NOARGS, PYIU_reduce_doc},
+    {"__reduce__",  (PyCFunction)applyfunc_reduce,  METH_NOARGS,
+     PYIU_reduce_doc},
     {NULL, NULL}
 };
+
+#define OFF(x) offsetof(PyIUObject_Applyfunc, x)
+static PyMemberDef applyfunc_memberlist[] = {
+    {"func",     T_OBJECT,  OFF(func),   READONLY,
+     "(callable) The function used (readonly)."},
+    {"current",  T_OBJECT,  OFF(value),  READONLY,
+     "(any type) The current value for the function (readonly)."},
+    {NULL}  /* Sentinel */
+};
+#undef OFF
 
 /******************************************************************************
  * Docstring
@@ -201,7 +212,7 @@ PyTypeObject PyIUType_Applyfunc = {
     PyObject_SelfIter,                                  /* tp_iter */
     (iternextfunc)applyfunc_next,                       /* tp_iternext */
     applyfunc_methods,                                  /* tp_methods */
-    0,                                                  /* tp_members */
+    applyfunc_memberlist,                               /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */

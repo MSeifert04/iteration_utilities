@@ -195,17 +195,19 @@ accumulate_lengthhint(PyIUObject_Accumulate *self)
 
 static PyMethodDef accumulate_methods[] = {
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
-    {"__length_hint__", (PyCFunction)accumulate_lengthhint, METH_NOARGS, PYIU_lenhint_doc},
+    {"__length_hint__",  (PyCFunction)accumulate_lengthhint,  METH_NOARGS,
+     PYIU_lenhint_doc},
 #endif
-    {"__reduce__", (PyCFunction)accumulate_reduce, METH_NOARGS, PYIU_reduce_doc},
+    {"__reduce__",       (PyCFunction)accumulate_reduce,      METH_NOARGS,
+     PYIU_reduce_doc},
     {NULL, NULL}
 };
 
 #define OFF(x) offsetof(PyIUObject_Accumulate, x)
 static PyMemberDef accumulate_memberlist[] = {
-    {"func",            T_OBJECT,       OFF(binop),        READONLY,
+    {"func",     T_OBJECT,  OFF(binop),  READONLY,
      "(callable or None) The function used for accumulation (readonly)."},
-    {"current",         T_OBJECT,       OFF(total),        READONLY,
+    {"current",  T_OBJECT,  OFF(total),  READONLY,
      "(any type) The current accumulated total (readonly)."},
     {NULL}  /* Sentinel */
 };

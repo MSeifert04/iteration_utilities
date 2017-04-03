@@ -182,11 +182,28 @@ clamp_lengthhint(PyIUObject_Clamp *self)
 
 static PyMethodDef clamp_methods[] = {
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
-    {"__length_hint__", (PyCFunction)clamp_lengthhint, METH_NOARGS, PYIU_lenhint_doc},
+    {"__length_hint__",  (PyCFunction)clamp_lengthhint,  METH_NOARGS,
+     PYIU_lenhint_doc},
 #endif
-    {"__reduce__", (PyCFunction)clamp_reduce, METH_NOARGS, PYIU_reduce_doc},
+    {"__reduce__",       (PyCFunction)clamp_reduce,      METH_NOARGS,
+     PYIU_reduce_doc},
     {NULL, NULL}
 };
+
+#define OFF(x) offsetof(PyIUObject_Clamp, x)
+static PyMemberDef clamp_memberlist[] = {
+    {"low",        T_OBJECT,  OFF(low),        READONLY,
+     "(any type) The lower bound for `clamp` (readonly)."},
+    {"high",       T_OBJECT,  OFF(high),       READONLY,
+     "(any type) The upper bound for `clamp` (readonly)."},
+    {"inclusive",  T_BOOL,    OFF(inclusive),  READONLY,
+     "(:py:class:`bool`) Are the bounds inclusive (readonly)."},
+    {"remove",     T_BOOL,    OFF(remove),     READONLY,
+     "(:py:class:`bool`) Remove the outliers or clamp them to nearest bound "
+     "(readonly)."},
+    {NULL}  /* Sentinel */
+};
+#undef OFF
 
 /******************************************************************************
  * Docstring
@@ -286,7 +303,7 @@ PyTypeObject PyIUType_Clamp = {
     PyObject_SelfIter,                                  /* tp_iter */
     (iternextfunc)clamp_next,                           /* tp_iternext */
     clamp_methods,                                      /* tp_methods */
-    0,                                                  /* tp_members */
+    clamp_memberlist,                                   /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */

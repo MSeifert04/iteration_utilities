@@ -136,9 +136,18 @@ starfilter_reduce(PyIUObject_Starfilter *self)
  *****************************************************************************/
 
 static PyMethodDef starfilter_methods[] = {
-    {"__reduce__", (PyCFunction)starfilter_reduce, METH_NOARGS, PYIU_reduce_doc},
+    {"__reduce__",  (PyCFunction)starfilter_reduce,  METH_NOARGS,
+     PYIU_reduce_doc},
     {NULL, NULL}
 };
+
+#define OFF(x) offsetof(PyIUObject_Starfilter, x)
+static PyMemberDef starfilter_memberlist[] = {
+    {"pred",  T_OBJECT,  OFF(func),  READONLY,
+     "(callable) The function by which to filter (readonly)."},
+    {NULL}  /* Sentinel */
+};
+#undef OFF
 
 /******************************************************************************
  * Docstring
@@ -225,7 +234,7 @@ PyTypeObject PyIUType_Starfilter = {
     PyObject_SelfIter,                                  /* tp_iter */
     (iternextfunc)starfilter_next,                      /* tp_iternext */
     starfilter_methods,                                 /* tp_methods */
-    0,                                                  /* tp_members */
+    starfilter_memberlist,                              /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */

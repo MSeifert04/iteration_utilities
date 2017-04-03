@@ -401,12 +401,28 @@ sideeffects_lengthhint(PyIUObject_Sideeffects *self)
 
 static PyMethodDef sideeffects_methods[] = {
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
-    {"__length_hint__", (PyCFunction)sideeffects_lengthhint, METH_NOARGS, PYIU_lenhint_doc},
+    {"__length_hint__",  (PyCFunction)sideeffects_lengthhint,  METH_NOARGS,
+     PYIU_lenhint_doc},
 #endif
-    {"__reduce__",   (PyCFunction)sideeffects_reduce,   METH_NOARGS, PYIU_reduce_doc},
-    {"__setstate__", (PyCFunction)sideeffects_setstate, METH_O,      PYIU_setstate_doc},
+    {"__reduce__",       (PyCFunction)sideeffects_reduce,      METH_NOARGS,
+     PYIU_reduce_doc},
+    {"__setstate__",     (PyCFunction)sideeffects_setstate,    METH_O,
+     PYIU_setstate_doc},
     {NULL, NULL}
 };
+
+#define OFF(x) offsetof(PyIUObject_Sideeffects, x)
+static PyMemberDef sideeffects_memberlist[] = {
+    {"func",   T_OBJECT,    OFF(func),   READONLY,
+     "(callable) The function that is called by `sideeffects` (readonly)."},
+    {"times",  T_PYSSIZET,  OFF(times),  READONLY,
+     "(:py:class:`int`) A counter indicating after how many items the `func` "
+     "is called (readonly)."},
+    {"count",  T_PYSSIZET,  OFF(count),  READONLY,
+     "(:py:class:`int`) The current count for the next `func` call (readonly)."},
+    {NULL}  /* Sentinel */
+};
+#undef OFF
 
 /******************************************************************************
  * Docstring
@@ -493,7 +509,7 @@ PyTypeObject PyIUType_Sideeffects = {
     PyObject_SelfIter,                                  /* tp_iter */
     (iternextfunc)sideeffects_next,                     /* tp_iternext */
     sideeffects_methods,                                /* tp_methods */
-    0,                                                  /* tp_members */
+    sideeffects_memberlist,                             /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */

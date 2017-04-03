@@ -285,13 +285,14 @@ nth_reduce(PyIUObject_Nth *self,
  *****************************************************************************/
 
 static PyMethodDef nth_methods[] = {
-    {"__reduce__", (PyCFunction)nth_reduce, METH_NOARGS, PYIU_reduce_doc},
+    {"__reduce__",  (PyCFunction)nth_reduce,  METH_NOARGS,
+     PYIU_reduce_doc},
     {NULL, NULL}
 };
 
 #define OFF(x) offsetof(PyIUObject_Nth, x)
 static PyMemberDef nth_memberlist[] = {
-    {"n",            T_PYSSIZET,       OFF(index),        READONLY,
+    {"n",  T_PYSSIZET,  OFF(index),  READONLY,
      "(:py:class:`int`) The index to get (readonly)."},
     {NULL}  /* Sentinel */
 };

@@ -103,9 +103,7 @@ PyIU_ItemIdxKey_FromC(PyObject *item,
 }
 
 /******************************************************************************
- *
  * Copy (only from C code)
- *
  *****************************************************************************/
 
 PyObject *
@@ -224,7 +222,8 @@ PyIU_ItemIdxKey_Compare(PyObject *v,
        - first compare idx and if it's smaller check le/ge otherwise lt/gt
 
        --> I chose eq then "op" but the other version is also avaiable as
-       comment. */
+       comment.
+       */
 
     if (l->idx < r->idx) {
         op = (op == Py_LT) ? Py_LE : Py_GE;
@@ -444,11 +443,11 @@ itemidxkey_setkey(PyIUObject_ItemIdxKey *self,
  *****************************************************************************/
 
 static PyGetSetDef itemidxkey_getsetlist[] = {
-    {"item", (getter)itemidxkey_getitem, (setter)itemidxkey_setitem,
+    {"item",  (getter)itemidxkey_getitem,  (setter)itemidxkey_setitem,
      "(any type) The `item` to sort."},
-    {"idx",  (getter)itemidxkey_getidx,  (setter)itemidxkey_setidx,
+    {"idx",   (getter)itemidxkey_getidx,   (setter)itemidxkey_setidx,
      "(:py:class:`int`) The original position of the `item`."},
-    {"key",  (getter)itemidxkey_getkey,  (setter)itemidxkey_setkey,
+    {"key",   (getter)itemidxkey_getkey,   (setter)itemidxkey_setkey,
      "(any type) The result of a key function applied to the `item`."},
     {NULL}
 };
@@ -474,7 +473,8 @@ itemidxkey_reduce(PyIUObject_ItemIdxKey *self)
  *****************************************************************************/
 
 static PyMethodDef itemidxkey_methods[] = {
-    {"__reduce__",   (PyCFunction)itemidxkey_reduce,   METH_NOARGS, PYIU_reduce_doc},
+    {"__reduce__",  (PyCFunction)itemidxkey_reduce,  METH_NOARGS,
+     PYIU_reduce_doc},
     {NULL, NULL}
 };
 

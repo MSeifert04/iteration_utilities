@@ -122,9 +122,23 @@ iterexcept_reduce(PyIUObject_Iterexcept *self)
  *****************************************************************************/
 
 static PyMethodDef iterexcept_methods[] = {
-    {"__reduce__", (PyCFunction)iterexcept_reduce, METH_NOARGS, PYIU_reduce_doc},
+    {"__reduce__",  (PyCFunction)iterexcept_reduce,  METH_NOARGS,
+     PYIU_reduce_doc},
     {NULL, NULL}
 };
+
+#define OFF(x) offsetof(PyIUObject_Iterexcept, x)
+static PyMemberDef iterexcept_memberlist[] = {
+    {"func",       T_OBJECT,  OFF(func),    READONLY,
+     "(any type) The function that is called by `iter_except` (readonly)."},
+    {"exception",  T_OBJECT,  OFF(except),  READONLY,
+     "(any type) The exception that ends `iter_except` (readonly)."},
+    {"first",      T_OBJECT,  OFF(first),   READONLY,
+     "(any type) The function that is called once (as setup) by `iter_except` "
+     "(readonly)."},
+    {NULL}  /* Sentinel */
+};
+#undef OFF
 
 /******************************************************************************
  * Docstring
@@ -224,7 +238,7 @@ PyTypeObject PyIUType_Iterexcept = {
     PyObject_SelfIter,                                  /* tp_iter */
     (iternextfunc)iterexcept_next,                      /* tp_iternext */
     iterexcept_methods,                                 /* tp_methods */
-    0,                                                  /* tp_members */
+    iterexcept_memberlist,                              /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */

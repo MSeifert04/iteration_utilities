@@ -220,12 +220,23 @@ intersperse_lengthhint(PyIUObject_Intersperse *self)
 
 static PyMethodDef intersperse_methods[] = {
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
-    {"__length_hint__", (PyCFunction)intersperse_lengthhint, METH_NOARGS, PYIU_lenhint_doc},
+    {"__length_hint__",  (PyCFunction)intersperse_lengthhint,  METH_NOARGS,
+     PYIU_lenhint_doc},
 #endif
-    {"__reduce__",   (PyCFunction)intersperse_reduce,   METH_NOARGS, PYIU_reduce_doc},
-    {"__setstate__", (PyCFunction)intersperse_setstate, METH_O,      PYIU_setstate_doc},
+    {"__reduce__",       (PyCFunction)intersperse_reduce,      METH_NOARGS,
+     PYIU_reduce_doc},
+    {"__setstate__",     (PyCFunction)intersperse_setstate,    METH_O,
+     PYIU_setstate_doc},
     {NULL,              NULL}
 };
+
+#define OFF(x) offsetof(PyIUObject_Intersperse, x)
+static PyMemberDef intersperse_memberlist[] = {
+    {"fillvalue",  T_OBJECT,  OFF(filler),  READONLY,
+     "(any type) The interspersed fillvalue (readonly)."},
+    {NULL}  /* Sentinel */
+};
+#undef OFF
 
 /******************************************************************************
  * Docstring
@@ -307,7 +318,7 @@ PyTypeObject PyIUType_Intersperse = {
     PyObject_SelfIter,                                  /* tp_iter */
     (iternextfunc)intersperse_next,                     /* tp_iternext */
     intersperse_methods,                                /* tp_methods */
-    0,                                                  /* tp_members */
+    intersperse_memberlist,                             /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */
