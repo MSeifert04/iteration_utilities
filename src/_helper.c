@@ -176,7 +176,7 @@ PyIU_TupleReverse(PyObject *tuple)
  * tuple : Tuple where the value should be inserted.
  *****************************************************************************/
 
-static PyObject *
+PyObject *
 PyIU_TupleCopy(PyObject *tuple)
 {
     PyObject *newtuple;

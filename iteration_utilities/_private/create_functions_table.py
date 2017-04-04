@@ -1,95 +1,59 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-def create_included_function_list():
+
+def create_included_function_list(repo_path):
     """Creates an RST table to insert in the "docs/index.rst" file for the
     complete overview of the package.
 
     Requires `astropy`!
     """
-    import iteration_utilities
     from iteration_utilities import Iterable
-    from itertools import chain
-    from operator import itemgetter
     from astropy.table import Table
     from astropy.io.ascii import RST
+    import pathlib
+    from os import path
 
-    def items(mod):
-        return mod.__dict__.items()
+    p = pathlib.Path(path.join(repo_path, 'docs', 'generated'))
 
-    it = (Iterable(chain(items(iteration_utilities._cfuncs),
-                         items(iteration_utilities._helpers._performance),
-                         items(iteration_utilities._recipes._core),
-                         items(iteration_utilities._recipes._additional)))
-          # Exclude PY2 variable and private functions
-          .filterfalse(lambda x: x[0].startswith(('PY2', '_')))
-          # Exclude everything that has no __module__
-          .filter(lambda x: hasattr(x[1], '__module__'))
-          # Only include functions that come from the package
-          .filter(lambda x: x[1].__module__.startswith('iteration_utilities'))
-          # Remove duplicate names
-          .unique_everseen(itemgetter(0))
-          # Sort lexically
-          .get_sorted(key=lambda x: x[0].lower()))
+    funcs = sorted([file.name.split('.rst')[0] for file in p.glob('*.rst')],
+                   key=str.lower)
 
-    it = (Iterable(it)
+    it = (Iterable(funcs)
           # Create a Sphinx link from function name and module
-          .map(lambda i: ':py:func:`~iteration_utilities.{}`'.format(i[0]))
+          .map(lambda i: ':py:func:`~iteration_utilities.{}`'.format(i))
           # Group into 4s so we get a 4 column Table
           .grouper(4, fillvalue='')
           # Convert to list because Table expects it.
           .as_list())
 
-    return '\n'.join(RST().write(Table(rows=it)))
+    print('\n'.join(RST().write(Table(rows=it))))
 
 
-def create_included_function_list_readme():
+def create_included_function_list_readme(repo_path):
     """Creates an RST table to insert in the "Readme.rst" file for the
     complete overview of the package.
 
     Requires `astropy`!
     """
-    import iteration_utilities
     from iteration_utilities import Iterable
-    from itertools import chain
-    from operator import itemgetter
     from astropy.table import Table
     from astropy.io.ascii import RST
+    import pathlib
+    from os import path
 
-    def items(mod):
-        return mod.__dict__.items()
+    p = pathlib.Path(path.join(repo_path, 'docs', 'generated'))
 
-    rtd_link = '`{name} <http://iteration-utilities.readthedocs.io/en/latest/api/{file}.html#{module}.{name}>`_'
+    funcs = sorted([file.name.split('.rst')[0] for file in p.glob('*.rst')],
+                   key=str.lower)
 
-    module_to_file = {'iteration_utilities': 'cfuncs',
-                      'iteration_utilities._cfuncs': 'cfuncs',
-                      'iteration_utilities._helpers._performance': 'helper',
-                      'iteration_utilities._recipes._additional': 'additional',
-                      'iteration_utilities._recipes._core': 'core',
-                      }
+    rtd_link = '`{0} <http://iteration-utilities.readthedocs.io/en/latest/generated/{0}.html>`_'
 
-    it = (Iterable(chain(items(iteration_utilities._cfuncs),
-                         items(iteration_utilities._helpers._performance),
-                         items(iteration_utilities._recipes._core),
-                         items(iteration_utilities._recipes._additional)))
-          # Exclude PY2 variable and private functions
-          .filterfalse(lambda x: x[0].startswith(('PY2', '_')))
-          # Exclude everything that has no __module__
-          .filter(lambda x: hasattr(x[1], '__module__'))
-          # Only include functions that come from the package
-          .filter(lambda x: x[1].__module__.startswith('iteration_utilities'))
-          # Remove duplicate names
-          .unique_everseen(itemgetter(0))
-          # Sort lexically
-          .get_sorted(key=lambda x: x[0].lower()))
-
-    it = (Iterable(it)
+    it = (Iterable(funcs)
           # Create a Sphinx link from function name and module
-          .map(lambda i: rtd_link.format(file=module_to_file[i[1].__module__],
-                                         module=i[1].__module__,
-                                         name=i[0]))
+          .map(rtd_link.format)
           # Group into 4s so we get a 4 column Table
           .grouper(4, fillvalue='')
           # Convert to list because Table expects it.
           .as_list())
 
-    return '\n'.join(RST().write(Table(rows=it)))
+    print('\n'.join(RST().write(Table(rows=it))))
