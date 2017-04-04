@@ -5,13 +5,3 @@ recursive-include licenses *
 
 # Source code
 recursive-include src *.c
-
-# Needed for tests
-#include pytest.ini
-#include .coveragerc
-#recursive-include tests *
-
-#recursive-include docs *
-
-# remove private stuff
-prune iteration_utilities/_private
