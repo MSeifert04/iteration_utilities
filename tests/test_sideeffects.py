@@ -107,6 +107,14 @@ def test_sideeffects_normal8():
     assert list(sideeffects(toT(range(10)), return_None, 3)) == toT(range(10))
 
 
+@memory_leak_decorator()
+def test_sideeffects_attribute1():
+    it = sideeffects(toT(range(10)), return_None)
+    assert it.times == 0
+    assert it.func is return_None
+    assert it.count == 0
+
+
 @memory_leak_decorator(collect=True)
 def test_sideeffects_failure1():
     l = []

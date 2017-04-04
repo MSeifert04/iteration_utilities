@@ -27,6 +27,12 @@ def test_constant_repr1():
 
 
 @memory_leak_decorator()
+def test_constant_attributes1():
+    x = const(T(2))
+    assert x.item == T(2)
+
+
+@memory_leak_decorator()
 def test_constant_normal1():
     one = const(T(1))
     assert one() == T(1)

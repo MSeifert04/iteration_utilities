@@ -140,6 +140,14 @@ def test_merge_keyreverse1():
             [(T(2), T(0)), (T(2), T(-1)), (T(1), T(0)), (T(1), T(-1))])
 
 
+@memory_leak_decorator()
+def test_merge_attributes1():
+    # Key+reverse function tests
+    it = merge(toT(range(5)), toT(range(5)))
+    assert not it.reverse
+    assert not it.key
+
+
 @memory_leak_decorator(collect=True)
 def test_merge_failure1():
     # One iterable is not iterable

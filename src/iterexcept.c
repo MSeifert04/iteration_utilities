@@ -150,7 +150,7 @@ static PyMemberDef iterexcept_memberlist[] = {
      },
 
     {"first",                                           /* name */
-     T_OBJECT,                                          /* type */
+     T_OBJECT_EX,                                       /* type */
      OFF(first),                                        /* offset */
      READONLY,                                          /* flags */
      iterexcept_prop_first_doc                          /* doc */

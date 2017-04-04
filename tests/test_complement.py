@@ -26,6 +26,12 @@ def test_complement_repr1():
 
 
 @memory_leak_decorator()
+def test_complement_attributes1():
+    x = complement(int)
+    assert x.func is int
+
+
+@memory_leak_decorator()
 def test_complement_normal1():
     assert not complement(lambda x: x is True)(True)
 

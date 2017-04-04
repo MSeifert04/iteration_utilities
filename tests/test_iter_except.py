@@ -44,6 +44,23 @@ def test_iterexcept_first():
     assert list(iter_except(d.popitem, KeyError, insert)) == exp_out
 
 
+@memory_leak_decorator()
+def test_iterexcept_attributes1():
+    it = iter_except(list.append, ValueError)
+    assert it.func is list.append
+    assert it.exception is ValueError
+    with pytest.raises(AttributeError):
+        it.first
+
+
+@memory_leak_decorator()
+def test_iterexcept_attributes2():
+    it = iter_except(list.append, ValueError, list)
+    assert it.func is list.append
+    assert it.exception is ValueError
+    assert it.first is list
+
+
 @memory_leak_decorator(collect=True)
 def test_iterexcept_failure1():
     # wrong exception

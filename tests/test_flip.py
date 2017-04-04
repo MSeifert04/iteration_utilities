@@ -31,6 +31,12 @@ def test_flip_repr1():
 
 
 @memory_leak_decorator()
+def test_flip_attributes1():
+    x = flip(int)
+    assert x.func is int
+
+
+@memory_leak_decorator()
 def test_flip_double_flip1():
     x = flip(int)
     y = flip(x)

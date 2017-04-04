@@ -247,6 +247,13 @@ def test_seen_repr2():
 
 
 @memory_leak_decorator()
+def test_seen_attributes1():
+    x = Seen()
+    assert isinstance(x.seenset, set)
+    assert x.seenlist is None
+
+
+@memory_leak_decorator()
 def test_seen_contains0():
     x = Seen()
     assert T(1) not in x

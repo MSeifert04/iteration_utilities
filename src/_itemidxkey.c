@@ -426,7 +426,10 @@ itemidxkey_getkey(PyIUObject_ItemIdxKey *self,
                   void *closure)
 {
     if (self->key == NULL) {
-        Py_RETURN_NONE;
+        PyErr_SetString(PyExc_AttributeError,
+                        "the `key` attribute of `ItemIdxKey` instance is not "
+                        "set.");
+        return NULL;
     }
     Py_INCREF(self->key);
     return self->key;
@@ -441,6 +444,13 @@ itemidxkey_setkey(PyIUObject_ItemIdxKey *self,
         PyErr_SetString(PyExc_TypeError,
                         "cannot use `ItemIdxKey` instance as `key` attribute "
                         "of `ItemIdxKey`.");
+        return -1;
+    }
+    /* Cannot delete an non-existing attribute... */
+    if (o == NULL && self->key == NULL) {
+        PyErr_SetString(PyExc_AttributeError,
+                        "the `key` attribute of `ItemIdxKey` instance is not "
+                        "set and cannot be deleted.");
         return -1;
     }
     Py_XDECREF(self->key);

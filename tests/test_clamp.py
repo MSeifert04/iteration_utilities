@@ -84,6 +84,15 @@ def test_clamp_normal9():
                       None, None)) == toT([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
 
 
+@memory_leak_decorator()
+def test_clamp_attributes1():
+    it = clamp(toT(range(5)), T(1))
+    assert it.low == T(1)
+    assert it.high is None
+    assert it.remove
+    assert not it.inclusive
+
+
 @memory_leak_decorator(collect=True)
 def test_clamp_failure1():
     with pytest.raises(TypeError):

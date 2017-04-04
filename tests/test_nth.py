@@ -27,6 +27,15 @@ def test_nth_repr1():
 
 
 @memory_leak_decorator()
+def test_nth_attributes1():
+    assert iteration_utilities.first.n == 0
+    assert iteration_utilities.second.n == 1
+    assert iteration_utilities.third.n == 2
+    assert iteration_utilities.last.n == -1
+    assert nth(10).n == 10
+
+
+@memory_leak_decorator()
 def test_nth_normal1():
     assert nth(1)([T(1), T(2), T(3)]) == T(2)
 

@@ -54,53 +54,89 @@ PyDoc_STRVAR(itemidxkey_prop_key_doc,
     "(any type) The result of a key function applied to the `item`.");
 
 PyDoc_STRVAR(seen_prop_seenset_doc,
-    "(:py:class:`set`) The (hashable) seen values (readonly).");
+    "(:py:class:`set`) The (hashable) seen values (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 PyDoc_STRVAR(seen_prop_seenlist_doc,
-    "(:py:class:`list` or None) The (unhashable) seen values (readonly).");
+    "(:py:class:`list` or None) The (unhashable) seen values (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 
 PyDoc_STRVAR(accumulate_prop_func_doc,
-    "(callable or None) The function used for accumulation (readonly).");
+    "(callable or None) The function used for accumulation (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 PyDoc_STRVAR(accumulate_prop_current_doc,
-    "(any type) The current accumulated total (readonly).");
+    "(any type) The current accumulated total (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 
 PyDoc_STRVAR(applyfunc_prop_func_doc,
-    "(callable) The function used (readonly).");
+    "(callable) The function used (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 PyDoc_STRVAR(applyfunc_prop_current_doc,
-    "(any type) The current value for the function (readonly).");
+    "(any type) The current value for the function (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 
 PyDoc_STRVAR(chained_prop_funcs_doc,
-    "(:py:class:`tuple`) The functions to be used (readonly).");
+    "(:py:class:`tuple`) The functions to be used (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 PyDoc_STRVAR(chained_prop_all_doc,
     "(:py:class:`bool`) Apply functions on each other (``False``) or "
-     "seperate (readonly).");
+     "seperate (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 
 PyDoc_STRVAR(clamp_prop_low_doc,
-    "(any type) The lower bound for `clamp` (readonly).");
+    "(any type) The lower bound for `clamp` (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 PyDoc_STRVAR(clamp_prop_high_doc,
-    "(any type) The upper bound for `clamp` (readonly).");
+    "(any type) The upper bound for `clamp` (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 PyDoc_STRVAR(clamp_prop_inclusive_doc,
-    "(:py:class:`bool`) Are the bounds inclusive (readonly).");
+    "(:py:class:`bool`) Are the bounds inclusive (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 PyDoc_STRVAR(clamp_prop_remove_doc,
     "(:py:class:`bool`) Remove the outliers or clamp them to nearest bound "
-     "(readonly).");
+     "(readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 
 PyDoc_STRVAR(complement_prop_func_doc,
-    "(callable) The function that is complemented (readonly).");
+    "(callable) The function that is complemented (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 
 PyDoc_STRVAR(constant_prop_item_doc,
     "(any type) The value that is returned each time the instance is called "
-     "(readonly).");
+     "(readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 
 PyDoc_STRVAR(deepflatten_prop_types_doc,
     "(:py:class:`type` or :py:class:`tuple` thereof) The types to flatten or "
-     "None if `deepflatten` attempts to flatten every type (readonly).");
+     "None if `deepflatten` attempts to flatten every type (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 PyDoc_STRVAR(deepflatten_prop_ignore_doc,
     "(:py:class:`type` or :py:class:`tuple` thereof) The types that are not "
-     "flattened (readonly).");
+     "flattened (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 PyDoc_STRVAR(deepflatten_prop_depth_doc,
-    "(:py:class:`int`) Up to this depth the iterable is flattened (readonly).");
+    "(:py:class:`int`) Up to this depth the iterable is flattened (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 PyDoc_STRVAR(deepflatten_prop_currentdepth_doc,
-    "(:py:class:`int`) The current depth inside the iterable (readonly).");
+    "(:py:class:`int`) The current depth inside the iterable (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 
 PyDoc_STRVAR(duplicates_prop_seen_doc,
     "(:py:class:`~iteration_utilities.Seen`) Already seen values (readonly).");
@@ -108,39 +144,63 @@ PyDoc_STRVAR(duplicates_prop_key_doc,
     "(callable or `None`) The key function (readonly).");
 
 PyDoc_STRVAR(flip_prop_func_doc,
-    "(callable) The function with flipped arguments (readonly).");
+    "(callable) The function with flipped arguments (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 
 PyDoc_STRVAR(grouper_prop_fillvalue_doc,
     "(any type) The fillvalue if the last group does not contain enough "
-     "items (readonly).");
+    "items (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 PyDoc_STRVAR(grouper_prop_times_doc,
-    "(:py:class:`int`) The size of each group (readonly).");
+    "(:py:class:`int`) The size of each group (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 PyDoc_STRVAR(grouper_prop_truncate_doc,
     "(:py:class:`int`) ``True`` if an incomplete last group is discarded "
-     "(readonly).");
+     "(readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 
 PyDoc_STRVAR(intersperse_prop_fillvalue_doc,
-    "(any type) The interspersed fillvalue (readonly).");
+    "(any type) The interspersed fillvalue (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 
 PyDoc_STRVAR(iterexcept_prop_func_doc,
-    "(any type) The function that is called by `iter_except` (readonly).");
+    "(any type) The function that is called by `iter_except` (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 PyDoc_STRVAR(iterexcept_prop_exception_doc,
-    "(any type) The exception that ends `iter_except` (readonly).");
+    "(any type) The exception that ends `iter_except` (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 PyDoc_STRVAR(iterexcept_prop_first_doc,
     "(any type) The function that is called once (as setup) by `iter_except` "
-     "(readonly).");
+     "(readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 
 PyDoc_STRVAR(merge_prop_key_doc,
-    "(callable or None) The key function used by merge (readonly).");
+    "(callable or None) The key function used by merge (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 PyDoc_STRVAR(merge_prop_reverse_doc,
     "(:py:class:`bool`) Indicates if merged by ``>`` instead of ``<`` "
-     "(readonly).");
+     "(readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 
 PyDoc_STRVAR(nth_prop_n_doc,
-    "(:py:class:`int`) The index to get (readonly).");
+    "(:py:class:`int`) The index to get (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 
 PyDoc_STRVAR(packed_prop_func_doc,
-    "(callable) The function with packed arguments (readonly).");
+    "(callable) The function with packed arguments (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 
 PyDoc_STRVAR(partial_prop_func_doc,
     "(callable) Function object to use in future partial calls (readonly).");
@@ -154,39 +214,65 @@ PyDoc_STRVAR(partial_prop___dict___doc,
     "");
 
 PyDoc_STRVAR(sideeffects_prop_func_doc,
-    "(callable) The function that is called by `sideeffects` (readonly).");
+    "(callable) The function that is called by `sideeffects` (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 PyDoc_STRVAR(sideeffects_prop_times_doc,
     "(:py:class:`int`) A counter indicating after how many items the `func` "
-     "is called (readonly).");
+     "is called (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 PyDoc_STRVAR(sideeffects_prop_count_doc,
-    "(:py:class:`int`) The current count for the next `func` call (readonly).");
+    "(:py:class:`int`) The current count for the next `func` call (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 
 PyDoc_STRVAR(split_prop_key_doc,
-    "(callable or any type) The function or value by which to split (readonly).");
+    "(callable or any type) The function or value by which to split (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 PyDoc_STRVAR(split_prop_maxsplit_doc,
-    "(:py:class:`int`) The number of maximum splits (readonly).");
+    "(:py:class:`int`) The number of maximum splits (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 PyDoc_STRVAR(split_prop_keep_doc,
-    "(:py:class:`bool`) Keep the delimiter (readonly).");
+    "(:py:class:`bool`) Keep the delimiter (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 PyDoc_STRVAR(split_prop_keepbefore_doc,
     "(:py:class:`bool`) Keep the delimiter as last item of the last group "
-     "(readonly).");
+     "(readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 PyDoc_STRVAR(split_prop_keepafter_doc,
     "(:py:class:`bool`) Keep the delimiter as first item of the next group "
-     "(readonly).");
+     "(readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 PyDoc_STRVAR(split_prop_eq_doc,
     "(:py:class:`bool`) Instead of calling :py:attr:`key` compare the items "
-     "with it (readonly).");
+     "with it (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 
 PyDoc_STRVAR(starfilter_prop_pred_doc,
-    "(callable) The function by which to filter (readonly).");
+    "(callable) The function by which to filter (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 
 PyDoc_STRVAR(successive_prop_times_doc,
-    "(:py:class:`int`) The number of successive items (readonly).");
+    "(:py:class:`int`) The number of successive items (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 
 PyDoc_STRVAR(tabulate_prop_func_doc,
-    "(callable) The function to tabulate (readonly).");
+    "(callable) The function to tabulate (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 PyDoc_STRVAR(tabulate_prop_current_doc,
-    "(any type) The current value to tabulate (readonly).");
+    "(any type) The current value to tabulate (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 
 PyDoc_STRVAR(uniqueever_prop_seen_doc,
     "(:py:class:`~iteration_utilities.Seen`) Already seen values (readonly).");
@@ -194,9 +280,13 @@ PyDoc_STRVAR(uniqueever_prop_key_doc,
     "(callable or None) The key function (readonly).");
 
 PyDoc_STRVAR(uniquejust_prop_key_doc,
-    "(callable or None) The key function (readonly).");
+    "(callable or None) The key function (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 PyDoc_STRVAR(uniquejust_prop_lastseen_doc,
-    "(any type) The last seen item (readonly).");
+    "(any type) The last seen item (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
 
 
 PyDoc_STRVAR(PyIU_TupleToList_and_InsertItemAtIndex_doc,

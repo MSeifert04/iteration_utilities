@@ -37,6 +37,19 @@ def test_deepflatten_empty1():
 
 
 @memory_leak_decorator()
+def test_deepflatten_attributes1():
+    it = deepflatten([[T(1)], T(2)])
+    assert it.depth == -1
+    assert it.currentdepth == 0
+    assert it.ignore is None
+    assert it.types is None
+
+    assert next(it) == T(1)
+
+    assert it.currentdepth == 1
+
+
+@memory_leak_decorator()
 def test_deepflatten_normal1():
     assert list(deepflatten([T(1), T(2), T(3)])) == [T(1), T(2), T(3)]
 

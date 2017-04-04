@@ -1,12 +1,17 @@
 Changelog for "iteration_utilities"
 -----------------------------------
 
-Version 0.5.3 (unreleased)
+Version 0.6.0 (unreleased)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Renamed ``func`` parameter name of ``partition`` to ``pred``.
 
 - Renamed ``function`` parameter name of ``tabulate`` to ``func``.
+
+- The ``key`` attribute of ``ItemIdxKey`` throws an ``AttributeError`` if it
+  is not set and an attempt is made to get or delete it.
+
+- Added several attributes to classes.
 
 
 Version 0.5.2 (2017-03-30)

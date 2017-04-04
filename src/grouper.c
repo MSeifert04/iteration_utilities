@@ -320,7 +320,7 @@ static PyMethodDef grouper_methods[] = {
 static PyMemberDef grouper_memberlist[] = {
 
     {"fillvalue",                                       /* name */
-     T_OBJECT,                                          /* type */
+     T_OBJECT_EX,                                       /* type */
      OFF(fillvalue),                                    /* offset */
      READONLY,                                          /* flags */
      grouper_prop_fillvalue_doc                         /* doc */

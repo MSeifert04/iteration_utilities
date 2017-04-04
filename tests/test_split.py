@@ -104,6 +104,17 @@ def test_split_eq1():
                       eq=True)) == [[T(1)], [T(3)], [T(5)]]
 
 
+@memory_leak_decorator()
+def test_split_attributes1():
+    it = split([], iteration_utilities.return_False)
+    assert it.key is iteration_utilities.return_False
+    assert it.maxsplit == -1
+    assert not it.keep
+    assert not it.keep_before
+    assert not it.keep_after
+    assert not it.eq
+
+
 @memory_leak_decorator(collect=True)
 def test_split_failure1():
     # not iterable

@@ -43,6 +43,17 @@ def test_tabulate_normal2():
     assert list(getitem(tabulate(T), stop=5)) == [T(0), T(1), T(2), T(3), T(4)]
 
 
+@memory_leak_decorator()
+def test_tabulate_attributes1():
+    it = tabulate(T)
+    assert it.func is T
+    assert it.current == 0
+
+    next(it)
+
+    assert it.current == 1
+
+
 @memory_leak_decorator(collect=True)
 def test_tabulate_failure1():
 

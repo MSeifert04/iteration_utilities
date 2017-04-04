@@ -223,7 +223,7 @@ static PyMemberDef accumulate_memberlist[] = {
      },
 
     {"current",                                         /* name */
-     T_OBJECT,                                          /* type */
+     T_OBJECT_EX,                                       /* type */
      OFF(total),                                        /* offset */
      READONLY,                                          /* flags */
      accumulate_prop_current_doc                        /* doc */

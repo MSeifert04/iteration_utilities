@@ -243,7 +243,7 @@ static PyMemberDef uniquejust_memberlist[] = {
      },
 
     {"lastseen",                                        /* name */
-     T_OBJECT,                                          /* type */
+     T_OBJECT_EX,                                       /* type */
      OFF(lastitem),                                     /* offset */
      READONLY,                                          /* flags */
      uniquejust_prop_lastseen_doc                       /* doc */
