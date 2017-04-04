@@ -1003,8 +1003,8 @@ class _Base(object):
 
 
 class Iterable(_Base):
-    """A convenience class that allows chaining the `iteration_utilities`
-    functions.
+    """A convenience class that allows chaining the
+    :py:mod:`iteration_utilities` functions.
 
     Parameters
     ----------
@@ -1194,16 +1194,17 @@ class Iterable(_Base):
     -----
 
     .. warning::
-       If the `iterable` is infinite you should **not** create the `Iterable`
-       instance directly (i.e. ``Iterable(count())``. You could use the
-       ``Iterable.from_count()`` or create an :py:class:`.InfiniteIterable`:
-       ``InfiniteIterable(count())``.
+       If the `iterable` is infinite you should **not** create the
+       :py:class:`.Iterable` instance directly (i.e. ``Iterable(count())``.
+       You could use the ``Iterable.from_count()`` or create an
+       :py:class:`.InfiniteIterable`: ``InfiniteIterable(count())``.
 
     Examples
     --------
     You can create an instance from any object that implements the iteration
-    protocol. For example the Python types `list`, `tuple`, `set`,
-    `frozenset`, `str`, `dict`, `dict.values()`, `dict.items()`, `range` just
+    protocol. For example the Python types :py:class:`list`, :py:class:`tuple`,
+    :py:class:`set`, :py:class:`frozenset`, :py:class:`str`, :py:class:`dict`,
+    :py:meth:`dict.values`, :py:meth:`dict.items()`, :py:class:`range` just
     to name a few::
 
         >>> from iteration_utilities import Iterable
@@ -1213,15 +1214,17 @@ class Iterable(_Base):
         >>> Iterable('abcdefghijklmnopqrstuvwxyz')
         <Iterable: 'abcdefghijklmnopqrstuvwxyz'>
 
-    The primary use of `Iterable` is because it allows easy chaining of
-    several functional programming functions implemented in Python (`map`,
-    `filter`, ...), `itertools` and `iteration_utilities`::
+    The primary use of :py:class:`.Iterable` is because it allows easy chaining
+    of several functional programming functions implemented in Python
+    (:py:func:`map`, :py:func:`filter`, ...), :py:mod:`itertools` and
+    :py:mod:`iteration_utilities`::
 
         >>> Iterable([1,2,3,4]).islice(1,3).map(float).as_list()
         [2.0, 3.0]
 
-    The methods `islice` and `map` are only evaluated when `as_list` is called.
-    The class can also be used in `for` loops::
+    The methods :py:meth:`.islice` and :py:meth:`.map` are only evaluated when
+    :py:meth:`.as_list` is called.
+    The class can also be used in ``for`` loops::
 
         >>> from iteration_utilities import is_even
         >>> for item in Iterable(range(100, 120)).filter(is_even).accumulate():
@@ -1276,7 +1279,8 @@ class Iterable(_Base):
         OrderedDict([(4, 0), (5, 1), (6, 2), (7, 3), (8, 4), (9, 5)])
 
     .. warning::
-       These methods are (obviously) not avaiable for `InfiniteIterable`!
+       These latter methods are (obviously) not avaiable for
+       :py:class:`.InfiniteIterable`!
     """
     __slots__ = ('_iterable',)
 
@@ -1285,22 +1289,22 @@ class Iterable(_Base):
             return length_hint(self._iterable)
 
     def as_(self, cls):
-        """Convert `Iterable` to other class.
+        """Convert :py:class:`.Iterable` to other class.
 
         Parameters
         ----------
         cls : :py:class:`type`
-            Convert the content of `Iterable` to this class.
+            Convert the content of :py:class:`.Iterable` to this class.
 
         Returns
         -------
         iterable : cls
-            The `Iterable` as `cls`.
+            The :py:class:`.Iterable` as `cls`.
 
         Notes
         -----
-        Be careful if you use this method because the `Iterable` may be
-        infinite.
+        Be careful if you use this method because the :py:class:`.Iterable` may
+        be infinite.
         """
         return cls(self._iterable)
 
@@ -1390,7 +1394,7 @@ class Iterable(_Base):
         return self.as_(Counter)
 
     def as_string(self, seperator=''):
-        """Get the iterable as string.
+        """Get the :py:class:`.Iterable` as string.
 
         .. warning::
            This method **does not** use :py:meth:`.as_` and differs from
@@ -2004,6 +2008,9 @@ strict=False)
         def get_stdev(self, xbar=_default):
             """See :py:func:`statistics.stdev`.
 
+            .. note::
+               Python >= 3.4 is required for this function.
+
             Examples
             --------
             >>> from iteration_utilities import Iterable
@@ -2014,6 +2021,9 @@ strict=False)
 
         def get_variance(self, mu=_default):
             """See :py:func:`statistics.variance`.
+
+            .. note::
+               Python >= 3.4 is required for this function.
 
             Examples
             --------
@@ -2029,17 +2039,19 @@ class InfiniteIterable(_Base):
     infinitly long.
 
     .. warning::
-       The ``Iterable.as_*`` methods are not avaiable for `InfiniteIterable`
-       because it would be impossible to create these types. Use
-       :py:meth:`.Iterable.islice` or :py:meth:`.Iterable.takewhile` to convert
-       an infinite iterable to a finite iterable. It is still possible to
-       iterate over the iterable with ``for item in ...`` or using the Python
-       constructors like ``list`` directly. This may fail fatally!
+       The ``Iterable.as_*`` methods are not avaiable for
+       :py:class:`.InfiniteIterable` because it would be impossible to create
+       these types. Use :py:meth:`.InfiniteIterable.islice` or
+       :py:meth:`.InfiniteIterable.takewhile` to convert an infinite iterable
+       to a finite iterable. It is still possible to iterate over the iterable
+       with ``for item in ...`` or using the Python constructors like
+       :py:class:`list` directly. This may fail fatally!
 
-    Mostly it is not necessary to use `InfiniteIterable` directly because the
-    corresponding methods on `Iterable` return an `InfiniteIterable` when
-    appropriate. However using ``isinstance(some_iterable, InfiniteIterable)``
-    could be used to determine if the :py:class:`.Iterable` is infinite!
+    Mostly it is not necessary to use :py:class:`.InfiniteIterable` directly
+    because the corresponding methods on `Iterable` return an
+    :py:class:`.InfiniteIterable` when appropriate. However using
+    ``isinstance(some_iterable, InfiniteIterable)`` could be used to determine
+    if the :py:class:`.Iterable` is infinite!
 
     Methods
     -------
@@ -2137,11 +2149,11 @@ class ManyIterables(object):
     __slots__ = ('_iterables',)
 
     def __init__(self, *iterables):
-        """`ManyIterables` stores several `Iterables` and implements methods to
-        convert these to one `Iterable`.
+        """:py:class:`.ManyIterables` stores several `iterables` and implements
+        methods to convert these to one :py:class:`.Iterable`.
 
         .. warning::
-           `ManyIterables` itself does not implement iteration!
+           :py:class:`.ManyIterables` itself cannot be iterated!
 
         Parameters
         ----------
@@ -2173,8 +2185,8 @@ class ManyIterables(object):
         Examples
         --------
         Depending on the function and the types of the `iterables` the returned
-        class may be different. For example :py:meth:`map` returns an infinite
-        iterable if **all** `iterables` are infinite::
+        class may be different. For example :py:meth:`map` returns an
+        :py:class:`.InfiniteIterable` if **all** `iterables` are infinite::
 
             >>> from iteration_utilities import ManyIterables
             >>> ManyIterables(Iterable.from_count(10), range(10)).map(pow)  \
@@ -2186,8 +2198,8 @@ class ManyIterables(object):
 # doctest: +ELLIPSIS
             <InfiniteIterable: <{0} object at ...>>
 
-        While other methods also return an infinite iterable if **any** of the
-        `iterables` is infinite::
+        While other methods also return an :py:class:`.InfiniteIterable` if
+        **any** of the `iterables` is infinite::
 
             >>> ManyIterables(range(10), Iterable.from_count(10)).merge()  \
 # doctest: +ELLIPSIS
@@ -2222,8 +2234,8 @@ class ManyIterables(object):
         """See :py:func:`itertools.chain`.
 
         .. note::
-           If any of the `Iterables` is infinite then this will also return
-           an `InfiniteIterable`.
+           If any of the `iterables` is infinite then this will also
+           return an :py:class:`.InfiniteIterable`.
 
         Examples
         --------
@@ -2237,8 +2249,8 @@ class ManyIterables(object):
         """See :py:func:`python:map`.
 
         .. note::
-           If **all** of the `Iterables` is infinite then this will also return
-           an `InfiniteIterable`.
+           If **all** of the `iterables` is infinite then this will also return
+           an :py:class:`.InfiniteIterable`.
 
         Examples
         --------
@@ -2252,8 +2264,8 @@ class ManyIterables(object):
         """See :py:func:`~iteration_utilities.merge`.
 
         .. note::
-           If any of the `Iterables` is infinite then this will also return
-           an `InfiniteIterable`.
+           If any of the `iterables` is infinite then this will also return
+           an :py:class:`.InfiniteIterable`.
 
         Examples
         --------
@@ -2275,8 +2287,8 @@ class ManyIterables(object):
         """See :py:func:`itertools.product`.
 
         .. note::
-           If any of the `Iterables` is infinite then this will also return
-           an `InfiniteIterable`.
+           If any of the `iterables` is infinite then this will also return
+           an :py:class:`.InfiniteIterable`.
 
         Examples
         --------
@@ -2296,8 +2308,8 @@ class ManyIterables(object):
         """See :py:func:`~iteration_utilities.roundrobin`.
 
         .. note::
-           If any of the `Iterables` is infinite then this will also return
-           an `InfiniteIterable`.
+           If any of the `iterables` is infinite then this will also return
+           an :py:class:`.InfiniteIterable`.
 
         Examples
         --------
@@ -2311,8 +2323,8 @@ class ManyIterables(object):
         """See :py:func:`python:zip`.
 
         .. note::
-           If **all** of the `Iterables` is infinite then this will also return
-           an `InfiniteIterable`.
+           If **all** of the `iterables` is infinite then this will also return
+           an :py:class:`.InfiniteIterable`.
 
         Examples
         --------
@@ -2326,8 +2338,8 @@ class ManyIterables(object):
         """See :py:func:`itertools.zip_longest`.
 
         .. note::
-           If any of the `Iterables` is infinite then this will also return
-           an `InfiniteIterable`.
+           If any of the `iterables` is infinite then this will also return
+           an :py:class:`.InfiniteIterable`.
 
         Examples
         --------

@@ -6,13 +6,13 @@ Welcome to iteration_utilities's documentation!
 
 :py:mod:`iteration_utilities` is a general purpose collection around the
 concept of functional programming based on and utilizing iterators and
-generators. Most of the functions presented here are **inspired** by the
-:py:mod:`itertools` module, especially the "recipes" section, but also by the
-``toolz`` [0]_ package. It should be noted that there are lots more packages
-with similar functions, for example ``more-itertools`` [1]_, ``pydash`` [2]_
-and many, many more.
+generators. Most of the functions presented here are inspired by the
+:py:mod:`itertools` module, especially the "recipes" section [0]_, but also by
+the ``toolz`` [1]_ package. It should be noted that there are lots more
+packages with similar functions, for example ``more-itertools`` [2]_,
+``pydash`` [3]_ and many, many more.
 
-Large fractions of the code are implemented in C to achieve very good
+Large fractions of the code are implemented in C to achieve very good overall
 performance. However this library cannot compete (intentionally) with
 specialized libraries like ``NumPy``, ``pandas`` or ``SciPy``.
 
@@ -77,14 +77,20 @@ Contents:
    tipps
    copy_iterators
    misc
+
+
+.. toctree::
+   :maxdepth: 1
+
    api
    license
    CHANGES
    AUTHORS
 
-.. [0] https://toolz.readthedocs.io
-.. [1] https://more-itertools.readthedocs.io/en/latest/
-.. [2] https://pydash.readthedocs.io/en/latest/
+.. [0] https://docs.python.org/library/itertools.html#itertools-recipes
+.. [1] https://toolz.readthedocs.io
+.. [2] https://more-itertools.readthedocs.io/en/latest/
+.. [3] https://pydash.readthedocs.io/en/latest/
 
 Indices and tables
 ==================

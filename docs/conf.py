@@ -298,7 +298,7 @@ texinfo_documents = [(master_doc,                   # startdocname
 # sphinx.ext.autodoc
 # #############################################################################
 
-autoclass_content = "class"
+autoclass_content = "both"
 # autodoc_member_order
 autodoc_default_flags = ['members', 'inherited-members']
 autodoc_docstring_signature = True

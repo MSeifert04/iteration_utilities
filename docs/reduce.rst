@@ -45,8 +45,8 @@ used to recreate all the builtin functions. For example:
    These :py:func:`functools.reduce` functions are much slower than the
    builtins!
 
-There are several other fold functions in the standard library and in third-
-party packages, most notably:
+There are several other fold functions in the standard library and in third-party
+packages, most notably:
 
 - :py:func:`math.fsum`
 - ``statistics`` [1]_
@@ -151,12 +151,12 @@ and also two short-circuit operators:
 - :py:func:`~iteration_utilities.one`, get the one and only item of an iterable.
 
 - :py:func:`~iteration_utilities.nth`, stops after the nth item.
-- :py:func:`~iteration_utilities.first`, like ``nth`` this function stops after
-  the first item.
-- :py:func:`~iteration_utilities.second`, like ``nth`` this function stops after
-  the second item.
-- :py:func:`~iteration_utilities.third`, like ``nth`` this function stops after
-  the third item.
+- :py:func:`~iteration_utilities.first`, like :py:func:`~iteration_utilities.nth`
+  this function stops after the first item.
+- :py:func:`~iteration_utilities.second`, like :py:func:`~iteration_utilities.nth`
+  this function stops after the second item.
+- :py:func:`~iteration_utilities.third`, like :py:func:`~iteration_utilities.nth`
+  this function stops after the third item.
 
 
 Included in the :py:mod:`iteration_utilities` package are several helper functions

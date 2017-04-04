@@ -17,8 +17,8 @@ Functools for one function
 - :py:func:`functools.partial`, partially set the arguments of a function.
 - :py:func:`~iteration_utilities.partial`, partially set the arguments of a
   function; also accepting placeholders.
-- :py:class:`functools.partialmethod`, same as ``functools.partial`` but works
-  on methods.
+- :py:class:`functools.partialmethod`, same as :py:func:`functools.partial` but
+  works on methods.
 
 
 Functools for several functions
