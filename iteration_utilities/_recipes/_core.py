@@ -44,7 +44,7 @@ def tail(iterable, n):
     iterable : iterable
         The `iterable` from which to take the last items.
 
-    n : int
+    n : :py:class:`int`
         How many elements.
 
     Returns
@@ -71,7 +71,7 @@ def consume(iterator, n):
     iterator : iterator
         Any `iterator` from which to consume the items.
 
-    n : int, None
+    n : :py:class:`int` or None
         Number of items to consume from the `iterator`. If ``None`` consume it
         entirely.
 
@@ -105,7 +105,7 @@ def ncycles(iterable, n):
     iterable : iterable
         Any `iterable` to repeat.
 
-    n : int
+    n : :py:class:`int`
         Number of repeatitions.
 
     Returns
@@ -155,7 +155,7 @@ def repeatfunc(func, *args, **times):
     args :
         optional arguments for the `func`.
 
-    times : int, None, optional
+    times : :py:class:`int`, None, optional
         The number of `times` the function is called. If ``None`` there will be
         no limit.
         Default is ``None``.
@@ -253,7 +253,7 @@ def random_product(*iterables, **repeat):
         Any amount of `iterables` from to pass to
         :py:func:`itertools.product`.
 
-    repeat : int, optional
+    repeat : :py:class:`int`, optional
         The number of random samples.
         Default is ``1``.
 
@@ -297,7 +297,7 @@ def random_permutation(iterable, r=None):
     iterable : iterable
         The `iterable` to permutate with :py:func:`itertools.permutations`.
 
-    r : int, None, optional
+    r : :py:class:`int` or None, optional
         The number of elements to permutate. If ``None`` use all elements from
         the iterable.
         Default is ``None``.
@@ -337,12 +337,12 @@ def random_combination(iterable, r, replacement=False):
     iterable : iterable
         The `iterable` to combine with :py:func:`itertools.combinations`.
 
-    r : int
+    r : :py:class:`int`
         The number of elements to combine.
 
-    replacement : bool
+    replacement : :py:class:`bool`, optional
         If ``True`` then replace already included values (uses
-        :py:func:``itertools.combinations_with_replacement`).
+        :py:func:`itertools.combinations_with_replacement`).
         Default is ``False``.
 
     Returns
@@ -365,8 +365,6 @@ def random_combination(iterable, r, replacement=False):
     {0}
 
     >>> random.seed(None)
-
-    >>> random.seed(None)
     """
     pool = tuple(iterable)
     n = len(pool)
@@ -378,21 +376,22 @@ def random_combination(iterable, r, replacement=False):
 
 
 def tee_lookahead(tee, i):
-    """Inspect the `i`-th upcomping value from a tee object while leaving the
-    tee object at its current position.
+    """Inspect the `i`-th upcomping value from a :py:func:`~itertools.tee`
+    object while leaving the :py:func:`~itertools.tee` object at its current
+    position.
 
     Parameters
     ----------
     tee : :py:func:`itertools.tee`
         The tee object in which to look ahead.
 
-    i : int
+    i : :py:class:`int`
         The index counting from the current position which should be peeked.
 
     Returns
     -------
     peek : any type
-        The element at the `i`-th upcoming index in the tee object.
+        The element at the `i`-th upcoming index in the `tee` object.
 
     Raises
     ------

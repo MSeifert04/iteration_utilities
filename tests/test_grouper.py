@@ -143,6 +143,23 @@ def test_grouper_truncate6():
                                             (T(4), T(5), T(6))]
 
 
+@memory_leak_decorator()
+def test_grouper_attributes1():
+    it = grouper(toT(range(10)), 2)
+    assert it.times == 2
+    assert not it.truncate
+    with pytest.raises(AttributeError):
+        it.fillvalue
+
+
+@memory_leak_decorator()
+def test_grouper_attributes2():
+    it = grouper(toT(range(10)), 2, fillvalue=None)
+    assert it.times == 2
+    assert not it.truncate
+    assert it.fillvalue is None
+
+
 @memory_leak_decorator(collect=True)
 def test_grouper_failure1():
     # fillvalue + truncate is forbidden

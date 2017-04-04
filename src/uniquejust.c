@@ -212,92 +212,87 @@ uniquejust_setstate(PyIUObject_UniqueJust *self,
 }
 
 /******************************************************************************
- * Methods
- *****************************************************************************/
-
-static PyMethodDef uniquejust_methods[] = {
-    {"__reduce__",   (PyCFunction)uniquejust_reduce,   METH_NOARGS, PYIU_reduce_doc},
-    {"__setstate__", (PyCFunction)uniquejust_setstate, METH_O,      PYIU_setstate_doc},
-    {NULL, NULL}
-};
-
-/******************************************************************************
- * Docstring
- *****************************************************************************/
-
-PyDoc_STRVAR(uniquejust_doc, "unique_justseen(iterable, key=None)\n\
---\n\
-\n\
-List unique elements, preserving order. Remember only the element just seen.\n\
-\n\
-Parameters\n\
-----------\n\
-iterable : iterable\n\
-    `Iterable` to check.\n\
-\n\
-key : callable or None, optional\n\
-    If ``None`` the values are taken as they are. If it's a callable the\n\
-    callable is applied to the value before comparing it.\n\
-    Default is ``None``.\n\
-\n\
-Returns\n\
--------\n\
-iterable : generator\n\
-    An iterable containing all unique values just seen in the `iterable`.\n\
-\n\
-Examples\n\
---------\n\
->>> from iteration_utilities import unique_justseen\n\
->>> list(unique_justseen('AAAABBBCCDAABBB'))\n\
-['A', 'B', 'C', 'D', 'A', 'B']\n\
-\n\
->>> list(unique_justseen('ABBCcAD', str.lower))\n\
-['A', 'B', 'C', 'A', 'D']");
-
-/******************************************************************************
  * Type
  *****************************************************************************/
 
+static PyMethodDef uniquejust_methods[] = {
+
+    {"__reduce__",                                      /* ml_name */
+     (PyCFunction) uniquejust_reduce,                   /* ml_meth */
+     METH_NOARGS,                                       /* ml_flags */
+     PYIU_reduce_doc                                    /* ml_doc */
+     },
+
+    {"__setstate__",                                    /* ml_name */
+     (PyCFunction)uniquejust_setstate,                  /* ml_meth */
+     METH_O,                                            /* ml_flags */
+     PYIU_setstate_doc                                  /* ml_doc */
+     },
+
+    {NULL, NULL}                                        /* sentinel */
+};
+
+#define OFF(x) offsetof(PyIUObject_UniqueJust, x)
+static PyMemberDef uniquejust_memberlist[] = {
+
+    {"key",                                             /* name */
+     T_OBJECT,                                          /* type */
+     OFF(keyfunc),                                      /* offset */
+     READONLY,                                          /* flags */
+     uniquejust_prop_key_doc                            /* doc */
+     },
+
+    {"lastseen",                                        /* name */
+     T_OBJECT_EX,                                       /* type */
+     OFF(lastitem),                                     /* offset */
+     READONLY,                                          /* flags */
+     uniquejust_prop_lastseen_doc                       /* doc */
+     },
+
+    {NULL}                                              /* sentinel */
+};
+#undef OFF
+
 PyTypeObject PyIUType_UniqueJust = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.unique_justseen",              /* tp_name */
-    sizeof(PyIUObject_UniqueJust),                      /* tp_basicsize */
-    0,                                                  /* tp_itemsize */
+    (const char *)"iteration_utilities.unique_justseen",/* tp_name */
+    (Py_ssize_t)sizeof(PyIUObject_UniqueJust),          /* tp_basicsize */
+    (Py_ssize_t)0,                                      /* tp_itemsize */
     /* methods */
     (destructor)uniquejust_dealloc,                     /* tp_dealloc */
-    0,                                                  /* tp_print */
-    0,                                                  /* tp_getattr */
-    0,                                                  /* tp_setattr */
+    (printfunc)0,                                       /* tp_print */
+    (getattrfunc)0,                                     /* tp_getattr */
+    (setattrfunc)0,                                     /* tp_setattr */
     0,                                                  /* tp_reserved */
-    0,                                                  /* tp_repr */
-    0,                                                  /* tp_as_number */
-    0,                                                  /* tp_as_sequence */
-    0,                                                  /* tp_as_mapping */
-    0,                                                  /* tp_hash */
-    0,                                                  /* tp_call */
-    0,                                                  /* tp_str */
-    PyObject_GenericGetAttr,                            /* tp_getattro */
-    0,                                                  /* tp_setattro */
-    0,                                                  /* tp_as_buffer */
+    (reprfunc)0,                                        /* tp_repr */
+    (PyNumberMethods *)0,                               /* tp_as_number */
+    (PySequenceMethods *)0,                             /* tp_as_sequence */
+    (PyMappingMethods *)0,                              /* tp_as_mapping */
+    (hashfunc)0,                                        /* tp_hash */
+    (ternaryfunc)0,                                     /* tp_call */
+    (reprfunc)0,                                        /* tp_str */
+    (getattrofunc)PyObject_GenericGetAttr,              /* tp_getattro */
+    (setattrofunc)0,                                    /* tp_setattro */
+    (PyBufferProcs *)0,                                 /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
-    uniquejust_doc,                                     /* tp_doc */
+    (const char *)uniquejust_doc,                       /* tp_doc */
     (traverseproc)uniquejust_traverse,                  /* tp_traverse */
-    0,                                                  /* tp_clear */
-    0,                                                  /* tp_richcompare */
-    0,                                                  /* tp_weaklistoffset */
-    PyObject_SelfIter,                                  /* tp_iter */
+    (inquiry)0,                                         /* tp_clear */
+    (richcmpfunc)0,                                     /* tp_richcompare */
+    (Py_ssize_t)0,                                      /* tp_weaklistoffset */
+    (getiterfunc)PyObject_SelfIter,                     /* tp_iter */
     (iternextfunc)uniquejust_next,                      /* tp_iternext */
     uniquejust_methods,                                 /* tp_methods */
-    0,                                                  /* tp_members */
+    uniquejust_memberlist,                              /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */
-    0,                                                  /* tp_descr_get */
-    0,                                                  /* tp_descr_set */
-    0,                                                  /* tp_dictoffset */
-    0,                                                  /* tp_init */
-    0,                                                  /* tp_alloc */
-    uniquejust_new,                                     /* tp_new */
-    PyObject_GC_Del,                                    /* tp_free */
+    (descrgetfunc)0,                                    /* tp_descr_get */
+    (descrsetfunc)0,                                    /* tp_descr_set */
+    (Py_ssize_t)0,                                      /* tp_dictoffset */
+    (initproc)0,                                        /* tp_init */
+    (allocfunc)0,                                       /* tp_alloc */
+    (newfunc)uniquejust_new,                            /* tp_new */
+    (freefunc)PyObject_GC_Del,                          /* tp_free */
 };

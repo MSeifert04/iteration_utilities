@@ -1,8 +1,8 @@
 Installation
 ------------
 
-The `iteration_utilities` package is a pure python package supporting the
-Python versions:
+The :py:mod:`iteration_utilities` package is a C extension python package
+supporting the Python versions:
 
 - Python 2.7
 - Python 3.3+
@@ -32,25 +32,27 @@ It can by installed with ``conda`` [2]_ from the ``conda-forge`` channel:
 Manual installation
 ^^^^^^^^^^^^^^^^^^^
 
-or download the development version from ``git`` [1]_ and install it:
+To manually install the package you need to download the development version
+from ``git`` [1]_ and install it::
 
-- ``git clone https://github.com/MSeifert04/iteration_utilities.git``
-- ``cd iteration_utilities``
-- ``python setup.py install``
+    git clone https://github.com/MSeifert04/iteration_utilities.git
+    cd iteration_utilities
+    python setup.py install
 
-with the clone from ``git`` one can also run:
+with the clone from ``git`` one can also run::
 
-- ``python setup.py test`` (run the test suite)
-- ``python setup.py build_sphinx`` (local documentation build)
+    python setup.py test          # run the test suite
+    python setup.py build_sphinx  # local documentation build
+
 
 Dependencies
 ^^^^^^^^^^^^
 
 Installation:
 
-- Python2 2.7 or Python3 3.3+
+- python2 2.7 or python3 3.3+
 - setuptools
-- C Compiler
+- C compiler
 
 
 Tests:

@@ -37,14 +37,14 @@ def argsorted(iterable, key=None, reverse=False):
         ``key(items)``.
         Default is ``None``.
 
-    reverse : bool, optional
+    reverse : :py:class:`bool`, optional
         If ``False`` sort the `iterable` in increasing order otherwise in
         decreasing order.
         Default is ``False``.
 
     Returns
     -------
-    sortindices : list
+    sortindices : :py:class:`list`
         The indices that would sort the `iterable`.
 
     Notes
@@ -83,7 +83,7 @@ def combinations_from_relations(dictionary, r):
 
     Parameters
     ----------
-    dictionary : dict with iterable values or convertible to one.
+    dictionary : :py:class:`dict` with iterable values or convertible to one.
         A dictionary defining the equivalence classes, each key should contain
         all equivalent items as it's value.
 
@@ -91,14 +91,14 @@ def combinations_from_relations(dictionary, r):
             Each ``value`` in the `dictionary` must be iterable.
 
         .. note::
-            If the dictionary isn't ordered then the order in the
+            If the `dictionary` isn't ordered then the order in the
             combinations and their order of appearance is not-deterministic.
 
         .. note::
-            If the `dictionary` isn't dict-like it will be converted to an
-            OrderedDict.
+            If the `dictionary` isn't :py:class:`dict`-like it will be
+            converted to an :py:class:`collections.OrderedDict`.
 
-    r : int or None, optional
+    r : :py:class:`int` or None, optional
         The number of combinations, if ``None`` it defaults to the length of
         the `dictionary`.
 
@@ -161,7 +161,7 @@ def itersubclasses(cls, seen=None):
 
     Parameters
     ----------
-    cls : class
+    cls : :py:class:`type`
         The class for which to iterate over the subclasses.
 
     seen : set, None, optional
@@ -199,7 +199,7 @@ def itersubclasses(cls, seen=None):
         >>> [i.__name__ for i in itersubclasses(A, seen={C})]
         ['B']
 
-    And it also works for objects subclassing ``type``::
+    And it also works for objects subclassing :py:class:`type`::
 
         >>> class Z(type): pass
         >>> class Y(Z): pass
@@ -252,7 +252,7 @@ def pad(iterable, fillvalue=None, nlead=0, ntail=0):
         The padding value.
         Default is ``None``.
 
-    nlead, ntail : int or None, optional
+    nlead, ntail : :py:class:`int` or None, optional
         The number of times to pad in front (`nlead`) and after (`ntail`) the
         `iterable`. If `ntail` is ``None`` pad indefinitly (not possible for
         `nlead`).
@@ -300,7 +300,7 @@ def replicate(iterable, times):
     iterable : iterable
         The iterable which contains the elements to be replicated.
 
-    times : positive integer
+    times : positive :py:class:`int`
         The number of `times` each element is replicated.
 
     Returns
@@ -340,7 +340,7 @@ def getitem(iterable, idx=None, start=None, stop=None, step=None):
     iterable : iterable
         The iterable from which to extract the items.
 
-    idx : positive integer, -1, tuple/list thereof, None, optional
+    idx : positive :py:class:`int`, -1, tuple/list thereof, or None, optional
         If not ``None``, get the item at `idx`. If it's a tuple or list get
         all the items specified in the tuple (they will be sorted so the
         specified indices are retrieved).
@@ -350,7 +350,7 @@ def getitem(iterable, idx=None, start=None, stop=None, step=None):
            This parameter must not be ``None`` if also `start`, `stop` and
            `step` are ``None``.
 
-    start : integer or None, optional
+    start : :py:class:`int` or None, optional
         If ``None`` then take all items before `stop`, otherwise take only
         the items starting by `start`.
         Default is ``None``.
@@ -358,7 +358,7 @@ def getitem(iterable, idx=None, start=None, stop=None, step=None):
         .. note::
            This parameter is ignored if `idx` is not ``None``.
 
-    stop : integer or None, optional
+    stop : :py:class:`int` or None, optional
         If ``None`` then take all items starting by `start`, otherwise only
         take the items before `stop`.
         Default is ``None``.
@@ -366,7 +366,7 @@ def getitem(iterable, idx=None, start=None, stop=None, step=None):
         .. note::
            This parameter is ignored if `idx` is not ``None``.
 
-    step : positive integer or None, optional
+    step : positive :py:class:`int` or None, optional
         If ``None`` then take all items seperated by `step`, otherwise take
         successive items.
         Default is ``None``.
@@ -383,7 +383,7 @@ def getitem(iterable, idx=None, start=None, stop=None, step=None):
     Examples
     --------
     The main bulk of examples is in
-    :py:meth:`~iteration_utilities.core.Iterable.getitem` because that's where
+    :py:meth:`~iteration_utilities.Iterable.getitem` because that's where
     this function was originally implemented.
     """
     if idx is None and start is None and stop is None and step is None:
@@ -471,12 +471,12 @@ def insert(iterable, element, idx, unpack=False):
     element : any type
         The `element` to insert to the `iterable`.
 
-    idx : positive integer or str
+    idx : positive :py:class:`int` or :py:class:`str`
         The index at which to insert the `element`. If it's a string it must be
         ``'start'`` if the `element` should be prepended to `iterable` or
         ``'end'`` if it should be appended.
 
-    unpack : bool, optional
+    unpack : :py:class:`bool`, optional
         If ``False`` the `element` is inserted as it is. If ``True`` then the
         `element` must be an iterable and it is unpacked into the `iterable`.
         Default is ``False``.
@@ -543,7 +543,7 @@ def replace(iterable, element, idx=None, start=None, stop=None, unpack=False):
     element : any type
         The element to insert after removing.
 
-    idx : positive integer, list/tuple thereof, None, optional
+    idx : positive :py:class:`int`, list/tuple thereof, None, optional
         If not ``None``, remove the item at `idx` and insert `element` there.
         If it's a tuple or list the `element` is inserted at each of the
         indices in the `idx` (the values are sorted before, so the element is
@@ -554,7 +554,7 @@ def replace(iterable, element, idx=None, start=None, stop=None, unpack=False):
            This parameter must not be ``None`` if also `start` and `stop` are
            ``None``.
 
-    start : positive integer or None, optional
+    start : positive :py:class:`int` or None, optional
         If ``None`` then remove all items before `stop`, otherwise remove only
         the items starting by `start`.
         Default is ``None``.
@@ -562,7 +562,7 @@ def replace(iterable, element, idx=None, start=None, stop=None, unpack=False):
         .. note::
            This parameter is ignored if `idx` is not ``None``.
 
-    stop : positive integer or None, optional
+    stop : positive :py:class:`int` or None, optional
         If ``None`` then remove all items starting by `start`, otherwise only
         remove the items before `stop`.
         Default is ``None``.
@@ -570,7 +570,7 @@ def replace(iterable, element, idx=None, start=None, stop=None, unpack=False):
         .. note::
            This parameter is ignored if `idx` is not ``None``.
 
-    unpack : bool, optional
+    unpack : :py:class:`bool`, optional
         If ``False`` the `element` is inserted as it is. If ``True`` then the
         `element` must be an iterable and it is unpacked into the `iterable`.
         Default is ``False``.
@@ -652,7 +652,7 @@ def remove(iterable, idx=None, start=None, stop=None):
     iterable : iterable
         The iterable in which to remove the item(s).
 
-    idx : positive integer, list/tuple thereof, None, optional
+    idx : positive :py:class:`int`, list/tuple thereof, None, optional
         If not ``None``, remove the item at `idx`. If it's a tuple or list then
         replace all the present indices (they will be sorted so only the
         specified indices are removed).
@@ -662,7 +662,7 @@ def remove(iterable, idx=None, start=None, stop=None):
            This parameter must not be ``None`` if also `start` and `stop` are
            ``None``.
 
-    start : positive integer or None, optional
+    start : positive :py:class:`int` or None, optional
         If ``None`` then remove all items before `stop`, otherwise remove only
         the items starting by `start`.
         Default is ``None``.
@@ -670,7 +670,7 @@ def remove(iterable, idx=None, start=None, stop=None):
         .. note::
            This parameter is ignored if `idx` is not ``None``.
 
-    stop : positive integer or None, optional
+    stop : positive :py:class:`int` or None, optional
         If ``None`` then remove all items starting by `start`, otherwise only
         remove the items before `stop`.
         Default is ``None``.

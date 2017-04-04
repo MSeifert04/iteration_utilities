@@ -28,6 +28,12 @@ def test_packed_repr1():
 
 
 @memory_leak_decorator()
+def test_packed_attributes1():
+    x = packed(int)
+    assert x.func is int
+
+
+@memory_leak_decorator()
 def test_packed_normal1():
     eq = packed(operator.eq)
     assert eq((T(1), T(1)))

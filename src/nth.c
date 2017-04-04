@@ -281,171 +281,74 @@ nth_reduce(PyIUObject_Nth *self,
 }
 
 /******************************************************************************
- * Methods
- *****************************************************************************/
-
-static PyMethodDef nth_methods[] = {
-    {"__reduce__", (PyCFunction)nth_reduce, METH_NOARGS, PYIU_reduce_doc},
-    {NULL, NULL}
-};
-
-/******************************************************************************
- * Docstring
- *****************************************************************************/
-
-PyDoc_STRVAR(nth_doc, "nth(x)\n\
---\n\
-\n\
-Class that returns the `n`-th found value.\n\
-\n\
-Parameters\n\
-----------\n\
-n : int\n\
-    The index of the wanted item. If negative the last item is searched.\n\
-    \n\
-    .. note::\n\
-       This is the only parameter for ``__init__``. The following parameters\n\
-       have to be specified when calling the instance.\n\
-\n\
-iterable : iterable\n\
-    The `iterable` for which to determine the nth value.\n\
-\n\
-default : any type, optional\n\
-    If no nth value is found and `default` is given the `default` is \n\
-    returned.\n\
-\n\
-pred : callable, optional\n\
-    If given return the nth item for which ``pred(item)`` is ``True``.\n\
-    \n\
-    .. note::\n\
-       ``pred=None`` is equivalent to ``pred=bool``.\n\
-\n\
-truthy : bool, optional\n\
-    If ``False`` search for the nth item for which ``pred(item)`` is ``False``.\n\
-    Default is ``True``.\n\
-\n\
-    .. note::\n\
-       Parameter is ignored if `pred` is not given.\n\
-\n\
-retpred : bool, optional\n\
-    If given return ``pred(item)`` instead of ``item``.\n\
-    Default is ``False``.\n\
-\n\
-    .. note::\n\
-       Parameter is ignored if `pred` is not given.\n\
-\n\
-retidx : bool, optional\n\
-    If given return the index of the `n`-th element instead of the value.\n\
-    Default is ``False``.\n\
-\n\
-Methods\n\
--------\n\
-__call__(iterable[, default, pred, truthy, retpred, retidx]))\n\
-    Find the `n`-th element.\n\
-\n\
-Returns\n\
--------\n\
-nth : any type\n\
-    The last value or the nth value for which `pred` is ``True``.\n\
-    If there is no such value then `default` is returned.\n\
-\n\
-Raises\n\
--------\n\
-TypeError :\n\
-    If there is no nth element and no `default` is given.\n\
-\n\
-Examples\n\
---------\n\
-Some basic examples including the use of ``pred``::\n\
-\n\
-    >>> from iteration_utilities import nth\n\
-    >>> # First item\n\
-    >>> nth(0)([0, 1, 2])\n\
-    0\n\
-    >>> # Second item\n\
-    >>> nth(1)([0, 1, 2])\n\
-    1\n\
-    >>> # Last item\n\
-    >>> nth(-1)([0, 1, 2])\n\
-    2\n\
-    \n\
-    >>> nth(1)([0, 10, '', tuple(), 20], pred=bool)\n\
-    20\n\
-    \n\
-    >>> # second odd number\n\
-    >>> nth(1)([0, 2, 3, 5, 8, 9, 10], pred=lambda x: x%2)\n\
-    5\n\
-    \n\
-    >>> # default value if empty or no true value\n\
-    >>> nth(0)([], default=100)\n\
-    100\n\
-    >>> nth(-1)([0, 10, 0, 0], pred=bool, default=100)\n\
-    10\n\
-\n\
-Given a `pred` it is also possible to look for the nth ``False`` value and \n\
-return the result of ``pred(item)``::\n\
-\n\
-    >>> nth(1)([1,2,0], pred=bool)\n\
-    2\n\
-    >>> nth(-1)([1,0,2,0], pred=bool, truthy=False)\n\
-    0\n\
-    >>> import operator\n\
-    >>> nth(-1)([[0,3], [0,1], [0,2]], pred=operator.itemgetter(1))\n\
-    [0, 2]\n\
-    >>> nth(-1)([[0,3], [0,1], [0,2]], pred=operator.itemgetter(1), retpred=True)\n\
-    2\n\
-\n\
-There are already three predefined instances:\n\
-\n\
-- ``first`` : equivalent to ``nth(0)``.\n\
-- ``second`` : equivalent to ``nth(1)``.\n\
-- ``third`` : equivalent to ``nth(2)``.\n\
-- ``last`` : equivalent to ``nth(-1)``.");
-
-/******************************************************************************
  * Type
  *****************************************************************************/
 
+static PyMethodDef nth_methods[] = {
+
+    {"__reduce__",                                      /* ml_name */
+     (PyCFunction)nth_reduce,                           /* ml_meth */
+     METH_NOARGS,                                       /* ml_flags */
+     PYIU_reduce_doc                                    /* ml_doc */
+     },
+
+    {NULL, NULL}                                        /* sentinel */
+};
+
+#define OFF(x) offsetof(PyIUObject_Nth, x)
+static PyMemberDef nth_memberlist[] = {
+
+    {"n",                                               /* name */
+     T_PYSSIZET,                                        /* type */
+     OFF(index),                                        /* offset */
+     READONLY,                                          /* flags */
+     nth_prop_n_doc                                     /* doc */
+     },
+
+    {NULL}                                              /* sentinel */
+};
+#undef OFF
+
 PyTypeObject PyIUType_Nth = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.nth",                          /* tp_name */
-    sizeof(PyIUObject_Nth),                             /* tp_basicsize */
-    0,                                                  /* tp_itemsize */
+    (const char *)"iteration_utilities.nth",            /* tp_name */
+    (Py_ssize_t)sizeof(PyIUObject_Nth),                 /* tp_basicsize */
+    (Py_ssize_t)0,                                      /* tp_itemsize */
     /* methods */
     (destructor)nth_dealloc,                            /* tp_dealloc */
-    0,                                                  /* tp_print */
-    0,                                                  /* tp_getattr */
-    0,                                                  /* tp_setattr */
+    (printfunc)0,                                       /* tp_print */
+    (getattrfunc)0,                                     /* tp_getattr */
+    (setattrfunc)0,                                     /* tp_setattr */
     0,                                                  /* tp_reserved */
     (reprfunc)nth_repr,                                 /* tp_repr */
-    0,                                                  /* tp_as_number */
-    0,                                                  /* tp_as_sequence */
-    0,                                                  /* tp_as_mapping */
-    0,                                                  /* tp_hash */
+    (PyNumberMethods *)0,                               /* tp_as_number */
+    (PySequenceMethods *)0,                             /* tp_as_sequence */
+    (PyMappingMethods *)0,                              /* tp_as_mapping */
+    (hashfunc)0,                                        /* tp_hash */
     (ternaryfunc)nth_call,                              /* tp_call */
-    0,                                                  /* tp_str */
-    PyObject_GenericGetAttr,                            /* tp_getattro */
-    0,                                                  /* tp_setattro */
-    0,                                                  /* tp_as_buffer */
+    (reprfunc)0,                                        /* tp_str */
+    (getattrofunc)PyObject_GenericGetAttr,              /* tp_getattro */
+    (setattrofunc)0,                                    /* tp_setattro */
+    (PyBufferProcs *)0,                                 /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
-    nth_doc,                                            /* tp_doc */
+    (const char *)nth_doc,                              /* tp_doc */
     (traverseproc)nth_traverse,                         /* tp_traverse */
-    0,                                                  /* tp_clear */
-    0,                                                  /* tp_richcompare */
-    0,                                                  /* tp_weaklistoffset */
-    0,                                                  /* tp_iter */
-    0,                                                  /* tp_iternext */
+    (inquiry)0,                                         /* tp_clear */
+    (richcmpfunc)0,                                     /* tp_richcompare */
+    (Py_ssize_t)0,                                      /* tp_weaklistoffset */
+    (getiterfunc)0,                                     /* tp_iter */
+    (iternextfunc)0,                                    /* tp_iternext */
     nth_methods,                                        /* tp_methods */
-    0,                                                  /* tp_members */
+    nth_memberlist,                                     /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */
-    0,                                                  /* tp_descr_get */
-    0,                                                  /* tp_descr_set */
-    0,                                                  /* tp_dictoffset */
-    0,                                                  /* tp_init */
-    0,                                                  /* tp_alloc */
-    nth_new,                                            /* tp_new */
-    PyObject_GC_Del,                                    /* tp_free */
+    (descrgetfunc)0,                                    /* tp_descr_get */
+    (descrsetfunc)0,                                    /* tp_descr_set */
+    (Py_ssize_t)0,                                      /* tp_dictoffset */
+    (initproc)0,                                        /* tp_init */
+    (allocfunc)0,                                       /* tp_alloc */
+    (newfunc)nth_new,                                   /* tp_new */
+    (freefunc)PyObject_GC_Del,                          /* tp_free */
 };

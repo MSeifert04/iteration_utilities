@@ -118,121 +118,88 @@ iterexcept_reduce(PyIUObject_Iterexcept *self)
 }
 
 /******************************************************************************
- * Methods
- *****************************************************************************/
-
-static PyMethodDef iterexcept_methods[] = {
-    {"__reduce__", (PyCFunction)iterexcept_reduce, METH_NOARGS, PYIU_reduce_doc},
-    {NULL, NULL}
-};
-
-/******************************************************************************
- * Docstring
- *****************************************************************************/
-
-PyDoc_STRVAR(iterexcept_doc, "iter_except(func, exception, first=None)\n\
---\n\
-\n\
-Call a function repeatedly until an `exception` is raised.\n\
-\n\
-Converts a call-until-exception interface to an iterator interface.\n\
-Like ``iter(func, sentinel)`` but uses an `exception` instead of a sentinel\n\
-to end the loop.\n\
-\n\
-Parameters\n\
-----------\n\
-func : callable\n\
-    The function that is called until `exception` is raised.\n\
-\n\
-exception : Exception\n\
-    The `exception` which terminates the iteration.\n\
-\n\
-first : callable or None, optional\n\
-    If not given (or not ``None``) this function is called once before the \n\
-    `func` is executed.\n\
-\n\
-Returns\n\
--------\n\
-result : generator\n\
-    The result of the `func` calls as generator.\n\
-\n\
-Examples\n\
---------\n\
->>> from iteration_utilities import iter_except\n\
->>> from collections import OrderedDict\n\
-\n\
->>> d = OrderedDict([('a', 1), ('b', 2)])\n\
->>> list(iter_except(d.popitem, KeyError))\n\
-[('b', 2), ('a', 1)]\n\
-\n\
-.. note::\n\
-    ``d.items()`` would yield the same result. At least with Python3.\n\
-\n\
->>> from math import sqrt\n\
->>> import sys\n\
-\n\
->>> g = (sqrt(i) for i in [5, 4, 3, 2, 1, 0, -1, -2, -3])\n\
->>> func = g.next if sys.version_info.major == 2 else g.__next__\n\
->>> def say_go():\n\
-...     return 'go'\n\
->>> list(iter_except(func, ValueError, say_go))\n\
-['go', 2.23606797749979, 2.0, 1.7320508075688772, 1.4142135623730951, 1.0, 0.0]\n\
-\n\
-Notes\n\
------\n\
-Further examples:\n\
-\n\
-- ``bsd_db_iter = iter_except(db.next, bsddb.error, db.first)``\n\
-- ``heap_iter = iter_except(functools.partial(heappop, h), IndexError)``\n\
-- ``dict_iter = iter_except(d.popitem, KeyError)``\n\
-- ``deque_iter = iter_except(d.popleft, IndexError)``\n\
-- ``queue_iter = iter_except(q.get_nowait, Queue.Empty)``\n\
-- ``set_iter = iter_except(s.pop, KeyError)``");
-
-/******************************************************************************
  * Type
  *****************************************************************************/
 
+static PyMethodDef iterexcept_methods[] = {
+
+    {"__reduce__",                                     /* ml_name */
+     (PyCFunction)iterexcept_reduce,                   /* ml_meth */
+     METH_NOARGS,                                      /* ml_flags */
+     PYIU_reduce_doc                                   /* ml_doc */
+     },
+
+    {NULL, NULL}                                       /* sentinel */
+};
+
+#define OFF(x) offsetof(PyIUObject_Iterexcept, x)
+static PyMemberDef iterexcept_memberlist[] = {
+
+    {"func",                                            /* name */
+     T_OBJECT,                                          /* type */
+     OFF(func),                                         /* offset */
+     READONLY,                                          /* flags */
+     iterexcept_prop_func_doc                           /* doc */
+     },
+
+    {"exception",                                       /* name */
+     T_OBJECT,                                          /* type */
+     OFF(except),                                       /* offset */
+     READONLY,                                          /* flags */
+    iterexcept_prop_exception_doc                       /* doc */
+     },
+
+    {"first",                                           /* name */
+     T_OBJECT_EX,                                       /* type */
+     OFF(first),                                        /* offset */
+     READONLY,                                          /* flags */
+     iterexcept_prop_first_doc                          /* doc */
+     },
+
+    {NULL}                                              /* sentinel */
+};
+#undef OFF
+
 PyTypeObject PyIUType_Iterexcept = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.iter_except",                  /* tp_name */
-    sizeof(PyIUObject_Iterexcept),                      /* tp_basicsize */
-    0,                                                  /* tp_itemsize */
+    (const char *)"iteration_utilities.iter_except",    /* tp_name */
+    (Py_ssize_t)sizeof(PyIUObject_Iterexcept),          /* tp_basicsize */
+    (Py_ssize_t)0,                                      /* tp_itemsize */
     /* methods */
     (destructor)iterexcept_dealloc,                     /* tp_dealloc */
-    0,                                                  /* tp_print */
-    0,                                                  /* tp_getattr */
-    0,                                                  /* tp_setattr */
+    (printfunc)0,                                       /* tp_print */
+    (getattrfunc)0,                                     /* tp_getattr */
+    (setattrfunc)0,                                     /* tp_setattr */
     0,                                                  /* tp_reserved */
-    0,                                                  /* tp_repr */
-    0,                                                  /* tp_as_number */
-    0,                                                  /* tp_as_sequence */
-    0,                                                  /* tp_as_mapping */
-    0,                                                  /* tp_hash */
-    0,                                                  /* tp_call */
-    0,                                                  /* tp_str */
-    PyObject_GenericGetAttr,                            /* tp_getattro */
-    0,                                                  /* tp_setattro */
-    0,                                                  /* tp_as_buffer */
+    (reprfunc)0,                                        /* tp_repr */
+    (PyNumberMethods *)0,                               /* tp_as_number */
+    (PySequenceMethods *)0,                             /* tp_as_sequence */
+    (PyMappingMethods *)0,                              /* tp_as_mapping */
+    (hashfunc)0,                                        /* tp_hash */
+    (ternaryfunc)0,                                     /* tp_call */
+    (reprfunc)0,                                        /* tp_str */
+    (getattrofunc)PyObject_GenericGetAttr,              /* tp_getattro */
+    (setattrofunc)0,                                    /* tp_setattro */
+    (PyBufferProcs *)0,                                 /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
-    iterexcept_doc,                                     /* tp_doc */
+    (const char *)iterexcept_doc,                       /* tp_doc */
     (traverseproc)iterexcept_traverse,                  /* tp_traverse */
-    0,                                                  /* tp_clear */
-    0,                                                  /* tp_richcompare */
-    0,                                                  /* tp_weaklistoffset */
-    PyObject_SelfIter,                                  /* tp_iter */
+    (inquiry)0,                                         /* tp_clear */
+    (richcmpfunc)0,                                     /* tp_richcompare */
+    (Py_ssize_t)0,                                      /* tp_weaklistoffset */
+    (getiterfunc)PyObject_SelfIter,                     /* tp_iter */
     (iternextfunc)iterexcept_next,                      /* tp_iternext */
     iterexcept_methods,                                 /* tp_methods */
-    0,                                                  /* tp_members */
+    iterexcept_memberlist,                              /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */
-    0,                                                  /* tp_descr_get */
-    0,                                                  /* tp_descr_set */
-    0,                                                  /* tp_dictoffset */
-    0,                                                  /* tp_init */
-    PyType_GenericAlloc,                                /* tp_alloc */
-    iterexcept_new,                                     /* tp_new */
-    PyObject_GC_Del,                                    /* tp_free */
+    (descrgetfunc)0,                                    /* tp_descr_get */
+    (descrsetfunc)0,                                    /* tp_descr_set */
+    (Py_ssize_t)0,                                      /* tp_dictoffset */
+    (initproc)0,                                        /* tp_init */
+    (allocfunc)PyType_GenericAlloc,                     /* tp_alloc */
+    (newfunc)iterexcept_new,                            /* tp_new */
+    (freefunc)PyObject_GC_Del,                          /* tp_free */
 };

@@ -51,6 +51,12 @@ def test_starfilter_normal4():
     assert list(starfilter(operator.eq, inp)) == []
 
 
+@memory_leak_decorator()
+def test_starfilter_attributes1():
+    it = starfilter(operator.eq, [])
+    assert it.pred is operator.eq
+
+
 @memory_leak_decorator(collect=True)
 def test_starfilter_failure1():
     # input not iterable

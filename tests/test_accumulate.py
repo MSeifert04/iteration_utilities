@@ -143,6 +143,26 @@ def test_accumulate_pickle4():
     assert list(pickle.loads(x)) == [T(5), T(7), T(10), T(14)]
 
 
+@memory_leak_decorator()
+def test_accumulate_attributes1():
+    it = accumulate(toT([1, 2, 3]))
+    assert it.func is None
+    with pytest.raises(AttributeError):
+        it.current
+
+    for item in it:
+        assert item == it.current
+        assert it.func is None
+
+
+@memory_leak_decorator()
+def test_accumulate_attributes2():
+    it = accumulate(toT([1, 2, 3]), operator.add)
+    for item in it:
+        assert item == it.current
+        assert it.func is operator.add
+
+
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,
                    reason='length does not work before Python 3.4')
 @memory_leak_decorator()

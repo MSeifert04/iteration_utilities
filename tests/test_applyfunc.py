@@ -11,7 +11,7 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_cls import T, toT, failingTIterator
+from helper_cls import T  # , toT, failingTIterator
 from helper_funcs import iterator_copy
 from helper_leak import memory_leak_decorator
 
@@ -36,6 +36,13 @@ def test_applyfunc_normal2():
 def test_applyfunc_failure1():
     with pytest.raises(TypeError):
         list(getitem(applyfunc(lambda x: x**T(2), T('a')), stop=3))
+
+
+@memory_leak_decorator()
+def test_applyfunc_attributes1():
+    it = applyfunc(iteration_utilities.square, 2)
+    assert it.func is iteration_utilities.square
+    assert it.current == 2
 
 
 @memory_leak_decorator(collect=True)

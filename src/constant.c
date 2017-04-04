@@ -110,107 +110,74 @@ constant_reduce(PyIUObject_Constant *self,
 }
 
 /******************************************************************************
- * Methods
- *****************************************************************************/
-
-static PyMethodDef constant_methods[] = {
-    {"__reduce__", (PyCFunction)constant_reduce, METH_NOARGS, PYIU_reduce_doc},
-    {NULL, NULL}
-};
-
-/******************************************************************************
- * Docstring
- *****************************************************************************/
-
-PyDoc_STRVAR(constant_doc, "constant(x)\n\
---\n\
-\n\
-Class that always returns `x` when called.\n\
-\n\
-Parameters\n\
-----------\n\
-x : any type\n\
-    The item that should be returned when called. Positional only parameter.\n\
-\n\
-Methods\n\
--------\n\
-__call__(\\*args, \\*\\*kwargs)\n\
-    Returns `x`.\n\
-\n\
-Examples\n\
---------\n\
-Creating `const` instances::\n\
-\n\
-    >>> from iteration_utilities import constant\n\
-    >>> five = constant(5)\n\
-    >>> five()\n\
-    5\n\
-    >>> ten = constant(10)\n\
-    >>> # Any parameters are ignored\n\
-    >>> ten(5, give_me=100)\n\
-    10\n\
-\n\
-There are already three predefined instances:\n\
-\n\
-- ``return_True`` : always returns `True`.\n\
-- ``return_False`` : always returns `False`.\n\
-- ``return_None`` : always returns `None`.\n\
-\n\
-For example::\n\
-\n\
-    >>> from iteration_utilities import return_True, return_False, return_None\n\
-    >>> return_True()\n\
-    True\n\
-    >>> return_False()\n\
-    False\n\
-    >>> return_None()\n\
-    >>> return_None() is None\n\
-    True");
-
-/******************************************************************************
  * Type
  *****************************************************************************/
 
+static PyMethodDef constant_methods[] = {
+
+    {"__reduce__",                                      /* ml_name */
+     (PyCFunction)constant_reduce,                      /* ml_meth */
+     METH_NOARGS,                                       /* ml_flags */
+     PYIU_reduce_doc                                    /* ml_doc */
+     },
+
+    {NULL, NULL}                                        /* sentinel */
+};
+
+#define OFF(x) offsetof(PyIUObject_Constant, x)
+static PyMemberDef constant_memberlist[] = {
+
+    {"item",                                            /* name */
+     T_OBJECT,                                          /* type */
+     OFF(item),                                         /* offset */
+     READONLY,                                          /* flags */
+     constant_prop_item_doc                             /* doc */
+     },
+
+    {NULL}                                              /* sentinel */
+};
+#undef OFF
+
 PyTypeObject PyIUType_Constant = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.constant",                     /* tp_name */
-    sizeof(PyIUObject_Constant),                        /* tp_basicsize */
-    0,                                                  /* tp_itemsize */
+    (const char *)"iteration_utilities.constant",       /* tp_name */
+    (Py_ssize_t)sizeof(PyIUObject_Constant),            /* tp_basicsize */
+    (Py_ssize_t)0,                                      /* tp_itemsize */
     /* methods */
     (destructor)constant_dealloc,                       /* tp_dealloc */
-    0,                                                  /* tp_print */
-    0,                                                  /* tp_getattr */
-    0,                                                  /* tp_setattr */
+    (printfunc)0,                                       /* tp_print */
+    (getattrfunc)0,                                     /* tp_getattr */
+    (setattrfunc)0,                                     /* tp_setattr */
     0,                                                  /* tp_reserved */
     (reprfunc)constant_repr,                            /* tp_repr */
-    0,                                                  /* tp_as_number */
-    0,                                                  /* tp_as_sequence */
-    0,                                                  /* tp_as_mapping */
-    0,                                                  /* tp_hash */
+    (PyNumberMethods *)0,                               /* tp_as_number */
+    (PySequenceMethods *)0,                             /* tp_as_sequence */
+    (PyMappingMethods *)0,                              /* tp_as_mapping */
+    (hashfunc)0,                                        /* tp_hash */
     (ternaryfunc)constant_call,                         /* tp_call */
-    0,                                                  /* tp_str */
-    PyObject_GenericGetAttr,                            /* tp_getattro */
-    0,                                                  /* tp_setattro */
-    0,                                                  /* tp_as_buffer */
+    (reprfunc)0,                                        /* tp_str */
+    (getattrofunc)PyObject_GenericGetAttr,              /* tp_getattro */
+    (setattrofunc)0,                                    /* tp_setattro */
+    (PyBufferProcs *)0,                                 /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
-    constant_doc,                                       /* tp_doc */
+    (const char *)constant_doc,                         /* tp_doc */
     (traverseproc)constant_traverse,                    /* tp_traverse */
-    0,                                                  /* tp_clear */
-    0,                                                  /* tp_richcompare */
-    0,                                                  /* tp_weaklistoffset */
-    0,                                                  /* tp_iter */
-    0,                                                  /* tp_iternext */
+    (inquiry)0,                                         /* tp_clear */
+    (richcmpfunc)0,                                     /* tp_richcompare */
+    (Py_ssize_t)0,                                      /* tp_weaklistoffset */
+    (getiterfunc)0,                                     /* tp_iter */
+    (iternextfunc)0,                                    /* tp_iternext */
     constant_methods,                                   /* tp_methods */
-    0,                                                  /* tp_members */
+    constant_memberlist,                                /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */
-    0,                                                  /* tp_descr_get */
-    0,                                                  /* tp_descr_set */
-    0,                                                  /* tp_dictoffset */
-    0,                                                  /* tp_init */
-    0,                                                  /* tp_alloc */
-    constant_new,                                       /* tp_new */
-    PyObject_GC_Del,                                    /* tp_free */
+    (descrgetfunc)0,                                    /* tp_descr_get */
+    (descrsetfunc)0,                                    /* tp_descr_set */
+    (Py_ssize_t)0,                                      /* tp_dictoffset */
+    (initproc)0,                                        /* tp_init */
+    (allocfunc)0,                                       /* tp_alloc */
+    (newfunc)constant_new,                              /* tp_new */
+    (freefunc)PyObject_GC_Del,                          /* tp_free */
 };

@@ -147,6 +147,13 @@ def test_chained_all1():
     assert double_increment(T(2)) == (T(4), T(3))
 
 
+@memory_leak_decorator()
+def test_chained_attributes1():
+    chd = chained(bool, int)
+    assert chd.funcs == (bool, int)
+    assert not chd.all
+
+
 @memory_leak_decorator(collect=True)
 def test_chained_failure1():
     with pytest.raises(TypeError):  # at least one func must be present

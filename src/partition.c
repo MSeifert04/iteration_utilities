@@ -7,7 +7,7 @@ PyIU_Partition(PyObject *m,
                PyObject *args,
                PyObject *kwargs)
 {
-    static char *kwlist[] = {"iterable", "func", NULL};
+    static char *kwlist[] = {"iterable", "pred", NULL};
     PyObject *iterable = NULL;
     PyObject *func = NULL;
     PyObject *iterator = NULL;
@@ -125,45 +125,3 @@ Fail:
     Py_XDECREF(iterator);
     return NULL;
 }
-
-/******************************************************************************
- * Docstring
- *****************************************************************************/
-
-PyDoc_STRVAR(PyIU_Partition_doc, "partition(iterable, func=None)\n\
---\n\
-\n\
-Use a predicate to partition entries into ``False`` entries and ``True``\n\
-entries.\n\
-\n\
-Parameters\n\
-----------\n\
-iterable : iterable\n\
-    `Iterable` to partition.\n\
-\n\
-func : callable or None, optional\n\
-    The predicate which determines the partition.\n\
-    Default is ``None``.\n\
-\n\
-Returns\n\
--------\n\
-false_values : list\n\
-    An list containing the values for which the predicate was False.\n\
-\n\
-true_values : list\n\
-    An list containing the values for which the predicate was True.\n\
-\n\
-See also\n\
---------\n\
-._core.ipartition : Generator variant of partition.\n\
-\n\
-Examples\n\
---------\n\
->>> from iteration_utilities import partition\n\
->>> def is_odd(val): return val % 2\n\
->>> partition(range(10), is_odd)\n\
-([0, 2, 4, 6, 8], [1, 3, 5, 7, 9])\n\
-\n\
-.. warning::\n\
-    In case the `pred` is expensive then ``partition`` can be noticable\n\
-    faster than ``ipartition``.");

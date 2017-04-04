@@ -57,6 +57,18 @@ def test_unique_justseen_normal4():
                                 None)) == toT([1, 2, 3])
 
 
+@memory_leak_decorator()
+def test_unique_justseen_attributes1():
+    it = unique_justseen(toT([1, 1, 2, 2, 3, 3]), None)
+    assert it.key is None
+    with pytest.raises(AttributeError):
+        it.lastseen
+
+    next(it)
+
+    assert it.lastseen == T(1)
+
+
 @memory_leak_decorator(collect=True)
 def test_unique_justseen_failure1():
     # not iterable

@@ -334,116 +334,87 @@ chained_setstate(PyIUObject_Chained *self,
 }
 
 /******************************************************************************
- * Methods
- *****************************************************************************/
-
-static PyMethodDef chained_methods[] = {
-    {"__reduce__", (PyCFunction)chained_reduce, METH_NOARGS, PYIU_reduce_doc},
-    {"__setstate__", (PyCFunction)chained_setstate, METH_O, PYIU_setstate_doc},
-    {NULL, NULL}
-};
-
-/******************************************************************************
- * Docstring
- *****************************************************************************/
-
-PyDoc_STRVAR(chained_doc, "chained(*funcs, /, reverse=False, all=False)\n\
---\n\
-\n\
-Chained function calls.\n\
-\n\
-Parameters\n\
-----------\n\
-funcs\n\
-    Any number of callables.\n\
-\n\
-reverse : bool, optional\n\
-    If ``True`` apply the the `funcs` in reversed order.\n\
-    Default is ``False``.\n\
-\n\
-all : bool, optional\n\
-    If ``True`` apply each of the `funcs` seperatly and return a tuple\n\
-    containing the individual results when calling the instance.\n\
-\n\
-Returns\n\
--------\n\
-chained_func : callable\n\
-    The chained `funcs`.\n\
-\n\
-Methods\n\
--------\n\
-__call__(\\*args, \\*\\*kwargs)\n\
-   Returns ``func1(...(funcn(*args, **kwargs)))``.\n\
-   Or ``funcn(...(func1(*args, **kwargs)))`` (if `reverse` is True).\n\
-   Or ``func1(*args, **kwargs), ..., funcn(*args, **kwargs)`` if `all` is True.\n\
-\n\
-Examples\n\
---------\n\
-`chained` simple calls all `funcs` on the result of the previous one::\n\
-\n\
-    >>> from iteration_utilities import chained\n\
-    >>> double = lambda x: x*2\n\
-    >>> increment = lambda x: x+1\n\
-    >>> double_then_increment = chained(double, increment)\n\
-    >>> double_then_increment(10)\n\
-    21\n\
-\n\
-Or apply them in reversed order::\n\
-\n\
-    >>> increment_then_double = chained(double, increment, reverse=True)\n\
-    >>> increment_then_double(10)\n\
-    22\n\
-\n\
-Or apply all of them on the input::\n\
-\n\
-    >>> double_and_increment = chained(double, increment, all=True)\n\
-    >>> double_and_increment(10)\n\
-    (20, 11)");
-
-/******************************************************************************
  * Type
  *****************************************************************************/
 
+static PyMethodDef chained_methods[] = {
+
+    {"__reduce__",                                      /* ml_name */
+     (PyCFunction)chained_reduce,                       /* ml_meth */
+     METH_NOARGS,                                       /* ml_flags */
+     PYIU_reduce_doc                                    /* ml_doc */
+     },
+
+    {"__setstate__",                                    /* ml_name */
+     (PyCFunction)chained_setstate,                     /* ml_meth */
+     METH_O,                                            /* ml_flags */
+     PYIU_setstate_doc                                  /* ml_doc */
+     },
+
+    {NULL, NULL}                                        /* sentinel */
+};
+
+#define OFF(x) offsetof(PyIUObject_Chained, x)
+static PyMemberDef chained_memberlist[] = {
+
+    {"funcs",                                           /* name */
+     T_OBJECT,                                          /* type */
+     OFF(funcs),                                        /* offset */
+     READONLY,                                          /* flags */
+     chained_prop_funcs_doc                             /* doc */
+     },
+
+    {"all",                                             /* name */
+     T_BOOL,                                            /* type */
+     OFF(all),                                          /* offset */
+     READONLY,                                          /* flags */
+     chained_prop_all_doc                               /* doc */
+     },
+
+    {NULL}                                              /* sentinel */
+};
+#undef OFF
+
 PyTypeObject PyIUType_Chained = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.chained",                      /* tp_name */
-    sizeof(PyIUObject_Chained),                         /* tp_basicsize */
-    0,                                                  /* tp_itemsize */
+    (const char *)"iteration_utilities.chained",        /* tp_name */
+    (Py_ssize_t)sizeof(PyIUObject_Chained),             /* tp_basicsize */
+    (Py_ssize_t)0,                                      /* tp_itemsize */
     /* methods */
     (destructor)chained_dealloc,                        /* tp_dealloc */
-    0,                                                  /* tp_print */
-    0,                                                  /* tp_getattr */
-    0,                                                  /* tp_setattr */
+    (printfunc)0,                                       /* tp_print */
+    (getattrfunc)0,                                     /* tp_getattr */
+    (setattrfunc)0,                                     /* tp_setattr */
     0,                                                  /* tp_reserved */
     (reprfunc)chained_repr,                             /* tp_repr */
-    0,                                                  /* tp_as_number */
-    0,                                                  /* tp_as_sequence */
-    0,                                                  /* tp_as_mapping */
-    0,                                                  /* tp_hash */
+    (PyNumberMethods *)0,                               /* tp_as_number */
+    (PySequenceMethods *)0,                             /* tp_as_sequence */
+    (PyMappingMethods *)0,                              /* tp_as_mapping */
+    (hashfunc)0,                                        /* tp_hash */
     (ternaryfunc)chained_call,                          /* tp_call */
-    0,                                                  /* tp_str */
-    PyObject_GenericGetAttr,                            /* tp_getattro */
-    0,                                                  /* tp_setattro */
-    0,                                                  /* tp_as_buffer */
+    (reprfunc)0,                                        /* tp_str */
+    (getattrofunc)PyObject_GenericGetAttr,              /* tp_getattro */
+    (setattrofunc)0,                                    /* tp_setattro */
+    (PyBufferProcs *)0,                                 /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
-    chained_doc,                                        /* tp_doc */
+    (const char *)chained_doc,                          /* tp_doc */
     (traverseproc)chained_traverse,                     /* tp_traverse */
-    0,                                                  /* tp_clear */
-    0,                                                  /* tp_richcompare */
-    0,                                                  /* tp_weaklistoffset */
-    0,                                                  /* tp_iter */
-    0,                                                  /* tp_iternext */
+    (inquiry)0,                                         /* tp_clear */
+    (richcmpfunc)0,                                     /* tp_richcompare */
+    (Py_ssize_t)0,                                      /* tp_weaklistoffset */
+    (getiterfunc)0,                                     /* tp_iter */
+    (iternextfunc)0,                                    /* tp_iternext */
     chained_methods,                                    /* tp_methods */
-    0,                                                  /* tp_members */
+    chained_memberlist,                                 /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */
-    0,                                                  /* tp_descr_get */
-    0,                                                  /* tp_descr_set */
-    0,                                                  /* tp_dictoffset */
-    0,                                                  /* tp_init */
-    0,                                                  /* tp_alloc */
-    chained_new,                                        /* tp_new */
-    PyObject_GC_Del,                                    /* tp_free */
+    (descrgetfunc)0,                                    /* tp_descr_get */
+    (descrsetfunc)0,                                    /* tp_descr_set */
+    (Py_ssize_t)0,                                      /* tp_dictoffset */
+    (initproc)0,                                        /* tp_init */
+    (allocfunc)0,                                       /* tp_alloc */
+    (newfunc)chained_new,                               /* tp_new */
+    (freefunc)PyObject_GC_Del,                          /* tp_free */
 };

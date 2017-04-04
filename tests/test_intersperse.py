@@ -35,6 +35,12 @@ def test_intersperse_normal1():
     assert list(intersperse([T(1), T(2)], T(0))) == toT([1, 0, 2])
 
 
+@memory_leak_decorator()
+def test_intersperse_attributes1():
+    it = intersperse([T(1), T(2)], T(0))
+    assert it.fillvalue == T(0)
+
+
 @memory_leak_decorator(collect=True)
 def test_intersperse_failure1():
     with pytest.raises(TypeError):

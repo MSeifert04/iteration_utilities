@@ -1,5 +1,11 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
+"""
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Not working !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Shouldn't be used. :-)
+"""
+
 def _get_methods(cls, indentation_level):
     """To get all methods for a class. Useful only if the methods-list in
     either Iterable needs updates :-)

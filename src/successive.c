@@ -261,103 +261,88 @@ successive_lengthhint(PyIUObject_Successive *self)
 #endif
 
 /******************************************************************************
- * Methods
- *****************************************************************************/
-
-static PyMethodDef successive_methods[] = {
-#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
-    {"__length_hint__", (PyCFunction)successive_lengthhint, METH_NOARGS, PYIU_lenhint_doc},
-#endif
-    {"__reduce__",   (PyCFunction)successive_reduce,   METH_NOARGS, PYIU_reduce_doc},
-    {"__setstate__", (PyCFunction)successive_setstate, METH_O,      PYIU_setstate_doc},
-    {NULL, NULL}
-};
-
-/******************************************************************************
- * Docstring
- *****************************************************************************/
-
-PyDoc_STRVAR(successive_doc, "successive(iterable, times=2)\n\
---\n\
-\n\
-Like the recipe for pairwise but allows to get an arbitary number\n\
-of successive elements.\n\
-\n\
-Parameters\n\
-----------\n\
-iterable : iterable\n\
-    Get the successive elements from this `iterable`.\n\
-\n\
-times : integer, optional\n\
-    The number of successive elements.\n\
-    Default is ``2``.\n\
-\n\
-Returns\n\
--------\n\
-successive_elements : generator\n\
-    The successive elements as generator. Each element of the generator\n\
-    is a tuple containing `times` successive elements.\n\
-\n\
-Examples\n\
---------\n\
-Each item of the `iterable` is returned as ``tuple`` with `times` successive\n\
-items::\n\
-\n\
-    >>> from iteration_utilities import successive\n\
-    >>> list(successive(range(5)))\n\
-    [(0, 1), (1, 2), (2, 3), (3, 4)]\n\
-\n\
-Varying the `times` can give you also 3 successive elements::\n\
-\n\
-    >>> list(successive(range(5), times=3))\n\
-    [(0, 1, 2), (1, 2, 3), (2, 3, 4)]\n\
-    >>> list(successive('Hello!', times=2))\n\
-    [('H', 'e'), ('e', 'l'), ('l', 'l'), ('l', 'o'), ('o', '!')]");
-
-/******************************************************************************
  * Type
  *****************************************************************************/
 
+static PyMethodDef successive_methods[] = {
+
+#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
+    {"__length_hint__",                                 /* ml_name */
+     (PyCFunction)successive_lengthhint,                /* ml_meth */
+     METH_NOARGS,                                       /* ml_flags */
+     PYIU_lenhint_doc                                   /* ml_doc */
+     },
+#endif
+
+    {"__reduce__",                                      /* ml_name */
+     (PyCFunction)successive_reduce,                    /* ml_meth */
+     METH_NOARGS,                                       /* ml_flags */
+     PYIU_reduce_doc                                    /* ml_doc */
+     },
+
+    {"__setstate__",                                    /* ml_name */
+     (PyCFunction)successive_setstate,                  /* ml_meth */
+     METH_O,                                            /* ml_flags */
+     PYIU_setstate_doc                                  /* ml_doc */
+     },
+
+    {NULL, NULL}                                        /* sentinel */
+};
+
+#define OFF(x) offsetof(PyIUObject_Successive, x)
+static PyMemberDef successive_memberlist[] = {
+
+    {"times",                                           /* name */
+     T_PYSSIZET,                                        /* type */
+     OFF(times),                                        /* offset */
+     READONLY,                                          /* flags */
+     successive_prop_times_doc                          /* doc */
+     },
+
+    {NULL}                                              /* sentinel */
+};
+#undef OFF
+
 PyTypeObject PyIUType_Successive = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "iteration_utilities.successive",                   /* tp_name */
-    sizeof(PyIUObject_Successive),                      /* tp_basicsize */
-    0,                                                  /* tp_itemsize */
+    (const char *)"iteration_utilities.successive",     /* tp_name */
+    (Py_ssize_t)sizeof(PyIUObject_Successive),          /* tp_basicsize */
+    (Py_ssize_t)0,                                      /* tp_itemsize */
     /* methods */
     (destructor)successive_dealloc,                     /* tp_dealloc */
-    0,                                                  /* tp_print */
-    0,                                                  /* tp_getattr */
-    0,                                                  /* tp_setattr */
+    (printfunc)0,                                       /* tp_print */
+    (getattrfunc)0,                                     /* tp_getattr */
+    (setattrfunc)0,                                     /* tp_setattr */
     0,                                                  /* tp_reserved */
-    0,                                                  /* tp_repr */
-    0,                                                  /* tp_as_number */
-    0,                                                  /* tp_as_sequence */
-    0,                                                  /* tp_as_mapping */
-    0,                                                  /* tp_hash */
-    0,                                                  /* tp_call */
-    0,                                                  /* tp_str */
-    PyObject_GenericGetAttr,                            /* tp_getattro */
-    0,                                                  /* tp_setattro */
-    0,                                                  /* tp_as_buffer */
+    (reprfunc)0,                                        /* tp_repr */
+    (PyNumberMethods *)0,                               /* tp_as_number */
+    (PySequenceMethods *)0,                             /* tp_as_sequence */
+    (PyMappingMethods *)0,                              /* tp_as_mapping */
+    (hashfunc)0,                                        /* tp_hash */
+    (ternaryfunc)0,                                     /* tp_call */
+    (reprfunc)0,                                        /* tp_str */
+    (getattrofunc)PyObject_GenericGetAttr,              /* tp_getattro */
+    (setattrofunc)0,                                    /* tp_setattro */
+    (PyBufferProcs *)0,                                 /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
-    successive_doc,                                     /* tp_doc */
+    (const char *)successive_doc,                       /* tp_doc */
     (traverseproc)successive_traverse,                  /* tp_traverse */
-    0,                                                  /* tp_clear */
-    0,                                                  /* tp_richcompare */
-    0,                                                  /* tp_weaklistoffset */
-    PyObject_SelfIter,                                  /* tp_iter */
+    (inquiry)0,                                         /* tp_clear */
+    (richcmpfunc)0,                                     /* tp_richcompare */
+    (Py_ssize_t)0,                                      /* tp_weaklistoffset */
+    (getiterfunc)PyObject_SelfIter,                     /* tp_iter */
     (iternextfunc)successive_next,                      /* tp_iternext */
     successive_methods,                                 /* tp_methods */
-    0,                                                  /* tp_members */
+    successive_memberlist,                              /* tp_members */
     0,                                                  /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */
-    0,                                                  /* tp_descr_get */
-    0,                                                  /* tp_descr_set */
-    0,                                                  /* tp_dictoffset */
-    0,                                                  /* tp_init */
-    PyType_GenericAlloc,                                /* tp_alloc */
-    successive_new,                                     /* tp_new */
-    PyObject_GC_Del,                                    /* tp_free */
+    (descrgetfunc)0,                                    /* tp_descr_get */
+    (descrsetfunc)0,                                    /* tp_descr_set */
+    (Py_ssize_t)0,                                      /* tp_dictoffset */
+    (initproc)0,                                        /* tp_init */
+    (allocfunc)PyType_GenericAlloc,                     /* tp_alloc */
+    (newfunc)successive_new,                            /* tp_new */
+    (freefunc)PyObject_GC_Del,                          /* tp_free */
 };

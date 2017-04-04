@@ -5,18 +5,20 @@
 #include <Python.h>
 #include <structmember.h>
 
+#include "_globaldocs.c"
+
 #include "_exported_helper.c"
 #include "_helper.c"
-#include "_globaldocs.c"
 #include "_seen.c"
 #include "_itemidxkey.c"
 #include "_isx.c"
 #include "_returnx.c"
+#include "_placeholder.c"
 #include "_mathematical.c"
 
 #include "chained.c"
 #include "complement.c"
-#include "const.c"
+#include "constant.c"
 #include "flip.c"
 #include "packed.c"
 #include "partial.c"
@@ -52,81 +54,220 @@
 #include "uniqueever.c"
 #include "uniquejust.c"
 
-/* Method definition object for this extension, these argumens mean:
-   ml_name: The name of the method
-   ml_meth: Function pointer to the method implementation
-   ml_flags: Flags indicating special features of this method, such as
-             accepting arguments, accepting keyword arguments, being a
-             class method, or being a static method of a class.
-   ml_doc:  Contents of this method's docstring.
-   */
 
 static PyMethodDef PyIU_methods[] = {
 
-    {"is_None",     (PyCFunction)PyIU_IsNone,     METH_O,  PyIU_IsNone_doc},
-    {"is_not_None", (PyCFunction)PyIU_IsNotNone,  METH_O,  PyIU_IsNotNone_doc},
-    {"is_even",     (PyCFunction)PyIU_IsEven,     METH_O,  PyIU_IsEven_doc},
-    {"is_odd",      (PyCFunction)PyIU_IsOdd,      METH_O,  PyIU_IsOdd_doc},
-    {"is_iterable", (PyCFunction)PyIU_IsIterable, METH_O,  PyIU_IsIterable_doc},
+    /* isx */
 
-    {"square",     (PyCFunction)PyIU_MathSquare,     METH_O,       PyIU_MathSquare_doc},
-    {"double",     (PyCFunction)PyIU_MathDouble,     METH_O,       PyIU_MathDouble_doc},
-    {"reciprocal", (PyCFunction)PyIU_MathReciprocal, METH_O,       PyIU_MathReciprocal_doc},
-    {"radd",       (PyCFunction)PyIU_MathRadd,       METH_VARARGS, PyIU_MathRadd_doc},
-    {"rsub",       (PyCFunction)PyIU_MathRsub,       METH_VARARGS, PyIU_MathRsub_doc},
-    {"rmul",       (PyCFunction)PyIU_MathRmul,       METH_VARARGS, PyIU_MathRmul_doc},
-    {"rdiv",       (PyCFunction)PyIU_MathRdiv,       METH_VARARGS, PyIU_MathRdiv_doc},
-    {"rfdiv",      (PyCFunction)PyIU_MathRfdiv,      METH_VARARGS, PyIU_MathRfdiv_doc},
-    {"rpow",       (PyCFunction)PyIU_MathRpow,       METH_VARARGS, PyIU_MathRpow_doc},
-    {"rmod",       (PyCFunction)PyIU_MathRmod,       METH_VARARGS, PyIU_MathRmod_doc},
+    {"is_None",                                         /* ml_name */
+     (PyCFunction)PyIU_IsNone,                          /* ml_meth */
+     METH_O,                                            /* ml_flags */
+     PyIU_IsNone_doc                                    /* ml_doc */
+     },
 
-    {"_parse_args",   (PyCFunction)PyIU_TupleToList_and_InsertItemAtIndex,  METH_VARARGS, PyIU_TupleToList_and_InsertItemAtIndex_doc},
-    {"_parse_kwargs", (PyCFunction)PyIU_RemoveFromDictWhereValueIs,         METH_VARARGS, PyIU_RemoveFromDictWhereValueIs_doc},
+    {"is_not_None",                                     /* ml_name */
+     (PyCFunction)PyIU_IsNotNone,                       /* ml_meth */
+     METH_O,                                            /* ml_flags */
+     PyIU_IsNotNone_doc                                 /* ml_doc */
+     },
 
-    {"return_identity",  (PyCFunction)PyIU_ReturnIdentity, METH_O,                       PyIU_ReturnIdentity_doc},
-    {"return_first_arg", (PyCFunction)PyIU_ReturnFirstArg, METH_VARARGS | METH_KEYWORDS, PyIU_ReturnFirstArg_doc},
-    {"return_called",    (PyCFunction)PyIU_ReturnCalled,   METH_O,                       PyIU_ReturnCalled_doc},
+    {"is_even",                                         /* ml_name */
+     (PyCFunction)PyIU_IsEven,                          /* ml_meth */
+     METH_O,                                            /* ml_flags */
+     PyIU_IsEven_doc                                    /* ml_doc */
+     },
 
-    {"argmin",       (PyCFunction)PyIU_Argmin,      METH_VARARGS | METH_KEYWORDS, PyIU_Argmin_doc},
-    {"argmax",       (PyCFunction)PyIU_Argmax,      METH_VARARGS | METH_KEYWORDS, PyIU_Argmax_doc},
-    {"all_distinct", (PyCFunction)PyIU_AllDistinct, METH_O,                       PyIU_AllDistinct_doc},
-    {"all_equal",    (PyCFunction)PyIU_AllEqual,    METH_O,                       PyIU_AllEqual_doc},
-    {"all_monotone", (PyCFunction)PyIU_Monotone,    METH_VARARGS | METH_KEYWORDS, PyIU_Monotone_doc},
-    {"count_items",  (PyCFunction)PyIU_Count,       METH_VARARGS | METH_KEYWORDS, PyIU_Count_doc},
-    {"dotproduct",   (PyCFunction)PyIU_DotProduct,  METH_VARARGS,                 PyIU_DotProduct_doc},
-    {"groupedby",    (PyCFunction)PyIU_Groupby,     METH_VARARGS | METH_KEYWORDS, PyIU_Groupby_doc},
-    {"minmax",       (PyCFunction)PyIU_MinMax,      METH_VARARGS | METH_KEYWORDS, PyIU_MinMax_doc},
-    {"one",          (PyCFunction)PyIU_One,         METH_O,                       PyIU_One_doc},
-    {"partition",    (PyCFunction)PyIU_Partition,   METH_VARARGS | METH_KEYWORDS, PyIU_Partition_doc},
+    {"is_odd",                                          /* ml_name */
+     (PyCFunction)PyIU_IsOdd,                           /* ml_meth */
+     METH_O,                                            /* ml_flags */
+     PyIU_IsOdd_doc                                     /* ml_doc */
+     },
+
+    {"is_iterable",                                     /* ml_name */
+     (PyCFunction)PyIU_IsIterable,                      /* ml_meth */
+     METH_O,                                            /* ml_flags */
+     PyIU_IsIterable_doc                                /* ml_doc */
+     },
+
+    /* Math */
+
+    {"square",                                          /* ml_name */
+     (PyCFunction)PyIU_MathSquare,                      /* ml_meth */
+     METH_O,                                            /* ml_flags */
+     PyIU_MathSquare_doc                                /* ml_doc */
+     },
+
+    {"double",                                          /* ml_name */
+     (PyCFunction)PyIU_MathDouble,                      /* ml_meth */
+     METH_O,                                            /* ml_flags */
+     PyIU_MathDouble_doc                                /* ml_doc */
+     },
+
+    {"reciprocal",                                      /* ml_name */
+     (PyCFunction)PyIU_MathReciprocal,                  /* ml_meth */
+     METH_O,                                            /* ml_flags */
+     PyIU_MathReciprocal_doc                            /* ml_doc */
+     },
+
+    {"radd",                                            /* ml_name */
+     (PyCFunction)PyIU_MathRadd,                        /* ml_meth */
+     METH_VARARGS,                                      /* ml_flags */
+     PyIU_MathRadd_doc                                  /* ml_doc */
+     },
+
+    {"rsub",                                            /* ml_name */
+     (PyCFunction)PyIU_MathRsub,                        /* ml_meth */
+     METH_VARARGS,                                      /* ml_flags */
+     PyIU_MathRsub_doc                                  /* ml_doc */
+     },
+
+    {"rmul",                                            /* ml_name */
+     (PyCFunction)PyIU_MathRmul,                        /* ml_meth */
+     METH_VARARGS,                                      /* ml_flags */
+     PyIU_MathRmul_doc                                  /* ml_doc */
+     },
+
+    {"rdiv",                                            /* ml_name */
+     (PyCFunction)PyIU_MathRdiv,                        /* ml_meth */
+     METH_VARARGS,                                      /* ml_flags */
+     PyIU_MathRdiv_doc                                  /* ml_doc */
+     },
+
+    {"rfdiv",                                           /* ml_name */
+     (PyCFunction)PyIU_MathRfdiv,                       /* ml_meth */
+     METH_VARARGS,                                      /* ml_flags */
+     PyIU_MathRfdiv_doc                                 /* ml_doc */
+     },
+
+    {"rpow",                                            /* ml_name */
+     (PyCFunction)PyIU_MathRpow,                        /* ml_meth */
+     METH_VARARGS,                                      /* ml_flags */
+     PyIU_MathRpow_doc                                  /* ml_doc */
+     },
+
+    {"rmod",                                            /* ml_name */
+     (PyCFunction)PyIU_MathRmod,                        /* ml_meth */
+     METH_VARARGS,                                      /* ml_flags */
+     PyIU_MathRmod_doc                                  /* ml_doc */
+     },
+
+    /* Helper */
+
+    {"_parse_args",                                     /* ml_name */
+     (PyCFunction)PyIU_TupleToList_and_InsertItemAtIndex, /* ml_meth */
+     METH_VARARGS,                                      /* ml_flags */
+     PyIU_TupleToList_and_InsertItemAtIndex_doc         /* ml_doc */
+     },
+
+    {"_parse_kwargs",                                   /* ml_name */
+     (PyCFunction)PyIU_RemoveFromDictWhereValueIs,      /* ml_meth */
+     METH_VARARGS,                                      /* ml_flags */
+     PyIU_RemoveFromDictWhereValueIs_doc                /* ml_doc */
+     },
+
+    /* returnx */
+
+    {"return_identity",                                 /* ml_name */
+     (PyCFunction)PyIU_ReturnIdentity,                  /* ml_meth */
+     METH_O,                                            /* ml_flags */
+     PyIU_ReturnIdentity_doc                            /* ml_doc */
+     },
+
+    {"return_first_arg",                                /* ml_name */
+     (PyCFunction)PyIU_ReturnFirstArg,                  /* ml_meth */
+     METH_VARARGS | METH_KEYWORDS,                      /* ml_flags */
+     PyIU_ReturnFirstArg_doc                            /* ml_doc */
+     },
+
+    {"return_called",                                   /* ml_name */
+     (PyCFunction)PyIU_ReturnCalled,                    /* ml_meth */
+     METH_O,                                            /* ml_flags */
+     PyIU_ReturnCalled_doc                              /* ml_doc */
+     },
+
+    /* Fold functions */
+
+    {"argmin",                                          /* ml_name */
+     (PyCFunction)PyIU_Argmin,                          /* ml_meth */
+     METH_VARARGS | METH_KEYWORDS,                      /* ml_flags */
+     PyIU_Argmin_doc                                    /* ml_doc */
+     },
+
+    {"argmax",                                          /* ml_name */
+     (PyCFunction)PyIU_Argmax,                          /* ml_meth */
+     METH_VARARGS | METH_KEYWORDS,                      /* ml_flags */
+     PyIU_Argmax_doc                                    /* ml_doc */
+     },
+
+    {"all_distinct",                                    /* ml_name */
+     (PyCFunction)PyIU_AllDistinct,                     /* ml_meth */
+     METH_O,                                            /* ml_flags */
+     PyIU_AllDistinct_doc                               /* ml_doc */
+     },
+
+    {"all_equal",                                       /* ml_name */
+     (PyCFunction)PyIU_AllEqual,                        /* ml_meth */
+     METH_O,                                            /* ml_flags */
+     PyIU_AllEqual_doc                                  /* ml_doc */
+     },
+
+    {"all_monotone",                                    /* ml_name */
+     (PyCFunction)PyIU_Monotone,                        /* ml_meth */
+     METH_VARARGS | METH_KEYWORDS,                      /* ml_flags */
+     PyIU_Monotone_doc                                  /* ml_doc */
+     },
+
+    {"count_items",                                     /* ml_name */
+     (PyCFunction)PyIU_Count,                           /* ml_meth */
+     METH_VARARGS | METH_KEYWORDS,                      /* ml_flags */
+     PyIU_Count_doc                                     /* ml_doc */
+     },
+
+    {"dotproduct",                                      /* ml_name */
+     (PyCFunction)PyIU_DotProduct,                      /* ml_meth */
+     METH_VARARGS,                                      /* ml_flags */
+     PyIU_DotProduct_doc                                /* ml_doc */
+     },
+
+    {"groupedby",                                       /* ml_name */
+     (PyCFunction)PyIU_Groupby,                         /* ml_meth */
+     METH_VARARGS | METH_KEYWORDS,                      /* ml_flags */
+     PyIU_Groupby_doc                                   /* ml_doc */
+     },
+
+    {"minmax",                                          /* ml_name */
+     (PyCFunction)PyIU_MinMax,                          /* ml_meth */
+     METH_VARARGS | METH_KEYWORDS,                      /* ml_flags */
+     PyIU_MinMax_doc                                    /* ml_doc */
+     },
+
+    {"one",                                             /* ml_name */
+     (PyCFunction)PyIU_One,                             /* ml_meth */
+     METH_O,                                            /* ml_flags */
+     PyIU_One_doc                                       /* ml_doc */
+     },
+
+    {"partition",                                       /* ml_name */
+     (PyCFunction)PyIU_Partition,                       /* ml_meth */
+     METH_VARARGS | METH_KEYWORDS,                      /* ml_flags */
+     PyIU_Partition_doc                                 /* ml_doc */
+     },
 
     {NULL, NULL}
 };
 
-/* Names for pre-defined instances. */
-PyDoc_STRVAR(PyIU_returnTrue_name, "return_True");
-PyDoc_STRVAR(PyIU_returnFalse_name, "return_False");
-PyDoc_STRVAR(PyIU_returnNone_name, "return_None");
-PyDoc_STRVAR(PyIU_ReduceFirst_name, "first");
-PyDoc_STRVAR(PyIU_ReduceSecond_name, "second");
-PyDoc_STRVAR(PyIU_ReduceThird_name, "third");
-PyDoc_STRVAR(PyIU_ReduceLast_name, "last");
-
-/* Name and docstring of C-module. */
-PyDoc_STRVAR(PyIU_module_name, "_cfuncs");
-PyDoc_STRVAR(PyIU_module_doc, "API: C Functions\n----------------");
-
 #if PY_MAJOR_VERSION >= 3
   /* Module definition */
   static struct PyModuleDef PyIU_module = {
-
-    PyModuleDef_HEAD_INIT,
-
-    PyIU_module_name,         /* module name */
-    PyIU_module_doc,          /* module docstring */
-    -1,                       /* API version */
-    PyIU_methods,             /* module methods */
-
-    NULL, NULL, NULL, NULL    /* Sentinel */
+      PyModuleDef_HEAD_INIT,                            /* m_base */
+      PyIU_module_name,                                 /* m_name */
+      PyIU_module_doc,                                  /* m_doc */
+      (Py_ssize_t)-1,                                   /* m_size */
+      (PyMethodDef *)PyIU_methods,                      /* m_methods */
+      NULL,                                             /* m_slots or m_reload */
+      (traverseproc)NULL,                               /* m_traverse */
+      (inquiry)NULL,                                    /* m_clear */
+      (freefunc)NULL                                    /* m_free */
   };
 
   /* Module initialization */
@@ -207,7 +348,7 @@ PyDoc_STRVAR(PyIU_module_doc, "API: C Functions\n----------------");
             PyModule_AddObject(m, name+1, (PyObject *)typelist[i]);
         }
         Py_INCREF(PYIU_Placeholder);
-        PyModule_AddObject(m, "Placeholder", PYIU_Placeholder);
+        PyModule_AddObject(m, PyIU_Placeholder_name, PYIU_Placeholder);
 
         if (PyDict_SetItemString(PyIUType_Partial.tp_dict, "_", PYIU_Placeholder) != 0) {
 #if PY_MAJOR_VERSION >= 3
@@ -218,20 +359,34 @@ PyDoc_STRVAR(PyIU_module_doc, "API: C Functions\n----------------");
         }
 
         /* Add pre-defined instances. */
-        PyIU_returnTrue = constant_new(&PyIUType_Constant, Py_BuildValue("(O)", Py_True), NULL);
+        PyIU_returnTrue = constant_new(&PyIUType_Constant,
+                                       Py_BuildValue("(O)", Py_True),
+                                       NULL);
         PyModule_AddObject(m, PyIU_returnTrue_name, PyIU_returnTrue);
-        PyIU_returnFalse = constant_new(&PyIUType_Constant, Py_BuildValue("(O)", Py_False), NULL);
+        PyIU_returnFalse = constant_new(&PyIUType_Constant,
+                                        Py_BuildValue("(O)", Py_False),
+                                        NULL);
         PyModule_AddObject(m, PyIU_returnFalse_name, PyIU_returnFalse);
-        PyIU_returnNone = constant_new(&PyIUType_Constant, Py_BuildValue("(O)", Py_None), NULL);
+        PyIU_returnNone = constant_new(&PyIUType_Constant,
+                                       Py_BuildValue("(O)", Py_None),
+                                       NULL);
         PyModule_AddObject(m, PyIU_returnNone_name, PyIU_returnNone);
 
-        PyIU_ReduceFirst = nth_new(&PyIUType_Nth, Py_BuildValue("(n)", 0), NULL);
+        PyIU_ReduceFirst = nth_new(&PyIUType_Nth,
+                                   Py_BuildValue("(n)", 0),
+                                   NULL);
         PyModule_AddObject(m, PyIU_ReduceFirst_name, PyIU_ReduceFirst);
-        PyIU_ReduceSecond = nth_new(&PyIUType_Nth, Py_BuildValue("(n)", 1), NULL);
+        PyIU_ReduceSecond = nth_new(&PyIUType_Nth,
+                                    Py_BuildValue("(n)", 1),
+                                    NULL);
         PyModule_AddObject(m, PyIU_ReduceSecond_name, PyIU_ReduceSecond);
-        PyIU_ReduceThird = nth_new(&PyIUType_Nth, Py_BuildValue("(n)", 2), NULL);
+        PyIU_ReduceThird = nth_new(&PyIUType_Nth,
+                                   Py_BuildValue("(n)", 2),
+                                   NULL);
         PyModule_AddObject(m, PyIU_ReduceThird_name, PyIU_ReduceThird);
-        PyIU_ReduceLast = nth_new(&PyIUType_Nth, Py_BuildValue("(n)", minus_one), NULL);
+        PyIU_ReduceLast = nth_new(&PyIUType_Nth,
+                                  Py_BuildValue("(n)", minus_one),
+                                  NULL);
         PyModule_AddObject(m, PyIU_ReduceLast_name, PyIU_ReduceLast);
 
         #if PY_MAJOR_VERSION == 2

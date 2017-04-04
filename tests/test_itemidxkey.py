@@ -118,7 +118,8 @@ def test_itemidxkey_getter():
     iik = ItemIdxKey(T(10), 2)
     assert iik.item == T(10)
     assert iik.idx == 2
-    assert iik.key is None
+    with pytest.raises(AttributeError):
+        iik.key
 
     iik = ItemIdxKey(T(10), 2, T(5))
     assert iik.item == T(10)
@@ -173,12 +174,16 @@ def test_itemidxkey_setter_failure2():
 @memory_leak_decorator()
 def test_itemidxkey_deleter():
     iik = ItemIdxKey(T(10), 2)
-    del iik.key
-    assert iik.key is None
+    with pytest.raises(AttributeError):
+        del iik.key
+    with pytest.raises(AttributeError):
+        iik.key
 
     iik = ItemIdxKey(T(10), 2, T(5))
+    assert iik.key == T(5)
     del iik.key
-    assert iik.key is None
+    with pytest.raises(AttributeError):
+        iik.key
 
 
 @memory_leak_decorator(collect=True)
