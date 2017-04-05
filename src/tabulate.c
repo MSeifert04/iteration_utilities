@@ -88,6 +88,19 @@ tabulate_traverse(PyIUObject_Tabulate *self,
 }
 
 /******************************************************************************
+ * Clear
+ *****************************************************************************/
+
+static int
+tabulate_clear(PyIUObject_Tabulate *self)
+{
+    Py_CLEAR(self->func);
+    Py_CLEAR(self->cnt);
+    Py_CLEAR(self->funcargs);
+    return 0;
+}
+
+/******************************************************************************
  * Next
  *****************************************************************************/
 
@@ -196,7 +209,7 @@ PyTypeObject PyIUType_Tabulate = {
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
     (const char *)tabulate_doc,                         /* tp_doc */
     (traverseproc)tabulate_traverse,                    /* tp_traverse */
-    (inquiry)0,                                         /* tp_clear */
+    (inquiry)tabulate_clear,                            /* tp_clear */
     (richcmpfunc)0,                                     /* tp_richcompare */
     (Py_ssize_t)0,                                      /* tp_weaklistoffset */
     (getiterfunc)PyObject_SelfIter,                     /* tp_iter */

@@ -63,6 +63,17 @@ packed_traverse(PyIUObject_Packed *self,
 }
 
 /******************************************************************************
+ * Clear
+ *****************************************************************************/
+
+static int
+packed_clear(PyIUObject_Packed *self)
+{
+    Py_CLEAR(self->func);
+    return 0;
+}
+
+/******************************************************************************
  * Call
  *****************************************************************************/
 
@@ -180,7 +191,7 @@ PyTypeObject PyIUType_Packed = {
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
     (const char *)packed_doc,                           /* tp_doc */
     (traverseproc)packed_traverse,                      /* tp_traverse */
-    (inquiry)0,                                         /* tp_clear */
+    (inquiry)packed_clear,                              /* tp_clear */
     (richcmpfunc)0,                                     /* tp_richcompare */
     (Py_ssize_t)0,                                      /* tp_weaklistoffset */
     (getiterfunc)0,                                     /* tp_iter */

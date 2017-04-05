@@ -63,6 +63,17 @@ constant_traverse(PyIUObject_Constant *self,
 }
 
 /******************************************************************************
+ * Clear
+ *****************************************************************************/
+
+static int
+constant_clear(PyIUObject_Constant *self)
+{
+    Py_CLEAR(self->item);
+    return 0;
+}
+
+/******************************************************************************
  * Call
  *****************************************************************************/
 
@@ -163,7 +174,7 @@ PyTypeObject PyIUType_Constant = {
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
     (const char *)constant_doc,                         /* tp_doc */
     (traverseproc)constant_traverse,                    /* tp_traverse */
-    (inquiry)0,                                         /* tp_clear */
+    (inquiry)constant_clear,                            /* tp_clear */
     (richcmpfunc)0,                                     /* tp_richcompare */
     (Py_ssize_t)0,                                      /* tp_weaklistoffset */
     (getiterfunc)0,                                     /* tp_iter */

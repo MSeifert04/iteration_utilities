@@ -74,6 +74,17 @@ nth_traverse(PyIUObject_Nth *self,
 }
 
 /******************************************************************************
+ * Clear
+ *****************************************************************************/
+
+static int
+nth_clear(PyIUObject_Nth *self)
+{
+    Py_CLEAR(self->funcargs);
+    return 0;
+}
+
+/******************************************************************************
  * Call
  *****************************************************************************/
 
@@ -334,7 +345,7 @@ PyTypeObject PyIUType_Nth = {
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
     (const char *)nth_doc,                              /* tp_doc */
     (traverseproc)nth_traverse,                         /* tp_traverse */
-    (inquiry)0,                                         /* tp_clear */
+    (inquiry)nth_clear,                                 /* tp_clear */
     (richcmpfunc)0,                                     /* tp_richcompare */
     (Py_ssize_t)0,                                      /* tp_weaklistoffset */
     (getiterfunc)0,                                     /* tp_iter */

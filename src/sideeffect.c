@@ -110,6 +110,20 @@ sideeffects_traverse(PyIUObject_Sideeffects *self,
 }
 
 /******************************************************************************
+ * Clear
+ *****************************************************************************/
+
+static int
+sideeffects_clear(PyIUObject_Sideeffects *self)
+{
+    Py_CLEAR(self->iterator);
+    Py_CLEAR(self->func);
+    Py_CLEAR(self->collected);
+    Py_CLEAR(self->funcargs);
+    return 0;
+}
+
+/******************************************************************************
  * Next
  *****************************************************************************/
 
@@ -477,7 +491,7 @@ PyTypeObject PyIUType_Sideeffects = {
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
     (const char *)sideeffects_doc,                      /* tp_doc */
     (traverseproc)sideeffects_traverse,                 /* tp_traverse */
-    (inquiry)0,                                         /* tp_clear */
+    (inquiry)sideeffects_clear,                         /* tp_clear */
     (richcmpfunc)0,                                     /* tp_richcompare */
     (Py_ssize_t)0,                                      /* tp_weaklistoffset */
     (getiterfunc)PyObject_SelfIter,                     /* tp_iter */

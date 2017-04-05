@@ -199,6 +199,20 @@ merge_traverse(PyIUObject_Merge *self,
 }
 
 /******************************************************************************
+ * Clear
+ *****************************************************************************/
+
+static int
+merge_clear(PyIUObject_Merge *self)
+{
+    Py_CLEAR(self->iteratortuple);
+    Py_CLEAR(self->keyfunc);
+    Py_CLEAR(self->current);
+    Py_CLEAR(self->funcargs);
+    return 0;
+}
+
+/******************************************************************************
  * Initialize "current"
  *****************************************************************************/
 
@@ -718,7 +732,7 @@ PyTypeObject PyIUType_Merge = {
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
     (const char *)merge_doc,                            /* tp_doc */
     (traverseproc)merge_traverse,                       /* tp_traverse */
-    (inquiry)0,                                         /* tp_clear */
+    (inquiry)merge_clear,                               /* tp_clear */
     (richcmpfunc)0,                                     /* tp_richcompare */
     (Py_ssize_t)0,                                      /* tp_weaklistoffset */
     (getiterfunc)PyObject_SelfIter,                     /* tp_iter */

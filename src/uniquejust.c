@@ -97,6 +97,20 @@ uniquejust_traverse(PyIUObject_UniqueJust *self,
 }
 
 /******************************************************************************
+ * Clear
+ *****************************************************************************/
+
+static int
+uniquejust_clear(PyIUObject_UniqueJust *self)
+{
+    Py_CLEAR(self->iterator);
+    Py_CLEAR(self->keyfunc);
+    Py_CLEAR(self->lastitem);
+    Py_CLEAR(self->funcargs);
+    return 0;
+}
+
+/******************************************************************************
  * Next
  *****************************************************************************/
 
@@ -278,7 +292,7 @@ PyTypeObject PyIUType_UniqueJust = {
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
     (const char *)uniquejust_doc,                       /* tp_doc */
     (traverseproc)uniquejust_traverse,                  /* tp_traverse */
-    (inquiry)0,                                         /* tp_clear */
+    (inquiry)uniquejust_clear,                          /* tp_clear */
     (richcmpfunc)0,                                     /* tp_richcompare */
     (Py_ssize_t)0,                                      /* tp_weaklistoffset */
     (getiterfunc)PyObject_SelfIter,                     /* tp_iter */

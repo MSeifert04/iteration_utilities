@@ -85,6 +85,18 @@ successive_traverse(PyIUObject_Successive *self,
 }
 
 /******************************************************************************
+ * Clear
+ *****************************************************************************/
+
+static int
+successive_clear(PyIUObject_Successive *self)
+{
+    Py_CLEAR(self->iterator);
+    Py_CLEAR(self->result);
+    return 0;
+}
+
+/******************************************************************************
  * Next
  *****************************************************************************/
 
@@ -328,7 +340,7 @@ PyTypeObject PyIUType_Successive = {
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
     (const char *)successive_doc,                       /* tp_doc */
     (traverseproc)successive_traverse,                  /* tp_traverse */
-    (inquiry)0,                                         /* tp_clear */
+    (inquiry)successive_clear,                          /* tp_clear */
     (richcmpfunc)0,                                     /* tp_richcompare */
     (Py_ssize_t)0,                                      /* tp_weaklistoffset */
     (getiterfunc)PyObject_SelfIter,                     /* tp_iter */

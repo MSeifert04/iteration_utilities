@@ -102,6 +102,19 @@ grouper_traverse(PyIUObject_Grouper *self,
 }
 
 /******************************************************************************
+ * Clear
+ *****************************************************************************/
+
+static int
+grouper_clear(PyIUObject_Grouper *self)
+{
+    Py_CLEAR(self->iterator);
+    Py_CLEAR(self->fillvalue);
+    Py_CLEAR(self->result);
+    return 0;
+}
+
+/******************************************************************************
  * Next
  *****************************************************************************/
 
@@ -369,7 +382,7 @@ PyTypeObject PyIUType_Grouper = {
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
     (const char *)grouper_doc,                          /* tp_doc */
     (traverseproc)grouper_traverse,                     /* tp_traverse */
-    (inquiry)0,                                         /* tp_clear */
+    (inquiry)grouper_clear,                             /* tp_clear */
     (richcmpfunc)0,                                     /* tp_richcompare */
     (Py_ssize_t)0,                                      /* tp_weaklistoffset */
     (getiterfunc)PyObject_SelfIter,                     /* tp_iter */

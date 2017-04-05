@@ -104,6 +104,20 @@ accumulate_traverse(PyIUObject_Accumulate *self,
 }
 
 /******************************************************************************
+ * Clear
+ *****************************************************************************/
+
+static int
+accumulate_clear(PyIUObject_Accumulate *self)
+{
+    Py_CLEAR(self->iterator);
+    Py_CLEAR(self->binop);
+    Py_CLEAR(self->total);
+    Py_CLEAR(self->funcargs);
+    return 0;
+}
+
+/******************************************************************************
  * Next
  *****************************************************************************/
 
@@ -258,7 +272,7 @@ PyTypeObject PyIUType_Accumulate = {
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
     (const char *)accumulate_doc,                       /* tp_doc */
     (traverseproc)accumulate_traverse,                  /* tp_traverse */
-    (inquiry)0,                                         /* tp_clear */
+    (inquiry)accumulate_clear,                          /* tp_clear */
     (richcmpfunc)0,                                     /* tp_richcompare */
     (Py_ssize_t)0,                                      /* tp_weaklistoffset */
     (getiterfunc)PyObject_SelfIter,                     /* tp_iter */
