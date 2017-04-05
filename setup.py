@@ -18,7 +18,7 @@ def version():
                 return line.split(r"'")[1]
 
 
-cfuncs_module = Extension('iteration_utilities._cfuncs',
+cfuncs_module = Extension('_iteration_utilities',
                           sources=[path.join('src', '_module.c')],
                           depends=glob(path.join('src', '*.c'))
                           )

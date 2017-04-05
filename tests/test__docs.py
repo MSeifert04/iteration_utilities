@@ -9,11 +9,12 @@ import pytest
 
 # This module
 import iteration_utilities
+import _iteration_utilities
 
 
 @pytest.mark.parametrize("mod",
                          [iteration_utilities,
-                          iteration_utilities._cfuncs,
+                          _iteration_utilities,
                           iteration_utilities._recipes,
                           iteration_utilities._additional_recipes,
                           iteration_utilities._classes,

@@ -8,6 +8,7 @@ import pytest
 
 # This module
 import iteration_utilities
+import _iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
@@ -108,7 +109,7 @@ def test_c_funcs_signatures():
     from inspect import Signature
 
     # Gett all C functions
-    it = (Iterable(chain(iteration_utilities._cfuncs.__dict__.items()))
+    it = (Iterable(chain(_iteration_utilities.__dict__.items()))
           # only include those that do not start with an underscore,
           # we only need user-facing functions/classes
           .filterfalse(lambda x: x[0].startswith(('_')))

@@ -272,11 +272,11 @@ static PyMethodDef PyIU_methods[] = {
 
   /* Module initialization */
   PyMODINIT_FUNC
-  PyInit__cfuncs(void)
+  PyInit__iteration_utilities(void)
   {
 #else
   void
-  init_cfuncs(void)
+  init_iteration_utilities(void)
   {
 #endif
 

@@ -8,14 +8,15 @@ import pytest
 
 # This module
 import iteration_utilities
+import _iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
 from helper_cls import T
 
 
-parse_args = iteration_utilities._cfuncs._parse_args
-parse_kwargs = iteration_utilities._cfuncs._parse_kwargs
+parse_args = _iteration_utilities._parse_args
+parse_kwargs = _iteration_utilities._parse_kwargs
 default = iteration_utilities._utils._default
 
 
