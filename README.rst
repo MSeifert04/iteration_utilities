@@ -34,9 +34,9 @@ The full list of functions and classes included in this package:
 But also some convenience classes providing a lazy and chainable interface for
 function evaluation:
 
-- `Iterable <http://iteration-utilities.readthedocs.io/en/latest/api/cls.html#iteration_utilities.core.Iterable>`_
-- `InfiniteIterable <http://iteration-utilities.readthedocs.io/en/latest/api/cls.html#iteration_utilities.core.InfiniteIterable>`_
-- `ManyIterables <http://iteration-utilities.readthedocs.io/en/latest/api/cls.html#iteration_utilities.core.ManyIterables>`_
+- `Iterable <https://iteration-utilities.readthedocs.io/en/latest/generated/Iterable.html>`_
+- `InfiniteIterable <https://iteration-utilities.readthedocs.io/en/latest/generated/InfiniteIterable.html>`_
+- `ManyIterables <https://iteration-utilities.readthedocs.io/en/latest/generated/ManyIterables.html>`_
 
 
 .. image:: https://img.shields.io/pypi/pyversions/iteration_utilities.svg
