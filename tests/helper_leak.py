@@ -7,10 +7,7 @@ import gc
 import weakref
 
 # This module
-import iteration_utilities
-
-if iteration_utilities.EQ_PY2:
-    range = xrange
+from iteration_utilities._compat import range
 
 
 def _make_tuple(obj):

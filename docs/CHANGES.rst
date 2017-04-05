@@ -16,6 +16,9 @@ Version 0.6.0 (unreleased)
 - Fixed a Bug in ``deepflatten`` when ``isinstance`` fails for the classes
   given as ``types`` or ``ignore`` parameter.
 
+- Changed internal package structure (shouldn't affect end-users that imported
+  everything from ``iteration_utilities`` directly).
+
 
 Version 0.5.2 (2017-03-30)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^

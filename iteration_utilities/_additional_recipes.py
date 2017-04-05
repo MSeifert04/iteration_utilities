@@ -13,12 +13,8 @@ from operator import itemgetter
 
 # This module
 from iteration_utilities import nth, unique_justseen, chained
-from ._utils import EQ_PY2
+from ._compat import map
 from ._recipes import tail
-
-
-if EQ_PY2:
-    from itertools import imap as map
 
 
 __all__ = ['argsorted', 'combinations_from_relations', 'getitem',

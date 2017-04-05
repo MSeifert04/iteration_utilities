@@ -10,11 +10,7 @@ from __future__ import absolute_import, division, print_function
 from itertools import repeat
 
 # This module
-from ._utils import EQ_PY2
-
-
-if EQ_PY2:
-    from itertools import imap as map
+from ._compat import map
 
 
 __all__ = ['all_isinstance', 'any_isinstance']

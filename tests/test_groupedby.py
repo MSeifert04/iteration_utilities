@@ -9,6 +9,7 @@ import pytest
 
 # This module
 import iteration_utilities
+from iteration_utilities._compat import range
 
 # Test helper
 from helper_leak import memory_leak_decorator
@@ -16,10 +17,6 @@ from helper_cls import T, toT, failingTIterator
 
 
 groupedby = iteration_utilities.groupedby
-
-
-if iteration_utilities.EQ_PY2:
-    range = xrange
 
 
 @memory_leak_decorator()

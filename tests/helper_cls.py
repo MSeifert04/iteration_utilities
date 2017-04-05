@@ -6,12 +6,7 @@ import operator
 import itertools
 
 # This module
-import iteration_utilities
-
-if iteration_utilities.EQ_PY2:
-    from itertools import imap as map
-    from itertools import ifilter as filter
-    from itertools import izip as zip
+from iteration_utilities._compat import map, filter, range, zip
 
 
 class T(object):

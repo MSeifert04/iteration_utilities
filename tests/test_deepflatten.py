@@ -9,23 +9,13 @@ import pytest
 
 # This module
 import iteration_utilities
+from iteration_utilities._compat import (
+    map, UserString, RecursionError, string_types)
 
 # Test helper
 import helper_funcs
 from helper_cls import T, toT, failingTIterator, FailingIsinstanceClass
 from helper_leak import memory_leak_decorator
-
-
-if iteration_utilities.EQ_PY2:
-    from itertools import imap as map
-    from UserString import UserString
-    string_types = basestring
-else:
-    from collections import UserString
-    string_types = str
-
-if not iteration_utilities.GE_PY35:
-    RecursionError = RuntimeError
 
 
 deepflatten = iteration_utilities.deepflatten
