@@ -193,12 +193,12 @@ class _Base(object):
         >>> class D(C): pass
 
         >>> Iterable.from_itersubclasses(A).as_list()
-        [<class 'iteration_utilities.core.B'>, \
-<class 'iteration_utilities.core.C'>, \
-<class 'iteration_utilities.core.D'>]
+        [<class 'iteration_utilities._classes.B'>, \
+<class 'iteration_utilities._classes.C'>, \
+<class 'iteration_utilities._classes.D'>]
 
         >>> Iterable.from_itersubclasses(C).as_list()
-        [<class 'iteration_utilities.core.D'>]
+        [<class 'iteration_utilities._classes.D'>]
         """
         return Iterable(itersubclasses(object))
 
