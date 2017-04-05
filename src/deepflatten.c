@@ -118,6 +118,7 @@ static PyObject *
 deepflatten_next(PyIUObject_DeepFlatten *self)
 {
     PyObject *activeiterator, *item, *temp;
+    int ok;
 
     if (self->currentdepth < 0) {
         return NULL;
@@ -167,13 +168,22 @@ deepflatten_next(PyIUObject_DeepFlatten *self)
 
         /* First check if the item is an instance of the ignored types, if
            it is, then simply return it. */
-        } else if (self->ignore && PyObject_IsInstance(item, self->ignore)) {
-            return item;
+        } else if (self->ignore &&
+                (ok = PyObject_IsInstance(item, self->ignore))) {
+            if (ok == 1) {
+                return item;
+            }
+            Py_DECREF(item);
+            return NULL;
 
         /* If types is given then check if it's an instance thereof and if
            so replace activeiterator, otherwise return the item. */
         } else if (self->types) {
-            if (PyObject_IsInstance(item, self->types)) {
+            if (ok = PyObject_IsInstance(item, self->types)) {
+                if (ok == -1) {
+                    Py_DECREF(item);
+                    return NULL;
+                }
                 /* Check if it's a builtin-string-type and if so set
                    "isstring". Check for the exact type because sub types might
                    have custom __iter__ methods, better not to interfere with

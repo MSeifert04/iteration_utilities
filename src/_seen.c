@@ -31,8 +31,8 @@ typedef struct {
 
 PyTypeObject PyIUType_Seen;
 
-#define PyIUSeen_Check(obj) (PyObject_IsInstance(obj, (PyObject*) &PyIUType_Seen))
-#define PyIUSeen_CheckExact(op) (Py_TYPE(op) == &PyIUType_Seen)
+#define PyIUSeen_Check(o) (PyObject_TypeCheck(o, &PyIUType_Seen))
+#define PyIUSeen_CheckExact(o) (Py_TYPE(o) == &PyIUType_Seen)
 
 /******************************************************************************
  * Creates a new PyIUSeen objects with empty seenset and seenlist.

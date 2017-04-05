@@ -21,8 +21,8 @@ typedef struct {
 
 PyTypeObject PyIUType_ItemIdxKey;
 
-#define PyIU_ItemIdxKey_Check(obj) PyObject_IsInstance(obj, (PyObject*) &PyIUType_ItemIdxKey)
-#define PyIU_ItemIdxKey_CheckExact(op) (Py_TYPE(op) == &PyIUType_ItemIdxKey)
+#define PyIU_ItemIdxKey_Check(o) PyObject_TypeCheck(o, &PyIUType_ItemIdxKey)
+#define PyIU_ItemIdxKey_CheckExact(o) (Py_TYPE(o) == &PyIUType_ItemIdxKey)
 
 /******************************************************************************
  * New
