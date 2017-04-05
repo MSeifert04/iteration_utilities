@@ -2,9 +2,8 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-static PyObject *
-argminmax(PyObject *m,
-          PyObject *args,
+PyObject *
+argminmax(PyObject *args,
           PyObject *kwargs,
           int cmpop)
 {
@@ -139,11 +138,11 @@ Fail:
  *****************************************************************************/
 
 static PyObject *
-PyIU_Argmin(PyObject *self,
+PyIU_Argmin(PyObject *m,
             PyObject *args,
             PyObject *kwargs)
 {
-    return argminmax(self, args, kwargs, Py_LT);
+    return argminmax(args, kwargs, Py_LT);
 }
 
 /******************************************************************************
@@ -151,9 +150,9 @@ PyIU_Argmin(PyObject *self,
  *****************************************************************************/
 
 static PyObject *
-PyIU_Argmax(PyObject *self,
+PyIU_Argmax(PyObject *m,
             PyObject *args,
             PyObject *kwargs)
 {
-    return argminmax(self, args, kwargs, Py_GT);
+    return argminmax(args, kwargs, Py_GT);
 }

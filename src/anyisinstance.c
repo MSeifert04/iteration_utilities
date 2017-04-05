@@ -51,8 +51,7 @@ PyIU_AnyIsinstance(PyObject *m,
     if (PyErr_Occurred()) {
         if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
             PyErr_Clear();
-        }
-        else {
+        } else {
             return NULL;
         }
     }
