@@ -49,10 +49,6 @@ def test_exceptions():
 def test_empty_input():
     empty = []
 
-    assert iteration_utilities.all_isinstance(empty, float)
-
-    assert not iteration_utilities.any_isinstance(empty, float)
-
     assert list(iteration_utilities
                 .combinations_from_relations({}, 1)) == []
 

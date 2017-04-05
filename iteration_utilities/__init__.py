@@ -7,7 +7,6 @@ from _iteration_utilities import *
 from ._utils import *
 from ._recipes import *
 from ._additional_recipes import *
-from ._performant_helpers import *
 from ._classes import *
 
 __version__ = '0.5.2'

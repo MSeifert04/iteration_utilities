@@ -19,6 +19,8 @@ Version 0.6.0 (unreleased)
 - Changed internal package structure (shouldn't affect end-users that imported
   everything from ``iteration_utilities`` directly).
 
+- improved performance of ``all_isinstance`` and ``any_isinstance``.
+
 
 Version 0.5.2 (2017-03-30)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
