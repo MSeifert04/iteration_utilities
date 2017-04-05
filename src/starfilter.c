@@ -79,6 +79,18 @@ starfilter_traverse(PyIUObject_Starfilter *self,
 }
 
 /******************************************************************************
+ * Clear
+ *****************************************************************************/
+
+static int
+starfilter_clear(PyIUObject_Starfilter *self)
+{
+    Py_CLEAR(self->iterator);
+    Py_CLEAR(self->func);
+    return 0;
+}
+
+/******************************************************************************
  * Next
  *****************************************************************************/
 
@@ -185,7 +197,7 @@ PyTypeObject PyIUType_Starfilter = {
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
     (const char *)starfilter_doc,                       /* tp_doc */
     (traverseproc)starfilter_traverse,                  /* tp_traverse */
-    (inquiry)0,                                         /* tp_clear */
+    (inquiry)starfilter_clear,                          /* tp_clear */
     (richcmpfunc)0,                                     /* tp_richcompare */
     (Py_ssize_t)0,                                      /* tp_weaklistoffset */
     (getiterfunc)PyObject_SelfIter,                     /* tp_iter */

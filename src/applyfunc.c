@@ -83,6 +83,19 @@ applyfunc_traverse(PyIUObject_Applyfunc *self,
 }
 
 /******************************************************************************
+ * Clear
+ *****************************************************************************/
+
+static int
+applyfunc_clear(PyIUObject_Applyfunc *self)
+{
+    Py_CLEAR(self->func);
+    Py_CLEAR(self->value);
+    Py_CLEAR(self->funcargs);
+    return 0;
+}
+
+/******************************************************************************
  * Next
  *****************************************************************************/
 
@@ -181,7 +194,7 @@ PyTypeObject PyIUType_Applyfunc = {
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
     (const char *)applyfunc_doc,                        /* tp_doc */
     (traverseproc)applyfunc_traverse,                   /* tp_traverse */
-    (inquiry)0,                                         /* tp_clear */
+    (inquiry)applyfunc_clear,                           /* tp_clear */
     (richcmpfunc)0,                                     /* tp_richcompare */
     (Py_ssize_t)0,                                      /* tp_weaklistoffset */
     (getiterfunc)PyObject_SelfIter,                     /* tp_iter */

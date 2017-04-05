@@ -71,6 +71,17 @@ roundrobin_traverse(PyIUObject_Roundrobin *self,
 }
 
 /******************************************************************************
+ * Clear
+ *****************************************************************************/
+
+static int
+roundrobin_clear(PyIUObject_Roundrobin *self)
+{
+    Py_CLEAR(self->iteratortuple);
+    return 0;
+}
+
+/******************************************************************************
  * Next
  *****************************************************************************/
 
@@ -317,7 +328,7 @@ PyTypeObject PyIUType_Roundrobin = {
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
     (const char *)roundrobin_doc,                       /* tp_doc */
     (traverseproc)roundrobin_traverse,                  /* tp_traverse */
-    (inquiry)0,                                         /* tp_clear */
+    (inquiry)roundrobin_clear,                          /* tp_clear */
     (richcmpfunc)0,                                     /* tp_richcompare */
     (Py_ssize_t)0,                                      /* tp_weaklistoffset */
     (getiterfunc)PyObject_SelfIter,                     /* tp_iter */

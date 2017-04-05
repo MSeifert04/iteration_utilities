@@ -77,22 +77,6 @@ typedef struct {
 PyTypeObject PyIUType_Partial;
 
 /******************************************************************************
- * Traverse
- *****************************************************************************/
-
-static int
-partial_traverse(PyIUObject_Partial *self,
-                 visitproc visit,
-                 void *arg)
-{
-    Py_VISIT(self->fn);
-    Py_VISIT(self->args);
-    Py_VISIT(self->kw);
-    Py_VISIT(self->dict);
-    return 0;
-}
-
-/******************************************************************************
  * Dealloc
  *****************************************************************************/
 
@@ -111,6 +95,39 @@ partial_dealloc(PyIUObject_Partial *self)
         PyMem_Free(self->posph);
     }
     Py_TYPE(self)->tp_free(self);
+}
+
+/******************************************************************************
+ * Traverse
+ *****************************************************************************/
+
+static int
+partial_traverse(PyIUObject_Partial *self,
+                 visitproc visit,
+                 void *arg)
+{
+    Py_VISIT(self->fn);
+    Py_VISIT(self->args);
+    Py_VISIT(self->kw);
+    Py_VISIT(self->dict);
+    return 0;
+}
+
+/******************************************************************************
+ * Clear
+ *****************************************************************************/
+
+static int
+partial_clear(PyIUObject_Partial *self)
+{
+    Py_CLEAR(self->fn);
+    Py_CLEAR(self->args);
+    Py_CLEAR(self->kw);
+    Py_CLEAR(self->dict);
+    /* TODO: Is it necessary to clear the self->posph array here? Probably not
+             because it doesn't contain PyObjects ...
+       */
+    return 0;
 }
 
 /******************************************************************************
@@ -684,7 +701,7 @@ PyTypeObject PyIUType_Partial = {
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
     (const char *)partial_doc,                          /* tp_doc */
     (traverseproc)partial_traverse,                     /* tp_traverse */
-    (inquiry)0,                                         /* tp_clear */
+    (inquiry)partial_clear,                             /* tp_clear */
     (richcmpfunc)0,                                     /* tp_richcompare */
     (Py_ssize_t)offsetof(PyIUObject_Partial, weakreflist),/* tp_weaklistoffset */
     (getiterfunc)0,                                     /* tp_iter */

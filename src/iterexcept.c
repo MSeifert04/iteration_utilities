@@ -76,6 +76,19 @@ iterexcept_traverse(PyIUObject_Iterexcept *self,
 }
 
 /******************************************************************************
+ * Clear
+ *****************************************************************************/
+
+static int
+iterexcept_clear(PyIUObject_Iterexcept *self)
+{
+    Py_CLEAR(self->func);
+    Py_CLEAR(self->except);
+    Py_CLEAR(self->first);
+    return 0;
+}
+
+/******************************************************************************
  * Next
  *****************************************************************************/
 
@@ -185,7 +198,7 @@ PyTypeObject PyIUType_Iterexcept = {
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
     (const char *)iterexcept_doc,                       /* tp_doc */
     (traverseproc)iterexcept_traverse,                  /* tp_traverse */
-    (inquiry)0,                                         /* tp_clear */
+    (inquiry)iterexcept_clear,                          /* tp_clear */
     (richcmpfunc)0,                                     /* tp_richcompare */
     (Py_ssize_t)0,                                      /* tp_weaklistoffset */
     (getiterfunc)PyObject_SelfIter,                     /* tp_iter */

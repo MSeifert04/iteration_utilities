@@ -173,6 +173,18 @@ chained_traverse(PyIUObject_Chained *self,
 }
 
 /******************************************************************************
+ * Clear
+ *****************************************************************************/
+
+static int
+chained_clear(PyIUObject_Chained *self)
+{
+    Py_CLEAR(self->funcs);
+    Py_CLEAR(self->funcargs);
+    return 0;
+}
+
+/******************************************************************************
  * Call
  *****************************************************************************/
 
@@ -400,7 +412,7 @@ PyTypeObject PyIUType_Chained = {
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
     (const char *)chained_doc,                          /* tp_doc */
     (traverseproc)chained_traverse,                     /* tp_traverse */
-    (inquiry)0,                                         /* tp_clear */
+    (inquiry)chained_clear,                             /* tp_clear */
     (richcmpfunc)0,                                     /* tp_richcompare */
     (Py_ssize_t)0,                                      /* tp_weaklistoffset */
     (getiterfunc)0,                                     /* tp_iter */

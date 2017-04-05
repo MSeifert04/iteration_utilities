@@ -83,6 +83,19 @@ intersperse_traverse(PyIUObject_Intersperse *self,
 }
 
 /******************************************************************************
+ * Clear
+ *****************************************************************************/
+
+static int
+intersperse_clear(PyIUObject_Intersperse *self)
+{
+    Py_CLEAR(self->iterator);
+    Py_CLEAR(self->filler);
+    Py_CLEAR(self->nextitem);
+    return 0;
+}
+
+/******************************************************************************
  * Next
  *****************************************************************************/
 
@@ -282,7 +295,7 @@ PyTypeObject PyIUType_Intersperse = {
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
     (const char *)intersperse_doc,                      /* tp_doc */
     (traverseproc)intersperse_traverse,                 /* tp_traverse */
-    (inquiry)0,                                         /* tp_clear */
+    (inquiry)intersperse_clear,                         /* tp_clear */
     (richcmpfunc)0,                                     /* tp_richcompare */
     (Py_ssize_t)0,                                      /* tp_weaklistoffset */
     (getiterfunc)PyObject_SelfIter,                     /* tp_iter */

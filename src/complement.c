@@ -63,6 +63,17 @@ complement_traverse(PyIUObject_Complement *self,
 }
 
 /******************************************************************************
+ * Clear
+ *****************************************************************************/
+
+static int
+complement_clear(PyIUObject_Complement *self)
+{
+    Py_CLEAR(self->func);
+    return 0;
+}
+
+/******************************************************************************
  * Call
  *****************************************************************************/
 
@@ -179,7 +190,7 @@ PyTypeObject PyIUType_Complement = {
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
     (const char *)complement_doc,                       /* tp_doc */
     (traverseproc)complement_traverse,                  /* tp_traverse */
-    (inquiry)0,                                         /* tp_clear */
+    (inquiry)complement_clear,                          /* tp_clear */
     (richcmpfunc)0,                                     /* tp_richcompare */
     (Py_ssize_t)0,                                      /* tp_weaklistoffset */
     (getiterfunc)0,                                     /* tp_iter */

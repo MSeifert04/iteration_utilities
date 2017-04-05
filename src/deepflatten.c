@@ -111,6 +111,19 @@ deepflatten_traverse(PyIUObject_DeepFlatten *self,
 }
 
 /******************************************************************************
+ * Clear
+ *****************************************************************************/
+
+static int
+deepflatten_clear(PyIUObject_DeepFlatten *self)
+{
+    Py_CLEAR(self->iteratorlist);
+    Py_CLEAR(self->types);
+    Py_CLEAR(self->ignore);
+    return 0;
+}
+
+/******************************************************************************
  * Next
  *****************************************************************************/
 
@@ -454,7 +467,7 @@ PyTypeObject PyIUType_DeepFlatten = {
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
     (const char *)deepflatten_doc,                      /* tp_doc */
     (traverseproc)deepflatten_traverse,                 /* tp_traverse */
-    (inquiry)0,                                         /* tp_clear */
+    (inquiry)deepflatten_clear,                         /* tp_clear */
     (richcmpfunc)0,                                     /* tp_richcompare */
     (Py_ssize_t)0,                                      /* tp_weaklistoffset */
     (getiterfunc)PyObject_SelfIter,                     /* tp_iter */

@@ -74,6 +74,17 @@ flip_traverse(PyIUObject_Flip *self,
 }
 
 /******************************************************************************
+ * Clear
+ *****************************************************************************/
+
+static int
+flip_clear(PyIUObject_Flip *self)
+{
+    Py_CLEAR(self->func);
+    return 0;
+}
+
+/******************************************************************************
  * Call
  *****************************************************************************/
 
@@ -184,7 +195,7 @@ PyTypeObject PyIUType_Flip = {
         Py_TPFLAGS_BASETYPE,                            /* tp_flags */
     (const char *)flip_doc,                             /* tp_doc */
     (traverseproc)flip_traverse,                        /* tp_traverse */
-    (inquiry)0,                                         /* tp_clear */
+    (inquiry)flip_clear,                                /* tp_clear */
     (richcmpfunc)0,                                     /* tp_richcompare */
     (Py_ssize_t)0,                                      /* tp_weaklistoffset */
     (getiterfunc)0,                                     /* tp_iter */
