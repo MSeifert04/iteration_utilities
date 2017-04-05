@@ -12,8 +12,9 @@ from itertools import chain, islice, repeat, product, combinations
 from operator import itemgetter
 
 # This module
-from .. import EQ_PY2, nth, unique_justseen, chained
-from ._core import tail
+from iteration_utilities import nth, unique_justseen, chained
+from ._utils import EQ_PY2
+from ._recipes import tail
 
 
 if EQ_PY2:

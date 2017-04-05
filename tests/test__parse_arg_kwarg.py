@@ -16,7 +16,7 @@ from helper_cls import T
 
 parse_args = iteration_utilities._cfuncs._parse_args
 parse_kwargs = iteration_utilities._cfuncs._parse_kwargs
-default = iteration_utilities.core._default
+default = iteration_utilities._utils._default
 
 
 @memory_leak_decorator()

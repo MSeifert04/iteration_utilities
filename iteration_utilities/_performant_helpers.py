@@ -10,7 +10,7 @@ from __future__ import absolute_import, division, print_function
 from itertools import repeat
 
 # This module
-from .. import EQ_PY2
+from ._utils import EQ_PY2
 
 
 if EQ_PY2:

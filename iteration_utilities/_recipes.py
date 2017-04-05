@@ -15,7 +15,7 @@ from itertools import islice, chain, repeat, starmap, tee, combinations
 from random import choice, sample, randrange
 
 # This module
-from .. import EQ_PY2
+from ._utils import EQ_PY2
 
 # Replace list-generating functions by generator functions
 if EQ_PY2:

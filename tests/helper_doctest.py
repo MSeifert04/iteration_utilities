@@ -6,4 +6,4 @@ import doctest
 
 
 def doctest_module_no_failure(module):
-    assert doctest.testmod(module).failed == 0
+    doctest.testmod(module, raise_on_error=True)
