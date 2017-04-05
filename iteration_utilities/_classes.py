@@ -47,7 +47,7 @@ from iteration_utilities import merge, roundrobin
 # - helper
 from iteration_utilities import all_isinstance, any_isinstance
 # - private helpers (must be imported from the private module!!!)
-from iteration_utilities._cfuncs import _parse_args, _parse_kwargs
+from _iteration_utilities import _parse_args, _parse_kwargs
 
 
 # Compatibility imports

@@ -2,8 +2,9 @@
 
 """Utilities based on Pythons iterators and generators."""
 
+from _iteration_utilities import *
+
 from ._utils import *
-from ._cfuncs import *
 from ._recipes import *
 from ._additional_recipes import *
 from ._performant_helpers import *
