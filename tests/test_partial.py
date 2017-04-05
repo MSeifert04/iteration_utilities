@@ -12,6 +12,8 @@ import pytest
 
 # This module
 import iteration_utilities
+from iteration_utilities._compat import (
+    RecursionError, AttributeUnwriteableException)
 
 # Test helper
 from helper_leak import memory_leak_decorator
@@ -62,12 +64,11 @@ class MyDict(dict):
 @memory_leak_decorator(collect=True)
 def test_attributes_unwritable():
     p = partial(capture, T(1), T(2), a=T(10), b=T(20))
-    expectedexc = TypeError if iteration_utilities.EQ_PY2 else AttributeError
-    with pytest.raises(expectedexc):
+    with pytest.raises(AttributeUnwriteableException):
         p.func = map
-    with pytest.raises(expectedexc):
+    with pytest.raises(AttributeUnwriteableException):
         p.args = (T(1), T(2))
-    with pytest.raises(expectedexc):
+    with pytest.raises(AttributeUnwriteableException):
         p.keywords = {'a': T(1), 'b': T(2)}
 
     p = partial(hex)
@@ -77,17 +78,13 @@ def test_attributes_unwritable():
 
 @memory_leak_decorator(offset=1)
 def test_recursive_pickle():
-    if iteration_utilities.GE_PY35:
-        expectedexc = RecursionError
-    else:
-        expectedexc = RuntimeError
 
     with AllowPickle():
         f = partial(capture)
         f.__setstate__((f, (), {}, {}))
         try:
             for proto in range(pickle.HIGHEST_PROTOCOL + 1):
-                with pytest.raises(expectedexc):
+                with pytest.raises(RecursionError):
                     pickle.dumps(f, proto)
         finally:
             f.__setstate__((capture, (), {}, {}))

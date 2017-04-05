@@ -10,15 +10,6 @@ import pytest
 # This module
 import iteration_utilities
 
-# Test helper
-from helper_doctest import doctest_module_no_failure
-
-
-def test_doctests():
-    doctest_module_no_failure(iteration_utilities._recipes._core)
-    doctest_module_no_failure(iteration_utilities._recipes._additional)
-    doctest_module_no_failure(iteration_utilities._helpers._performance)
-
 
 def test_exceptions():
     # old-style classes don't have the subclasses special member.

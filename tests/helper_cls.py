@@ -1,17 +1,12 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
 # Built-ins
-import abc
 import operator
 import itertools
 
 # This module
 import iteration_utilities
-
-if iteration_utilities.EQ_PY2:
-    from itertools import imap as map
-    from itertools import ifilter as filter
-    from itertools import izip as zip
+from iteration_utilities._compat import map, filter, range, zip
 
 
 class T(object):
@@ -97,6 +92,8 @@ def failingTIterator(offset=0, repeats=1):
 
 if iteration_utilities.EQ_PY2:
     exec("""
+import abc
+
 class FailingIsinstanceClass:
     __metaclass__ = abc.ABCMeta
 
@@ -106,6 +103,8 @@ class FailingIsinstanceClass:
 """)
 else:
     exec("""
+import abc
+
 class FailingIsinstanceClass(metaclass=abc.ABCMeta):
     @classmethod
     def __subclasshook__(cls, C):

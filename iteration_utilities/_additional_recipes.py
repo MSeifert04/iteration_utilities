@@ -12,12 +12,9 @@ from itertools import chain, islice, repeat, product, combinations
 from operator import itemgetter
 
 # This module
-from .. import EQ_PY2, nth, unique_justseen, chained
-from ._core import tail
-
-
-if EQ_PY2:
-    from itertools import imap as map
+from iteration_utilities import nth, unique_justseen, chained
+from ._compat import map
+from ._recipes import tail
 
 
 __all__ = ['argsorted', 'combinations_from_relations', 'getitem',

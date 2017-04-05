@@ -5,7 +5,8 @@
 from ._utils import *
 from ._cfuncs import *
 from ._recipes import *
-from ._helpers import *
-from .core import *
+from ._additional_recipes import *
+from ._performant_helpers import *
+from ._classes import *
 
 __version__ = '0.5.2'

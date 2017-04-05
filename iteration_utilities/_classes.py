@@ -46,19 +46,12 @@ from iteration_utilities import (all_distinct, all_equal, all_monotone,
 from iteration_utilities import merge, roundrobin
 # - helper
 from iteration_utilities import all_isinstance, any_isinstance
-# - private helpers
+# - private helpers (must be imported from the private module!!!)
 from iteration_utilities._cfuncs import _parse_args, _parse_kwargs
 
 
-# Conditional imports
-if EQ_PY2:
-    from itertools import (ifilter as filter,
-                           imap as map,
-                           ifilterfalse as filterfalse,
-                           izip as zip,
-                           izip_longest as zip_longest)
-else:
-    from itertools import filterfalse, zip_longest
+# Compatibility imports
+from ._compat import filter, map, filterfalse, zip, zip_longest
 
 if GE_PY34:
     import statistics
@@ -193,12 +186,12 @@ class _Base(object):
         >>> class D(C): pass
 
         >>> Iterable.from_itersubclasses(A).as_list()
-        [<class 'iteration_utilities.core.B'>, \
-<class 'iteration_utilities.core.C'>, \
-<class 'iteration_utilities.core.D'>]
+        [<class 'iteration_utilities._classes.B'>, \
+<class 'iteration_utilities._classes.C'>, \
+<class 'iteration_utilities._classes.D'>]
 
         >>> Iterable.from_itersubclasses(C).as_list()
-        [<class 'iteration_utilities.core.D'>]
+        [<class 'iteration_utilities._classes.D'>]
         """
         return Iterable(itersubclasses(object))
 

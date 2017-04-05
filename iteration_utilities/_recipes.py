@@ -15,15 +15,8 @@ from itertools import islice, chain, repeat, starmap, tee, combinations
 from random import choice, sample, randrange
 
 # This module
-from .. import EQ_PY2
-
-# Replace list-generating functions by generator functions
-if EQ_PY2:
-    from itertools import (ifilter as filter,
-                           ifilterfalse as filterfalse)
-    range = xrange
-else:
-    from itertools import filterfalse
+from ._compat import filter, filterfalse, range
+from ._utils import EQ_PY2
 
 
 __all__ = ['consume',
