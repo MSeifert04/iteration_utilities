@@ -13,6 +13,6 @@ from helper_doctest import doctest_module_no_failure
 
 
 def test_doctests():
-    # classes are added to the main module code. :-)
+    # classes are added to the main module code so they are checked elsewhere. :-)
     doctest_module_no_failure(iteration_utilities)
     doctest_module_no_failure(iteration_utilities._cfuncs)
