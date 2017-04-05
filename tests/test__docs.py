@@ -18,7 +18,6 @@ import _iteration_utilities
                           iteration_utilities._recipes,
                           iteration_utilities._additional_recipes,
                           iteration_utilities._classes,
-                          iteration_utilities._performant_helpers,
                           ])
 def test_doctests(mod):
     # classes are added to the main module code. :-)

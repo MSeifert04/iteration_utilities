@@ -28,7 +28,9 @@
 #include "argminmax.c"
 #include "alldistinct.c"
 #include "allequal.c"
+#include "allisinstance.c"
 #include "allmonotone.c"
+#include "anyisinstance.c"
 #include "countitems.c"
 #include "dotproduct.c"
 #include "groupedby.c"
@@ -211,10 +213,22 @@ static PyMethodDef PyIU_methods[] = {
      PyIU_AllEqual_doc                                  /* ml_doc */
      },
 
+    {"all_isinstance",                                  /* ml_name */
+     (PyCFunction)PyIU_AllIsinstance,                   /* ml_meth */
+     METH_VARARGS | METH_KEYWORDS,                      /* ml_flags */
+     PyIU_AllIsinstance_doc                             /* ml_doc */
+     },
+
     {"all_monotone",                                    /* ml_name */
      (PyCFunction)PyIU_Monotone,                        /* ml_meth */
      METH_VARARGS | METH_KEYWORDS,                      /* ml_flags */
      PyIU_Monotone_doc                                  /* ml_doc */
+     },
+
+    {"any_isinstance",                                  /* ml_name */
+     (PyCFunction)PyIU_AnyIsinstance,                   /* ml_meth */
+     METH_VARARGS | METH_KEYWORDS,                      /* ml_flags */
+     PyIU_AnyIsinstance_doc                             /* ml_doc */
      },
 
     {"count_items",                                     /* ml_name */
