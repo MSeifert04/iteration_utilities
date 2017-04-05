@@ -12,7 +12,7 @@ import iteration_utilities
 
 # Test helper
 import helper_funcs
-from helper_cls import T, toT, failingTIterator
+from helper_cls import T, toT, failingTIterator, FailingIsinstanceClass
 from helper_leak import memory_leak_decorator
 
 
@@ -206,6 +206,24 @@ def test_deepflatten_failure8():
 
     nothing = object()
     assert next(df, nothing) is nothing
+
+
+@memory_leak_decorator(collect=True)
+def test_deepflatten_failure9():
+    # Check that everyting is working even if isinstance fails
+    df = deepflatten(toT([1, 2, 3, 4]), types=FailingIsinstanceClass)
+    with pytest.raises(TypeError) as exc:
+        list(df)
+    assert 'isinstance failed' in str(exc)
+
+
+@memory_leak_decorator(collect=True)
+def test_deepflatten_failure10():
+    # Check that everyting is working even if isinstance fails
+    df = deepflatten(toT([1, 2, 3, 4]), ignore=FailingIsinstanceClass)
+    with pytest.raises(TypeError) as exc:
+        list(df)
+    assert 'isinstance failed' in str(exc)
 
 
 @memory_leak_decorator(collect=True)

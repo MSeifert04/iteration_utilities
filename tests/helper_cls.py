@@ -1,6 +1,7 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
 # Built-ins
+import abc
 import operator
 import itertools
 
@@ -92,3 +93,21 @@ def failingTIterator(offset=0, repeats=1):
         return itertools.chain([T(1) for _ in range(offset)], it)
     else:
         return it
+
+
+if iteration_utilities.EQ_PY2:
+    exec("""
+class FailingIsinstanceClass:
+    __metaclass__ = abc.ABCMeta
+
+    @classmethod
+    def __subclasshook__(cls, C):
+        raise TypeError('isinstance failed')
+""")
+else:
+    exec("""
+class FailingIsinstanceClass(metaclass=abc.ABCMeta):
+    @classmethod
+    def __subclasshook__(cls, C):
+        raise TypeError('isinstance failed')
+""")

@@ -13,6 +13,9 @@ Version 0.6.0 (unreleased)
 
 - Added several attributes to classes.
 
+- Fixed a Bug in ``deepflatten`` when ``isinstance`` fails for the classes
+  given as ``types`` or ``ignore`` parameter.
+
 
 Version 0.5.2 (2017-03-30)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
