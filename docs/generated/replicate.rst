@@ -3,7 +3,7 @@ replicate
 
 .. currentmodule:: iteration_utilities
 
-.. autofunction:: replicate
+.. autoclass:: replicate
 
    .. method:: __length_hint__()
 
