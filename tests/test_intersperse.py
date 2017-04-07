@@ -4,6 +4,7 @@
 from __future__ import absolute_import, division, print_function
 import operator
 import pickle
+import sys
 
 # 3rd party
 import pytest
@@ -13,7 +14,8 @@ import iteration_utilities
 
 # Test helper
 import helper_funcs
-from helper_cls import T, toT, failingTIterator
+from helper_cls import (
+    T, toT, failingTIterator, FailLengthHint, OverflowLengthHint)
 from helper_leak import memory_leak_decorator
 
 
@@ -143,3 +145,49 @@ def test_intersperse_lengthhint1():
     assert operator.length_hint(it) == 1
     next(it)
     assert operator.length_hint(it) == 0
+
+
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
+                   reason='length does not work before Python 3.4')
+@memory_leak_decorator(collect=True)
+def test_intersperse_lengthhint_failure1():
+    f_it = FailLengthHint(toT([1, 2, 3]))
+    it = intersperse(f_it, 2)
+    with pytest.raises(ValueError) as exc:
+        operator.length_hint(it)
+    assert 'length_hint failed' in str(exc)
+
+    with pytest.raises(ValueError) as exc:
+        list(it)
+    assert 'length_hint failed' in str(exc)
+
+
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
+                   reason='length does not work before Python 3.4')
+@memory_leak_decorator(collect=True)
+def test_intersperse_lengthhint_failure2():
+    # This is the easy way to overflow the length_hint: If the iterable itself
+    # has a length_hint > sys.maxsize
+    of_it = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
+    it = intersperse(of_it, 2)
+    with pytest.raises(OverflowError):
+        operator.length_hint(it)
+
+    with pytest.raises(OverflowError):
+        list(it)
+
+
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
+                   reason='length does not work before Python 3.4')
+@memory_leak_decorator(collect=True)
+def test_intersperse_lengthhint_failure3():
+    # The length_hint method multiplies the length_hint of the iterable with
+    # 2 (and adds/subtracts 1) so it's actually possible to have overflow even
+    # if the length of the iterable doesn't trigger the overflow!
+    of_it = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize)
+    it = intersperse(of_it, 2)
+    with pytest.raises(OverflowError):
+        operator.length_hint(it)
+
+    with pytest.raises(OverflowError):
+        list(it)

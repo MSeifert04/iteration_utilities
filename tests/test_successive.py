@@ -4,6 +4,7 @@
 from __future__ import absolute_import, division, print_function
 import operator
 import pickle
+import sys
 
 # 3rd party
 import pytest
@@ -13,7 +14,8 @@ import iteration_utilities
 
 # Test helper
 import helper_funcs
-from helper_cls import T, toT, failingTIterator
+from helper_cls import (
+    T, toT, failingTIterator, FailLengthHint, OverflowLengthHint)
 from helper_leak import memory_leak_decorator
 
 
@@ -172,3 +174,34 @@ def test_successive_lengthhint1():
 @memory_leak_decorator()
 def test_successive_lengthhint2():
     assert operator.length_hint(successive([0]*6, 11)) == 0
+
+
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
+                   reason='length does not work before Python 3.4')
+@memory_leak_decorator(collect=True)
+def test_successive_failure_lengthhint1():
+    f_it = FailLengthHint(toT([1, 2, 3]))
+    it = successive(f_it)
+    with pytest.raises(ValueError) as exc:
+        operator.length_hint(it)
+    assert 'length_hint failed' in str(exc)
+
+    with pytest.raises(ValueError) as exc:
+        list(it)
+    assert 'length_hint failed' in str(exc)
+
+
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
+                   reason='length does not work before Python 3.4')
+@memory_leak_decorator(collect=True)
+def test_successive_failure_lengthhint2():
+    # This only checks for overflow if the length_hint is above PY_SSIZE_T_MAX.
+    # In theory that would be possible because with times the length would be
+    # shorter but "length_hint" throws the exception so we propagate it.
+    of_it = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
+    it = successive(of_it)
+    with pytest.raises(OverflowError):
+        operator.length_hint(it)
+
+    with pytest.raises(OverflowError):
+        list(it)

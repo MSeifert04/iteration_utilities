@@ -199,7 +199,11 @@ accumulate_reduce(PyIUObject_Accumulate *self)
 static PyObject *
 accumulate_lengthhint(PyIUObject_Accumulate *self)
 {
-    return PyLong_FromSsize_t(PyObject_LengthHint(self->iterator, 0));
+    Py_ssize_t len = PyObject_LengthHint(self->iterator, 0);
+    if (len == -1) {
+        return NULL;
+    }
+    return PyLong_FromSsize_t(len);
 }
 #endif
 

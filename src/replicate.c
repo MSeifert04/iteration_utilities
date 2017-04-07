@@ -216,11 +216,28 @@ replicate_lengthhint(PyIUObject_Replicate *self)
     if (len == -1) {
         return NULL;
     }
-    /* Not overflow safe ... */
+
+    /* Check if it is safe (no overflow) to multiply it. */
+    if (len > PY_SSIZE_T_MAX / self->repeattotal) {
+        PyErr_SetString(PyExc_OverflowError,
+                        "cannot fit 'int' into an index-sized "
+                        "integer");
+        return NULL;
+    }
     len *= self->repeattotal;
+
     if (self->current != NULL) {
-        /* Not overflow safe ... */
-        len += self->repeattotal - self->repeatcurrent;
+        /* We need to avoid signed integer overflow so do the operation on
+           size_t instead. "repeattotal" >= "repeatcurrent" so we only
+           deal with positive values here and we're overflow safe when doing
+           the operation on (size_t) because 2*PY_SSIZE_T_MAX is still
+           below SIZE_T_MAX. We also don't need to check for overflow because
+           we can simply return "PyLong_FromSize_t", which will fail when
+           someone else wants it as Py_ssize_t (later).
+           */
+        size_t ulen = (size_t)len;
+        ulen += (size_t)(self->repeattotal - self->repeatcurrent);
+        return PyLong_FromSize_t(ulen);
     }
     return PyLong_FromSsize_t(len);
 }

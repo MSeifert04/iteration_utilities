@@ -4,6 +4,7 @@
 from __future__ import absolute_import, division, print_function
 import operator
 import pickle
+import sys
 
 # 3rd party
 import pytest
@@ -12,7 +13,8 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_cls import T, toT, failingTIterator
+from helper_cls import (
+    T, toT, failingTIterator, FailLengthHint, OverflowLengthHint)
 from helper_funcs import iterator_copy
 from helper_leak import memory_leak_decorator
 
@@ -177,3 +179,31 @@ def test_accumulate_lengthhint1():
     assert operator.length_hint(it) == 1
     next(it)
     assert operator.length_hint(it) == 0
+
+
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
+                   reason='length does not work before Python 3.4')
+@memory_leak_decorator(collect=True)
+def test_accumulate_lengthhint_failure1():
+    f_it = FailLengthHint(toT([1, 2, 3]))
+    acc = accumulate(f_it)
+    with pytest.raises(ValueError) as exc:
+        operator.length_hint(acc)
+    assert 'length_hint failed' in str(exc)
+
+    with pytest.raises(ValueError) as exc:
+        list(acc)
+    assert 'length_hint failed' in str(exc)
+
+
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
+                   reason='length does not work before Python 3.4')
+@memory_leak_decorator(collect=True)
+def test_accumulate_lengthhint_failure2():
+    of_it = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
+    acc = accumulate(of_it)
+    with pytest.raises(OverflowError):
+        operator.length_hint(acc)
+
+    with pytest.raises(OverflowError):
+        list(acc)

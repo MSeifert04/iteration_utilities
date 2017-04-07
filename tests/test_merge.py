@@ -5,6 +5,7 @@ from __future__ import absolute_import, division, print_function
 import itertools
 import operator
 import pickle
+import sys
 
 # 3rd party
 import pytest
@@ -14,7 +15,8 @@ import iteration_utilities
 
 # Test helper
 import helper_funcs
-from helper_cls import T, toT, failingTIterator
+from helper_cls import (
+    T, toT, failingTIterator, FailLengthHint, OverflowLengthHint)
 from helper_leak import memory_leak_decorator
 
 
@@ -431,3 +433,81 @@ def test_merge_lengthhint1():
     assert operator.length_hint(it) == 1
     next(it)
     assert operator.length_hint(it) == 0
+
+
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
+                   reason='length does not work before Python 3.4')
+@memory_leak_decorator(collect=True)
+def test_merge_lengthhint_failure1():
+    f_it = FailLengthHint(toT([1, 2, 3]))
+    it = merge(f_it)
+    with pytest.raises(ValueError) as exc:
+        operator.length_hint(it)
+    assert 'length_hint failed' in str(exc)
+
+    with pytest.raises(ValueError) as exc:
+        list(it)
+    assert 'length_hint failed' in str(exc)
+
+
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
+                   reason='length does not work before Python 3.4')
+@memory_leak_decorator(collect=True)
+def test_merge_lengthhint_failure2():
+    # This is the easy way to overflow the length_hint: If the iterable itself
+    # has a length_hint > sys.maxsize
+    of_it = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
+    it = merge(of_it)
+    with pytest.raises(OverflowError):
+        operator.length_hint(it)
+
+    with pytest.raises(OverflowError):
+        list(it)
+
+
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
+                   reason='length does not work before Python 3.4')
+@memory_leak_decorator(collect=True)
+def test_merge_lengthhint_failure3():
+    # Like the test case above but this time we take one item because
+    # internally an unstarted "merge" and started "merge" are treated
+    # differently
+    of_it = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
+    it = merge(of_it)
+    next(it)
+    with pytest.raises(OverflowError):
+        operator.length_hint(it)
+
+    with pytest.raises(OverflowError):
+        list(it)
+
+
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
+                   reason='length does not work before Python 3.4')
+@memory_leak_decorator(collect=True)
+def test_merge_lengthhint_failure4():
+    # Overflow could also happen when adding length_hints that individually are
+    # below the sys.maxsize
+    # In this case we have 3 + sys.maxsize
+    of_it = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize)
+    it = merge(toT([1, 2, 3]), of_it)
+    with pytest.raises(OverflowError):
+        operator.length_hint(it)
+
+    with pytest.raises(OverflowError):
+        list(it)
+
+
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
+                   reason='length does not work before Python 3.4')
+@memory_leak_decorator(collect=True)
+def test_merge_lengthhint_failure5():
+    # Like the test above but this time with a "started" merge
+    of_it = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize)
+    it = merge(toT([1, 2, 3]), of_it)
+    next(it)
+    with pytest.raises(OverflowError):
+        operator.length_hint(it)
+
+    with pytest.raises(OverflowError):
+        list(it)

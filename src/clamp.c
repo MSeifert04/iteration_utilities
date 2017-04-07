@@ -184,6 +184,9 @@ clamp_lengthhint(PyIUObject_Clamp *self)
        determine the length. */
     if (!(self->remove) || (self->low == NULL && self->high == NULL)) {
         len = PyObject_LengthHint(self->iterator, 0);
+        if (len == -1) {
+            return NULL;
+        }
     }
     return PyLong_FromSsize_t(len);
 }

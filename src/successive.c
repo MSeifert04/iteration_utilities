@@ -257,15 +257,23 @@ successive_setstate(PyIUObject_Successive *self,
 static PyObject *
 successive_lengthhint(PyIUObject_Successive *self)
 {
-    Py_ssize_t len = 0;
-    if (self->result == NULL) {
-        len = (PyObject_LengthHint(self->iterator, 0) - self->times) + 1;
-    } else {
-        len = PyObject_LengthHint(self->iterator, 0);
+    Py_ssize_t len = PyObject_LengthHint(self->iterator, 0);
+    if (len == -1) {
+        return NULL;
     }
-
-    if (len < 0) {
-        len = 0;
+    /* If we are already started we will have one result for every remaining
+       item in the iterator. However if we haven't started we have less than
+       that. We need "self->times" objects to fill the first return value, so
+       we need to subtract "self->times - 1" from the length. In case the
+       "times > len" the function won't return anything so we can set the
+       length simply to 0.
+       */
+    if (self->result == NULL) {
+        if (self->times > len) {
+            len = 0;
+        } else {
+            len -= (self->times - 1);
+        }
     }
 
     return PyLong_FromSsize_t(len);

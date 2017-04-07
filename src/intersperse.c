@@ -213,16 +213,26 @@ static PyObject *
 intersperse_lengthhint(PyIUObject_Intersperse *self)
 {
     Py_ssize_t len = PyObject_LengthHint(self->iterator, 0);
+    if (len == -1) {
+        return NULL;
+    }
+    /* We need to multiply the length_hint with 2, to make sure this doesn't
+       trigger undefined behaviour we convert it to "size_t" which can always
+       hold the result (because it's maximum value is 2 * max(py_ssize_t) + 1)
+       Also "LengthHint" always returns >= -1 and we already catched the case
+       where it was -1 so it's not-negative (which could be a problem in the
+       signed -> unsigned conversion).
+       */
     if (self->started == 0) {
         if (len == 0) {
-            return  PyLong_FromLong(0);
+            return PyLong_FromLong(0);
         }
-        return PyLong_FromSsize_t(len * 2 - 1);
+        return PyLong_FromSize_t((size_t)len * 2 - 1);
     } else if (self->nextitem == NULL) {
-        return PyLong_FromSsize_t(len * 2);
+        return PyLong_FromSize_t((size_t)len * 2);
     } else {
         /* The iterator is always one step advanced! */
-        return PyLong_FromSsize_t(len * 2 + 1);
+        return PyLong_FromSize_t((size_t)len * 2 + 1);
     }
 }
 #endif

@@ -4,6 +4,7 @@
 from __future__ import absolute_import, division, print_function
 import operator
 import pickle
+import sys
 
 # 3rd party
 import pytest
@@ -12,7 +13,8 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_cls import T, toT, failingTIterator
+from helper_cls import (
+    T, toT, failingTIterator, FailLengthHint, OverflowLengthHint)
 from helper_funcs import iterator_copy
 from helper_leak import memory_leak_decorator
 
@@ -264,3 +266,31 @@ def test_clamp_lengthhint3():
     # Only works if "remove=False", otherwise the length-hint simply returns 0.
     it = clamp(toT(range(5)), low=T(2), high=T(5), remove=True)
     assert operator.length_hint(it) == 0
+
+
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
+                   reason='length does not work before Python 3.4')
+@memory_leak_decorator(collect=True)
+def test_clamp_lengthhint_failure1():
+    f_it = FailLengthHint(toT([1, 2, 3]))
+    it = clamp(f_it)
+    with pytest.raises(ValueError) as exc:
+        operator.length_hint(it)
+    assert 'length_hint failed' in str(exc)
+
+    with pytest.raises(ValueError) as exc:
+        list(it)
+    assert 'length_hint failed' in str(exc)
+
+
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
+                   reason='length does not work before Python 3.4')
+@memory_leak_decorator(collect=True)
+def test_clamp_lengthhint_failure2():
+    of_it = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
+    it = clamp(of_it)
+    with pytest.raises(OverflowError):
+        operator.length_hint(it)
+
+    with pytest.raises(OverflowError):
+        list(it)

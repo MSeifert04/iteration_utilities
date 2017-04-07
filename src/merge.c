@@ -638,22 +638,68 @@ merge_setstate(PyIUObject_Merge *self,
 static PyObject *
 merge_lengthhint(PyIUObject_Merge *self)
 {
-    Py_ssize_t i, len = 0;
+    Py_ssize_t i;
+    size_t len = 0;
+
+    /* TODO: The following cases share a lot of code, maybe the shared lines
+             could be refactored into a helper function....
+       */
+
     if (self->current == NULL) {
+        /* If we have no current we simply sum the lengths of the iterators.
+           */
         for (i=0 ; i<PyTuple_GET_SIZE(self->iteratortuple) ; i++) {
-            len += PyObject_LengthHint(PyTuple_GET_ITEM(self->iteratortuple, i), 0);
+            PyObject *it = PyTuple_GET_ITEM(self->iteratortuple, i);
+            Py_ssize_t len_tmp = PyObject_LengthHint(it, 0);
+
+            if (len_tmp == -1) {
+                return NULL;
+            }
+            len += (size_t)len_tmp;
+            /* adding two py_ssize_t values (even when they are MAX) cannot
+               overflow "size_t" so we can simply check if the new len is
+               above "PY_SSIZE_T_MAX" to find out if we have overflow.
+               */
+            if (len > (size_t)PY_SSIZE_T_MAX) {
+                PyErr_SetString(PyExc_OverflowError,
+                                "cannot fit 'int' into an index-sized "
+                                "integer");
+                return NULL;
+            }
         }
     } else {
-        len += self->numactive;
+        /* Add the number of items in "current" to the length, because these
+           were taken from the iterables already.
+           */
+        len += (size_t)self->numactive;
+
         for (i=0 ; i<self->numactive ; i++) {
+            Py_ssize_t len_tmp;
+
+            /* We need to avoid the iterators that are already exhausted so
+               just iterate over the "current" and only sum the iterators that
+               are still in the "current".
+               */
             PyObject *iik = PyTuple_GET_ITEM(self->current, i);
             Py_ssize_t idx = ((PyIUObject_ItemIdxKey *)iik)->idx;
             PyObject *it = PyTuple_GET_ITEM(self->iteratortuple, idx);
-            len += PyObject_LengthHint(it, 0);
+            len_tmp = PyObject_LengthHint(it, 0);
+
+            if (len_tmp == -1) {
+                return NULL;
+            }
+            /* See above for explanation. */
+            len += (size_t)len_tmp;
+            if (len > (size_t)PY_SSIZE_T_MAX) {
+                PyErr_SetString(PyExc_OverflowError,
+                                "cannot fit 'int' into an index-sized "
+                                "integer");
+                return NULL;
+            }
         }
     }
 
-    return PyLong_FromSsize_t(len);
+    return PyLong_FromSize_t(len);
 }
 #endif
 

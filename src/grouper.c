@@ -289,12 +289,20 @@ grouper_setstate(PyIUObject_Grouper *self,
 static PyObject *
 grouper_lengthhint(PyIUObject_Grouper *self)
 {
+    Py_ssize_t groups, rem;
     Py_ssize_t len = PyObject_LengthHint(self->iterator, 0);
-    Py_ssize_t groups = len / self->times;
-    Py_ssize_t rem = len % self->times;
+    if (len == -1) {
+        return NULL;
+    }
+    groups = len / self->times;
+    rem = len % self->times;
     if (self->truncate || rem == 0) {
         return PyLong_FromSsize_t(groups);
     } else {
+        /* groups + 1 cannot overflow because that could only happen if
+           "times" is 1 and in that case "rem==0". So it would always enter the
+           first branch which does not contain addition.
+           */
         return PyLong_FromSsize_t(groups + 1);
     }
 }
