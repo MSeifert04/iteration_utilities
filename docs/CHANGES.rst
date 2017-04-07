@@ -21,6 +21,11 @@ Version 0.6.0 (unreleased)
 
 - improved performance of ``all_isinstance`` and ``any_isinstance``.
 
+- improved performance of ``replicate``.
+
+- ``replicate`` now throws an exception if the ``times`` argument is smaller
+  or equal to 1.
+
 
 Version 0.5.2 (2017-03-30)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^

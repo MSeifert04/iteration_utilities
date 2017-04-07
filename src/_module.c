@@ -47,6 +47,7 @@
 #include "intersperse.c"
 #include "iterexcept.c"
 #include "merge.c"
+#include "replicate.c"
 #include "roundrobin.c"
 #include "sideeffect.c"
 #include "split.c"
@@ -327,6 +328,7 @@ static PyMethodDef PyIU_methods[] = {
         &PyIUType_Intersperse,
         &PyIUType_Iterexcept,
         &PyIUType_Merge,
+        &PyIUType_Replicate,
         &PyIUType_Roundrobin,
         &PyIUType_Sideeffects,
         &PyIUType_Split,
