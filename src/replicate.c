@@ -216,8 +216,10 @@ replicate_lengthhint(PyIUObject_Replicate *self)
     if (len == -1) {
         return NULL;
     }
+    /* Not overflow safe ... */
     len *= self->repeattotal;
     if (self->current != NULL) {
+        /* Not overflow safe ... */
         len += self->repeattotal - self->repeatcurrent;
     }
     return PyLong_FromSsize_t(len);

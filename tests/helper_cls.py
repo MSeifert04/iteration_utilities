@@ -1,8 +1,9 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
 # Built-ins
-import operator
 import itertools
+import operator
+import sys
 
 # This module
 import iteration_utilities
@@ -103,6 +104,29 @@ class FailLengthHint(object):
 
     def __length_hint__(self):
         raise ValueError("length_hint failed")
+
+
+class OverflowLengthHint(object):
+    """Simple iterator that allows to set a length_hint so that one can test
+    overflow in PyObject_LengthHint.
+
+    Should be used together with sys.maxsize so it works on 32bit and 64bit
+    builds.
+    """
+    maxsize = sys.maxsize
+
+    def __init__(self, it, length_hint):
+        self.it = iter(it)
+        self.lh = length_hint
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return next(self.it)
+
+    def __length_hint__(self):
+        return self.lh
 
 
 if iteration_utilities.EQ_PY2:
