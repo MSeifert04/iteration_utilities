@@ -34,10 +34,10 @@ replicate_new(PyTypeObject *type,
         goto Fail;
     }
 
-    if (times <= 0) {
+    if (times <= 1) {
         PyErr_Format(PyExc_ValueError,
                      "`times` argument for `replicate` must be greater "
-                     "than 0, not `%zd`", times);
+                     "than 1, not `%zd`", times);
         goto Fail;
     }
 
@@ -190,7 +190,7 @@ replicate_setstate(PyIUObject_Replicate *self,
 
     if (repeatcurrent < 0 || repeatcurrent > self->repeattotal) {
         PyErr_Format(PyExc_ValueError,
-                     "`%.200s.__setstate__` expected a that the second item"
+                     "`%.200s.__setstate__` expected a that the second item "
                      "in the `state` is greater or equal to zero and below "
                      "the `times` (%zd), not `%zd`.",
                      Py_TYPE(self)->tp_name, self->repeattotal, repeatcurrent);

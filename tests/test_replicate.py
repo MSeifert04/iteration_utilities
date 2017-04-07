@@ -74,13 +74,20 @@ def test_replicate_failure2():
 
 @memory_leak_decorator(collect=True)
 def test_replicate_failure3():
-    # second argument below 1
+    # second argument <= 1
     with pytest.raises(ValueError):
         replicate([T(1), T(2)], 0)
 
 
 @memory_leak_decorator(collect=True)
 def test_replicate_failure4():
+    # second argument <= 1
+    with pytest.raises(ValueError):
+        replicate([T(1), T(2)], 1)
+
+
+@memory_leak_decorator(collect=True)
+def test_replicate_failure5():
     # iterator throws an exception different from StopIteration
     with pytest.raises(TypeError) as exc:
         list(replicate(failingTIterator(), 2))
