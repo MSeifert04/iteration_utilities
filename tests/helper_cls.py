@@ -90,6 +90,21 @@ def failingTIterator(offset=0, repeats=1):
         return it
 
 
+class FailLengthHint(object):
+    """Simple iterator that fails when length_hint is called on it."""
+    def __init__(self, it):
+        self.it = iter(it)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return next(self.it)
+
+    def __length_hint__(self):
+        raise ValueError("length_hint failed")
+
+
 if iteration_utilities.EQ_PY2:
     exec("""
 import abc

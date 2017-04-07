@@ -13,12 +13,11 @@ from operator import itemgetter
 
 # This module
 from iteration_utilities import nth, unique_justseen, chained
-from ._compat import map
 from ._recipes import tail
 
 
 __all__ = ['argsorted', 'combinations_from_relations', 'getitem',
-           'insert', 'itersubclasses', 'pad', 'remove', 'replace', 'replicate']
+           'insert', 'itersubclasses', 'pad', 'remove', 'replace']
 
 
 def argsorted(iterable, key=None, reverse=False):
@@ -287,34 +286,6 @@ def pad(iterable, fillvalue=None, nlead=0, ntail=0):
         append = repeat(fillvalue, ntail)
 
     return chain(prepend, iterable, append)
-
-
-def replicate(iterable, times):
-    """Replicates each item in the `iterable` for `times` times.
-
-    Parameters
-    ----------
-    iterable : iterable
-        The iterable which contains the elements to be replicated.
-
-    times : positive :py:class:`int`
-        The number of `times` each element is replicated.
-
-    Returns
-    -------
-    repeated_iterable : generator
-        A generator containing the replicated items from `iterable`.
-
-    Examples
-    --------
-    >>> from iteration_utilities import replicate
-    >>> ''.join(replicate('abc', 3))
-    'aaabbbccc'
-
-    >>> list(replicate(range(3), 5))
-    [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2]
-    """
-    return chain.from_iterable(map(repeat, iterable, repeat(times)))
 
 
 # =============================================================================
