@@ -263,11 +263,29 @@ roundrobin_setstate(PyIUObject_Roundrobin *self,
 static PyObject *
 roundrobin_lengthhint(PyIUObject_Roundrobin *self)
 {
-    Py_ssize_t i, len = 0;
+    Py_ssize_t i;
+    size_t len = 0;
 
     for (i=0 ; i<self->numactive ; i++) {
         PyObject *it = PyTuple_GET_ITEM(self->iteratortuple, i);
-        len += PyObject_LengthHint(it, 0);
+        Py_ssize_t len_tmp = PyObject_LengthHint(it, 0);
+
+        if (len_tmp == -1) {
+            return NULL;
+        }
+
+        /* The logic to avoid overflow is the same as in merge. Basically
+           adding the current length + next iterator length cannot lead to
+           overflow for size_t because we check after each addition if the
+           current length goes above py_ssize_t maximum.
+           */
+        len += (size_t)len_tmp;
+        if (len > (size_t)PY_SSIZE_T_MAX) {
+            PyErr_SetString(PyExc_OverflowError,
+                            "cannot fit 'int' into an index-sized "
+                            "integer");
+            return NULL;
+        }
     }
 
     return PyLong_FromSsize_t(len);

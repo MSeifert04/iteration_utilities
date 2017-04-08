@@ -3,7 +3,6 @@
 # Built-ins
 import itertools
 import operator
-import sys
 
 # This module
 import iteration_utilities
@@ -113,8 +112,6 @@ class OverflowLengthHint(object):
     Should be used together with sys.maxsize so it works on 32bit and 64bit
     builds.
     """
-    maxsize = sys.maxsize
-
     def __init__(self, it, length_hint):
         self.it = iter(it)
         self.lh = length_hint

@@ -4,6 +4,7 @@
 from __future__ import absolute_import, division, print_function
 import operator
 import pickle
+import sys
 
 # 3rd party
 import pytest
@@ -155,7 +156,8 @@ def test_replicate_lengthhint1():
                    reason='length does not work before Python 3.4')
 @memory_leak_decorator(collect=True)
 def test_replicate_failure_lengthhint1():
-    it = replicate(FailLengthHint(toT([1, 2, 3])), 3)
+    f_it = FailLengthHint(toT([1, 2, 3]))
+    it = replicate(f_it, 3)
     with pytest.raises(ValueError) as exc:
         operator.length_hint(it)
     assert 'length_hint failed' in str(exc)
@@ -170,7 +172,46 @@ def test_replicate_failure_lengthhint1():
 @memory_leak_decorator(collect=True)
 def test_replicate_failure_lengthhint2():
     # This only checks for overflow if the length_hint is above PY_SSIZE_T_MAX
-    of_it = OverflowLengthHint(toT([1, 2, 3]), OverflowLengthHint.maxsize + 1)
+    of_it = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
     it = replicate(of_it, 3)
     with pytest.raises(OverflowError):
         operator.length_hint(it)
+
+    with pytest.raises(OverflowError):
+        list(it)
+
+
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
+                   reason='length does not work before Python 3.4')
+@memory_leak_decorator(collect=True)
+def test_replicate_failure_lengthhint3():
+    # It is also possible that the length_hint overflows when the length is
+    # below maxsize but "times * length" is above maxsize.
+    # In this case length = maxsize / 2 but times = 3
+    of_it = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize // 2)
+    it = replicate(of_it, 3)
+    with pytest.raises(OverflowError):
+        operator.length_hint(it)
+
+    with pytest.raises(OverflowError):
+        list(it)
+
+
+@pytest.mark.xfail(not iteration_utilities.GE_PY34,
+                   reason='length does not work before Python 3.4')
+@memory_leak_decorator(collect=True)
+def test_replicate_failure_lengthhint4():
+    # There is also the possibility that "length * times" does not overflow
+    # but adding the "times - timescurrent" afterwards will overflow.
+    # That's a bit tricky, but it seems that ((2**x-1) // 10) * 10 + 9 > 2**x-1
+    # is true for x=15, 31, 63 and 127 so it's possible by setting the times to
+    # 10 and the length to sys.maxsize // 10. The 9 are because the first item
+    # is already popped and should be replicated 9 more times.
+    of_it = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize // 10)
+    it = replicate(of_it, 10)
+    next(it)
+    with pytest.raises(OverflowError):
+        operator.length_hint(it)
+
+    with pytest.raises(OverflowError):
+        list(it)

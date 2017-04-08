@@ -192,7 +192,7 @@ deepflatten_next(PyIUObject_DeepFlatten *self)
         /* If types is given then check if it's an instance thereof and if
            so replace activeiterator, otherwise return the item. */
         } else if (self->types) {
-            if (ok = PyObject_IsInstance(item, self->types)) {
+            if ((ok = PyObject_IsInstance(item, self->types))) {
                 if (ok == -1) {
                     Py_DECREF(item);
                     return NULL;

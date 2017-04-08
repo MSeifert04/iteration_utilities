@@ -26,6 +26,8 @@ Version 0.6.0 (unreleased)
 - ``replicate`` now throws an exception if the ``times`` argument is smaller
   or equal to 1.
 
+- corrected handling of exceptions and overflow in ``__length_hint__`` methods.
+
 
 Version 0.5.2 (2017-03-30)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^

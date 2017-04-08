@@ -405,7 +405,11 @@ sideeffects_setstate(PyIUObject_Sideeffects *self,
 static PyObject *
 sideeffects_lengthhint(PyIUObject_Sideeffects *self)
 {
-    return PyLong_FromSsize_t(PyObject_LengthHint(self->iterator, 0));
+    Py_ssize_t len = PyObject_LengthHint(self->iterator, 0);
+    if (len == -1) {
+        return NULL;
+    }
+    return PyLong_FromSsize_t(len);
 }
 #endif
 
