@@ -1,7 +1,11 @@
 Changelog for "iteration_utilities"
 -----------------------------------
 
-Version 0.6.0 (unreleased)
+Version 0.7.0 (unreleased)
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+Version 0.6.0 (2017-04-08)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Renamed ``func`` parameter name of ``partition`` to ``pred``.
