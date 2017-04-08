@@ -9,4 +9,4 @@ from ._recipes import *
 from ._additional_recipes import *
 from ._classes import *
 
-__version__ = '0.5.2'
+__version__ = '0.6.0'
