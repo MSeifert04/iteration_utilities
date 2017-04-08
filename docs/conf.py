@@ -222,7 +222,7 @@ epub_exclude_files = ['search.html']
 # latex_engine
 latex_documents = [(master_doc,                  # startdocname
                     project + '.tex',            # targetname
-                    project + ' Documentation',  # title
+                    project.replace('_', '\\_') + ' Documentation',  # title
                     author,                      # author
                     'manual',                    # documentclass
                     False),                      # toctree_only
