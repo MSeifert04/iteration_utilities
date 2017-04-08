@@ -62,8 +62,8 @@ __all__ = ['Iterable', 'InfiniteIterable', 'ManyIterables']
 
 
 class _Base(object):
-    """Base class for method definitions that are shared by `Iterable` and
-    `InfiniteIterable`.
+    """Base class for method definitions that are shared by
+    :py:class:`.Iterable` and :py:class:`.InfiniteIterable`.
     """
     __slots__ = ('_iterable',)
 
@@ -138,7 +138,7 @@ class _Base(object):
         [4, 7, 10, 13, 16, 19, 22, 25, 28, 31]
 
         .. warning::
-           This returns an `InfiniteIterable`.
+           This returns an :py:class:`.InfiniteIterable`.
         """
         kwargs = {}
         if start is not _default:
@@ -164,7 +164,8 @@ class _Base(object):
         [5, 5, 5, 5, 5]
 
         .. warning::
-           This returns an `InfiniteIterable` if `times` is not given.
+           This returns an :py:class:`.InfiniteIterable` if `times` is not
+           given.
         """
         if times is not _default:
             return Iterable(repeat(object, times))
@@ -210,7 +211,7 @@ class _Base(object):
         [20, 40, 80, 160, 320]
 
         .. warning::
-           This returns an `InfiniteIterable`.
+           This returns an :py:class:`.InfiniteIterable`.
         """
         return InfiniteIterable(applyfunc(func=func, initial=initial))
 
@@ -287,7 +288,8 @@ class _Base(object):
         [1, 3, 1, 3, 5, 2, 4, 1, 0, 1]
 
         .. warning::
-           This returns an `InfiniteIterable` if `times` is not given.
+           This returns an :py:class:`.InfiniteIterable` if `times` is not
+           given.
         """
         if times:
             return Iterable(repeatfunc(func, *args, **times))
@@ -314,7 +316,7 @@ class _Base(object):
         (1, 2, 6, 24, 120, 720, 5040)
 
         .. warning::
-           This returns an `InfiniteIterable`.
+           This returns an :py:class:`.InfiniteIterable`.
         """
         if start is _default:
             return InfiniteIterable(tabulate(func))
@@ -606,8 +608,8 @@ class _Base(object):
             (5, 6, 7)
 
         .. note::
-           This function might also turn an `InfiniteIterable` into an
-           `Iterable` if the slice has a positive stop.
+           This function might also turn an :py:class:`.InfiniteIterable` into
+           an :py:class:`.Iterable` if the slice has a positive stop.
 
            >>> Iterable.from_count()[:4]  # doctest: +ELLIPSIS
            <Iterable: <itertools.islice object at ...>>
@@ -651,8 +653,8 @@ class _Base(object):
         [3, 5]
 
         .. note::
-           This method converts an `InfiniteIterable` to a normal `Iterable` if
-           a `stop` is given.
+           This method converts an :py:class:`.InfiniteIterable` to a normal
+           :py:class:`.Iterable` if a `stop` is given.
         """
         nargs = len(args)
         meth = self._call
@@ -674,8 +676,8 @@ class _Base(object):
         [0, 1, 100, 2, 3, 4, 5, 6, 7, 8, 9]
 
         .. warning::
-           This returns an `InfiniteIterable` if ``unpack=True`` and the
-           `element` is an `InfiniteIterable`.
+           This returns an :py:class:`.InfiniteIterable` if ``unpack=True`` and
+           the `element` is an :py:class:`.InfiniteIterable`.
 
         >>> Iterable(range(10)).insert(Iterable.from_count(), 3, unpack=True) \
 # doctest: +ELLIPSIS
@@ -748,7 +750,7 @@ class _Base(object):
         [0, 2, 0, 0]
 
         .. warning::
-           This returns an `InfiniteIterable` if ``ntail=None``.
+           This returns an :py:class:`.InfiniteIterable` if ``ntail=None``.
         """
         if ntail is None:
             meth = self._call_infinite
@@ -794,8 +796,8 @@ class _Base(object):
         [0, 1, 3, 4, 5, 6, 7, 8, 9]
 
         .. note::
-           This function might also turn an `InfiniteIterable` into an
-           `Iterable` if `idx` and `stop` are ``None``.
+           This function might also turn an :py:class:`.InfiniteIterable` into
+           an :py:class:`.Iterable` if `idx` and `stop` are ``None``.
 
         >>> Iterable.from_count().remove(start=4)  # doctest: +ELLIPSIS
         <Iterable: <itertools.islice object at ...>>
@@ -818,16 +820,16 @@ class _Base(object):
         [0, 1, 10, 3, 4, 5, 6, 7, 8, 9]
 
         .. warning::
-           This returns an `InfiniteIterable` if ``unpack=True`` and the
-           `element` is an `InfiniteIterable`.
+           This returns an :py:class:`.InfiniteIterable` if ``unpack=True`` and
+           the `element` is an :py:class:`.InfiniteIterable`.
 
         >>> Iterable(range(10)).replace(Iterable.from_count(), 4, unpack=True)\
 # doctest: +ELLIPSIS
         <InfiniteIterable: <itertools.chain object at ...>>
 
         .. note::
-           But this function might also turn an `InfiniteIterable` into an
-           `Iterable` if `idx` and `stop` are ``None``.
+           But this function might also turn an :py:class:`.InfiniteIterable`
+           into an :py:class:`.Iterable` if `idx` and `stop` are ``None``.
 
         >>> Iterable.from_count().replace(10, start=4)  # doctest: +ELLIPSIS
         <Iterable: <itertools.chain object at ...>>
@@ -952,7 +954,8 @@ class _Base(object):
         [1, 2, 3, 4]
 
         .. warning::
-           This method converts an `InfiniteIterable` to a normal `Iterable`.
+           This method converts an :py:class:`.InfiniteIterable` to a normal
+           :py:class:`.Iterable`.
         """
         return self._call_finite(takewhile, 1, predicate)
 
@@ -1009,7 +1012,7 @@ class Iterable(_Base):
     :py:meth:`~.Iterable.accumulate`
         See :py:func:`~iteration_utilities.accumulate`.
     :py:meth:`~.Iterable.as_`
-        Convert `Iterable` to other class.
+        Convert :py:class:`.Iterable` to other class.
     :py:meth:`~.Iterable.as_counter`
         See :py:meth:`.as_`.
     :py:meth:`~.Iterable.as_dict`
@@ -2041,7 +2044,7 @@ class InfiniteIterable(_Base):
        :py:class:`list` directly. This may fail fatally!
 
     Mostly it is not necessary to use :py:class:`.InfiniteIterable` directly
-    because the corresponding methods on `Iterable` return an
+    because the corresponding methods on :py:class:`.Iterable` return an
     :py:class:`.InfiniteIterable` when appropriate. However using
     ``isinstance(some_iterable, InfiniteIterable)`` could be used to determine
     if the :py:class:`.Iterable` is infinite!
