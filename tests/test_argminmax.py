@@ -11,7 +11,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T, failingTIterator
+from helper_cls import T, FailNext
 
 
 argmin = iteration_utilities.argmin
@@ -112,18 +112,18 @@ def test_argmin_failure7():
 @memory_leak_decorator(collect=True)
 def test_argmin_failure8():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError) as exc:
-        argmin(failingTIterator())
-    assert 'eq expected 2 arguments, got 1' in str(exc)
+    with pytest.raises(FailNext.EXC_TYP) as exc:
+        argmin(FailNext())
+    assert FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_argmin_failure9():
     # Test that a failing iterator doesn't raise a SystemError
     # with default
-    with pytest.raises(TypeError) as exc:
-        argmin(failingTIterator(), default=1)
-    assert 'eq expected 2 arguments, got 1' in str(exc)
+    with pytest.raises(FailNext.EXC_TYP) as exc:
+        argmin(FailNext(), default=1)
+    assert FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)

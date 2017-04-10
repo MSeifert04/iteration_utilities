@@ -11,7 +11,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T, toT, failingTIterator
+from helper_cls import T, toT, FailNext
 
 
 partition = iteration_utilities.partition
@@ -95,9 +95,9 @@ def test_partition_failure4():
 @memory_leak_decorator(collect=True)
 def test_partition_failure5():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError) as exc:
-        partition(failingTIterator(), bool)
-    assert 'eq expected 2 arguments, got 1' in str(exc)
+    with pytest.raises(FailNext.EXC_TYP) as exc:
+        partition(FailNext(), bool)
+    assert FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)

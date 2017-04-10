@@ -11,7 +11,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T, failingTIterator
+from helper_cls import T, FailNext
 
 
 count_items = iteration_utilities.count_items
@@ -75,9 +75,9 @@ def test_count_failure3():
     # Regression test when accessing the next item of the iterable resulted
     # in an Exception. For example when the iterable was a filter and the
     # filter function threw an exception.
-    with pytest.raises(TypeError) as exc:
-        count_items(failingTIterator())
-    assert 'eq expected 2 arguments, got 1' in str(exc)
+    with pytest.raises(FailNext.EXC_TYP) as exc:
+        count_items(FailNext())
+    assert FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)

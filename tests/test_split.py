@@ -14,7 +14,7 @@ import iteration_utilities
 
 # Test helper
 import helper_funcs
-from helper_cls import T, toT, failingTIterator
+from helper_cls import T, toT, FailNext
 from helper_leak import memory_leak_decorator
 
 
@@ -175,18 +175,18 @@ def test_split_failure11():
 @memory_leak_decorator(collect=True)
 def test_split_failure7():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError) as exc:
-        next(split(failingTIterator(), iteration_utilities.return_False))
-    assert 'eq expected 2 arguments, got 1' in str(exc)
+    with pytest.raises(FailNext.EXC_TYP) as exc:
+        next(split(FailNext(), iteration_utilities.return_False))
+    assert FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_split_failure8():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError) as exc:
-        next(split(failingTIterator(offset=1),
+    with pytest.raises(FailNext.EXC_TYP) as exc:
+        next(split(FailNext(offset=1),
                    iteration_utilities.return_False))
-    assert 'eq expected 2 arguments, got 1' in str(exc)
+    assert FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)

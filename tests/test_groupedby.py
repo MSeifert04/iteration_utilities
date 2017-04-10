@@ -13,7 +13,7 @@ from iteration_utilities._compat import range
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T, toT, failingTIterator
+from helper_cls import T, toT, FailNext
 
 
 groupedby = iteration_utilities.groupedby
@@ -139,9 +139,9 @@ def test_groupedby_failure7():
 @memory_leak_decorator(collect=True)
 def test_groupedby_failure8():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError) as exc:
-        groupedby(failingTIterator(), bool)
-    assert 'eq expected 2 arguments, got 1' in str(exc)
+    with pytest.raises(FailNext.EXC_TYP) as exc:
+        groupedby(FailNext(), bool)
+    assert FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)

@@ -11,7 +11,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T, failingTIterator
+from helper_cls import T, FailNext
 
 
 all_monotone = iteration_utilities.all_monotone
@@ -85,9 +85,9 @@ def test_all_monotone_failure2():
 @memory_leak_decorator(collect=True)
 def test_all_monotone_failure3():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError) as exc:
-        all_monotone(failingTIterator())
-    assert 'eq expected 2 arguments, got 1' in str(exc)
+    with pytest.raises(FailNext.EXC_TYP) as exc:
+        all_monotone(FailNext())
+    assert FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)

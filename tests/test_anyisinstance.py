@@ -11,7 +11,7 @@ import iteration_utilities
 
 # Test helper
 from helper_leak import memory_leak_decorator
-from helper_cls import T, toT, failingTIterator, FailingIsinstanceClass
+from helper_cls import T, toT, FailNext, FailingIsinstanceClass
 
 
 any_isinstance = iteration_utilities.any_isinstance
@@ -60,14 +60,14 @@ def test_anyisinstance_failure2():
 @memory_leak_decorator(collect=True)
 def test_anyisinstance_failure3():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError) as exc:
-        any_isinstance(failingTIterator(), T)
-    assert 'eq expected 2 arguments, got 1' in str(exc)
+    with pytest.raises(FailNext.EXC_TYP) as exc:
+        any_isinstance(FailNext(), T)
+    assert FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_anyisinstance_failure4():
     # Test failing isinstance operation
-    with pytest.raises(TypeError) as exc:
+    with pytest.raises(FailingIsinstanceClass.EXC_TYP) as exc:
         any_isinstance(toT([1, 2, 3]), FailingIsinstanceClass)
-    assert 'isinstance failed' in str(exc)
+    assert FailingIsinstanceClass.EXC_MSG in str(exc)

@@ -13,8 +13,7 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_cls import (
-    T, toT, failingTIterator, FailLengthHint, OverflowLengthHint)
+from helper_cls import T, toT, FailNext, FailLengthHint, OverflowLengthHint
 from helper_funcs import iterator_copy
 from helper_leak import memory_leak_decorator
 
@@ -83,9 +82,9 @@ def test_accumulate_failure3():
 @memory_leak_decorator(collect=True)
 def test_accumulate_failure4():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError) as exc:
-        next(accumulate(failingTIterator()))
-    assert 'eq expected 2 arguments, got 1' in str(exc)
+    with pytest.raises(FailNext.EXC_TYP) as exc:
+        next(accumulate(FailNext()))
+    assert FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -187,13 +186,13 @@ def test_accumulate_lengthhint1():
 def test_accumulate_lengthhint_failure1():
     f_it = FailLengthHint(toT([1, 2, 3]))
     acc = accumulate(f_it)
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(FailLengthHint.EXC_TYP) as exc:
         operator.length_hint(acc)
-    assert 'length_hint failed' in str(exc)
+    assert FailLengthHint.EXC_MSG in str(exc)
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(FailLengthHint.EXC_TYP) as exc:
         list(acc)
-    assert 'length_hint failed' in str(exc)
+    assert FailLengthHint.EXC_MSG in str(exc)
 
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,

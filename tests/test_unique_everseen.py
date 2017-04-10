@@ -13,7 +13,7 @@ import iteration_utilities
 
 # Test helper
 import helper_funcs
-from helper_cls import T, toT, failingTIterator
+from helper_cls import T, toT, FailNext
 from helper_leak import memory_leak_decorator
 
 
@@ -115,9 +115,9 @@ def test_uniqueeverseen_failure2():
 @memory_leak_decorator(collect=True)
 def test_uniqueeverseen_failure3():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError) as exc:
-        next(unique_everseen(failingTIterator()))
-    assert 'eq expected 2 arguments, got 1' in str(exc)
+    with pytest.raises(FailNext.EXC_TYP) as exc:
+        next(unique_everseen(FailNext()))
+    assert FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)

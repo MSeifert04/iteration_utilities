@@ -15,7 +15,7 @@ import iteration_utilities
 # Test helper
 import helper_funcs
 from helper_cls import (
-    T, toT, failingTIterator, FailLengthHint, OverflowLengthHint)
+    T, toT, FailNext, FailLengthHint, OverflowLengthHint)
 from helper_leak import memory_leak_decorator
 
 
@@ -90,9 +90,9 @@ def test_replicate_failure4():
 @memory_leak_decorator(collect=True)
 def test_replicate_failure5():
     # iterator throws an exception different from StopIteration
-    with pytest.raises(TypeError) as exc:
-        list(replicate(failingTIterator(), 2))
-    assert 'eq expected 2 arguments, got 1' in str(exc)
+    with pytest.raises(FailNext.EXC_TYP) as exc:
+        list(replicate(FailNext(), 2))
+    assert FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -158,13 +158,13 @@ def test_replicate_lengthhint1():
 def test_replicate_failure_lengthhint1():
     f_it = FailLengthHint(toT([1, 2, 3]))
     it = replicate(f_it, 3)
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(FailLengthHint.EXC_TYP) as exc:
         operator.length_hint(it)
-    assert 'length_hint failed' in str(exc)
+    assert FailLengthHint.EXC_MSG in str(exc)
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(FailLengthHint.EXC_TYP) as exc:
         list(it)
-    assert 'length_hint failed' in str(exc)
+    assert FailLengthHint.EXC_MSG in str(exc)
 
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,

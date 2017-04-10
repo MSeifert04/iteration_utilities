@@ -15,7 +15,7 @@ import iteration_utilities
 # Test helper
 import helper_funcs
 from helper_cls import (
-    T, toT, failingTIterator, FailLengthHint, OverflowLengthHint)
+    T, toT, FailNext, FailLengthHint, OverflowLengthHint)
 from helper_leak import memory_leak_decorator
 
 
@@ -52,9 +52,9 @@ def test_intersperse_failure1():
 @memory_leak_decorator(collect=True)
 def test_intersperse_failure2():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError) as exc:
-        next(intersperse(failingTIterator(), T(0)))
-    assert 'eq expected 2 arguments, got 1' in str(exc)
+    with pytest.raises(FailNext.EXC_TYP) as exc:
+        next(intersperse(FailNext(), T(0)))
+    assert FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -153,13 +153,13 @@ def test_intersperse_lengthhint1():
 def test_intersperse_lengthhint_failure1():
     f_it = FailLengthHint(toT([1, 2, 3]))
     it = intersperse(f_it, 2)
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(FailLengthHint.EXC_TYP) as exc:
         operator.length_hint(it)
-    assert 'length_hint failed' in str(exc)
+    assert FailLengthHint.EXC_MSG in str(exc)
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(FailLengthHint.EXC_TYP) as exc:
         list(it)
-    assert 'length_hint failed' in str(exc)
+    assert FailLengthHint.EXC_MSG in str(exc)
 
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,

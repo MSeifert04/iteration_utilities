@@ -16,7 +16,7 @@ import iteration_utilities
 # Test helper
 import helper_funcs
 from helper_cls import (
-    T, toT, failingTIterator, FailLengthHint, OverflowLengthHint)
+    T, toT, FailNext, FailLengthHint, OverflowLengthHint)
 from helper_leak import memory_leak_decorator
 
 
@@ -80,30 +80,29 @@ def test_roundrobin_failure2():
 @memory_leak_decorator(collect=True)
 def test_roundrobin_failure3():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError) as exc:
-        next(roundrobin(failingTIterator()))
-    assert 'eq expected 2 arguments, got 1' in str(exc)
+    with pytest.raises(FailNext.EXC_TYP) as exc:
+        next(roundrobin(FailNext()))
+    assert FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_roundrobin_failure4():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError) as exc:
-        list(roundrobin([T(1), T(2)],
-                        failingTIterator()))
-    assert 'eq expected 2 arguments, got 1' in str(exc)
+    with pytest.raises(FailNext.EXC_TYP) as exc:
+        list(roundrobin([T(1), T(2)], FailNext()))
+    assert FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_roundrobin_failure5():
     # Test that a failing iterator doesn't raise a SystemError
-    rr = roundrobin(failingTIterator(offset=1, repeats=10),
+    rr = roundrobin(FailNext(offset=1, repeats=10),
                     [T(1), T(2), T(3), T(4)])
     assert next(rr) == T(1)
     assert next(rr) == T(1)
-    with pytest.raises(TypeError) as exc:
+    with pytest.raises(FailNext.EXC_TYP) as exc:
         next(rr)
-    assert 'eq expected 2 arguments, got 1' in str(exc)
+    assert FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -218,13 +217,13 @@ def test_roundrobin_lengthhint1():
 def test_roundrobin_failure_lengthhint1():
     f_it = FailLengthHint(toT([1, 2, 3]))
     it = roundrobin(f_it)
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(FailLengthHint.EXC_TYP) as exc:
         operator.length_hint(it)
-    assert 'length_hint failed' in str(exc)
+    assert FailLengthHint.EXC_MSG in str(exc)
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(FailLengthHint.EXC_TYP) as exc:
         list(it)
-    assert 'length_hint failed' in str(exc)
+    assert FailLengthHint.EXC_MSG in str(exc)
 
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,

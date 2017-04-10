@@ -12,7 +12,7 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_cls import T, toT, failingTIterator
+from helper_cls import T, toT, FailNext
 from helper_funcs import iterator_copy
 from helper_leak import memory_leak_decorator
 
@@ -122,9 +122,9 @@ def test_starfilter_failure7():
 @memory_leak_decorator(collect=True)
 def test_starfilter_failure8():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError) as exc:
-        next(starfilter(operator.ne, failingTIterator()))
-    assert 'eq expected 2 arguments, got 1' in str(exc)
+    with pytest.raises(FailNext.EXC_TYP) as exc:
+        next(starfilter(operator.ne, FailNext()))
+    assert FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)

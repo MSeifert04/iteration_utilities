@@ -1,12 +1,10 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
 # Built-ins
-import itertools
-import operator
 
 # This module
 import iteration_utilities
-from iteration_utilities._compat import map, filter, range, zip
+from iteration_utilities._compat import map
 
 
 class T(object):
@@ -78,20 +76,47 @@ class T(object):
 
 
 def toT(iterable):
+    """Convenience to create a normal list to a list of `T` instances."""
     return list(map(T, iterable))
 
 
-def failingTIterator(offset=0, repeats=1):
-    it = filter(operator.eq, zip([T(1) for _ in range(repeats)],
-                                 [T(1) for _ in range(repeats)]))
-    if offset:
-        return itertools.chain([T(1) for _ in range(offset)], it)
-    else:
-        return it
+# Helper classes for certain fail conditions. Bundled here so the tests don't
+# need to reimplement them.
+
+
+class FailNext(object):
+    """An iterator that fails when calling "next" on it.
+
+    The parameter "offset" can be used to set the number of times "next" works
+    before it raises an exception.
+    """
+
+    EXC_MSG = 'next call failed'
+    EXC_TYP = ValueError
+
+    def __init__(self, offset=0, repeats=1):
+        self.offset = offset
+        self.repeats = repeats
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.offset:
+            self.offset -= 1
+            return T(1)
+        else:
+            raise self.EXC_TYP(self.EXC_MSG)
+
+    next = __next__  # python 2.x compatibility
 
 
 class FailLengthHint(object):
     """Simple iterator that fails when length_hint is called on it."""
+
+    EXC_MSG = "length_hint call failed"
+    EXC_TYP = ValueError
+
     def __init__(self, it):
         self.it = iter(it)
 
@@ -101,15 +126,17 @@ class FailLengthHint(object):
     def __next__(self):
         return next(self.it)
 
+    next = __next__  # python 2.x compatibility
+
     def __length_hint__(self):
-        raise ValueError("length_hint failed")
+        raise self.EXC_TYP(self.EXC_MSG)
 
 
 class OverflowLengthHint(object):
     """Simple iterator that allows to set a length_hint so that one can test
     overflow in PyObject_LengthHint.
 
-    Should be used together with sys.maxsize so it works on 32bit and 64bit
+    Should be used together with "sys.maxsize" so it works on 32bit and 64bit
     builds.
     """
     def __init__(self, it, length_hint):
@@ -122,6 +149,8 @@ class OverflowLengthHint(object):
     def __next__(self):
         return next(self.it)
 
+    next = __next__  # python 2.x compatibility
+
     def __length_hint__(self):
         return self.lh
 
@@ -133,16 +162,23 @@ import abc
 class FailingIsinstanceClass:
     __metaclass__ = abc.ABCMeta
 
+    EXC_MSG = 'isinstance call failed'
+    EXC_TYP = TypeError
+
     @classmethod
     def __subclasshook__(cls, C):
-        raise TypeError('isinstance failed')
+        raise cls.EXC_TYP(cls.EXC_MSG)
 """)
 else:
     exec("""
 import abc
 
 class FailingIsinstanceClass(metaclass=abc.ABCMeta):
+
+    EXC_MSG = 'isinstance call failed'
+    EXC_TYP = TypeError
+
     @classmethod
     def __subclasshook__(cls, C):
-        raise TypeError('isinstance failed')
+        raise cls.EXC_TYP(cls.EXC_MSG)
 """)

@@ -14,7 +14,7 @@ from iteration_utilities._compat import (
 
 # Test helper
 import helper_funcs
-from helper_cls import T, toT, failingTIterator, FailingIsinstanceClass
+from helper_cls import T, toT, FailNext, FailingIsinstanceClass
 from helper_leak import memory_leak_decorator
 
 
@@ -147,17 +147,17 @@ def test_deepflatten_failure2():
 @memory_leak_decorator(collect=True)
 def test_deepflatten_failure3():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError) as exc:
-        next(deepflatten(failingTIterator()))
-    assert 'eq expected 2 arguments, got 1' in str(exc)
+    with pytest.raises(FailNext.EXC_TYP) as exc:
+        next(deepflatten(FailNext()))
+    assert FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_deepflatten_failure4():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError) as exc:
-        next(deepflatten([[failingTIterator()], 2]))
-    assert 'eq expected 2 arguments, got 1' in str(exc)
+    with pytest.raises(FailNext.EXC_TYP) as exc:
+        next(deepflatten([[FailNext()], 2]))
+    assert FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -189,11 +189,8 @@ def test_deepflatten_failure7():
 @memory_leak_decorator(collect=True)
 def test_deepflatten_failure8():
     # accessing iterator after exhausting the iterable
-
     df = deepflatten(toT([1, 2, 3, 4]))
-
     assert list(df) == toT([1, 2, 3, 4])
-
     nothing = object()
     assert next(df, nothing) is nothing
 
@@ -202,18 +199,18 @@ def test_deepflatten_failure8():
 def test_deepflatten_failure9():
     # Check that everyting is working even if isinstance fails
     df = deepflatten(toT([1, 2, 3, 4]), types=FailingIsinstanceClass)
-    with pytest.raises(TypeError) as exc:
+    with pytest.raises(FailingIsinstanceClass.EXC_TYP) as exc:
         list(df)
-    assert 'isinstance failed' in str(exc)
+    assert FailingIsinstanceClass.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_deepflatten_failure10():
     # Check that everyting is working even if isinstance fails
     df = deepflatten(toT([1, 2, 3, 4]), ignore=FailingIsinstanceClass)
-    with pytest.raises(TypeError) as exc:
+    with pytest.raises(FailingIsinstanceClass.EXC_TYP) as exc:
         list(df)
-    assert 'isinstance failed' in str(exc)
+    assert FailingIsinstanceClass.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
