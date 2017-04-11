@@ -11,8 +11,9 @@ import pytest
 import iteration_utilities
 
 # Test helper
+import helper_funcs as _hf
+from helper_cls import T, toT
 from helper_leak import memory_leak_decorator
-from helper_cls import T, toT, FailNext
 
 
 nth = iteration_utilities.nth
@@ -155,9 +156,9 @@ def test_nth_regressiontest():
 
 @memory_leak_decorator(collect=True)
 def test_nth_failures1():
-    # not iterable
-    with pytest.raises(TypeError):
-        nth(10)(T(100))
+    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+        nth(10)(_hf.FailIter())
+    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -188,9 +189,9 @@ def test_nth_failures5():
 @memory_leak_decorator(collect=True)
 def test_nth_failures6():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(FailNext.EXC_TYP) as exc:
-        nth(1)(FailNext())
-    assert FailNext.EXC_MSG in str(exc)
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        nth(1)(_hf.FailNext())
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)

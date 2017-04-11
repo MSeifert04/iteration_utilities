@@ -10,8 +10,9 @@ import pytest
 import iteration_utilities
 
 # Test helper
+import helper_funcs as _hf
 from helper_leak import memory_leak_decorator
-from helper_cls import T, FailNext
+from helper_cls import T
 
 
 all_distinct = iteration_utilities.all_distinct
@@ -50,17 +51,17 @@ def test_alldistinct_unhashable2():
 
 @memory_leak_decorator(collect=True)
 def test_alldistinct_failure1():
-    # iterable is not iterable
-    with pytest.raises(TypeError):
-        all_distinct(T(1))
+    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+        all_distinct(_hf.FailIter())
+    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_alldistinct_failure2():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(FailNext.EXC_TYP) as exc:
-        all_distinct(FailNext())
-    assert FailNext.EXC_MSG in str(exc)
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        all_distinct(_hf.FailNext())
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)

@@ -10,8 +10,9 @@ import pytest
 import iteration_utilities
 
 # Test helper
+import helper_funcs as _hf
+from helper_cls import T
 from helper_leak import memory_leak_decorator
-from helper_cls import T, FailNext
 
 
 minmax = iteration_utilities.minmax
@@ -199,9 +200,9 @@ def test_minmax_failure4():
 
 @memory_leak_decorator(collect=True)
 def test_minmax_failure5():
-    # arg is not iterable
-    with pytest.raises(TypeError):
-        minmax(T(100))
+    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+        minmax(_hf.FailIter())
+    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -258,17 +259,17 @@ def test_minmax_failure11():
 @memory_leak_decorator(collect=True)
 def test_minmax_failure12():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(FailNext.EXC_TYP) as exc:
-        minmax(FailNext())
-    assert FailNext.EXC_MSG in str(exc)
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        minmax(_hf.FailNext())
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_minmax_failure13():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(FailNext.EXC_TYP) as exc:
-        minmax(FailNext(offset=1))
-    assert FailNext.EXC_MSG in str(exc)
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        minmax(_hf.FailNext(offset=1))
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)

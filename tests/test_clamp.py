@@ -13,9 +13,8 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_cls import (
-    T, toT, FailNext, FailLengthHint, OverflowLengthHint)
-from helper_funcs import iterator_copy
+import helper_funcs as _hf
+from helper_cls import T, toT
 from helper_leak import memory_leak_decorator
 
 
@@ -110,16 +109,16 @@ def test_clamp_failure2():
 @memory_leak_decorator(collect=True)
 def test_clamp_failure3():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(FailNext.EXC_TYP) as exc:
-        next(clamp(FailNext()))
-    assert FailNext.EXC_MSG in str(exc)
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        next(clamp(_hf.FailNext()))
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_clamp_failure4():
-    # Not iterable
-    with pytest.raises(TypeError):
-        clamp(T(1))
+    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+        clamp(_hf.FailIter())
+    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -131,7 +130,7 @@ def test_clamp_failure5():
 
 @memory_leak_decorator(collect=True)
 def test_clamp_copy1():
-    iterator_copy(clamp([T(20), T(50)], T(10), T(100)))
+    _hf.iterator_copy(clamp([T(20), T(50)], T(10), T(100)))
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
@@ -272,22 +271,22 @@ def test_clamp_lengthhint3():
                    reason='length does not work before Python 3.4')
 @memory_leak_decorator(collect=True)
 def test_clamp_lengthhint_failure1():
-    f_it = FailLengthHint(toT([1, 2, 3]))
+    f_it = _hf.FailLengthHint(toT([1, 2, 3]))
     it = clamp(f_it)
-    with pytest.raises(FailLengthHint.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailLengthHint.EXC_TYP) as exc:
         operator.length_hint(it)
-    assert FailLengthHint.EXC_MSG in str(exc)
+    assert _hf.FailLengthHint.EXC_MSG in str(exc)
 
-    with pytest.raises(FailLengthHint.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailLengthHint.EXC_TYP) as exc:
         list(it)
-    assert FailLengthHint.EXC_MSG in str(exc)
+    assert _hf.FailLengthHint.EXC_MSG in str(exc)
 
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,
                    reason='length does not work before Python 3.4')
 @memory_leak_decorator(collect=True)
 def test_clamp_lengthhint_failure2():
-    of_it = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
+    of_it = _hf.OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
     it = clamp(of_it)
     with pytest.raises(OverflowError):
         operator.length_hint(it)

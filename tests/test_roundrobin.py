@@ -14,9 +14,8 @@ import pytest
 import iteration_utilities
 
 # Test helper
-import helper_funcs
-from helper_cls import (
-    T, toT, FailNext, FailLengthHint, OverflowLengthHint)
+import helper_funcs as _hf
+from helper_cls import T, toT
 from helper_leak import memory_leak_decorator
 
 
@@ -67,47 +66,49 @@ def test_roundrobin_normal4():
 
 @memory_leak_decorator(collect=True)
 def test_roundrobin_failure1():
-    with pytest.raises(TypeError):
-        list(roundrobin(T(1)))
+    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+        roundrobin(_hf.FailIter())
+    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_roundrobin_failure2():
-    with pytest.raises(TypeError):
-        list(roundrobin([T(1)], T(1)))
+    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+        roundrobin([T(1)], _hf.FailIter())
+    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_roundrobin_failure3():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(FailNext.EXC_TYP) as exc:
-        next(roundrobin(FailNext()))
-    assert FailNext.EXC_MSG in str(exc)
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        next(roundrobin(_hf.FailNext()))
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_roundrobin_failure4():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(FailNext.EXC_TYP) as exc:
-        list(roundrobin([T(1), T(2)], FailNext()))
-    assert FailNext.EXC_MSG in str(exc)
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        list(roundrobin([T(1), T(2)], _hf.FailNext()))
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_roundrobin_failure5():
     # Test that a failing iterator doesn't raise a SystemError
-    rr = roundrobin(FailNext(offset=1, repeats=10),
+    rr = roundrobin(_hf.FailNext(offset=1, repeats=10),
                     [T(1), T(2), T(3), T(4)])
     assert next(rr) == T(1)
     assert next(rr) == T(1)
-    with pytest.raises(FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
         next(rr)
-    assert FailNext.EXC_MSG in str(exc)
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_roundrobin_copy1():
-    helper_funcs.iterator_copy(roundrobin([T(1), T(2), T(3), T(4)]))
+    _hf.iterator_copy(roundrobin([T(1), T(2), T(3), T(4)]))
 
 
 @memory_leak_decorator(collect=True)
@@ -161,13 +162,13 @@ def test_roundrobin_failure_setstate6():
 
 @memory_leak_decorator(collect=True)
 def test_roundrobin_failure_setstate7():
-    helper_funcs.iterator_setstate_list_fail(
+    _hf.iterator_setstate_list_fail(
             roundrobin([T(1)], [T(1), T(2), T(3), T(4)]))
 
 
 @memory_leak_decorator(collect=True)
 def test_roundrobin_failure_setstate8():
-    helper_funcs.iterator_setstate_empty_fail(
+    _hf.iterator_setstate_empty_fail(
             roundrobin([T(1)], [T(1), T(2), T(3), T(4)]))
 
 
@@ -215,15 +216,15 @@ def test_roundrobin_lengthhint1():
                    reason='length does not work before Python 3.4')
 @memory_leak_decorator(collect=True)
 def test_roundrobin_failure_lengthhint1():
-    f_it = FailLengthHint(toT([1, 2, 3]))
+    f_it = _hf.FailLengthHint(toT([1, 2, 3]))
     it = roundrobin(f_it)
-    with pytest.raises(FailLengthHint.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailLengthHint.EXC_TYP) as exc:
         operator.length_hint(it)
-    assert FailLengthHint.EXC_MSG in str(exc)
+    assert _hf.FailLengthHint.EXC_MSG in str(exc)
 
-    with pytest.raises(FailLengthHint.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailLengthHint.EXC_TYP) as exc:
         list(it)
-    assert FailLengthHint.EXC_MSG in str(exc)
+    assert _hf.FailLengthHint.EXC_MSG in str(exc)
 
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,
@@ -231,7 +232,7 @@ def test_roundrobin_failure_lengthhint1():
 @memory_leak_decorator(collect=True)
 def test_roundrobin_failure_lengthhint2():
     # This only checks for overflow if the length_hint is above PY_SSIZE_T_MAX
-    of_it = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
+    of_it = _hf.OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
     it = roundrobin(of_it)
     with pytest.raises(OverflowError):
         operator.length_hint(it)
@@ -246,8 +247,8 @@ def test_roundrobin_failure_lengthhint2():
 def test_roundrobin_failure_lengthhint3():
     # Check if by adding the different lengths it could lead to overflow.
     # We use two iterables both with sys.maxsize length.
-    it1 = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize)
-    it2 = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize)
+    it1 = _hf.OverflowLengthHint(toT([1, 2, 3]), sys.maxsize)
+    it2 = _hf.OverflowLengthHint(toT([1, 2, 3]), sys.maxsize)
     it = roundrobin(it1, it2)
     with pytest.raises(OverflowError):
         operator.length_hint(it)

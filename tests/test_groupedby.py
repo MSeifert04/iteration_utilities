@@ -12,8 +12,9 @@ import iteration_utilities
 from iteration_utilities._compat import range
 
 # Test helper
+import helper_funcs as _hf
 from helper_leak import memory_leak_decorator
-from helper_cls import T, toT, FailNext
+from helper_cls import T, toT
 
 
 groupedby = iteration_utilities.groupedby
@@ -86,9 +87,9 @@ def test_groupedby_reduce4():
 
 @memory_leak_decorator(collect=True)
 def test_groupedby_failure1():
-    # not iterable
-    with pytest.raises(TypeError):
-        groupedby(T(1), key=len)
+    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+        groupedby(_hf.FailIter(), key=len)
+    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -139,9 +140,9 @@ def test_groupedby_failure7():
 @memory_leak_decorator(collect=True)
 def test_groupedby_failure8():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(FailNext.EXC_TYP) as exc:
-        groupedby(FailNext(), bool)
-    assert FailNext.EXC_MSG in str(exc)
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        groupedby(_hf.FailNext(), bool)
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)

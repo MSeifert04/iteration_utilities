@@ -13,9 +13,8 @@ import pytest
 import iteration_utilities
 
 # Test helper
-import helper_funcs
-from helper_cls import (
-    T, toT, FailNext, FailLengthHint, OverflowLengthHint)
+import helper_funcs as _hf
+from helper_cls import T, toT
 from helper_leak import memory_leak_decorator
 
 
@@ -45,16 +44,17 @@ def test_intersperse_attributes1():
 
 @memory_leak_decorator(collect=True)
 def test_intersperse_failure1():
-    with pytest.raises(TypeError):
-        intersperse(T(100), T(0))
+    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+        intersperse(_hf.FailIter(), T(0))
+    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_intersperse_failure2():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(FailNext.EXC_TYP) as exc:
-        next(intersperse(FailNext(), T(0)))
-    assert FailNext.EXC_MSG in str(exc)
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        next(intersperse(_hf.FailNext(), T(0)))
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -66,7 +66,7 @@ def test_intersperse_failure3():
 
 @memory_leak_decorator(collect=True)
 def test_intersperse_copy1():
-    helper_funcs.iterator_copy(intersperse(toT([1, 2, 3]), T(0)))
+    _hf.iterator_copy(intersperse(toT([1, 2, 3]), T(0)))
 
 
 @memory_leak_decorator(collect=True)
@@ -79,12 +79,12 @@ def test_intersperse_failure_setstate1():
 
 @memory_leak_decorator(collect=True)
 def test_intersperse_failure_setstate2():
-    helper_funcs.iterator_setstate_list_fail(intersperse(toT([1, 1]), None))
+    _hf.iterator_setstate_list_fail(intersperse(toT([1, 1]), None))
 
 
 @memory_leak_decorator(collect=True)
 def test_intersperse_failure_setstate3():
-    helper_funcs.iterator_setstate_empty_fail(intersperse(toT([1, 1]), None))
+    _hf.iterator_setstate_empty_fail(intersperse(toT([1, 1]), None))
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
@@ -151,15 +151,15 @@ def test_intersperse_lengthhint1():
                    reason='length does not work before Python 3.4')
 @memory_leak_decorator(collect=True)
 def test_intersperse_lengthhint_failure1():
-    f_it = FailLengthHint(toT([1, 2, 3]))
+    f_it = _hf.FailLengthHint(toT([1, 2, 3]))
     it = intersperse(f_it, 2)
-    with pytest.raises(FailLengthHint.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailLengthHint.EXC_TYP) as exc:
         operator.length_hint(it)
-    assert FailLengthHint.EXC_MSG in str(exc)
+    assert _hf.FailLengthHint.EXC_MSG in str(exc)
 
-    with pytest.raises(FailLengthHint.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailLengthHint.EXC_TYP) as exc:
         list(it)
-    assert FailLengthHint.EXC_MSG in str(exc)
+    assert _hf.FailLengthHint.EXC_MSG in str(exc)
 
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,
@@ -168,7 +168,7 @@ def test_intersperse_lengthhint_failure1():
 def test_intersperse_lengthhint_failure2():
     # This is the easy way to overflow the length_hint: If the iterable itself
     # has a length_hint > sys.maxsize
-    of_it = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
+    of_it = _hf.OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
     it = intersperse(of_it, 2)
     with pytest.raises(OverflowError):
         operator.length_hint(it)
@@ -184,7 +184,7 @@ def test_intersperse_lengthhint_failure3():
     # The length_hint method multiplies the length_hint of the iterable with
     # 2 (and adds/subtracts 1) so it's actually possible to have overflow even
     # if the length of the iterable doesn't trigger the overflow!
-    of_it = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize)
+    of_it = _hf.OverflowLengthHint(toT([1, 2, 3]), sys.maxsize)
     it = intersperse(of_it, 2)
     with pytest.raises(OverflowError):
         operator.length_hint(it)

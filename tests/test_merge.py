@@ -14,9 +14,8 @@ import pytest
 import iteration_utilities
 
 # Test helper
-import helper_funcs
-from helper_cls import (
-    T, toT, FailNext, FailLengthHint, OverflowLengthHint)
+import helper_funcs as _hf
+from helper_cls import T, toT
 from helper_leak import memory_leak_decorator
 
 
@@ -152,16 +151,16 @@ def test_merge_attributes1():
 
 @memory_leak_decorator(collect=True)
 def test_merge_failure1():
-    # One iterable is not iterable
-    with pytest.raises(TypeError):
-        merge(T(10))
+    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+        merge(_hf.FailIter())
+    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_merge_failure2():
-    # One iterable is not iterable
-    with pytest.raises(TypeError):
-        merge([T(10), T(20)], T(10))
+    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+        merge([T(10), T(20)], _hf.FailIter())
+    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -225,27 +224,27 @@ def test_merge_failure10():
 @memory_leak_decorator(collect=True)
 def test_merge_failure11():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(FailNext.EXC_TYP) as exc:
-        next(merge(FailNext()))
-    assert FailNext.EXC_MSG in str(exc)
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        next(merge(_hf.FailNext()))
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_merge_failure12():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(FailNext.EXC_TYP) as exc:
-        next(merge([T(1), T(1)], FailNext()))
-    assert FailNext.EXC_MSG in str(exc)
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        next(merge([T(1), T(1)], _hf.FailNext()))
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_merge_failure13():
     # Test that a failing iterator doesn't raise a SystemError
-    mge = merge(FailNext(offset=2, repeats=10))
+    mge = merge(_hf.FailNext(offset=2, repeats=10))
     assert next(mge) == T(1)
-    with pytest.raises(FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
         next(mge)
-    assert FailNext.EXC_MSG in str(exc)
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -321,19 +320,18 @@ def test_merge_failure_setstate8():
 
 @memory_leak_decorator(collect=True)
 def test_merge_failure_setstate9():
-    helper_funcs.iterator_setstate_list_fail(
-            merge(toT(range(5)), toT(range(3, 10, 2))))
+    _hf.iterator_setstate_list_fail(merge(toT(range(5)), toT(range(3, 10, 2))))
 
 
 @memory_leak_decorator(collect=True)
 def test_merge_failure_setstate10():
-    helper_funcs.iterator_setstate_empty_fail(
-            merge(toT(range(5)), toT(range(3, 10, 2))))
+    _hf.iterator_setstate_empty_fail(
+        merge(toT(range(5)), toT(range(3, 10, 2))))
 
 
 @memory_leak_decorator(collect=True)
 def test_merge_copy1():
-    helper_funcs.iterator_copy(merge([T(0)], [T(1), T(2)], [T(2)]))
+    _hf.iterator_copy(merge([T(0)], [T(1), T(2)], [T(2)]))
 
 
 @memory_leak_decorator(collect=True)
@@ -439,15 +437,15 @@ def test_merge_lengthhint1():
                    reason='length does not work before Python 3.4')
 @memory_leak_decorator(collect=True)
 def test_merge_lengthhint_failure1():
-    f_it = FailLengthHint(toT([1, 2, 3]))
+    f_it = _hf.FailLengthHint(toT([1, 2, 3]))
     it = merge(f_it)
-    with pytest.raises(FailLengthHint.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailLengthHint.EXC_TYP) as exc:
         operator.length_hint(it)
-    assert FailLengthHint.EXC_MSG in str(exc)
+    assert _hf.FailLengthHint.EXC_MSG in str(exc)
 
-    with pytest.raises(FailLengthHint.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailLengthHint.EXC_TYP) as exc:
         list(it)
-    assert FailLengthHint.EXC_MSG in str(exc)
+    assert _hf.FailLengthHint.EXC_MSG in str(exc)
 
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,
@@ -456,7 +454,7 @@ def test_merge_lengthhint_failure1():
 def test_merge_lengthhint_failure2():
     # This is the easy way to overflow the length_hint: If the iterable itself
     # has a length_hint > sys.maxsize
-    of_it = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
+    of_it = _hf.OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
     it = merge(of_it)
     with pytest.raises(OverflowError):
         operator.length_hint(it)
@@ -472,7 +470,7 @@ def test_merge_lengthhint_failure3():
     # Like the test case above but this time we take one item because
     # internally an unstarted "merge" and started "merge" are treated
     # differently
-    of_it = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
+    of_it = _hf.OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
     it = merge(of_it)
     next(it)
     with pytest.raises(OverflowError):
@@ -489,7 +487,7 @@ def test_merge_lengthhint_failure4():
     # Overflow could also happen when adding length_hints that individually are
     # below the sys.maxsize
     # In this case we have 3 + sys.maxsize
-    of_it = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize)
+    of_it = _hf.OverflowLengthHint(toT([1, 2, 3]), sys.maxsize)
     it = merge(toT([1, 2, 3]), of_it)
     with pytest.raises(OverflowError):
         operator.length_hint(it)
@@ -503,7 +501,7 @@ def test_merge_lengthhint_failure4():
 @memory_leak_decorator(collect=True)
 def test_merge_lengthhint_failure5():
     # Like the test above but this time with a "started" merge
-    of_it = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize)
+    of_it = _hf.OverflowLengthHint(toT([1, 2, 3]), sys.maxsize)
     it = merge(toT([1, 2, 3]), of_it)
     next(it)
     with pytest.raises(OverflowError):

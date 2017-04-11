@@ -10,8 +10,9 @@ import pytest
 import iteration_utilities
 
 # Test helper
+import helper_funcs as _hf
+from helper_cls import T, toT
 from helper_leak import memory_leak_decorator
-from helper_cls import T, toT, FailNext
 
 
 partition = iteration_utilities.partition
@@ -68,9 +69,9 @@ def test_partition_pred2():
 
 @memory_leak_decorator(collect=True)
 def test_partition_failure1():
-    # not-iterable
-    with pytest.raises(TypeError):
-        partition(T(10))
+    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+        partition(_hf.FailIter())
+    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -81,7 +82,6 @@ def test_partition_failure2():
 
 @memory_leak_decorator(collect=True)
 def test_partition_failure3():
-
     with pytest.raises(TypeError):
         partition([T(1), T('a')], lambda x: x.value - 1)
 
@@ -95,9 +95,9 @@ def test_partition_failure4():
 @memory_leak_decorator(collect=True)
 def test_partition_failure5():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(FailNext.EXC_TYP) as exc:
-        partition(FailNext(), bool)
-    assert FailNext.EXC_MSG in str(exc)
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        partition(_hf.FailNext(), bool)
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)

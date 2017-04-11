@@ -10,8 +10,9 @@ import pytest
 import iteration_utilities
 
 # Test helper
+import helper_funcs as _hf
 from helper_leak import memory_leak_decorator
-from helper_cls import T, FailNext
+from helper_cls import T
 
 
 argmin = iteration_utilities.argmin
@@ -112,22 +113,22 @@ def test_argmin_failure7():
 @memory_leak_decorator(collect=True)
 def test_argmin_failure8():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(FailNext.EXC_TYP) as exc:
-        argmin(FailNext())
-    assert FailNext.EXC_MSG in str(exc)
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        argmin(_hf.FailNext())
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_argmin_failure9():
     # Test that a failing iterator doesn't raise a SystemError
     # with default
-    with pytest.raises(FailNext.EXC_TYP) as exc:
-        argmin(FailNext(), default=1)
-    assert FailNext.EXC_MSG in str(exc)
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        argmin(_hf.FailNext(), default=1)
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_argmin_failure10():
-    # not iterable
-    with pytest.raises(TypeError):
-        argmin(T(1))
+    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+        argmin(_hf.FailIter())
+    assert _hf.FailIter.EXC_MSG in str(exc)

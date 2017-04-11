@@ -10,8 +10,9 @@ import pytest
 import iteration_utilities
 
 # Test helper
+import helper_funcs as _hf
 from helper_leak import memory_leak_decorator
-from helper_cls import T, toT, FailNext, FailingIsinstanceClass
+from helper_cls import T, toT
 
 
 all_isinstance = iteration_utilities.all_isinstance
@@ -40,9 +41,9 @@ def test_allisinstance_normal3():
 
 @memory_leak_decorator(collect=True)
 def test_allisinstance_failure1():
-    # iterable is not iterable
-    with pytest.raises(TypeError):
-        all_isinstance(T(1), T)
+    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+        all_isinstance(_hf.FailIter(), T)
+    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -55,14 +56,14 @@ def test_allisinstance_failure2():
 @memory_leak_decorator(collect=True)
 def test_allisinstance_failure3():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(FailNext.EXC_TYP) as exc:
-        all_isinstance(FailNext(), T)
-    assert FailNext.EXC_MSG in str(exc)
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        all_isinstance(_hf.FailNext(), T)
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_allisinstance_failure4():
     # Test failing isinstance operation
-    with pytest.raises(FailingIsinstanceClass.EXC_TYP) as exc:
-        all_isinstance(toT([1, 2, 3]), FailingIsinstanceClass)
-    assert FailingIsinstanceClass.EXC_MSG in str(exc)
+    with pytest.raises(_hf.FailingIsinstanceClass.EXC_TYP) as exc:
+        all_isinstance(toT([1, 2, 3]), _hf.FailingIsinstanceClass)
+    assert _hf.FailingIsinstanceClass.EXC_MSG in str(exc)

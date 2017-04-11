@@ -11,8 +11,8 @@ import pytest
 import iteration_utilities
 
 # Test helper
-import helper_funcs
-from helper_cls import T, toT, FailNext
+import helper_funcs as _hf
+from helper_cls import T, toT
 from helper_leak import memory_leak_decorator
 
 
@@ -71,9 +71,9 @@ def test_unique_justseen_attributes1():
 
 @memory_leak_decorator(collect=True)
 def test_unique_justseen_failure1():
-    # not iterable
-    with pytest.raises(TypeError):
-        unique_justseen(T(1))
+    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+        unique_justseen(_hf.FailIter())
+    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -92,9 +92,9 @@ def test_unique_justseen_failure3():
 @memory_leak_decorator(collect=True)
 def test_unique_justseen_failure4():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(FailNext.EXC_TYP) as exc:
-        next(unique_justseen(FailNext()))
-    assert FailNext.EXC_MSG in str(exc)
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        next(unique_justseen(_hf.FailNext()))
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -106,17 +106,17 @@ def test_unique_justseen_failure5():
 
 @memory_leak_decorator(collect=True)
 def test_unique_justseen_copy1():
-    helper_funcs.iterator_copy(unique_justseen([T(1), T(2), T(3)]))
+    _hf.iterator_copy(unique_justseen([T(1), T(2), T(3)]))
 
 
 @memory_leak_decorator(collect=True)
 def test_unique_justseen_failure_setstate1():
-    helper_funcs.iterator_setstate_list_fail(unique_justseen(toT([1, 2, 3])))
+    _hf.iterator_setstate_list_fail(unique_justseen(toT([1, 2, 3])))
 
 
 @memory_leak_decorator(collect=True)
 def test_unique_justseen_failure_setstate2():
-    helper_funcs.iterator_setstate_empty_fail(unique_justseen(toT([1, 2, 3])))
+    _hf.iterator_setstate_empty_fail(unique_justseen(toT([1, 2, 3])))
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

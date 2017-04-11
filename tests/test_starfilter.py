@@ -12,8 +12,8 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_cls import T, toT, FailNext
-from helper_funcs import iterator_copy
+import helper_funcs as _hf
+from helper_cls import T
 from helper_leak import memory_leak_decorator
 
 
@@ -59,9 +59,9 @@ def test_starfilter_attributes1():
 
 @memory_leak_decorator(collect=True)
 def test_starfilter_failure1():
-    # input not iterable
-    with pytest.raises(TypeError):
-        starfilter(operator.eq, T(1))
+    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+        starfilter(operator.eq, _hf.FailIter())
+    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -122,9 +122,9 @@ def test_starfilter_failure7():
 @memory_leak_decorator(collect=True)
 def test_starfilter_failure8():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(FailNext.EXC_TYP) as exc:
-        next(starfilter(operator.ne, FailNext()))
-    assert FailNext.EXC_MSG in str(exc)
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        next(starfilter(operator.ne, _hf.FailNext()))
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -136,7 +136,7 @@ def test_starfilter_failure9():
 
 @memory_leak_decorator(collect=True)
 def test_starfilter_copy1():
-    iterator_copy(starfilter(operator.eq, [(T(1), T(1)), (T(2), T(2))]))
+    _hf.iterator_copy(starfilter(operator.eq, [(T(1), T(1)), (T(2), T(2))]))
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

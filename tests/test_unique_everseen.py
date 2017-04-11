@@ -12,8 +12,8 @@ import pytest
 import iteration_utilities
 
 # Test helper
-import helper_funcs
-from helper_cls import T, toT, FailNext
+import helper_funcs as _hf
+from helper_cls import T, toT
 from helper_leak import memory_leak_decorator
 
 
@@ -102,8 +102,9 @@ def test_uniqueeverseen_getter2():
 
 @memory_leak_decorator(collect=True)
 def test_uniqueeverseen_failure1():
-    with pytest.raises(TypeError):
-        list(unique_everseen(T(10)))
+    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+        unique_everseen(_hf.FailIter())
+    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -115,9 +116,9 @@ def test_uniqueeverseen_failure2():
 @memory_leak_decorator(collect=True)
 def test_uniqueeverseen_failure3():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(FailNext.EXC_TYP) as exc:
-        next(unique_everseen(FailNext()))
-    assert FailNext.EXC_MSG in str(exc)
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        next(unique_everseen(_hf.FailNext()))
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -156,7 +157,7 @@ def test_uniqueeverseen_failure6():
 
 @memory_leak_decorator(collect=True)
 def test_uniqueeverseen_copy1():
-    helper_funcs.iterator_copy(unique_everseen(toT([1, 2, 1, 2])))
+    _hf.iterator_copy(unique_everseen(toT([1, 2, 1, 2])))
 
 
 @memory_leak_decorator(collect=True)
@@ -169,12 +170,12 @@ def test_uniqueeverseen_failure_setstate1():
 
 @memory_leak_decorator(collect=True)
 def test_uniqueeverseen_failure_setstate2():
-    helper_funcs.iterator_setstate_list_fail(unique_everseen(toT([1, 1])))
+    _hf.iterator_setstate_list_fail(unique_everseen(toT([1, 1])))
 
 
 @memory_leak_decorator(collect=True)
 def test_uniqueeverseen_failure_setstate3():
-    helper_funcs.iterator_setstate_empty_fail(unique_everseen(toT([1, 1])))
+    _hf.iterator_setstate_empty_fail(unique_everseen(toT([1, 1])))
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

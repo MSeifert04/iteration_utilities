@@ -12,8 +12,8 @@ import pytest
 import iteration_utilities
 
 # Test helper
-import helper_funcs
-from helper_cls import T, toT, FailNext
+import helper_funcs as _hf
+from helper_cls import T, toT
 from helper_leak import memory_leak_decorator
 
 
@@ -79,8 +79,9 @@ def test_duplicates_getter2():
 
 @memory_leak_decorator(collect=True)
 def test_duplicates_failure1():
-    with pytest.raises(TypeError):
-        list(duplicates(T(10)))
+    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+        duplicates(_hf.FailIter())
+    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -92,9 +93,9 @@ def test_duplicates_failure2():
 @memory_leak_decorator(collect=True)
 def test_duplicates_failure3():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(FailNext.EXC_TYP) as exc:
-        next(duplicates(FailNext()))
-    assert FailNext.EXC_MSG in str(exc)
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        next(duplicates(_hf.FailNext()))
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -121,7 +122,7 @@ def test_duplicates_failure5():
 
 @memory_leak_decorator(collect=True)
 def test_duplicates_copy1():
-    helper_funcs.iterator_copy(duplicates(toT([1, 1])))
+    _hf.iterator_copy(duplicates(toT([1, 1])))
 
 
 @memory_leak_decorator(collect=True)
@@ -146,12 +147,12 @@ def test_duplicates_failure_setstate1():
 
 @memory_leak_decorator(collect=True)
 def test_duplicates_failure_setstate2():
-    helper_funcs.iterator_setstate_list_fail(duplicates(toT([1, 1])))
+    _hf.iterator_setstate_list_fail(duplicates(toT([1, 1])))
 
 
 @memory_leak_decorator(collect=True)
 def test_duplicates_failure_setstate3():
-    helper_funcs.iterator_setstate_empty_fail(duplicates(toT([1, 1])))
+    _hf.iterator_setstate_empty_fail(duplicates(toT([1, 1])))
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

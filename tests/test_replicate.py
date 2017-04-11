@@ -13,9 +13,8 @@ import pytest
 import iteration_utilities
 
 # Test helper
-import helper_funcs
-from helper_cls import (
-    T, toT, FailNext, FailLengthHint, OverflowLengthHint)
+import helper_funcs as _hf
+from helper_cls import T, toT
 from helper_leak import memory_leak_decorator
 
 
@@ -56,7 +55,7 @@ def test_replicate_attributes1():
 
 @memory_leak_decorator(collect=True)
 def test_replicate_copy1():
-    helper_funcs.iterator_copy(replicate([T(1), T(2)], 3))
+    _hf.iterator_copy(replicate([T(1), T(2)], 3))
 
 
 @memory_leak_decorator(collect=True)
@@ -68,9 +67,9 @@ def test_replicate_failure1():
 
 @memory_leak_decorator(collect=True)
 def test_replicate_failure2():
-    # first argument not iterable
-    with pytest.raises(TypeError):
-        replicate(T(1), 2)
+    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+        replicate(_hf.FailIter(), 2)
+    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -90,9 +89,9 @@ def test_replicate_failure4():
 @memory_leak_decorator(collect=True)
 def test_replicate_failure5():
     # iterator throws an exception different from StopIteration
-    with pytest.raises(FailNext.EXC_TYP) as exc:
-        list(replicate(FailNext(), 2))
-    assert FailNext.EXC_MSG in str(exc)
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        list(replicate(_hf.FailNext(), 2))
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -156,15 +155,15 @@ def test_replicate_lengthhint1():
                    reason='length does not work before Python 3.4')
 @memory_leak_decorator(collect=True)
 def test_replicate_failure_lengthhint1():
-    f_it = FailLengthHint(toT([1, 2, 3]))
+    f_it = _hf.FailLengthHint(toT([1, 2, 3]))
     it = replicate(f_it, 3)
-    with pytest.raises(FailLengthHint.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailLengthHint.EXC_TYP) as exc:
         operator.length_hint(it)
-    assert FailLengthHint.EXC_MSG in str(exc)
+    assert _hf.FailLengthHint.EXC_MSG in str(exc)
 
-    with pytest.raises(FailLengthHint.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailLengthHint.EXC_TYP) as exc:
         list(it)
-    assert FailLengthHint.EXC_MSG in str(exc)
+    assert _hf.FailLengthHint.EXC_MSG in str(exc)
 
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,
@@ -172,7 +171,7 @@ def test_replicate_failure_lengthhint1():
 @memory_leak_decorator(collect=True)
 def test_replicate_failure_lengthhint2():
     # This only checks for overflow if the length_hint is above PY_SSIZE_T_MAX
-    of_it = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
+    of_it = _hf.OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
     it = replicate(of_it, 3)
     with pytest.raises(OverflowError):
         operator.length_hint(it)
@@ -188,7 +187,7 @@ def test_replicate_failure_lengthhint3():
     # It is also possible that the length_hint overflows when the length is
     # below maxsize but "times * length" is above maxsize.
     # In this case length = maxsize / 2 but times = 3
-    of_it = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize // 2)
+    of_it = _hf.OverflowLengthHint(toT([1, 2, 3]), sys.maxsize // 2)
     it = replicate(of_it, 3)
     with pytest.raises(OverflowError):
         operator.length_hint(it)
@@ -207,7 +206,7 @@ def test_replicate_failure_lengthhint4():
     # is true for x=15, 31, 63 and 127 so it's possible by setting the times to
     # 10 and the length to sys.maxsize // 10. The 9 are because the first item
     # is already popped and should be replicated 9 more times.
-    of_it = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize // 10)
+    of_it = _hf.OverflowLengthHint(toT([1, 2, 3]), sys.maxsize // 10)
     it = replicate(of_it, 10)
     next(it)
     with pytest.raises(OverflowError):
