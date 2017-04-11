@@ -11,8 +11,8 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_cls import T, toT, failingTIterator
-from helper_funcs import iterator_copy
+import helper_funcs as _hf
+from helper_cls import T
 from helper_leak import memory_leak_decorator
 
 
@@ -95,7 +95,7 @@ def test_tabulate_failure4():
 
 @memory_leak_decorator(collect=True)
 def test_tabulate_copy1():
-    iterator_copy(tabulate(T))
+    _hf.iterator_copy(tabulate(T))
 
 
 @memory_leak_decorator(offset=1)

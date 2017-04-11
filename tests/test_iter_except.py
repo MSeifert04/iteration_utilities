@@ -12,7 +12,7 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_cls import T, toT, failingTIterator
+from helper_cls import T
 from helper_funcs import iterator_copy
 from helper_leak import memory_leak_decorator
 

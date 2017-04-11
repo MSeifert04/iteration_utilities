@@ -13,9 +13,8 @@ import pytest
 import iteration_utilities
 
 # Test helper
-import helper_funcs
-from helper_cls import (
-    T, toT, failingTIterator, FailLengthHint, OverflowLengthHint)
+import helper_funcs as _hf
+from helper_cls import T, toT
 from helper_leak import memory_leak_decorator
 
 
@@ -178,25 +177,25 @@ def test_grouper_failure2():
 
 @memory_leak_decorator(collect=True)
 def test_grouper_failure3():
-    # iterable must be iterable
-    with pytest.raises(TypeError):
-        grouper(T(1), 2)
+    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+        grouper(_hf.FailIter(), 2)
+    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_grouper_failure4():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError) as exc:
-        next(grouper(failingTIterator(), 2))
-    assert 'eq expected 2 arguments, got 1' in str(exc)
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        next(grouper(_hf.FailNext(), 2))
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_grouper_failure5():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError) as exc:
-        next(grouper(failingTIterator(offset=1), 2))
-    assert 'eq expected 2 arguments, got 1' in str(exc)
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        next(grouper(_hf.FailNext(offset=1), 2))
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -210,17 +209,17 @@ def test_grouper_failure6():
 
 @memory_leak_decorator(collect=True)
 def test_grouper_copy1():
-    helper_funcs.iterator_copy(grouper(toT(range(10)), 3))
+    _hf.iterator_copy(grouper(toT(range(10)), 3))
 
 
 @memory_leak_decorator(collect=True)
 def test_grouper_failure_setstate1():
-    helper_funcs.iterator_setstate_list_fail(grouper(toT(range(10)), 3))
+    _hf.iterator_setstate_list_fail(grouper(toT(range(10)), 3))
 
 
 @memory_leak_decorator(collect=True)
 def test_grouper_failure_setstate2():
-    helper_funcs.iterator_setstate_empty_fail(grouper(toT(range(10)), 3))
+    _hf.iterator_setstate_empty_fail(grouper(toT(range(10)), 3))
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
@@ -276,22 +275,22 @@ def test_grouper_lengthhint1():
                    reason='length does not work before Python 3.4')
 @memory_leak_decorator(collect=True)
 def test_grouper_lengthhint_failure1():
-    f_it = FailLengthHint(toT([1, 2, 3]))
+    f_it = _hf.FailLengthHint(toT([1, 2, 3]))
     it = grouper(f_it, 2)
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(_hf.FailLengthHint.EXC_TYP) as exc:
         operator.length_hint(it)
-    assert 'length_hint failed' in str(exc)
+    assert _hf.FailLengthHint.EXC_MSG in str(exc)
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(_hf.FailLengthHint.EXC_TYP) as exc:
         list(it)
-    assert 'length_hint failed' in str(exc)
+    assert _hf.FailLengthHint.EXC_MSG in str(exc)
 
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,
                    reason='length does not work before Python 3.4')
 @memory_leak_decorator(collect=True)
 def test_grouper_lengthhint_failure2():
-    of_it = OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
+    of_it = _hf.OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
     it = grouper(of_it, 2)
     with pytest.raises(OverflowError):
         operator.length_hint(it)

@@ -10,8 +10,9 @@ import pytest
 import iteration_utilities
 
 # Test helper
+import helper_funcs as _hf
+from helper_cls import T
 from helper_leak import memory_leak_decorator
-from helper_cls import T, failingTIterator
 
 
 one = iteration_utilities.one
@@ -40,8 +41,9 @@ def test_one_normal4():
 
 @memory_leak_decorator(collect=True)
 def test_one_failure1():
-    with pytest.raises(TypeError):
-        one(T(0))
+    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+        one(_hf.FailIter())
+    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -61,17 +63,17 @@ def test_one_failure3():
 @memory_leak_decorator(collect=True)
 def test_one_failure4():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError) as exc:
-        one(failingTIterator())
-    assert 'eq expected 2 arguments, got 1' in str(exc)
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        one(_hf.FailNext())
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_one_failure5():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError) as exc:
-        one(failingTIterator(offset=1))
-    assert 'eq expected 2 arguments, got 1' in str(exc)
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        one(_hf.FailNext(offset=1))
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)

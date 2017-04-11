@@ -1,12 +1,9 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
 # Built-ins
-import itertools
-import operator
 
 # This module
-import iteration_utilities
-from iteration_utilities._compat import map, filter, range, zip
+from iteration_utilities._compat import map
 
 
 class T(object):
@@ -78,71 +75,5 @@ class T(object):
 
 
 def toT(iterable):
+    """Convenience to create a normal list to a list of `T` instances."""
     return list(map(T, iterable))
-
-
-def failingTIterator(offset=0, repeats=1):
-    it = filter(operator.eq, zip([T(1) for _ in range(repeats)],
-                                 [T(1) for _ in range(repeats)]))
-    if offset:
-        return itertools.chain([T(1) for _ in range(offset)], it)
-    else:
-        return it
-
-
-class FailLengthHint(object):
-    """Simple iterator that fails when length_hint is called on it."""
-    def __init__(self, it):
-        self.it = iter(it)
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        return next(self.it)
-
-    def __length_hint__(self):
-        raise ValueError("length_hint failed")
-
-
-class OverflowLengthHint(object):
-    """Simple iterator that allows to set a length_hint so that one can test
-    overflow in PyObject_LengthHint.
-
-    Should be used together with sys.maxsize so it works on 32bit and 64bit
-    builds.
-    """
-    def __init__(self, it, length_hint):
-        self.it = iter(it)
-        self.lh = length_hint
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        return next(self.it)
-
-    def __length_hint__(self):
-        return self.lh
-
-
-if iteration_utilities.EQ_PY2:
-    exec("""
-import abc
-
-class FailingIsinstanceClass:
-    __metaclass__ = abc.ABCMeta
-
-    @classmethod
-    def __subclasshook__(cls, C):
-        raise TypeError('isinstance failed')
-""")
-else:
-    exec("""
-import abc
-
-class FailingIsinstanceClass(metaclass=abc.ABCMeta):
-    @classmethod
-    def __subclasshook__(cls, C):
-        raise TypeError('isinstance failed')
-""")

@@ -13,8 +13,8 @@ import pytest
 import iteration_utilities
 
 # Test helper
-import helper_funcs
-from helper_cls import T, toT, failingTIterator
+import helper_funcs as _hf
+from helper_cls import T, toT
 from helper_leak import memory_leak_decorator
 
 
@@ -117,9 +117,9 @@ def test_split_attributes1():
 
 @memory_leak_decorator(collect=True)
 def test_split_failure1():
-    # not iterable
-    with pytest.raises(TypeError):
-        split(T(1), lambda x: False)
+    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+        split(_hf.FailIter(), lambda x: False)
+    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -175,18 +175,18 @@ def test_split_failure11():
 @memory_leak_decorator(collect=True)
 def test_split_failure7():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError) as exc:
-        next(split(failingTIterator(), iteration_utilities.return_False))
-    assert 'eq expected 2 arguments, got 1' in str(exc)
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        next(split(_hf.FailNext(), iteration_utilities.return_False))
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_split_failure8():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(TypeError) as exc:
-        next(split(failingTIterator(offset=1),
+    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+        next(split(_hf.FailNext(offset=1),
                    iteration_utilities.return_False))
-    assert 'eq expected 2 arguments, got 1' in str(exc)
+    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -206,18 +206,18 @@ def test_split_failure10():
 
 @memory_leak_decorator(collect=True)
 def test_split_copy1():
-    helper_funcs.iterator_copy(split(toT(range(1, 9)), equalsthreeT))
+    _hf.iterator_copy(split(toT(range(1, 9)), equalsthreeT))
 
 
 @memory_leak_decorator(collect=True)
 def test_split_failure_setstate1():
-    helper_funcs.iterator_setstate_list_fail(
+    _hf.iterator_setstate_list_fail(
             split(toT(range(1, 9)), equalsthreeT))
 
 
 @memory_leak_decorator(collect=True)
 def test_split_failure_setstate2():
-    helper_funcs.iterator_setstate_empty_fail(
+    _hf.iterator_setstate_empty_fail(
             split(toT(range(1, 9)), equalsthreeT))
 
 

@@ -28,7 +28,6 @@ def test_cls_length_hint():
     assert operator.length_hint(Iterable([1, 2, 3]).accumulate()) == 3
 
 
-
 def test_cls_exception():
     with pytest.raises(TypeError):
         Iterable.from_count().pad(ntail=None)
