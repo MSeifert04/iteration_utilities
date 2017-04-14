@@ -104,6 +104,14 @@ def test_unique_justseen_failure5():
         unique_justseen()
 
 
+@memory_leak_decorator(collect=True, offset=1)
+def test_unique_justseen_failure6():
+    # Changing next method
+    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+        list(unique_justseen(_hf.CacheNext(1)))
+    assert _hf.CacheNext.EXC_MSG in str(exc)
+
+
 @memory_leak_decorator(collect=True)
 def test_unique_justseen_copy1():
     _hf.iterator_copy(unique_justseen([T(1), T(2), T(3)]))

@@ -155,6 +155,14 @@ def test_uniqueeverseen_failure6():
     assert 'bad class' in str(exc)
 
 
+@memory_leak_decorator(collect=True, offset=1)
+def test_uniqueeverseen_failure7():
+    # Changing next method
+    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+        list(unique_everseen(_hf.CacheNext(1)))
+    assert _hf.CacheNext.EXC_MSG in str(exc)
+
+
 @memory_leak_decorator(collect=True)
 def test_uniqueeverseen_copy1():
     _hf.iterator_copy(unique_everseen(toT([1, 2, 1, 2])))

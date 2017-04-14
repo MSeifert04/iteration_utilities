@@ -96,3 +96,11 @@ def test_all_monotone_failure4():
     # too few arguments
     with pytest.raises(TypeError):
         all_monotone()
+
+
+@memory_leak_decorator(collect=True, offset=1)
+def test_all_monotone_failure5():
+    # Changing next method
+    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+        all_monotone(_hf.CacheNext(1))
+    assert _hf.CacheNext.EXC_MSG in str(exc)

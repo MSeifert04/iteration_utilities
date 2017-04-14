@@ -134,6 +134,16 @@ def test_starfilter_failure9():
         starfilter()
 
 
+@memory_leak_decorator(collect=True, offset=1)
+def test_starfilter_failure10():
+    # Changing next method
+    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+        # won't work with return_True because then "iternext" is refreshed
+        # before the failure comes.
+        list(starfilter(iteration_utilities.return_False, _hf.CacheNext([1])))
+    assert _hf.CacheNext.EXC_MSG in str(exc)
+
+
 @memory_leak_decorator(collect=True)
 def test_starfilter_copy1():
     _hf.iterator_copy(starfilter(operator.eq, [(T(1), T(1)), (T(2), T(2))]))

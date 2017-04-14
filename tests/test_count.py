@@ -115,3 +115,11 @@ def test_count_failure7():
     with pytest.raises(ValueError) as exc:
         count_items([T(0)], lambda x: NoBool())
     assert 'bad class' in str(exc)
+
+
+@memory_leak_decorator(collect=True, offset=1)
+def test_count_failure8():
+    # Changing next method
+    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+        count_items(_hf.CacheNext(1))
+    assert _hf.CacheNext.EXC_MSG in str(exc)

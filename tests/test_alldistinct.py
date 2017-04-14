@@ -89,3 +89,11 @@ def test_alldistinct_failure4():
     with pytest.raises(ValueError) as exc:
         all_distinct([T(1), NoHash()])
     assert 'bad class' in str(exc)
+
+
+@memory_leak_decorator(collect=True, offset=1)
+def test_alldistinct_failure5():
+    # Changing next method
+    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+        all_distinct(_hf.CacheNext(1))
+    assert _hf.CacheNext.EXC_MSG in str(exc)

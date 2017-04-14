@@ -121,11 +121,6 @@ def test_duplicates_failure5():
 
 
 @memory_leak_decorator(collect=True)
-def test_duplicates_copy1():
-    _hf.iterator_copy(duplicates(toT([1, 1])))
-
-
-@memory_leak_decorator(collect=True)
 def test_duplicates_failure6():
     # Failure (no TypeError) when trying to hash the value
     class NoHash():
@@ -135,6 +130,14 @@ def test_duplicates_failure6():
     with pytest.raises(ValueError) as exc:
         list(duplicates([T(1), NoHash()]))
     assert 'bad class' in str(exc)
+
+
+@memory_leak_decorator(collect=True, offset=1)
+def test_duplicates_failure7():
+    # Changing next method
+    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+        list(duplicates(_hf.CacheNext(1)))
+    assert _hf.CacheNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -153,6 +156,11 @@ def test_duplicates_failure_setstate2():
 @memory_leak_decorator(collect=True)
 def test_duplicates_failure_setstate3():
     _hf.iterator_setstate_empty_fail(duplicates(toT([1, 1])))
+
+
+@memory_leak_decorator(collect=True)
+def test_duplicates_copy1():
+    _hf.iterator_copy(duplicates(toT([1, 1])))
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,

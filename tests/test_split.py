@@ -164,7 +164,7 @@ def test_split_failure6():
 
 
 @memory_leak_decorator(collect=True)
-def test_split_failure11():
+def test_split_failure7():
     # more than one keep* parameter
     with pytest.raises(ValueError) as exc:
         split(toT([1, 2, 3, 4]), T(2), eq=True,
@@ -173,7 +173,7 @@ def test_split_failure11():
 
 
 @memory_leak_decorator(collect=True)
-def test_split_failure7():
+def test_split_failure8():
     # Test that a failing iterator doesn't raise a SystemError
     with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
         next(split(_hf.FailNext(), iteration_utilities.return_False))
@@ -181,7 +181,7 @@ def test_split_failure7():
 
 
 @memory_leak_decorator(collect=True)
-def test_split_failure8():
+def test_split_failure9():
     # Test that a failing iterator doesn't raise a SystemError
     with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
         next(split(_hf.FailNext(offset=1),
@@ -190,18 +190,26 @@ def test_split_failure8():
 
 
 @memory_leak_decorator(collect=True)
-def test_split_failure9():
+def test_split_failure10():
     # Too few arguments
     with pytest.raises(TypeError):
         split()
 
 
 @memory_leak_decorator(collect=True)
-def test_split_failure10():
+def test_split_failure11():
     # maxsplit <= -2
     with pytest.raises(ValueError) as exc:
         split(toT([1, 2, 3, 4]), T(2), eq=True, maxsplit=-2)
     assert '`maxsplit`' in str(exc)
+
+
+@memory_leak_decorator(collect=True, offset=1)
+def test_split_failure12():
+    # Changing next method
+    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+        list(split(_hf.CacheNext(1), lambda x: x == 10))
+    assert _hf.CacheNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)

@@ -171,6 +171,15 @@ def test_sideeffects_failure8():
         sideeffects()
 
 
+@memory_leak_decorator(collect=True, offset=1)
+def test_sideeffects_failure9():
+    # Changing next method
+    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+        list(sideeffects(_hf.CacheNext(1),
+                         iteration_utilities.return_identity))
+    assert _hf.CacheNext.EXC_MSG in str(exc)
+
+
 @memory_leak_decorator(collect=True)
 def test_sideeffects_copy1():
     _hf.iterator_copy(sideeffects(toT([1, 2, 3, 4]), return_None))

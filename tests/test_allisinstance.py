@@ -67,3 +67,11 @@ def test_allisinstance_failure4():
     with pytest.raises(_hf.FailingIsinstanceClass.EXC_TYP) as exc:
         all_isinstance(toT([1, 2, 3]), _hf.FailingIsinstanceClass)
     assert _hf.FailingIsinstanceClass.EXC_MSG in str(exc)
+
+
+@memory_leak_decorator(collect=True, offset=1)
+def test_allisinstance_failure5():
+    # Changing next method
+    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+        all_isinstance(_hf.CacheNext(1), int)
+    assert _hf.CacheNext.EXC_MSG in str(exc)
