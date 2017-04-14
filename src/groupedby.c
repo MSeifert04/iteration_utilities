@@ -18,7 +18,6 @@ PyIU_Groupby(PyObject *m,
     PyObject *resdict = NULL;
     PyObject *funcargs1 = NULL;
     PyObject *funcargs2 = NULL;
-    PyObject *(*iternext)(PyObject *);
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|OOO:groupedby", kwlist,
                                      &iterable, &keyfunc, &valfunc, &reducefunc,
@@ -40,8 +39,6 @@ PyIU_Groupby(PyObject *m,
     if (iterator == NULL) {
         goto Fail;
     }
-
-    iternext = *Py_TYPE(iterator)->tp_iternext;
 
     resdict = PyDict_New();
     if (resdict == NULL) {
@@ -69,7 +66,7 @@ PyIU_Groupby(PyObject *m,
         Py_hash_t hash;
 #endif
 
-        item = iternext(iterator);
+        item = Py_TYPE(iterator)->tp_iternext(iterator);
 
         if (item == NULL) {
             break;

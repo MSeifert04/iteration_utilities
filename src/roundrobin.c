@@ -96,7 +96,7 @@ roundrobin_next(PyIUObject_Roundrobin *self)
     }
 
     iterator = PyTuple_GET_ITEM(self->iteratortuple, self->active);
-    while ((item = (*Py_TYPE(iterator)->tp_iternext)(iterator)) == NULL) {
+    while ((item = Py_TYPE(iterator)->tp_iternext(iterator)) == NULL) {
         if (PyErr_Occurred()) {
             if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
                 PyErr_Clear();

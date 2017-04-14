@@ -96,7 +96,6 @@ nth_call(PyIUObject_Nth *self,
     static char *kwlist[] = {"iterable", "default", "pred", "truthy",
                              "retpred", "retidx", NULL};
 
-    PyObject *(*iternext)(PyObject *);
     PyObject *iterable, *iterator, *item;
     PyObject *defaultitem=NULL, *func=NULL, *last=NULL, *val=NULL;
     int ok=0, truthy=1, retpred=0, retidx=0;
@@ -124,13 +123,12 @@ nth_call(PyIUObject_Nth *self,
     if (iterator == NULL) {
         return NULL;
     }
-    iternext = *Py_TYPE(iterator)->tp_iternext;
 
     /* The loop variable "idx" is only incremented if a suitable item was
        found.
        */
     for (idx=0 ; idx<=self->index || self->index < 0; ) {
-        item = iternext(iterator);
+        item = Py_TYPE(iterator)->tp_iternext(iterator);
 
         /* If the iterator terminates also terminate the loop and remove the
            last found item (except one looks for the last one

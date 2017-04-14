@@ -22,7 +22,7 @@ PyIU_Monotone(PyObject *m,
     }
     op = decreasing ? (strict ? Py_GT : Py_GE) : (strict ? Py_LT : Py_LE);
 
-    while ( (item = (*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
+    while ( (item = Py_TYPE(iterator)->tp_iternext(iterator)) ) {
         if (last == NULL) {
             last = item;
             continue;

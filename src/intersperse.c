@@ -103,7 +103,7 @@ static PyObject *
 intersperse_next(PyIUObject_Intersperse *self)
 {
     if (self->nextitem == NULL) {
-        PyObject *item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator);
+        PyObject *item = Py_TYPE(self->iterator)->tp_iternext(self->iterator);
         if (item == NULL) {
             return NULL;
         }

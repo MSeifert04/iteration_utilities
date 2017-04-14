@@ -127,7 +127,7 @@ accumulate_next(PyIUObject_Accumulate *self)
     PyObject *item, *oldtotal, *newtotal;
 
     /* Get next item from iterator.  */
-    item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator);
+    item = Py_TYPE(self->iterator)->tp_iternext(self->iterator);
     if (item == NULL) {
         return NULL;
     }

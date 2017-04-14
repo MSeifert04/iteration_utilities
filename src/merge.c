@@ -230,7 +230,7 @@ merge_init_current(PyIUObject_Merge *self)
 
     for (i=0 ; i<self->numactive ; i++) {
         iterator = PyTuple_GET_ITEM(self->iteratortuple, i);
-        item = (*Py_TYPE(iterator)->tp_iternext)(iterator);
+        item = Py_TYPE(iterator)->tp_iternext(iterator);
         if (item != NULL) {
             /* The idea here is that we can keep stability by also remembering
                the index of the iterable (which is also useful to remember
@@ -317,7 +317,7 @@ merge_next(PyIUObject_Merge *self)
 
     /* Get the next value from the iterable where the value was from.  */
     iterator = PyTuple_GET_ITEM(self->iteratortuple, next->idx);
-    item = (*Py_TYPE(iterator)->tp_iternext)(iterator);
+    item = Py_TYPE(iterator)->tp_iternext(iterator);
 
     if (item == NULL) {
         /* No need to keep the extra reference for the ItemIdxKey because there

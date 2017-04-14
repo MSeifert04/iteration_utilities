@@ -134,7 +134,7 @@ uniqueever_next(PyIUObject_UniqueEver *self)
     PyObject *item=NULL, *temp=NULL;
     int ok;
 
-    while ( (item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator)) ) {
+    while ( (item = Py_TYPE(self->iterator)->tp_iternext(self->iterator)) ) {
 
         /* Use the item if key is not given, otherwise apply the key. */
         if (self->key == NULL) {

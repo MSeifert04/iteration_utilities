@@ -168,7 +168,7 @@ split_next(PyIUObject_Split *self)
         }
     }
 
-    while ( (item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator)) ) {
+    while ( (item = Py_TYPE(self->iterator)->tp_iternext(self->iterator)) ) {
         /* Compare the value to the delimiter or call the delimiter function on
            it to determine if we should split here.
            */

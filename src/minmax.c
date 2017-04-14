@@ -51,8 +51,8 @@ PyIU_MinMax(PyObject *m,
         goto Fail;
     }
 
-    while ( (item1=(*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
-        item2 = (*Py_TYPE(iterator)->tp_iternext)(iterator);
+    while ( (item1=Py_TYPE(iterator)->tp_iternext(iterator)) ) {
+        item2 = Py_TYPE(iterator)->tp_iternext(iterator);
         /* item2 could be NULL (end of sequence) clear a StopIteration but
            immediatly fail if it's another exception. It will check for
            exceptions in the end (again) but make sure it does not process

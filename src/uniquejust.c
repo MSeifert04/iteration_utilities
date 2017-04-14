@@ -120,7 +120,7 @@ uniquejust_next(PyIUObject_UniqueJust *self)
     PyObject *item, *old, *val=NULL;
     int ok;
 
-    while ( (item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator)) ) {
+    while ( (item = Py_TYPE(self->iterator)->tp_iternext(self->iterator)) ) {
 
         /* Apply keyfunc or use the original */
         if (self->keyfunc == NULL) {

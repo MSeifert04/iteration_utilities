@@ -13,7 +13,7 @@ PyIU_One(PyObject *m,
         return NULL;
     }
 
-    item1 = (*Py_TYPE(iterator)->tp_iternext)(iterator);
+    item1 = Py_TYPE(iterator)->tp_iternext(iterator);
     if (item1 == NULL) {
         Py_DECREF(iterator);
         if (PyErr_Occurred()) {
@@ -28,7 +28,7 @@ PyIU_One(PyObject *m,
         return NULL;
     }
 
-    item2 = (*Py_TYPE(iterator)->tp_iternext)(iterator);
+    item2 = Py_TYPE(iterator)->tp_iternext(iterator);
     if (item2 != NULL) {
         Py_DECREF(iterator);
         Py_DECREF(item1);

@@ -19,7 +19,7 @@ PyIU_AllDistinct(PyObject *m,
     }
 
     /* Almost identical to unique_everseen so no inline commments. */
-    while ( (item = (*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
+    while ( (item = Py_TYPE(iterator)->tp_iternext(iterator)) ) {
 
         /* Check if the item is in seen. */
         ok = PyIUSeen_ContainsAdd(seen, item);

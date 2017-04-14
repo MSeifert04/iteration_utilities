@@ -58,7 +58,7 @@ argminmax(PyObject *args,
         goto Fail;
     }
 
-    while ( (item=(*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
+    while ( (item=Py_TYPE(iterator)->tp_iternext(iterator)) ) {
         idx++;
 
         /* Use the item itself or keyfunc(item). */
