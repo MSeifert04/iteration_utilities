@@ -94,14 +94,6 @@ def test_replicate_failure5():
     assert _hf.FailNext.EXC_MSG in str(exc)
 
 
-@memory_leak_decorator(collect=True, offset=1)
-def test_replicate_failure6():
-    # Changing next method
-    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
-        list(replicate(_hf.CacheNext(1), 2))
-    assert _hf.CacheNext.EXC_MSG in str(exc)
-
-
 @memory_leak_decorator(collect=True)
 def test_replicate_failure_setstate1():
     # "state" is not a tuple

@@ -247,14 +247,6 @@ def test_merge_failure13():
     assert _hf.FailNext.EXC_MSG in str(exc)
 
 
-@memory_leak_decorator(collect=True, offset=1)
-def test_merge_failure14():
-    # Changing next method
-    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
-        list(merge(_hf.CacheNext(1)))
-    assert _hf.CacheNext.EXC_MSG in str(exc)
-
-
 @memory_leak_decorator(collect=True)
 def test_merge_failure_setstate1():
     # __setstate__ with numactive < 0 fails

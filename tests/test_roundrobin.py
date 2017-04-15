@@ -106,14 +106,6 @@ def test_roundrobin_failure5():
     assert _hf.FailNext.EXC_MSG in str(exc)
 
 
-@memory_leak_decorator(collect=True, offset=1)
-def test_roundrobin_failure6():
-    # Changing next method
-    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
-        list(roundrobin(_hf.CacheNext(1)))
-    assert _hf.CacheNext.EXC_MSG in str(exc)
-
-
 @memory_leak_decorator(collect=True)
 def test_roundrobin_copy1():
     _hf.iterator_copy(roundrobin([T(1), T(2), T(3), T(4)]))

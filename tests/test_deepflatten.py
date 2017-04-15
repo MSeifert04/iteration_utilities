@@ -213,14 +213,6 @@ def test_deepflatten_failure10():
     assert _hf.FailingIsinstanceClass.EXC_MSG in str(exc)
 
 
-@memory_leak_decorator(collect=True, offset=1)
-def test_deepflatten_failure11():
-    # Changing next method
-    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
-        list(deepflatten(_hf.CacheNext(1)))
-    assert _hf.CacheNext.EXC_MSG in str(exc)
-
-
 @memory_leak_decorator(collect=True)
 def test_deepflatten_copy1():
     _hf.iterator_copy(deepflatten(toT([1, 2, 3, 4])))

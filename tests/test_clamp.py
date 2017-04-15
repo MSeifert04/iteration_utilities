@@ -132,7 +132,8 @@ def test_clamp_failure5():
 def test_clamp_failure6():
     # Changing next method
     with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
-        list(clamp(_hf.CacheNext(1)))
+        # needs to be outside of the range and "remove=True"
+        list(clamp(_hf.CacheNext(1), 2, remove=True))
     assert _hf.CacheNext.EXC_MSG in str(exc)
 
 

@@ -64,14 +64,6 @@ def test_intersperse_failure3():
         intersperse()
 
 
-@memory_leak_decorator(collect=True, offset=1)
-def test_intersperse_failure4():
-    # Changing next method
-    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
-        list(intersperse(_hf.CacheNext(1), T(2)))
-    assert _hf.CacheNext.EXC_MSG in str(exc)
-
-
 @memory_leak_decorator(collect=True)
 def test_intersperse_copy1():
     _hf.iterator_copy(intersperse(toT([1, 2, 3]), T(0)))
