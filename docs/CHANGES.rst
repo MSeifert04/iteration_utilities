@@ -1,12 +1,12 @@
 Changelog for "iteration_utilities"
 -----------------------------------
 
-Version 0.6.1 (unreleased)
+Version 0.6.1 (2017-04-15)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- The ``__next__`` or ``next`` method of the iterator is not cached in the
-  ``iteration_utilities`` iterators anymore. This allows for the (rare) case
-  that this method is reassigned or deleted.
+- The ``__next__`` or ``next`` method of the processed iterator is not cached
+  in the ``iteration_utilities`` iterators anymore. This correctly handles the
+  (rare) case that this method is reassigned or deleted.
 
 
 Version 0.6.0 (2017-04-08)
