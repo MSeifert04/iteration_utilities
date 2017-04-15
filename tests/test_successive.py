@@ -93,6 +93,14 @@ def test_successive_failure4():
         successive()
 
 
+@memory_leak_decorator(collect=True, offset=1)
+def test_successive_failure5():
+    # Changing next method
+    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+        list(successive(_hf.CacheNext(1), 3))
+    assert _hf.CacheNext.EXC_MSG in str(exc)
+
+
 @memory_leak_decorator(collect=True)
 def test_successive_copy1():
     _hf.iterator_copy(successive(toT([1, 2, 3, 4])))

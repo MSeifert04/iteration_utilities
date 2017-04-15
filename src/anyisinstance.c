@@ -12,7 +12,6 @@ PyIU_AnyIsinstance(PyObject *m,
     PyObject *types;
 
     PyObject *iterator;
-    PyObject *(*iternext)(PyObject *);
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO:any_isinstance", kwlist,
                                      &iterable, &types)) {
@@ -24,11 +23,9 @@ PyIU_AnyIsinstance(PyObject *m,
         return NULL;
     }
 
-    iternext = *Py_TYPE(iterator)->tp_iternext;
-
     for (;;) {
         int ok;
-        PyObject *item = iternext(iterator);
+        PyObject *item = Py_TYPE(iterator)->tp_iternext(iterator);
         if (item == NULL) {
             break;
         }

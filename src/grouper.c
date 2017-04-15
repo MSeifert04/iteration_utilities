@@ -122,7 +122,6 @@ static PyObject *
 grouper_next(PyIUObject_Grouper *self)
 {
     PyObject *result = self->result;
-    PyObject *(*iternext)(PyObject *);
 
     PyObject *newresult, *lastresult, *item, *olditem;
     Py_ssize_t idx1, idx2;
@@ -133,8 +132,6 @@ grouper_next(PyIUObject_Grouper *self)
         result = PyTuple_New(self->times);
         self->result = result;
     }
-
-    iternext = *Py_TYPE(self->iterator)->tp_iternext;
 
     /* Recycle old result if the instance is the only one holding a reference,
        otherwise create a new tuple.
@@ -151,7 +148,7 @@ grouper_next(PyIUObject_Grouper *self)
 
     /* Take the next self->times elements from the iterator.  */
     for (idx1=0 ; idx1<self->times ; idx1++) {
-        item = iternext(self->iterator);
+        item = Py_TYPE(self->iterator)->tp_iternext(self->iterator);
 
         if (item == NULL) {
             if (PyErr_Occurred()) {

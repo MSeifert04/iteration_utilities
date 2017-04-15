@@ -207,6 +207,16 @@ def test_grouper_failure6():
         grouper(toT([1, 2, 3, 4]))
 
 
+@memory_leak_decorator(collect=True, offset=1)
+def test_grouper_failure7():
+    # Changing next method
+    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+        # I use "next" here otherwise it would be interpreted as last group...
+        # because the original "next" indicates the end of the iterator.
+        next(grouper(_hf.CacheNext(1), 2))
+    assert _hf.CacheNext.EXC_MSG in str(exc)
+
+
 @memory_leak_decorator(collect=True)
 def test_grouper_copy1():
     _hf.iterator_copy(grouper(toT(range(10)), 3))

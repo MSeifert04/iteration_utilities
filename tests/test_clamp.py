@@ -128,6 +128,15 @@ def test_clamp_failure5():
         clamp()
 
 
+@memory_leak_decorator(collect=True, offset=1)
+def test_clamp_failure6():
+    # Changing next method
+    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+        # needs to be outside of the range and "remove=True"
+        list(clamp(_hf.CacheNext(1), 2, remove=True))
+    assert _hf.CacheNext.EXC_MSG in str(exc)
+
+
 @memory_leak_decorator(collect=True)
 def test_clamp_copy1():
     _hf.iterator_copy(clamp([T(20), T(50)], T(10), T(100)))

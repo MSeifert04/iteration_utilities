@@ -14,7 +14,7 @@ PyIU_AllEqual(PyObject *m,
         goto Fail;
     }
 
-    while ( (item = (*Py_TYPE(iterator)->tp_iternext)(iterator)) ) {
+    while ( (item = Py_TYPE(iterator)->tp_iternext(iterator)) ) {
         if (first == NULL) {
             first = item;
             continue;

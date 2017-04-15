@@ -96,3 +96,11 @@ def test_dotproduct_failure8():
     # Too few arguments
     with pytest.raises(TypeError):
         dotproduct()
+
+
+@memory_leak_decorator(collect=True, offset=1)
+def test_dotproduct_failure9():
+    # Changing next method
+    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+        dotproduct(_hf.CacheNext(1), _hf.CacheNext(1))
+    assert _hf.CacheNext.EXC_MSG in str(exc)

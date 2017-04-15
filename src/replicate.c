@@ -112,13 +112,13 @@ replicate_next(PyIUObject_Replicate *self)
        to fill the current.
        */
     if (self->current == NULL) {
-        self->current = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator);
+        self->current = Py_TYPE(self->iterator)->tp_iternext(self->iterator);
     /* If we had x repeats then we also need to get the next element, and
        dereference the old one.
        */
     } else if (self->repeatcurrent == self->repeattotal) {
         PyObject *oldcurrent = self->current;
-        self->current = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator);
+        self->current = Py_TYPE(self->iterator)->tp_iternext(self->iterator);
         Py_DECREF(oldcurrent);
         self->repeatcurrent = 0;
     }

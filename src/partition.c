@@ -15,7 +15,6 @@ PyIU_Partition(PyObject *m,
     PyObject *result2 = NULL;
     PyObject *funcargs = NULL;
     PyObject *result = NULL;
-    PyObject *(*iternext)(PyObject *);
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:partition", kwlist,
                                      &iterable, &func)) {
@@ -26,7 +25,6 @@ PyIU_Partition(PyObject *m,
     if (iterator == NULL) {
         goto Fail;
     }
-    iternext = *Py_TYPE(iterator)->tp_iternext;
 
     result1 = PyList_New(0);
     if (result1 == NULL) {
@@ -53,7 +51,7 @@ PyIU_Partition(PyObject *m,
         PyObject *temp;
         int ok;
 
-        item = iternext(iterator);
+        item = Py_TYPE(iterator)->tp_iternext(iterator);
         if (item == NULL) {
             break;
         }

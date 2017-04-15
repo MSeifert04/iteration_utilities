@@ -133,7 +133,7 @@ sideeffects_next(PyIUObject_Sideeffects *self)
     PyObject *item, *temp=NULL, *tmptuple=NULL;
     Py_ssize_t i;
 
-    item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator);
+    item = Py_TYPE(self->iterator)->tp_iternext(self->iterator);
     if (item == NULL) {
         /* We don't expect that the sideeffect function is called when
            an exception other than StopIteration is raised by the iterator so

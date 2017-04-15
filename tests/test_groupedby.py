@@ -150,3 +150,11 @@ def test_groupedby_failure9():
     # too few arguments
     with pytest.raises(TypeError):
         groupedby()
+
+
+@memory_leak_decorator(collect=True, offset=1)
+def test_groupedby_failure10():
+    # Changing next method
+    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+        groupedby(_hf.CacheNext(1), iteration_utilities.return_True)
+    assert _hf.CacheNext.EXC_MSG in str(exc)

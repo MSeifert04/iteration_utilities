@@ -275,6 +275,14 @@ def test_nth_failures14():
     assert 'bad class' in str(exc)
 
 
+@memory_leak_decorator(collect=True, offset=1)
+def test_nth_failure15():
+    # Changing next method
+    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+        nth(2)(_hf.CacheNext(1))
+    assert _hf.CacheNext.EXC_MSG in str(exc)
+
+
 @memory_leak_decorator(offset=1)
 def test_nth_pickle1():
     x = pickle.dumps(nth(2))

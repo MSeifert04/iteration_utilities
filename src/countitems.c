@@ -43,7 +43,7 @@ PyIU_Count(PyObject *m,
         goto Fail;
     }
 
-    while ((item = (*Py_TYPE(iterator)->tp_iternext)(iterator))) {
+    while ((item = Py_TYPE(iterator)->tp_iternext(iterator))) {
 
         /* No predicate given just set ok == 1 so the element is counted. */
         if (pred == NULL) {

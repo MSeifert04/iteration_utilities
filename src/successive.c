@@ -115,7 +115,7 @@ successive_next(PyIUObject_Successive *self)
         }
 
         for (i=0; i<self->times; i++) {
-            item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator);
+            item = Py_TYPE(self->iterator)->tp_iternext(self->iterator);
             if (item == NULL) {
                 Py_DECREF(result);
                 return NULL;
@@ -128,7 +128,7 @@ successive_next(PyIUObject_Successive *self)
     }
 
     /* After the first element we can use the normal procedure. */
-    item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator);
+    item = Py_TYPE(self->iterator)->tp_iternext(self->iterator);
     if (item == NULL) {
         return NULL;
     }

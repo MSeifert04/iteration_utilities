@@ -117,7 +117,7 @@ clamp_next(PyIUObject_Clamp *self)
     PyObject *item;
     int res;
 
-    while ( (item = (*Py_TYPE(self->iterator)->tp_iternext)(self->iterator)) ) {
+    while ( (item = Py_TYPE(self->iterator)->tp_iternext(self->iterator)) ) {
         /* Check if it's smaller than the lower bound. */
         if (self->low != NULL) {
             res = PyObject_RichCompareBool(item, self->low,

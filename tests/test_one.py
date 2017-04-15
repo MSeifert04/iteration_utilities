@@ -81,3 +81,11 @@ def test_one_failure6():
     # generator without items
     with pytest.raises(ValueError):
         one(i for i in [])
+
+
+@memory_leak_decorator(collect=True, offset=1)
+def test_one_failure7():
+    # Changing next method
+    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+        one(_hf.CacheNext(1))
+    assert _hf.CacheNext.EXC_MSG in str(exc)

@@ -144,7 +144,7 @@ deepflatten_next(PyIUObject_DeepFlatten *self)
     activeiterator = PyList_GET_ITEM(self->iteratorlist, self->currentdepth);
 
     while (self->currentdepth >= 0) {
-        item = (*Py_TYPE(activeiterator)->tp_iternext)(activeiterator);
+        item = Py_TYPE(activeiterator)->tp_iternext(activeiterator);
 
         /* The active iterator finished, remove it from the list and take
            up the iterator one level up. */

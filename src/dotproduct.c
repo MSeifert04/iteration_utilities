@@ -26,8 +26,8 @@ PyIU_DotProduct(PyObject *m, PyObject *args)
         goto Fail;
     }
 
-    while ( (item1 = (*Py_TYPE(iterator1)->tp_iternext)(iterator1)) &&
-            (item2 = (*Py_TYPE(iterator2)->tp_iternext)(iterator2))) {
+    while ( (item1 = Py_TYPE(iterator1)->tp_iternext(iterator1)) &&
+            (item2 = Py_TYPE(iterator2)->tp_iternext(iterator2))) {
         product = PyNumber_Multiply(item1, item2);
         if (product == NULL) {
             goto Fail;

@@ -59,3 +59,11 @@ def test_all_equal_failure3():
     with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
         all_equal(_hf.FailNext())
     assert _hf.FailNext.EXC_MSG in str(exc)
+
+
+@memory_leak_decorator(collect=True, offset=1)
+def test_all_equal_failure4():
+    # Changing next method
+    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+        all_equal(_hf.CacheNext(1))
+    assert _hf.CacheNext.EXC_MSG in str(exc)

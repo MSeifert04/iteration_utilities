@@ -98,11 +98,9 @@ static PyObject *
 starfilter_next(PyIUObject_Starfilter *self)
 {
     PyObject *item, *val, *newargs;
-    PyObject *(*iternext)(PyObject *);
     int ok;
 
-    iternext = *Py_TYPE(self->iterator)->tp_iternext;
-    while ( (item = iternext(self->iterator)) ) {
+    while ( (item = Py_TYPE(self->iterator)->tp_iternext(self->iterator)) ) {
         if (!PyTuple_CheckExact(item)) {
             newargs = PySequence_Tuple(item);
             if (newargs == NULL) {

@@ -118,3 +118,11 @@ def test_partition_failure7():
     with pytest.raises(ValueError) as exc:
         partition([NoBool(10)])
     assert 'bad class' in str(exc)
+
+
+@memory_leak_decorator(collect=True, offset=1)
+def test_partition_failure8():
+    # Changing next method
+    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+        partition(_hf.CacheNext(1))
+    assert _hf.CacheNext.EXC_MSG in str(exc)

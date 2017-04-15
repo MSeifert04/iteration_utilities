@@ -11,6 +11,7 @@ import pytest
 
 # This module
 import iteration_utilities
+from iteration_utilities._compat import filter
 
 # helper
 from helper_cls import T
@@ -41,6 +42,38 @@ def iterator_setstate_empty_fail(thing):
 
 # Helper classes for certain fail conditions. Bundled here so the tests don't
 # need to reimplement them.
+
+
+def CacheNext(item):
+    """Iterator that modifies it "next" method when iterated over."""
+    if iteration_utilities.EQ_PY2:
+        def subiter():
+            def newnext(self):
+                raise CacheNext.EXC_TYP(CacheNext.EXC_MSG)
+            Iterator.next = newnext
+            yield item
+
+        # Need to subclass a C iterator because only the "tp_iternext" slot is
+        # cached, the "__next__" method itself always behaves as expected.
+        class Iterator(filter):
+            pass
+    else:
+        def subiter():
+            def newnext(self):
+                raise CacheNext.EXC_TYP(CacheNext.EXC_MSG)
+            Iterator.__next__ = newnext
+            yield item
+
+        # Need to subclass a C iterator because only the "tp_iternext" slot is
+        # cached, the "__next__" method itself always behaves as expected.
+        class Iterator(filter):
+            pass
+
+    return Iterator(iteration_utilities.return_True, subiter())
+
+
+CacheNext.EXC_MSG = 'next call failed, because it was modified'
+CacheNext.EXC_TYP = ValueError
 
 
 class FailIter(object):

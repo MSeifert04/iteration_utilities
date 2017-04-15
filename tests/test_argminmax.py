@@ -132,3 +132,11 @@ def test_argmin_failure10():
     with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
         argmin(_hf.FailIter())
     assert _hf.FailIter.EXC_MSG in str(exc)
+
+
+@memory_leak_decorator(collect=True, offset=1)
+def test_argmin_failure11():
+    # Changing next method
+    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+        argmin(_hf.CacheNext(1))
+    assert _hf.CacheNext.EXC_MSG in str(exc)
