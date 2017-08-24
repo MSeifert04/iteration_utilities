@@ -12,7 +12,7 @@ typedef struct {
     int isstring;
 } PyIUObject_DeepFlatten;
 
-PyTypeObject PyIUType_DeepFlatten;
+static PyTypeObject PyIUType_DeepFlatten;
 
 /******************************************************************************
  * New
@@ -442,7 +442,7 @@ static PyMemberDef deepflatten_memberlist[] = {
 };
 #undef OFF
 
-PyTypeObject PyIUType_DeepFlatten = {
+static PyTypeObject PyIUType_DeepFlatten = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.deepflatten",    /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_DeepFlatten),         /* tp_basicsize */

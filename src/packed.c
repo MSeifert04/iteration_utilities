@@ -7,7 +7,7 @@ typedef struct {
     PyObject *func;
 } PyIUObject_Packed;
 
-PyTypeObject PyIUType_Packed;
+static PyTypeObject PyIUType_Packed;
 
 /******************************************************************************
  * New
@@ -166,7 +166,7 @@ static PyMemberDef packed_memberlist[] = {
 };
 #undef OFF
 
-PyTypeObject PyIUType_Packed = {
+static PyTypeObject PyIUType_Packed = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.packed",         /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Packed),              /* tp_basicsize */

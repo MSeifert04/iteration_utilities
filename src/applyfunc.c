@@ -9,7 +9,7 @@ typedef struct {
     PyObject *funcargs;
 } PyIUObject_Applyfunc;
 
-PyTypeObject PyIUType_Applyfunc;
+static PyTypeObject PyIUType_Applyfunc;
 
 /******************************************************************************
  * New
@@ -169,7 +169,7 @@ static PyMemberDef applyfunc_memberlist[] = {
 };
 #undef OFF
 
-PyTypeObject PyIUType_Applyfunc = {
+static PyTypeObject PyIUType_Applyfunc = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.applyfunc",      /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Applyfunc),           /* tp_basicsize */

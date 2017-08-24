@@ -120,7 +120,7 @@ static PyObject *PyIU_global_0tuple = NULL;
  * Create a new tuple containing iterators for the input-tuple.
  *****************************************************************************/
 
-PyObject *
+static PyObject *
 PyIU_CreateIteratorTuple(PyObject *tuple)
 {
     PyObject *newtuple;
@@ -148,7 +148,7 @@ PyIU_CreateIteratorTuple(PyObject *tuple)
  * Create a new reversed tuple from another tuple.
  *****************************************************************************/
 
-PyObject *
+static PyObject *
 PyIU_TupleReverse(PyObject *tuple)
 {
     PyObject *newtuple;
@@ -176,7 +176,7 @@ PyIU_TupleReverse(PyObject *tuple)
  * tuple : Tuple where the value should be inserted.
  *****************************************************************************/
 
-PyObject *
+static PyObject *
 PyIU_TupleCopy(PyObject *tuple)
 {
     PyObject *newtuple;
@@ -212,7 +212,7 @@ PyIU_TupleCopy(PyObject *tuple)
  *         PyObject, see Warning.)
  *****************************************************************************/
 
-void
+static void
 PyIU_TupleInsert(PyObject *tuple,
                  Py_ssize_t where,
                  PyObject *v,
@@ -247,7 +247,7 @@ PyIU_TupleInsert(PyObject *tuple,
  *         moved to "where".
  *****************************************************************************/
 
-void
+static void
 PyIU_TupleRemove(PyObject *tuple,
                  Py_ssize_t where,
                  Py_ssize_t num)

@@ -11,7 +11,7 @@ typedef struct {
     int truncate;
 } PyIUObject_Grouper;
 
-PyTypeObject PyIUType_Grouper;
+static PyTypeObject PyIUType_Grouper;
 
 /******************************************************************************
  * New
@@ -362,7 +362,7 @@ static PyMemberDef grouper_memberlist[] = {
 };
 #undef OFF
 
-PyTypeObject PyIUType_Grouper = {
+static PyTypeObject PyIUType_Grouper = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.grouper",        /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Grouper),             /* tp_basicsize */

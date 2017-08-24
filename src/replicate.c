@@ -10,7 +10,7 @@ typedef struct {
     Py_ssize_t repeatcurrent;
 } PyIUObject_Replicate;
 
-PyTypeObject PyIUType_Replicate;
+static PyTypeObject PyIUType_Replicate;
 
 /******************************************************************************
  * New
@@ -300,7 +300,7 @@ static PyMemberDef replicate_memberlist[] = {
 };
 #undef OFF
 
-PyTypeObject PyIUType_Replicate = {
+static PyTypeObject PyIUType_Replicate = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.replicate",      /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Replicate),           /* tp_basicsize */

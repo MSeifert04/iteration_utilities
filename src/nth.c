@@ -8,7 +8,7 @@ typedef struct {
     PyObject *funcargs;
 } PyIUObject_Nth;
 
-PyTypeObject PyIUType_Nth;
+static PyTypeObject PyIUType_Nth;
 
 /******************************************************************************
  * New
@@ -318,7 +318,7 @@ static PyMemberDef nth_memberlist[] = {
 };
 #undef OFF
 
-PyTypeObject PyIUType_Nth = {
+static PyTypeObject PyIUType_Nth = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.nth",            /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Nth),                 /* tp_basicsize */

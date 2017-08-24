@@ -9,7 +9,7 @@ typedef struct {
     PyObject *result;
 } PyIUObject_Successive;
 
-PyTypeObject PyIUType_Successive;
+static PyTypeObject PyIUType_Successive;
 
 /******************************************************************************
  * New
@@ -323,7 +323,7 @@ static PyMemberDef successive_memberlist[] = {
 };
 #undef OFF
 
-PyTypeObject PyIUType_Successive = {
+static PyTypeObject PyIUType_Successive = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.successive",     /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Successive),          /* tp_basicsize */

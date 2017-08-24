@@ -9,7 +9,7 @@ typedef struct {
     PyObject *funcargs;
 } PyIUObject_Chained;
 
-PyTypeObject PyIUType_Chained;
+static PyTypeObject PyIUType_Chained;
 
 /******************************************************************************
  * New
@@ -387,7 +387,7 @@ static PyMemberDef chained_memberlist[] = {
 };
 #undef OFF
 
-PyTypeObject PyIUType_Chained = {
+static PyTypeObject PyIUType_Chained = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.chained",        /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Chained),             /* tp_basicsize */

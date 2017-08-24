@@ -19,7 +19,7 @@ typedef struct {
     PyObject *funcargs;
 } PyIUObject_UniqueEver;
 
-PyTypeObject PyIUType_UniqueEver;
+static PyTypeObject PyIUType_UniqueEver;
 
 /******************************************************************************
  * New
@@ -272,7 +272,7 @@ static PyMemberDef uniqueever_memberlist[] = {
 };
 #undef OFF
 
-PyTypeObject PyIUType_UniqueEver = {
+static PyTypeObject PyIUType_UniqueEver = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.unique_everseen",/* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_UniqueEver),          /* tp_basicsize */

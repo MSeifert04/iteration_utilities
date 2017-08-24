@@ -7,7 +7,7 @@ typedef struct {
     PyObject *func;
 } PyIUObject_Flip;
 
-PyTypeObject PyIUType_Flip;
+static PyTypeObject PyIUType_Flip;
 
 /******************************************************************************
  * New
@@ -170,7 +170,7 @@ static PyMemberDef flip_memberlist[] = {
 };
 #undef OFF
 
-PyTypeObject PyIUType_Flip = {
+static PyTypeObject PyIUType_Flip = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.flip",           /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Flip),                /* tp_basicsize */

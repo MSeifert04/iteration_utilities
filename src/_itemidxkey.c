@@ -19,7 +19,7 @@ typedef struct {
     Py_ssize_t idx;
 } PyIUObject_ItemIdxKey;
 
-PyTypeObject PyIUType_ItemIdxKey;
+static PyTypeObject PyIUType_ItemIdxKey;
 
 #define PyIU_ItemIdxKey_Check(o) PyObject_TypeCheck(o, &PyIUType_ItemIdxKey)
 #define PyIU_ItemIdxKey_CheckExact(o) (Py_TYPE(o) == &PyIUType_ItemIdxKey)
@@ -75,7 +75,7 @@ itemidxkey_new(PyTypeObject *type,
  * This bypasses the argument unpacking!
  *****************************************************************************/
 
-PyObject *
+static PyObject *
 PyIU_ItemIdxKey_FromC(PyObject *item,
                       Py_ssize_t idx,
                       PyObject *key)
@@ -106,7 +106,7 @@ PyIU_ItemIdxKey_FromC(PyObject *item,
  * Copy (only from C code)
  *****************************************************************************/
 
-PyObject *
+static PyObject *
 PyIU_ItemIdxKey_Copy(PyObject *iik)
 {
     PyIUObject_ItemIdxKey *n;
@@ -202,7 +202,7 @@ itemidxkey_repr(PyIUObject_ItemIdxKey *self)
  * Richcompare
  *****************************************************************************/
 
-int
+static int
 PyIU_ItemIdxKey_Compare(PyObject *v,
                         PyObject *w,
                         int op)
@@ -516,7 +516,7 @@ static PyGetSetDef itemidxkey_getsetlist[] = {
     {NULL}                                              /* sentinel */
 };
 
-PyTypeObject PyIUType_ItemIdxKey = {
+static PyTypeObject PyIUType_ItemIdxKey = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.ItemIdxKey",     /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_ItemIdxKey),          /* tp_basicsize */

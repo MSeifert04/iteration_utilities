@@ -9,7 +9,7 @@ typedef struct {
     PyObject *funcargs;
 } PyIUObject_Tabulate;
 
-PyTypeObject PyIUType_Tabulate;
+static PyTypeObject PyIUType_Tabulate;
 
 /******************************************************************************
  * New
@@ -184,7 +184,7 @@ static PyMemberDef tabulate_memberlist[] = {
 };
 #undef OFF
 
-PyTypeObject PyIUType_Tabulate = {
+static PyTypeObject PyIUType_Tabulate = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.tabulate",       /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Tabulate),            /* tp_basicsize */
