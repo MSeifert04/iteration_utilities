@@ -8,7 +8,7 @@ typedef struct {
     PyObject *iterator;
 } PyIUObject_Starfilter;
 
-PyTypeObject PyIUType_Starfilter;
+static PyTypeObject PyIUType_Starfilter;
 
 /******************************************************************************
  * New
@@ -170,7 +170,7 @@ static PyMemberDef starfilter_memberlist[] = {
 };
 #undef OFF
 
-PyTypeObject PyIUType_Starfilter = {
+static PyTypeObject PyIUType_Starfilter = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.starfilter",     /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Starfilter),          /* tp_basicsize */

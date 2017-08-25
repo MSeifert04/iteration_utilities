@@ -74,7 +74,7 @@ typedef struct {
     Py_ssize_t *posph;
 } PyIUObject_Partial;
 
-PyTypeObject PyIUType_Partial;
+static PyTypeObject PyIUType_Partial;
 
 /******************************************************************************
  * Dealloc
@@ -676,7 +676,7 @@ static PyMemberDef partial_memberlist[] = {
 };
 #undef OFF
 
-PyTypeObject PyIUType_Partial = {
+static PyTypeObject PyIUType_Partial = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.partial",        /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Partial),             /* tp_basicsize */

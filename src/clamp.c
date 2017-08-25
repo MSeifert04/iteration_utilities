@@ -11,7 +11,7 @@ typedef struct {
     int remove;
 } PyIUObject_Clamp;
 
-PyTypeObject PyIUType_Clamp;
+static PyTypeObject PyIUType_Clamp;
 
 /******************************************************************************
  * New
@@ -250,7 +250,7 @@ static PyMemberDef clamp_memberlist[] = {
 };
 #undef OFF
 
-PyTypeObject PyIUType_Clamp = {
+static PyTypeObject PyIUType_Clamp = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.clamp",          /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Clamp),               /* tp_basicsize */

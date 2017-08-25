@@ -3,6 +3,7 @@
 # Built-ins
 from __future__ import absolute_import, division, print_function
 import collections
+import functools
 import gc
 import weakref
 
@@ -14,9 +15,15 @@ def _make_tuple(obj):
     if obj is None:
         return tuple()
     if not isinstance(obj, tuple):
-        return (obj, )
+        return obj,
     else:
         return obj
+
+
+def _format_dict(d):
+    longest_name = max(len(k.__name__) for k in d)
+    formatstring = '{{:<{}}} : {{}}'.format(longest_name)
+    return '\n'.join([formatstring.format(k.__name__, v) for k, v in d.items()])
 
 
 def memory_leak_decorator(specific_object=None, exclude_object=weakref.ref,
@@ -63,8 +70,9 @@ def memory_leak_decorator(specific_object=None, exclude_object=weakref.ref,
     to pass arguments to the ``func``!
     """
     def decorator_factory(func):
+        @functools.wraps(func)
         def inner():
-            for i in range(offset):
+            for _ in range(offset):
                 func()
 
             # Create Counter before listing the objects otherwise they would
@@ -91,10 +99,12 @@ def memory_leak_decorator(specific_object=None, exclude_object=weakref.ref,
                    for specific in specifics
                    if specific not in excludes and
                    specific in before):
-                raise TypeError('leaked objects: {}'.format(
-                    {specific: after[specific] - before[specific]
-                     for specific in specifics
-                     if specific not in excludes and
-                     after[specific] - before[specific] > 0}))
+                raise TypeError('leaked objects in {!r}:\n{}'.format(
+                    func.__name__,
+                    _format_dict(
+                        {specific: after[specific] - before[specific]
+                         for specific in specifics
+                         if specific not in excludes and
+                         after[specific] - before[specific] > 0})))
         return inner
     return decorator_factory

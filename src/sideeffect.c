@@ -12,7 +12,7 @@ typedef struct {
     PyObject *funcargs;  /* Wrapper for the arguments for the function */
 } PyIUObject_Sideeffects;
 
-PyTypeObject PyIUType_Sideeffects;
+static PyTypeObject PyIUType_Sideeffects;
 
 /******************************************************************************
  * New
@@ -470,7 +470,7 @@ static PyMemberDef sideeffects_memberlist[] = {
 };
 #undef OFF
 
-PyTypeObject PyIUType_Sideeffects = {
+static PyTypeObject PyIUType_Sideeffects = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.sideeffects",    /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Sideeffects),         /* tp_basicsize */

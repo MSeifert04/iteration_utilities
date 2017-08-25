@@ -10,7 +10,7 @@ typedef struct {
     PyObject *funcargs;
 } PyIUObject_UniqueJust;
 
-PyTypeObject PyIUType_UniqueJust;
+static PyTypeObject PyIUType_UniqueJust;
 
 /******************************************************************************
  * New
@@ -267,7 +267,7 @@ static PyMemberDef uniquejust_memberlist[] = {
 };
 #undef OFF
 
-PyTypeObject PyIUType_UniqueJust = {
+static PyTypeObject PyIUType_UniqueJust = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.unique_justseen",/* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_UniqueJust),          /* tp_basicsize */

@@ -14,7 +14,7 @@ typedef struct {
     PyObject *funcargs;
 } PyIUObject_Accumulate;
 
-PyTypeObject PyIUType_Accumulate;
+static PyTypeObject PyIUType_Accumulate;
 
 /******************************************************************************
  * New
@@ -251,7 +251,7 @@ static PyMemberDef accumulate_memberlist[] = {
 };
 #undef OFF
 
-PyTypeObject PyIUType_Accumulate = {
+static PyTypeObject PyIUType_Accumulate = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.accumulate",     /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Accumulate),          /* tp_basicsize */

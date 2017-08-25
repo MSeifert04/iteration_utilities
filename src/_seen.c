@@ -29,7 +29,7 @@ typedef struct {
     PyObject *seenlist;
 } PyIUObject_Seen;
 
-PyTypeObject PyIUType_Seen;
+static PyTypeObject PyIUType_Seen;
 
 #define PyIUSeen_Check(o) (PyObject_TypeCheck(o, &PyIUType_Seen))
 #define PyIUSeen_CheckExact(o) (Py_TYPE(o) == &PyIUType_Seen)
@@ -39,7 +39,7 @@ PyTypeObject PyIUType_Seen;
  * Returns ``NULL`` on failure with the appropriate exception.
  *****************************************************************************/
 
-PyObject *
+static PyObject *
 PyIUSeen_New(void)
 {
     /* Create and fill new object. */
@@ -266,7 +266,7 @@ seen_reduce(PyIUObject_Seen *self)
  * May be not overflow safe ...
  *****************************************************************************/
 
-Py_ssize_t
+static Py_ssize_t
 PyIUSeen_Size(PyIUObject_Seen *self)
 {
     if (self->seenlist != NULL) {
@@ -445,7 +445,7 @@ static PyMemberDef seen_memberlist[] = {
 };
 #undef OFF
 
-PyTypeObject PyIUType_Seen = {
+static PyTypeObject PyIUType_Seen = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.Seen",           /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Seen),                /* tp_basicsize */

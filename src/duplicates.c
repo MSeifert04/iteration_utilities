@@ -19,7 +19,7 @@ typedef struct {
     PyObject *funcargs;
 } PyIUObject_Duplicates;
 
-PyTypeObject PyIUType_Duplicates;
+static PyTypeObject PyIUType_Duplicates;
 
 /******************************************************************************
  * New
@@ -275,7 +275,7 @@ static PyMemberDef duplicates_memberlist[] = {
 };
 #undef OFF
 
-PyTypeObject PyIUType_Duplicates = {
+static PyTypeObject PyIUType_Duplicates = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.duplicates",     /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Duplicates),          /* tp_basicsize */

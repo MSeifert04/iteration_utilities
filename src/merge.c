@@ -37,7 +37,7 @@
  * Copied and modified from the python bisect module.
  *****************************************************************************/
 
-Py_ssize_t
+static Py_ssize_t
 PyIU_TupleBisectRight_LastFirst(PyObject *tuple,
                                 PyObject *item,
                                 Py_ssize_t hi,
@@ -102,7 +102,7 @@ typedef struct {
     PyObject *funcargs;
 } PyIUObject_Merge;
 
-PyTypeObject PyIUType_Merge;
+static PyTypeObject PyIUType_Merge;
 
 /******************************************************************************
  * New
@@ -753,7 +753,7 @@ static PyMemberDef merge_memberlist[] = {
 };
 #undef OFF
 
-PyTypeObject PyIUType_Merge = {
+static PyTypeObject PyIUType_Merge = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.merge",          /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Merge),               /* tp_basicsize */

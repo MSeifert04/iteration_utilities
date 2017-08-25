@@ -2,7 +2,7 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-PyObject PlaceholderStruct;
+static PyObject PlaceholderStruct;
 
 #define PYIU_Placeholder (&PlaceholderStruct)
 
@@ -67,7 +67,7 @@ static PyMethodDef placeholder_methods[] = {
 };
 #endif
 
-PyTypeObject Placeholder_Type = {
+static PyTypeObject Placeholder_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.PlaceholderType",/* tp_name */
     (Py_ssize_t)0,                                      /* tp_basicsize */
@@ -109,7 +109,7 @@ PyTypeObject Placeholder_Type = {
     (newfunc)placeholder_new,                           /* tp_new */
 };
 
-PyObject PlaceholderStruct = {
+static PyObject PlaceholderStruct = {
     _PyObject_EXTRA_INIT
     1, &Placeholder_Type
 };

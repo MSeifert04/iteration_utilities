@@ -2,7 +2,7 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-PyObject *
+static PyObject *
 argminmax(PyObject *args,
           PyObject *kwargs,
           int cmpop)
