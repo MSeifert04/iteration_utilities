@@ -6,42 +6,6 @@ import os
 import shlex
 
 # #############################################################################
-# PATCH for numpydoc with C extension signatures using __text_signature__.
-# See also: https://github.com/numpy/numpydoc/pull/73
-# #############################################################################
-
-import collections
-import inspect
-import pydoc
-import re
-import six
-import numpydoc
-
-if six.PY2:
-    sixu = lambda s: unicode(s, 'unicode_escape')
-else:
-    sixu = lambda s: s
-
-
-def mangle_signature(app, what, name, obj, options, sig, retann):
-    if (inspect.isclass(obj) and
-        (not hasattr(obj, '__init__') or
-            'initializes x; see ' in pydoc.getdoc(obj.__init__))):
-        return '', ''
-    if not (isinstance(obj, collections.Callable) or
-            hasattr(obj, '__argspec_is_invalid_')):
-        return
-    if not hasattr(obj, '__doc__'):
-        return
-    doc = numpydoc.docscrape_sphinx.SphinxDocString(pydoc.getdoc(obj))
-    sig = doc['Signature'] or getattr(obj, '__text_signature__', None)
-    if sig:
-        return re.sub(sixu("^[^(]*"), sixu(""), sig), sixu('')
-
-
-numpydoc.numpydoc.mangle_signature = mangle_signature
-
-# #############################################################################
 # Get version of the package from the package itself.
 # #############################################################################
 

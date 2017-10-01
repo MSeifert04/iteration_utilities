@@ -1,2 +1,2 @@
 six
-numpydoc
+numpydoc>=0.7
