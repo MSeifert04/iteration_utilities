@@ -5,6 +5,7 @@ from __future__ import absolute_import, division, print_function
 import collections
 import copy
 import pickle
+import sys
 import weakref
 
 # 3rd party
@@ -44,7 +45,7 @@ class AllowPickle:
     def __enter__(self):
         return self
 
-    def __exit__(self, type, value, tb):
+    def __exit__(self, typ, value, tb):
         return False
 
 
@@ -564,6 +565,20 @@ def test_partial_placeholder_copy():
     assert p2(20)
     assert not p2(1.2)
     assert not p2(T(1.2))
+
+
+@memory_leak_decorator()
+def test_partial_sizeof():
+    p1 = partial(isinstance, 10, int)
+    p2 = partial(isinstance, partial._, int)
+    p3 = partial(isinstance, partial._, partial._)
+    # The sizes should be different because each placeholder leads to one more
+    # element in the posph array.
+    sizes = [sys.getsizeof(p) for p in (p1, p2, p3)]
+    assert sizes[2] > sizes[1]
+    assert sizes[1] > sizes[0]
+    # Also make sure that the difference is the same between 3 vs. 2 and 2 vs. 1
+    assert sizes[2] - sizes[1] == sizes[1] - sizes[0]
 
 
 @memory_leak_decorator()

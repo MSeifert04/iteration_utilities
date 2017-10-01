@@ -182,7 +182,7 @@ partial_new(PyTypeObject *type,
             if (pargs == NULL) {
                 return NULL;
             }
-            /* Only replace min(part->numpy, tuplesize) placeholders, otherwise
+            /* Only replace min(part->numph, tuplesize) placeholders, otherwise
                this will make out of bounds memory accesses (besides doing
                something undefined).
                */
@@ -591,6 +591,25 @@ partial_setstate(PyIUObject_Partial *self,
 }
 
 /******************************************************************************
+ * Sizeof
+ *****************************************************************************/
+
+static PyObject *
+partial_sizeof(PyIUObject_Partial *self,
+               void *unused)
+{
+    Py_ssize_t res;
+    res = sizeof(PyIUObject_Partial);
+    /* Include the size of the posph array. */
+    res += self->numph * sizeof(Py_ssize_t);
+#if PY_MAJOR_VERSION == 2
+    return PyInt_FromSsize_t(res);
+#else
+    return PyLong_FromSsize_t(res);
+#endif
+}
+
+/******************************************************************************
  * Type
  *****************************************************************************/
 
@@ -606,6 +625,12 @@ static PyMethodDef partial_methods[] = {
      (PyCFunction)partial_setstate,                     /* ml_meth */
      METH_O,                                            /* ml_flags */
      PYIU_setstate_doc                                  /* ml_doc */
+     },
+
+    {"__sizeof__",                                      /* ml_name */
+     (PyCFunction)partial_sizeof,                       /* ml_meth */
+     METH_NOARGS,                                       /* ml_flags */
+     PYIU_sizeof_doc                                    /* ml_doc */
      },
 
     {NULL, NULL}                                        /* sentinel */

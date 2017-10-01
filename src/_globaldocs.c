@@ -7,6 +7,7 @@
  *
  * __reduce__
  * __setstate__
+ * __sizeof__
  * __length_hint__
  *****************************************************************************/
 
@@ -21,6 +22,12 @@ PyDoc_STRVAR(PYIU_setstate_doc,
     "--\n\n"
     "Set state for unpickling. "
     "The `state` argument must be `tuple`-like.\n"
+);
+
+PyDoc_STRVAR(PYIU_sizeof_doc,
+    "__sizeof__(/)\n"
+    "--\n\n"
+    "Returns size in memory, in bytes.\n"
 );
 
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
