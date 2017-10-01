@@ -12,6 +12,10 @@ partial
       ``additional_args``. Likewise the ``all_kwargs`` is a mapping created
       from the :py:attr:`keywords` with the ``additional_kwargs``.
 
+   .. method:: __sizeof__()
+
+      Returns size of the instance in memory, in bytes.
+
    .. attribute:: _
 
       (:py:data:`~iteration_utilities.Placeholder`) Allows easy access to a

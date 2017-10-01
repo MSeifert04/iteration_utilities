@@ -4,7 +4,8 @@ Changelog for "iteration_utilities"
 Version 0.7.0 (unreleased)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
--
+- Add ``__sizeof__`` method for ``partial`` to return a more accurate size
+  for the instance.
 
 
 Version 0.6.1 (2017-04-15)
