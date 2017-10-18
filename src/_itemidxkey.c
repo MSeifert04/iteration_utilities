@@ -232,7 +232,7 @@ PyIU_ItemIdxKey_Compare(PyObject *v,
        - no/few duplicates: first "op" then eq
        - first compare idx and if it's smaller check le/ge otherwise lt/gt
 
-       --> I chose eq then "op" but the other version is also avaiable as
+       --> I chose eq then "op" but the other version is also available as
        comment.
        */
 
