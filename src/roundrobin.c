@@ -119,7 +119,7 @@ roundrobin_next(PyIUObject_Roundrobin *self)
         self->numactive--;
         Py_DECREF(iterator);
 
-        /* End the loop as soon as no active iterators are avaiable or use the
+        /* End the loop as soon as no active iterators are available or use the
            next iterator.
            */
         if (self->numactive == 0) {

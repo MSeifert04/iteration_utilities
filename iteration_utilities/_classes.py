@@ -865,7 +865,7 @@ class _Base(object):
 
         Examples
         --------
-        >>> from iteration_utilities import Iterable, is_even, is_odd
+        >>> from iteration_utilities import Iterable, is_even
         >>> Iterable(range(1, 10)).split(is_even).as_list()
         [[1], [3], [5], [7], [9]]
 
@@ -1126,16 +1126,16 @@ class Iterable(_Base):
         >>> Iterable('abcdefghijklmnopqrstuvwxyz')
         <Iterable: 'abcdefghijklmnopqrstuvwxyz'>
 
-    The primary use of :py:class:`.Iterable` is because it allows easy chaining
-    of several functional programming functions implemented in Python
-    (:py:func:`map`, :py:func:`filter`, ...), :py:mod:`itertools` and
-    :py:mod:`iteration_utilities`::
+    :py:class:`.Iterable` is because allows chaining of several functions
+    implemented in Python (:py:func:`map`, :py:func:`filter`, ...),
+    :py:mod:`itertools` and :py:mod:`iteration_utilities`::
 
         >>> Iterable([1,2,3,4]).islice(1,3).map(float).as_list()
         [2.0, 3.0]
 
-    The methods :py:meth:`.islice` and :py:meth:`.map` are only evaluated when
-    :py:meth:`.as_list` is called.
+    The methods :py:meth:`.islice` and :py:meth:`.map` are only evaluated on the
+    iterable when :py:meth:`.as_list` is called.
+
     The class can also be used in ``for`` loops::
 
         >>> from iteration_utilities import is_even
@@ -1152,13 +1152,13 @@ class Iterable(_Base):
         972
         1090
 
-    Using some methods (:py:meth:`.Iterable.cycle`) create an
+    Some methods (:py:meth:`.Iterable.cycle`) create an
     :py:class:`.InfiniteIterable`::
 
         >>> Iterable(range(10)).cycle()  # doctest: +ELLIPSIS
         <InfiniteIterable: <itertools.cycle object at ...>>
 
-    Also some of the staticmethods (``from_x``)::
+    As well as some of the staticmethods (``from_x``)::
 
         >>> Iterable.from_count()
         <InfiniteIterable: count(0)>
@@ -1169,7 +1169,8 @@ class Iterable(_Base):
         >>> Iterable.from_repeat(10, times=2)  # but not always!
         <Iterable: repeat(10, 2)>
 
-    This logic allows to be aware if the iterable is infinitly long or not.
+    This logic allows the class to be aware if the iterable is infinitly long or
+    not and prevent accidental infinite loops.
     Some methods can also convert an :py:class:`.InfiniteIterable` to a normal
     :py:class:`.Iterable` again::
 
@@ -1191,7 +1192,7 @@ class Iterable(_Base):
         OrderedDict([(4, 0), (5, 1), (6, 2), (7, 3), (8, 4), (9, 5)])
 
     .. warning::
-       These latter methods are (obviously) not avaiable for
+availablehese latter methods are (obviously) not available for
        :py:class:`.InfiniteIterable`!
     """
     __slots__ = ('_iterable',)
@@ -1604,7 +1605,7 @@ strict=False)
             """See :py:func:`python:max`.
 
             .. note::
-               The `default`-parameter is not avaiable at Python 3.3
+               The `default`-parameter is not available at Python 3.3
 
             Examples
             --------
@@ -1627,7 +1628,7 @@ strict=False)
             """See :py:func:`python:min`.
 
             .. note::
-               The `default`-parameter is not avaiable at Python 3.3
+               The `default`-parameter is not available at Python 3.3
 
             Examples
             --------
@@ -1801,7 +1802,7 @@ strict=False)
         return self._get(third, 0, default=default, pred=pred, truthy=truthy,
                          retpred=retpred, retidx=retidx)
 
-    # Statistics module is only avaiable since Python 3.4
+    # Statistics module is only available since Python 3.4
     if GE_PY34:
         def get_mean(self):
             """See :py:func:`statistics.mean`.
@@ -1951,7 +1952,7 @@ class InfiniteIterable(_Base):
     infinitly long.
 
     .. warning::
-       The ``Iterable.as_*`` methods are not avaiable for
+       The ``Iterable.as_*`` methods are not available for
        :py:class:`.InfiniteIterable` because it would be impossible to create
        these types. Use :py:meth:`.InfiniteIterable.islice` or
        :py:meth:`.InfiniteIterable.takewhile` to convert an infinite iterable

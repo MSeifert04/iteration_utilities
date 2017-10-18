@@ -303,7 +303,7 @@ static PyMethodDef PyIU_methods[] = {
     PyObject *PyIU_ReduceFirst, *PyIU_ReduceSecond, *PyIU_ReduceThird, *PyIU_ReduceLast;
     Py_ssize_t minus_one = -1;  /* no idea why this is needed but -1 in call doesn't work */
 
-    /* Classes avaiable in module. */
+    /* Classes available in module. */
     PyTypeObject *typelist[] = {
         &PyIUType_ItemIdxKey,
         &PyIUType_Seen,

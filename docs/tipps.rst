@@ -90,5 +90,5 @@ function you'll see the performance increase:
     because integer don't compare to floats. In that case you need to use:
     ``(5.0).__lt__(10.2)``.
 
-However public methods are always avaiable as well as several special methods
+However public methods are always available as well as several special methods
 like: ``__len__``, ``__contains__``, ...

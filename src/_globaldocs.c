@@ -233,7 +233,7 @@ PyDoc_STRVAR(replicate_prop_timescurrent_doc,
 PyDoc_STRVAR(replicate_prop_current_doc,
     "(any type) The item that is currently replicated (readonly).\n"
     "\n"
-    "Only avaiable if an item has been replicated.\n"
+    "Only available if an item has been replicated.\n"
     "\n"
     ".. versionadded:: 0.6");
 

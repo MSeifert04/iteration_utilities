@@ -18,7 +18,7 @@ specialized libraries like ``NumPy``, ``pandas`` or ``SciPy``.
 
 .. note::
    The documentation also presents functionality from several built-in modules
-   and functions to provide a general overview over the avaiable functionality.
+   and functions to provide a general overview over the available functionality.
 
 .. warning::
    This library is under on-going development and may change it's API!

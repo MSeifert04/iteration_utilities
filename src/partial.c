@@ -396,7 +396,7 @@ Fail:
  * __dict__ getter and setter
  *
  * only needed for python2 or python3 < 3.3 because later there are generic
- * options avaiable
+ * options available
  *****************************************************************************/
 
 static PyObject *
