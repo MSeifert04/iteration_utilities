@@ -11,11 +11,11 @@ matrix:
   include:
     - python: "2.7"
       install:
-        - export CFLAGS="-O0"
+        - export CFLAGS="-O0 -ggdb"
         - CC=clang python setup.py install
     - python: "3.6"
       install:
-        - export CFLAGS="-O0"
+        - export CFLAGS="-O0 -ggdb"
         - CC=clang python setup.py install
 
 before_install:
