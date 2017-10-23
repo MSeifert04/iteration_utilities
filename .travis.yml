@@ -3,9 +3,6 @@ language: python
 os:
   - linux
 
-compiler:
-  - gcc
-
 python:
   - "2.7"
   - "3.3"
@@ -20,16 +17,20 @@ python:
 matrix:
   include:
     - python: "2.7"
-      compiler: clang
+      install:
+        - CC=clang python setup.py install
     - python: "3.6"
-      compiler: clang
+      install:
+        - CC=clang python setup.py install
 
   allow_failures:
     - python: "3.7-dev"
     - python: "nightly"
 
-install:
+before_install:
   - pip install coveralls
+
+install:
   - python setup.py install
 
 # command to run tests
