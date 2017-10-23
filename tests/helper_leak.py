@@ -70,6 +70,7 @@ def memory_leak_decorator(specific_object=None, exclude_object=weakref.ref,
     to pass arguments to the ``func``!
     """
     def decorator_factory(func):
+        return func
         @functools.wraps(func)
         def inner():
             for _ in range(offset):
