@@ -5,33 +5,28 @@ os:
 
 python:
   - "2.7"
-  - "3.3"
-  - "3.4"
-  - "3.5"
-  - "3.5-dev" # 3.5 development branch
   - "3.6"
-  - "3.6-dev" # 3.6 development branch
-  - "3.7-dev" # 3.7 development branch
-  - "nightly" # currently points to 3.7-dev
 
 matrix:
   include:
-    #- python: "2.7"
-    #  os: osx
-    #- python: "3.5"
-    #  os: osx
+    - python: "2.7"
+      install:
+        - export CFLAGS="-O0 -ggdb"
+        - CC=clang python setup.py install
+    - python: "3.6"
+      install:
+        - export CFLAGS="-O0 -ggdb"
+        - CC=clang python setup.py install
 
-  allow_failures:
-    - python: "3.7-dev"
-    - python: "nightly"
-    #- python: "2.7"
-    #  os: osx
-    #- python: "3.5"
-    #  os: osx
+before_install:
+  - pip install coveralls
+  - sudo apt-get install -y gdb
 
 install:
-  - pip install coveralls
   - python setup.py install
+
+before_script:
+  - ulimit -c unlimited -S
 
 # command to run tests
 script:
@@ -39,3 +34,7 @@ script:
 
 after_success:
   - coveralls
+
+after_failure:
+- COREFILE=$(find . -maxdepth 1 -name "core*" | head -n 1) # find core file
+- if [[ -f "$COREFILE" ]]; then gdb -c "$COREFILE" example -ex "thread apply all bt" -ex "set pagination 0" -batch; fi
