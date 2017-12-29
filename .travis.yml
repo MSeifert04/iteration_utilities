@@ -13,24 +13,22 @@ python:
   - "3.6-dev" # 3.6 development branch
   - "3.7-dev" # 3.7 development branch
   - "nightly" # currently points to 3.7-dev
+  - "3.7-dev"
+  - "nightly"
 
 matrix:
   include:
-    #- python: "2.7"
-    #  os: osx
-    #- python: "3.5"
-    #  os: osx
+    - python: "2.7"
+      install: CC=clang python setup.py install
+    - python: "3.6"
+      install: CC=clang python setup.py install
 
   allow_failures:
-    - python: "3.7-dev"
-    - python: "nightly"
-    #- python: "2.7"
-    #  os: osx
-    #- python: "3.5"
-    #  os: osx
+
+before_install:
+  - pip install coveralls
 
 install:
-  - pip install coveralls
   - python setup.py install
 
 # command to run tests

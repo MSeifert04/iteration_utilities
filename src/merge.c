@@ -124,7 +124,7 @@ merge_new(PyTypeObject *type,
     /* Parse arguments */
 
     if (!PyArg_ParseTupleAndKeywords(PyIU_global_0tuple, kwargs,
-                                     "|OO:merge", kwlist,
+                                     "|Oi:merge", kwlist,
                                      &keyfunc, &reverse)) {
         return NULL;
     }
