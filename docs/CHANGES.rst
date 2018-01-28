@@ -1,11 +1,17 @@
 Changelog for "iteration_utilities"
 -----------------------------------
 
-Version 0.7.0 (unreleased)
+Version 0.7.1 (unreleased)
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+Version 0.7.0 (2018-01-28)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Add ``__sizeof__`` method for ``partial`` to return a more accurate size
   for the instance.
+
+- Fixed a problem when creating ``merge`` instances depending on the compiler.
 
 
 Version 0.6.1 (2017-04-15)
