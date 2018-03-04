@@ -5,7 +5,7 @@ The :py:mod:`iteration_utilities` package is a C extension python package
 supporting the Python versions:
 
 - Python 2.7
-- Python 3.3+
+- Python 3.5+ (older Python 3 versions may work but are not actively supported)
 
 
 Using pip
@@ -50,7 +50,7 @@ Dependencies
 
 Installation:
 
-- python2 2.7 or python3 3.3+
+- python2 2.7 or python3 3.5+
 - setuptools
 - C compiler
 
