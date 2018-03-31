@@ -5,6 +5,8 @@ from os import path
 
 import sys
 
+project_name = "iteration_utilities"
+
 
 def readme():
     with open('README.rst') as f:
@@ -12,7 +14,7 @@ def readme():
 
 
 def version():
-    with open('iteration_utilities/__init__.py') as f:
+    with open('{}/__init__.py'.format(project_name)) as f:
         for line in f:
             if line.startswith('__version__'):
                 return line.split(r"'")[1]
@@ -26,7 +28,7 @@ cfuncs_module = Extension('_iteration_utilities',
 needs_pytest = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
 pytest_runner = ['pytest-runner'] if needs_pytest else []
 
-setup(name='iteration_utilities',
+setup(name=project_name,
       version=version(),
 
       description='Utilities based on Pythons iterators and generators.',
