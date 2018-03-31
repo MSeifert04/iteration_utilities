@@ -1192,7 +1192,7 @@ class Iterable(_Base):
         OrderedDict([(4, 0), (5, 1), (6, 2), (7, 3), (8, 4), (9, 5)])
 
     .. warning::
-availablehese latter methods are (obviously) not available for
+       these latter methods are (obviously) not available for
        :py:class:`.InfiniteIterable`!
     """
     __slots__ = ('_iterable',)
