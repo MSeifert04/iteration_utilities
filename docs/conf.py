@@ -101,7 +101,7 @@ html_theme = 'nature'
 # html_context
 # html_logo
 # html_favicon
-html_static_path = ['_static']
+# html_static_path = ['_static']
 # html_extra_path
 # html_last_updated_fmt
 # html_use_smartypants
