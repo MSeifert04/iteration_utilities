@@ -9,10 +9,11 @@ python:
   - "3.5-dev" # 3.5 development branch
   - "3.6"
   - "3.6-dev" # 3.6 development branch
-  - "3.7-dev" # 3.7 development branch
-  - "nightly" # currently points to 3.7-dev
-  - "3.7-dev"
-  - "nightly"
+# These 3 are skipped because of a Travis limitation 
+# see https://github.com/MSeifert04/iteration_utilities/pull/216
+#  - "3.7-dev" # 3.7 development branch
+#  - "3.8-dev"
+#  - "nightly"
 
 matrix:
   include:
