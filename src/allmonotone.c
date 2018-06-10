@@ -37,7 +37,7 @@ PyIU_Monotone(PyObject *m,
         }
     }
 
-    Py_XDECREF(iterator);
+    Py_DECREF(iterator);
     Py_XDECREF(last);
 
     if (PyErr_Occurred()) {
@@ -55,7 +55,7 @@ Fail:
     return NULL;
 
 Found:
-    Py_XDECREF(iterator);
-    Py_XDECREF(last);
+    Py_DECREF(iterator);
+    Py_DECREF(last);
     Py_RETURN_FALSE;
 }
