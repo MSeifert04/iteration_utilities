@@ -6,14 +6,7 @@ os:
 python:
   - "2.7"
   - "3.5"
-  - "3.5-dev" # 3.5 development branch
   - "3.6"
-  - "3.6-dev" # 3.6 development branch
-# These 3 are skipped because of a Travis limitation 
-# see https://github.com/MSeifert04/iteration_utilities/pull/216
-#  - "3.7-dev" # 3.7 development branch
-#  - "3.8-dev"
-#  - "nightly"
 
 matrix:
   include:
@@ -21,6 +14,21 @@ matrix:
       install: CC=clang python setup.py install
     - python: "3.6"
       install: CC=clang python setup.py install
+    # Unfortunately there is currently no way to have these tested on Trusty.
+    # This is hack to work around that:
+    # https://docs.travis-ci.com/user/languages/python/#development-releases-support
+    - python: "3.7"
+      dist: xenial
+      sudo: true
+    - python: "3.7-dev"
+      dist: xenial
+      sudo: true
+    - python: "3.8-dev"
+      dist: xenial
+      sudo: true
+    - python: "nightly"
+      dist: xenial
+      sudo: true
 
   allow_failures:
 
