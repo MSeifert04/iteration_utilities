@@ -27,7 +27,7 @@ def _format_dict(d):
 
 
 def memory_leak_decorator(specific_object=None, exclude_object=weakref.ref,
-                          collect=False, offset=0):
+                          collect=False, offset=0, dummy=False):
     """Compares the number of tracked python objects before and after a
     function call and returns a dict containing differences.
 
@@ -51,6 +51,10 @@ def memory_leak_decorator(specific_object=None, exclude_object=weakref.ref,
         leak. If the function is unpure (relies on external states) calls might
         introduce some "wanted" memory leaks.
         Default is ``0``.
+
+    dummy : bool, optional
+        If ``True`` it won't actually test for leaks.
+        Default is ``False``.
 
     Returns
     -------
@@ -95,10 +99,10 @@ def memory_leak_decorator(specific_object=None, exclude_object=weakref.ref,
                 specifics = set(after)
             excludes = set(_make_tuple(exclude_object))
 
-            if any(after[specific] - before[specific] > 0
-                   for specific in specifics
-                   if specific not in excludes and
-                   specific in before):
+            if not dummy and any(after[specific] - before[specific] > 0
+                                 for specific in specifics
+                                 if specific not in excludes and
+                                 specific in before):
                 raise TypeError('leaked objects in {!r}:\n{}'.format(
                     func.__name__,
                     _format_dict(

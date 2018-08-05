@@ -14,6 +14,13 @@ import _iteration_utilities
 from helper_leak import memory_leak_decorator
 
 
+@memory_leak_decorator(dummy=True)
+def test_nothing():
+    """This is just here so that the leak-decorator runs once to avoid spurious
+    false-positives on the first invocation of the decorator."""
+    pass
+
+
 @memory_leak_decorator()
 def test_other_c_funcs():
     assert iteration_utilities.return_True()
