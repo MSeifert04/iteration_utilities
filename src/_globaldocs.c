@@ -94,7 +94,7 @@ PyDoc_STRVAR(chained_prop_funcs_doc,
     ".. versionadded:: 0.6");
 PyDoc_STRVAR(chained_prop_all_doc,
     "(:py:class:`bool`) Apply functions on each other (``False``) or "
-     "seperate (readonly).\n"
+     "separate (readonly).\n"
     "\n"
     ".. versionadded:: 0.6");
 
@@ -348,7 +348,7 @@ PyDoc_STRVAR(PyIU_TupleToList_and_InsertItemAtIndex_doc,
     "\n"
     "Notes\n"
     "-----\n"
-    "This is equivelant to:\n"
+    "This is equivalent to:\n"
     "\n"
     ".. code::\n"
     "\n"
@@ -379,7 +379,7 @@ PyDoc_STRVAR(PyIU_RemoveFromDictWhereValueIs_doc,
     "\n"
     "Notes\n"
     "-----\n"
-    "This is equivelant to:\n"
+    "This is equivalent to:\n"
     "\n"
     ".. code::\n"
     "\n"
@@ -1332,7 +1332,7 @@ PyDoc_STRVAR(PyIU_AnyIsinstance_doc,
 PyDoc_STRVAR(applyfunc_doc,
     "applyfunc(func, initial)\n"
     "--\n\n"
-    "Successivly apply `func` on `value`.\n"
+    "Successively apply `func` on `value`.\n"
     "\n"
     "Parameters\n"
     "----------\n"
@@ -1359,7 +1359,7 @@ PyDoc_STRVAR(applyfunc_doc,
     "    [3.1622776601683795, 1.7782794100389228, 1.333521432163324, 1.1547819846894583]\n"
     "\n"
     ".. warning::\n"
-    "    This will return an infinitly long generator so do **not** try to do\n"
+    "    This will return an infinitely long generator so do **not** try to do\n"
     "    something like ``list(applyfunc())``!\n"
 );
 
@@ -1655,7 +1655,7 @@ PyDoc_STRVAR(PyIU_Count_doc,
     "      must not be omitted in this case.\n"
     "    - ``eq=False`` : If ``pred`` is not given or ``None`` then each item in\n"
     "      the iterable is counted.\n"
-    "      If ``pred`` is given and not ``None`` then each item satisifying\n"
+    "      If ``pred`` is given and not ``None`` then each item satisfying\n"
     "      ``if pred(item)`` is counted.\n"
     "\n"
     "    Default is ``None``.\n"
@@ -1668,7 +1668,7 @@ PyDoc_STRVAR(PyIU_Count_doc,
     "Returns\n"
     "-------\n"
     "number : number\n"
-    "    The numer of times the predicate is ``True``.\n"
+    "    The number of times the predicate is ``True``.\n"
     "\n"
     "Examples\n"
     "--------\n"
@@ -1762,7 +1762,7 @@ PyDoc_STRVAR(deepflatten_doc,
     "    older Python versions) because each item in a ``UserString`` is itself a\n"
     "    ``UserString``, even if it has a length of 1! The builtin strings \n"
     "    (``str``, ``bytes``, ``unicode``) are special cased, but only the exact\n"
-    "    types because subtypes might implement custom not-recusive ``__iter__``\n"
+    "    types because subtypes might implement custom not-recursive ``__iter__``\n"
     "    methods. This means that these won't run into the infinite recursion,\n"
     "    but subclasses might.\n"
     "\n"
@@ -1920,7 +1920,7 @@ PyDoc_STRVAR(PyIU_Groupby_doc,
     "    in :py:func:`functools.reduce`.\n"
     "\n"
     "reducestart : any type, optional\n"
-    "    If given (even as ``None``) it will be interpreted as startvalue for the\n"
+    "    If given (even as ``None``) it will be interpreted as start value for the\n"
     "    `reduce` function.\n"
     "    \n"
     "    .. note::\n"
@@ -2183,7 +2183,7 @@ PyDoc_STRVAR(merge_doc,
     "    >>> list(merge([1, 10, 11], [2, 9], [3, 8], [4, 7], [5, 6], range(10)))\n"
     "    [0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 11]\n"
     "\n"
-    "However if the `iterabes` are not sorted the result will be unsorted\n"
+    "However if the `iterables` are not sorted the result will be unsorted\n"
     "(partially sorted)::\n"
     "\n"
     "    >>> list(merge(range(10), [6,1,3,2,6,1,6]))\n"
@@ -2400,7 +2400,7 @@ PyDoc_STRVAR(PyIU_One_doc,
     "\n"
     ".. warning::\n"
     "    :py:func:`~iteration_utilities.one` will access the first two values of \n"
-    "    the `iterable` so it shoul only be used if the `iterable` must only \n"
+    "    the `iterable` so it should only be used if the `iterable` must only \n"
     "    contain one item!\n"
 );
 
@@ -2784,7 +2784,7 @@ PyDoc_STRVAR(starfilter_doc,
 PyDoc_STRVAR(successive_doc,
     "successive(iterable, times=2)\n"
     "--\n\n"
-    "Like the recipe for pairwise but allows to get an arbitary number\n"
+    "Like the recipe for pairwise but allows to get an arbitrary number\n"
     "of successive elements.\n"
     "\n"
     "Parameters\n"
@@ -2853,7 +2853,7 @@ PyDoc_STRVAR(tabulate_doc,
     "    [0.0, 1.0, 1.4142135623730951]\n"
     "\n"
     ".. warning::\n"
-    "    This will return an infinitly long generator so do **not** try to do\n"
+    "    This will return an infinitely long generator so do **not** try to do\n"
     "    something like ``list(tabulate())``!\n"
     "\n"
     "This is equivalent to:\n"
