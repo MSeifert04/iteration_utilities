@@ -83,8 +83,9 @@ PyIU_Count(PyObject *m,
             goto Fail;
         }
 
-        /* check for overflow, no fallback because it's unlikely that we should
-           process some iterable that's longer than the maximum py_ssize_t...
+        /* check if the sum variable is about to overflow. In this case there
+           is no fallback because it's unlikely that we should process some
+           iterable that's longer than the maximum py_ssize_t...
            */
         if (sum_int == PY_SSIZE_T_MAX) {
             PyErr_SetString(PyExc_TypeError,
