@@ -355,5 +355,5 @@ def test_seen_failures4():
     # seen can only be compared to other seen's.
     with pytest.raises(TypeError,
                        match='`Seen` instances can only compared to other '
-                             '`Seen` instances.'):
+                             '`Seen` instances'):
         Seen() == set()

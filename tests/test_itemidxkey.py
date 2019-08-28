@@ -108,7 +108,7 @@ def test_itemidxkey_failure5():
 @memory_leak_decorator(collect=True)
 def test_itemidxkey_failure6():
     # The item of the ItemIdxKey instances throws an Error when compared.
-    with pytest.raises(TypeError, match='simulated failure.'):
+    with pytest.raises(TypeError, match='simulated failure'):
         ItemIdxKey(T(10), 2) < ItemIdxKey(T('a'), 2)
 
 
