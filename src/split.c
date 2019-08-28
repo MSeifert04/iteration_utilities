@@ -153,12 +153,11 @@ split_next(PyIUObject_Split *self)
     }
 
     /* If there was already a value saved as next just append it and return it.
-       This case happenes if someone wants to keep the delimiter.
+       This case happens if someone wants to keep the delimiter.
        */
     if (self->next != NULL) {
         ok = PyList_Append(result, self->next);
-        Py_DECREF(self->next);
-        self->next = NULL;
+        Py_CLEAR(self->next);
         if (ok == 0) {
             if ( !self->keep_after ) {
                 return result;
