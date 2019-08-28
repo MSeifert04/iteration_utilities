@@ -11,21 +11,18 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_leak import memory_leak_decorator
 from helper_cls import T
 
 
 ItemIdxKey = iteration_utilities.ItemIdxKey
 
 
-@memory_leak_decorator()
 def test_itemidxkey_repr1():
     # Just make sure the representation does not fail.
     assert repr(ItemIdxKey(T(10), 2))
     assert repr(ItemIdxKey(T(10), 2, T(10)))
 
 
-@memory_leak_decorator(collect=True, offset=1)
 def test_itemidxkey_repr2():
     # Just make sure the representation uses the class name
     class Fun(ItemIdxKey):
@@ -35,7 +32,6 @@ def test_itemidxkey_repr2():
     assert 'Fun' in repr(Fun(T(10), 2, T(10)))
 
 
-@memory_leak_decorator(collect=True)
 def test_itemidxkey_repr3():
     # Just make sure the representation does not fail.
     iik = ItemIdxKey(10, 2)
@@ -43,7 +39,6 @@ def test_itemidxkey_repr3():
     assert repr(iik) == 'iteration_utilities.ItemIdxKey(item=[...], idx=2)'
 
 
-@memory_leak_decorator(collect=True)
 def test_itemidxkey_repr4():
     # Make sure the representation does not segfault if the representation of
     # the item deletes the "key"...
@@ -63,14 +58,12 @@ def test_itemidxkey_repr4():
                          'idx=2, key=[50, 100])')
 
 
-@memory_leak_decorator(collect=True)
 def test_itemidxkey_failure1():
     # Too few arguments
     with pytest.raises(TypeError):
         ItemIdxKey()
 
 
-@memory_leak_decorator(collect=True)
 def test_itemidxkey_failure2():
     # item may not be an ItemIdxKey
     iik = ItemIdxKey(T(10), 2)
@@ -79,7 +72,6 @@ def test_itemidxkey_failure2():
     assert "`ItemIdxKey`" in str(exc.value) and '`item`' in str(exc.value)
 
 
-@memory_leak_decorator(collect=True)
 def test_itemidxkey_failure3():
     # key may not be an ItemIdxKey
     iik = ItemIdxKey(T(10), 2)
@@ -88,7 +80,6 @@ def test_itemidxkey_failure3():
     assert "`ItemIdxKey`" in str(exc.value) and '`key`' in str(exc.value)
 
 
-@memory_leak_decorator(collect=True)
 def test_itemidxkey_failure4():
     # Cannot use <= or >=, these make no sense with ItemIdxKey but if these
     # are implemented just remove that test.
@@ -98,21 +89,18 @@ def test_itemidxkey_failure4():
         ItemIdxKey(T(10), 2) <= ItemIdxKey(T(10), 2)
 
 
-@memory_leak_decorator(collect=True)
 def test_itemidxkey_failure5():
     # Other argument in < and > must be another ItemIdxKey
     with pytest.raises(TypeError):
         ItemIdxKey(T(10), 2) < T(10)
 
 
-@memory_leak_decorator(collect=True)
 def test_itemidxkey_failure6():
     # The item of the ItemIdxKey instances throws an Error when compared.
     with pytest.raises(TypeError, match='simulated failure'):
         ItemIdxKey(T(10), 2) < ItemIdxKey(T('a'), 2)
 
 
-@memory_leak_decorator()
 def test_itemidxkey_getter():
     iik = ItemIdxKey(T(10), 2)
     assert iik.item == T(10)
@@ -126,7 +114,6 @@ def test_itemidxkey_getter():
     assert iik.key == T(5)
 
 
-@memory_leak_decorator()
 def test_itemidxkey_setter():
     iik = ItemIdxKey(T(10), 2)
     iik.item = T(20)
@@ -145,7 +132,6 @@ def test_itemidxkey_setter():
     assert iik.key == T(0)
 
 
-@memory_leak_decorator(collect=True)
 def test_itemidxkey_setter_failure1():
     iik = ItemIdxKey(T(10), 2)
     with pytest.raises(TypeError):
@@ -156,7 +142,6 @@ def test_itemidxkey_setter_failure1():
         iik.idx = 'a'
 
 
-@memory_leak_decorator(collect=True)
 def test_itemidxkey_setter_failure2():
     # cannot manually assign ItemIdxKey instance for item or key
     iik = ItemIdxKey(T(10), 2)
@@ -170,7 +155,6 @@ def test_itemidxkey_setter_failure2():
     assert "`ItemIdxKey`" in str(exc.value) and '`key`' in str(exc.value)
 
 
-@memory_leak_decorator()
 def test_itemidxkey_deleter():
     iik = ItemIdxKey(T(10), 2)
     with pytest.raises(AttributeError):
@@ -185,7 +169,6 @@ def test_itemidxkey_deleter():
         iik.key
 
 
-@memory_leak_decorator(collect=True)
 def test_itemidxkey_deleter_failure():
     iik = ItemIdxKey(T(10), 2)
     with pytest.raises(TypeError):
@@ -200,7 +183,6 @@ def test_itemidxkey_deleter_failure():
         del iik.idx
 
 
-@memory_leak_decorator(offset=1)
 def test_itemidxkey_pickle1():
     iik = ItemIdxKey(T(10), 2)
     x = pickle.dumps(iik)
@@ -208,7 +190,6 @@ def test_itemidxkey_pickle1():
     assert pickle.loads(x).idx == 2
 
 
-@memory_leak_decorator(offset=1)
 def test_itemidxkey_pickle2():
     iik = ItemIdxKey(T(10), 2, T(5))
     x = pickle.dumps(iik)

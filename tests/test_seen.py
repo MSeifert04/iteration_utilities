@@ -10,144 +10,120 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_leak import memory_leak_decorator
 from helper_cls import T
 
 
 Seen = iteration_utilities.Seen
 
 
-@memory_leak_decorator()
 def test_seen_new_None1():
     # seenset=None is identical to no seenset
     assert Seen(None) == Seen()
 
 
-@memory_leak_decorator()
 def test_seen_new_None2():
     # seenlist=None is identical to no seenlist
     assert Seen(set(), None) == Seen(set())
 
 
-@memory_leak_decorator()
 def test_seen_equality0():
     assert Seen() == Seen()
 
 
-@memory_leak_decorator()
 def test_seen_equality1():
     # only sets, identical contents
     assert Seen({T(1), T(2)}) == Seen({T(1), T(2)})
 
 
-@memory_leak_decorator()
 def test_seen_equality2():
     # only sets, not identical contents
     assert not Seen({T(1), T(2), T(3)}) == Seen({T(1), T(2)})
 
 
-@memory_leak_decorator()
 def test_seen_equality3():
     # set and list, identical contents
     assert Seen({T(1)}, [T([0, 0])]) == Seen({T(1)}, [T([0, 0])])
 
 
-@memory_leak_decorator()
 def test_seen_equality4():
     # set and list, not identical list contents
     assert not Seen({T(1)}, [T([0, 0])]) == Seen({T(1)}, [T([0, 1])])
 
 
-@memory_leak_decorator()
 def test_seen_equality5():
     # set and list, not identical list contents
     assert not Seen({T(1)}, [T([0, 0]), T([1, 0])]) == Seen({T(1)}, [T([0, 1])])
 
 
-@memory_leak_decorator()
 def test_seen_equality6():
     # empty sets, one has empty list
     assert Seen(set()) == Seen(set(), [])
 
 
-@memory_leak_decorator()
 def test_seen_equality7():
     # empty sets, one has empty list
     assert Seen(set(), []) == Seen(set())
 
 
-@memory_leak_decorator()
 def test_seen_equality8():
     # empty sets, one has not-empty list
     assert not Seen(set(), [[T(0)]]) == Seen(set())
 
 
-@memory_leak_decorator()
 def test_seen_equality9():
     # empty sets, one has not-empty list
     assert not Seen(set()) == Seen(set(), [[T(0)]])
 
 
-@memory_leak_decorator()
 def test_seen_nequality0():
     assert not Seen() != Seen()
 
 
-@memory_leak_decorator()
 def test_seen_nequality1():
     # only sets, identical contents
     assert not Seen({T(1), T(2)}) != Seen({T(1), T(2)})
 
 
-@memory_leak_decorator()
 def test_seen_nequality2():
     # only sets, not identical contents
     assert Seen({T(1), T(2), T(3)}) != Seen({T(1), T(2)})
 
 
-@memory_leak_decorator()
 def test_seen_nequality3():
     # set and list, identical contents
     assert not Seen({T(1)}, [T([0, 0])]) != Seen({T(1)}, [T([0, 0])])
 
 
-@memory_leak_decorator()
 def test_seen_nequality4():
     # set and list, not identical list contents
     assert Seen({T(1)}, [T([0, 0])]) != Seen({T(1)}, [T([0, 1])])
 
 
-@memory_leak_decorator()
 def test_seen_nequality5():
     # set and list, not identical list contents
     assert Seen({T(1)}, [T([0, 0]), [T(1), T(0)]]) != Seen({T(1)}, [T([0, 0])])
 
 
-@memory_leak_decorator()
 def test_seen_nequality6():
     # empty sets, one has empty list
     assert not Seen(set()) != Seen(set(), [])
 
 
-@memory_leak_decorator()
 def test_seen_nequality7():
     # empty sets, one has empty list
     assert not Seen(set(), []) != Seen(set())
 
 
-@memory_leak_decorator()
 def test_seen_noequality8():
     # empty sets, one has not-empty list
     assert Seen(set(), [[T(0)]]) != Seen(set())
 
 
-@memory_leak_decorator()
 def test_seen_noequality9():
     # empty sets, one has not-empty list
     assert Seen(set()) != Seen(set(), [[T(0)]])
 
 
-@memory_leak_decorator(collect=True)
 def test_seen_cmpfailure1():
     class HashButNoEq(object):
         def __init__(self, val):
@@ -166,7 +142,6 @@ def test_seen_cmpfailure1():
         s1 != s2
 
 
-@memory_leak_decorator(collect=True)
 def test_seen_cmpfailure2():
     class HashButNoEq(object):
         def __init__(self, val):
@@ -185,7 +160,6 @@ def test_seen_cmpfailure2():
         s1 != s2
 
 
-@memory_leak_decorator()
 def test_seen_othercmp1():
     # other comparisons than == or != fail
     with pytest.raises(TypeError):
@@ -198,7 +172,6 @@ def test_seen_othercmp1():
         Seen(set()) > Seen(set())
 
 
-@memory_leak_decorator()
 def test_seen_len0():
     assert not len(Seen())
     assert len(Seen({T(1), T(2), T(3)})) == 3
@@ -207,7 +180,6 @@ def test_seen_len0():
                     seenlist=[[T(0), T(0)], [T(1), T(1)], [T(2), T(2)]])) == 6
 
 
-@memory_leak_decorator()
 def test_seen_repr0():
     # Just test that no exception occurs, due to the representation change in
     # sets this would otherwise have to be tested depending on the python
@@ -218,7 +190,6 @@ def test_seen_repr0():
     assert repr(Seen(set(), [T(1)]))
 
 
-@memory_leak_decorator(collect=True)
 def test_seen_repr1():
     # check that even though it can't be immediatly set that recursive
     # representations are catched
@@ -230,7 +201,6 @@ def test_seen_repr1():
         assert repr(s) == 'iteration_utilities.Seen(set(), seenlist=[[...]])'
 
 
-@memory_leak_decorator(collect=True, offset=1)
 def test_seen_repr2():
     # Check that the representation is class name aware
     class Fun(Seen):
@@ -242,14 +212,12 @@ def test_seen_repr2():
     assert 'Fun' in repr(Fun(set(), [T(1)]))
 
 
-@memory_leak_decorator()
 def test_seen_attributes1():
     x = Seen()
     assert isinstance(x.seenset, set)
     assert x.seenlist is None
 
 
-@memory_leak_decorator()
 def test_seen_contains0():
     x = Seen()
     assert T(1) not in x
@@ -258,7 +226,6 @@ def test_seen_contains0():
     assert x == Seen(set())
 
 
-@memory_leak_decorator(collect=True)
 def test_seen_contains_failure1():
     # Failure (no TypeError) when trying to hash the value
     class NoHash():
@@ -270,7 +237,6 @@ def test_seen_contains_failure1():
         NoHash() in x
 
 
-@memory_leak_decorator(collect=True)
 def test_seen_contains_failure2():
     # Failure when comparing the object to the objects in the list
     class NoHashNoEq():
@@ -285,7 +251,6 @@ def test_seen_contains_failure2():
         NoHashNoEq() in x
 
 
-@memory_leak_decorator()
 def test_seen_containsadd0():
     x = Seen()
     assert not x.contains_add(T(1))
@@ -295,7 +260,6 @@ def test_seen_containsadd0():
     assert x == Seen({T(1)}, [T([0, 0])])
 
 
-@memory_leak_decorator(collect=True)
 def test_seen_containsadd_failure1():
     # Failure (no TypeError) when trying to hash the value
     class NoHash():
@@ -307,7 +271,6 @@ def test_seen_containsadd_failure1():
         x.contains_add(NoHash())
 
 
-@memory_leak_decorator(collect=True)
 def test_seen_containsadd_failure2():
     # Failure when comparing the object to the objects in the list
     class NoHashNoEq():
@@ -327,14 +290,12 @@ def test_seen_containsadd_failure2():
 # repeat these here. But if "Seen" is expanded these should be included!!!
 
 
-@memory_leak_decorator(collect=True)
 def test_seen_failures1():
     # too many arguments
     with pytest.raises(TypeError):
         Seen({10, 20}, [1, 2, 3], [1, 2, 3])
 
 
-@memory_leak_decorator(collect=True)
 def test_seen_failures2():
     # seenset not a set
     with pytest.raises(TypeError) as exc:
@@ -342,7 +303,6 @@ def test_seen_failures2():
     assert '`seenset`' in str(exc.value) and 'set' in str(exc.value)
 
 
-@memory_leak_decorator(collect=True)
 def test_seen_failures3():
     # seenlist must be a list
     with pytest.raises(TypeError) as exc:
@@ -350,7 +310,6 @@ def test_seen_failures3():
     assert '`seenlist`' in str(exc.value) and 'list' in str(exc.value)
 
 
-@memory_leak_decorator(collect=True)
 def test_seen_failures4():
     # seen can only be compared to other seen's.
     with pytest.raises(TypeError,

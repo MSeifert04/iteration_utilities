@@ -15,98 +15,82 @@ import iteration_utilities
 # Test helper
 import helper_funcs as _hf
 from helper_cls import T, toT
-from helper_leak import memory_leak_decorator
 
 
 accumulate = iteration_utilities.accumulate
 
 
-@memory_leak_decorator()
 def test_accumulate_empty1():
     assert list(accumulate([])) == []
 
 
-@memory_leak_decorator()
 def test_accumulate_normal1():
     assert list(accumulate([T(1), T(2), T(3)])) == [T(1), T(3), T(6)]
 
 
-@memory_leak_decorator()
 def test_accumulate_normal2():
     # binop=None is identical to no binop
     assert list(accumulate([], None)) == []
 
 
-@memory_leak_decorator()
 def test_accumulate_normal3():
     # binop=None is identical to no binop
     assert list(accumulate([T(1), T(2), T(3)], None)) == [T(1), T(3), T(6)]
 
 
-@memory_leak_decorator()
 def test_accumulate_binop1():
     assert list(accumulate([T(1), T(2), T(3), T(4)],
                            operator.add)) == [T(1), T(3), T(6), T(10)]
 
 
-@memory_leak_decorator()
 def test_accumulate_binop2():
     assert list(accumulate([T(1), T(2), T(3), T(4)],
                            operator.mul)) == [T(1), T(2), T(6), T(24)]
 
 
-@memory_leak_decorator()
 def test_accumulate_initial1():
     assert list(accumulate([T(1), T(2), T(3)],
                            None, T(10))) == [T(11), T(13), T(16)]
 
 
-@memory_leak_decorator(collect=True)
 def test_accumulate_failure1():
     with pytest.raises(TypeError):
         list(accumulate([T(1), T(2), T(3)], None, T('a')))
 
 
-@memory_leak_decorator(collect=True)
 def test_accumulate_failure2():
     with pytest.raises(TypeError):
         list(accumulate([T(1), T(2), T(3)], operator.add, T('a')))
 
 
-@memory_leak_decorator(collect=True)
 def test_accumulate_failure3():
     with pytest.raises(TypeError):
         list(accumulate([T('a'), T(2), T(3)]))
 
 
-@memory_leak_decorator(collect=True)
 def test_accumulate_failure4():
     # Test that a failing iterator doesn't raise a SystemError
     with pytest.raises(_hf.FailNext.EXC_TYP, match=_hf.FailNext.EXC_MSG):
         next(accumulate(_hf.FailNext()))
 
 
-@memory_leak_decorator(collect=True)
 def test_accumulate_failure5():
     with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
         accumulate(_hf.FailIter())
 
 
-@memory_leak_decorator(collect=True)
 def test_accumulate_failure6():
     # Too few arguments
     with pytest.raises(TypeError):
         accumulate()
 
 
-@memory_leak_decorator(collect=True)
 def test_accumulate_copy1():
     _hf.iterator_copy(accumulate(toT([1, 2, 3])))
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-@memory_leak_decorator(offset=1)
 def test_accumulate_pickle1():
     acc = accumulate([T(1), T(2), T(3), T(4)])
     assert next(acc) == T(1)
@@ -116,7 +100,6 @@ def test_accumulate_pickle1():
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-@memory_leak_decorator(offset=1)
 def test_accumulate_pickle2():
     acc = accumulate([T(1), T(2), T(3), T(4)])
     x = pickle.dumps(acc)
@@ -125,7 +108,6 @@ def test_accumulate_pickle2():
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-@memory_leak_decorator(offset=1)
 def test_accumulate_pickle3():
     acc = accumulate([T(1), T(2), T(3), T(4)], operator.mul)
     assert next(acc) == T(1)
@@ -135,14 +117,12 @@ def test_accumulate_pickle3():
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-@memory_leak_decorator(offset=1)
 def test_accumulate_pickle4():
     acc = accumulate([T(1), T(2), T(3), T(4)], None, T(4))
     x = pickle.dumps(acc)
     assert list(pickle.loads(x)) == [T(5), T(7), T(10), T(14)]
 
 
-@memory_leak_decorator()
 def test_accumulate_attributes1():
     it = accumulate(toT([1, 2, 3]))
     assert it.func is None
@@ -154,7 +134,6 @@ def test_accumulate_attributes1():
         assert it.func is None
 
 
-@memory_leak_decorator()
 def test_accumulate_attributes2():
     it = accumulate(toT([1, 2, 3]), operator.add)
     for item in it:
@@ -164,7 +143,6 @@ def test_accumulate_attributes2():
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,
                    reason='length does not work before Python 3.4')
-@memory_leak_decorator()
 def test_accumulate_lengthhint1():
     it = accumulate([1, 2, 3, 4])
     assert operator.length_hint(it) == 4
@@ -180,7 +158,6 @@ def test_accumulate_lengthhint1():
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,
                    reason='length does not work before Python 3.4')
-@memory_leak_decorator(collect=True)
 def test_accumulate_lengthhint_failure1():
     f_it = _hf.FailLengthHint(toT([1, 2, 3]))
     acc = accumulate(f_it)
@@ -193,7 +170,6 @@ def test_accumulate_lengthhint_failure1():
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,
                    reason='length does not work before Python 3.4')
-@memory_leak_decorator(collect=True)
 def test_accumulate_lengthhint_failure2():
     of_it = _hf.OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
     acc = accumulate(of_it)

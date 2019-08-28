@@ -17,7 +17,6 @@ from iteration_utilities._compat import (
     RecursionError, AttributeUnwriteableException)
 
 # Test helper
-from helper_leak import memory_leak_decorator
 from helper_cls import T, toT
 
 
@@ -62,7 +61,6 @@ class MyDict(dict):
     pass
 
 
-@memory_leak_decorator(collect=True)
 def test_attributes_unwritable():
     p = partial(capture, T(1), T(2), a=T(10), b=T(20))
     with pytest.raises(AttributeUnwriteableException):
@@ -77,7 +75,6 @@ def test_attributes_unwritable():
         del p.__dict__
 
 
-@memory_leak_decorator(offset=1)
 def test_recursive_pickle():
 
     with AllowPickle():
@@ -115,7 +112,6 @@ def test_recursive_pickle():
             f.__setstate__((capture, (), {}, {}))
 
 
-@memory_leak_decorator()
 def test_repr():
     args = (object(), object())
     args_repr = ', '.join(repr(a) for a in args)
@@ -147,7 +143,6 @@ def test_repr():
     assert repr(f) in compare
 
 
-@memory_leak_decorator()
 def test_basic_examples():
     p = partial(capture, T(1), T(2), a=T(10), b=T(20))
     assert callable(p)
@@ -157,7 +152,6 @@ def test_basic_examples():
     assert list(p([T(1), T(2), T(3), T(4)])) == toT([10, 20, 30, 40])
 
 
-@memory_leak_decorator()
 def test_attributes():
     p = partial(capture, T(1), T(2), a=T(10), b=T(20))
     # attributes should be readable
@@ -166,7 +160,6 @@ def test_attributes():
     assert p.keywords == dict(a=T(10), b=T(20))
 
 
-@memory_leak_decorator()
 def test_argument_checking():
     # at least one argument
     with pytest.raises(TypeError):
@@ -177,7 +170,6 @@ def test_argument_checking():
         partial(T(2))
 
 
-@memory_leak_decorator()
 def test_protection_of_callers_dict_argument():
     # a caller's dictionary should not be altered by partial
     def func(a=10, b=20):
@@ -190,7 +182,6 @@ def test_protection_of_callers_dict_argument():
     assert d == {'a': T(3)}
 
 
-@memory_leak_decorator()
 def test_kwargs_copy():
     # Issue #29532: Altering a kwarg dictionary passed to a constructor
     # should not affect a partial object after creation
@@ -201,7 +192,6 @@ def test_kwargs_copy():
     assert p(), ((), {'a': T(3)})
 
 
-@memory_leak_decorator()
 def test_arg_combinations():
     # exercise special code paths for zero args in either partial
     # object or the caller
@@ -213,7 +203,6 @@ def test_arg_combinations():
     assert p(T(3), T(4)) == ((T(1), T(2), T(3), T(4)), {})
 
 
-@memory_leak_decorator()
 def test_kw_combinations():
     # exercise special code paths for no keyword args in
     # either the partial object or the caller
@@ -229,7 +218,6 @@ def test_kw_combinations():
     assert p(a=T(3), b=T(2)) == ((), {'a': T(3), 'b': T(2)})
 
 
-@memory_leak_decorator()
 def test_positional():
     # make sure positional arguments are captured correctly
     for args in [(), (T(0),), (T(0), T(1)),
@@ -240,7 +228,6 @@ def test_positional():
         assert expected == got and empty == {}
 
 
-@memory_leak_decorator()
 def test_keyword():
     # make sure keyword arguments are captured correctly
     for a in [T('a'), T(0), T(None), T(3.5)]:
@@ -250,7 +237,6 @@ def test_keyword():
         assert expected == got and empty == ()
 
 
-@memory_leak_decorator()
 def test_no_side_effects():
     # make sure there are no side effects that affect subsequent calls
     p = partial(capture, T(0), a=T(1))
@@ -260,7 +246,6 @@ def test_no_side_effects():
     assert args2 == (T(0),) and kw2 == {'a': T(1)}
 
 
-@memory_leak_decorator()
 def test_error_propagation():
     def f(x, y):
         x / y
@@ -274,7 +259,6 @@ def test_error_propagation():
         partial(f, y=0)(1)
 
 
-@memory_leak_decorator()
 def test_weakref():
     f = partial(int, base=16)
     p = weakref.proxy(f)
@@ -284,7 +268,6 @@ def test_weakref():
         p.func
 
 
-@memory_leak_decorator()
 def test_with_bound_and_unbound_methods():
     data = list(map(str, range(10)))
     join = partial(str.join, '')
@@ -293,7 +276,6 @@ def test_with_bound_and_unbound_methods():
     assert join(data) == '0123456789'
 
 
-@memory_leak_decorator()
 def test_nested_optimization():
     inner = partial(signature, 'asdf')
     nested = partial(inner, bar=True)
@@ -301,7 +283,6 @@ def test_nested_optimization():
     assert signature(nested) == signature(flat)
 
 
-@memory_leak_decorator()
 def test_nested_partial_with_attribute():
     # see issue 25137
 
@@ -314,7 +295,6 @@ def test_nested_partial_with_attribute():
     assert p2.new_attr == 'spam'
 
 
-@memory_leak_decorator()
 def test_recursive_repr():
     name = 'iteration_utilities.partial'
 
@@ -340,7 +320,6 @@ def test_recursive_repr():
         f.__setstate__((capture, (), {}, {}))
 
 
-@memory_leak_decorator(offset=1)
 def test_pickle():
     with AllowPickle():
         f = partial(signature, ['asdf'], bar=[True])
@@ -350,7 +329,6 @@ def test_pickle():
             assert signature(f_copy) == signature(f)
 
 
-@memory_leak_decorator()
 def test_copy():
     f = partial(signature, ['asdf'], bar=[True])
     f.attr = []
@@ -361,7 +339,6 @@ def test_copy():
     assert f_copy.keywords is f.keywords
 
 
-@memory_leak_decorator()
 def test_deepcopy():
     f = partial(signature, ['asdf'], bar=[True])
     f.attr = []
@@ -374,7 +351,6 @@ def test_deepcopy():
     assert f_copy.keywords['bar'] is not f.keywords['bar']
 
 
-@memory_leak_decorator()
 def test_setstate():
     f = partial(signature)
     f.__setstate__((capture, (1,), dict(a=10), dict(attr=[])))
@@ -400,7 +376,6 @@ def test_setstate():
     assert f() == ((), {})
 
 
-@memory_leak_decorator()
 def test_setstate_errors():
     f = partial(signature)
     with pytest.raises(TypeError):
@@ -419,7 +394,6 @@ def test_setstate_errors():
         f.__setstate__((capture, (), [], None))
 
 
-@memory_leak_decorator()
 def test_setstate_subclasses():
     f = partial(signature)
     f.__setstate__((capture, MyTuple((1,)), MyDict(a=10), None))
@@ -441,7 +415,6 @@ def test_setstate_subclasses():
     assert type(r[0]) is tuple
 
 
-@memory_leak_decorator(collect=True)
 def test_setstate_refcount():
     # Issue 6083: Reference counting bug
     class BadSequence:
@@ -467,7 +440,6 @@ def test_setstate_refcount():
 # =============================================================================
 
 
-@memory_leak_decorator(collect=True)
 def test_invalid_kwargs_with_setstate():
     f = partial(object)
     f.__setstate__((object, (), {1: 1}, {}))
@@ -476,7 +448,6 @@ def test_invalid_kwargs_with_setstate():
         repr(f)
 
 
-@memory_leak_decorator()
 def test_partial_from_partial_kwargs():
     f1 = partial(capture, b=10)
     f2 = partial(f1)
@@ -494,7 +465,6 @@ def test_partial_from_partial_kwargs():
     assert signature(f2) == (capture, (), {'b': 20}, {})
 
 
-@memory_leak_decorator(collect=True)
 def test_partial_dict_setter():
     p = partial(capture, b=10)
     with pytest.raises(TypeError):
@@ -510,12 +480,10 @@ def test_partial_dict_setter():
     assert isinstance(p.__dict__, collections.OrderedDict)
 
 
-@memory_leak_decorator()
 def test_partial_has_placeholder():
     assert hasattr(partial, '_')
 
 
-@memory_leak_decorator()
 def test_placeholder():
     assert partial._ is partial._
     assert copy.copy(partial._) is partial._
@@ -525,7 +493,6 @@ def test_placeholder():
     assert repr(partial._) == '_'
 
 
-@memory_leak_decorator(collect=True)
 def test_placeholder_new():
     with pytest.raises(TypeError, match="`PlaceholderType` takes no arguments"):
         type(partial._)(1)
@@ -533,7 +500,6 @@ def test_placeholder_new():
         type(partial._)(a=1)
 
 
-@memory_leak_decorator()
 def test_partial_placeholder_basic():
     p = partial(isinstance, partial._, int)
     assert p.num_placeholders == 1
@@ -543,7 +509,6 @@ def test_partial_placeholder_basic():
     assert not p(T(1.2))
 
 
-@memory_leak_decorator()
 def test_partial_placeholder_someone_holds_ref():
     p = partial(isinstance, partial._, int)
     # hold a reference to args while calling the function
@@ -554,7 +519,6 @@ def test_partial_placeholder_someone_holds_ref():
     del x
 
 
-@memory_leak_decorator()
 def test_partial_placeholder_copy():
     p = partial(isinstance, partial._, int)
     # call a copy of a partial with placeholders
@@ -565,7 +529,6 @@ def test_partial_placeholder_copy():
     assert not p2(T(1.2))
 
 
-@memory_leak_decorator()
 def test_partial_sizeof():
     p1 = partial(isinstance, 10, int)
     p2 = partial(isinstance, partial._, int)
@@ -579,7 +542,6 @@ def test_partial_sizeof():
     assert sizes[2] - sizes[1] == sizes[1] - sizes[0]
 
 
-@memory_leak_decorator()
 def test_partial_placeholder_deepcopy():
     p = partial(isinstance, partial._, int)
     p2 = copy.deepcopy(p)
@@ -589,14 +551,12 @@ def test_partial_placeholder_deepcopy():
     assert not p2(T(1.2))
 
 
-@memory_leak_decorator()
 def test_partial_placeholder_setstate_frees_old_array():
     p = partial(isinstance, partial._, int)
     p.__setstate__((isinstance, (10, int), {}, {}))
     # TODO: How to check the memory is freed? :(
 
 
-@memory_leak_decorator(collect=True)
 def test_partial_placeholder_missing_args():
     p = partial(isinstance, partial._, int)
 
@@ -614,13 +574,11 @@ def test_partial_placeholder_missing_args():
         p(T(1))
 
 
-@memory_leak_decorator()
 def test_partial_placeholder_more_args():
     p = partial(capture, partial._, T(2))
     assert p(T(1), T(3), T(4)) == ((T(1), T(2), T(3), T(4)), {})
 
 
-@memory_leak_decorator()
 def test_partial_from_partial_with_one_placeholder():
     # One placeholder, no additional arguments, placeholder in different
     # positions
@@ -649,7 +607,6 @@ def test_partial_from_partial_with_one_placeholder():
     assert p1(T(3)) == p2(T(3))
 
 
-@memory_leak_decorator(collect=True)
 def test_partial_from_partial_with_one_placeholder_fail():
     p1 = partial(capture, partial._, T(2), T(3))
     p2 = partial(p1)
@@ -657,7 +614,6 @@ def test_partial_from_partial_with_one_placeholder_fail():
         p2()
 
 
-@memory_leak_decorator()
 def test_partial_from_partial_basic1():
     # One placeholder, one argument given
     p1 = partial(capture, partial._, T(2), T(3))
@@ -670,7 +626,6 @@ def test_partial_from_partial_basic1():
     assert p2(T(4)) == ((T(1), T(2), T(3), T(4)), {})
 
 
-@memory_leak_decorator()
 def test_partial_from_partial_basic2():
     # Two placeholders, one argument given
     p1 = partial(capture, partial._, T(2), partial._)
@@ -683,7 +638,6 @@ def test_partial_from_partial_basic2():
     assert p2(T(3), T(4)) == ((T(1), T(2), T(3), T(4)), {})
 
 
-@memory_leak_decorator()
 def test_partial_from_partial_basic3():
     # One placeholders, two arguments given
     p1 = partial(capture, partial._, T(2))
@@ -697,7 +651,6 @@ def test_partial_from_partial_basic3():
     assert p2(T(4)) == ((T(1), T(2), T(3), T(4)), {})
 
 
-@memory_leak_decorator()
 def test_partial_from_partial_basic4():
     # Two placeholderss, two arguments given
     p1 = partial(capture, partial._, partial._, T(3))
@@ -710,7 +663,6 @@ def test_partial_from_partial_basic4():
     assert p2(T(4)) == ((T(1), T(2), T(3), T(4)), {})
 
 
-@memory_leak_decorator()
 def test_partial_from_partial_basic5():
     # Two placeholderss, three arguments given
     p1 = partial(capture, partial._, partial._, T(3))
@@ -723,7 +675,6 @@ def test_partial_from_partial_basic5():
     assert p2(T(5)) == ((T(1), T(2), T(3), T(4), T(5)), {})
 
 
-@memory_leak_decorator(collect=True)
 def test_partial_with_function_that_keeps_args():
     # A function that keeps it's args as-is was a problem with partial because
     # it reused the arguments. chained is such a function (currently).
