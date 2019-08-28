@@ -363,9 +363,8 @@ itemidxkey_setitem(PyIUObject_ItemIdxKey *self,
                         "`ItemIdxKey`.");
         return -1;
     }
-    Py_DECREF(self->item);
     Py_INCREF(o);
-    self->item = o;
+    Py_SETREF(self->item, o);
     return 0;
 }
 
@@ -453,9 +452,8 @@ itemidxkey_setkey(PyIUObject_ItemIdxKey *self,
                         "set and cannot be deleted.");
         return -1;
     }
-    Py_XDECREF(self->key);
     Py_XINCREF(o);
-    self->key = o;
+    Py_XSETREF(self->key, o);
     return 0;
 }
 

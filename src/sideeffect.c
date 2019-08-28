@@ -206,11 +206,11 @@ sideeffects_next(PyIUObject_Sideeffects *self)
                     Py_DECREF(temp);
                 }
             } else {
-                Py_DECREF(self->collected);
-                self->collected = PyTuple_New(self->times);
-                if (self->collected == NULL) {
+                PyObject *new_collected = PyTuple_New(self->times);
+                if (new_collected == NULL) {
                     goto Fail;
                 }
+                Py_SETREF(self->collected, new_collected);
             }
         }
     }
