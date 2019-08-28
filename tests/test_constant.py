@@ -11,14 +11,12 @@ import pytest
 import iteration_utilities
 
 # Test helper
-from helper_leak import memory_leak_decorator
 from helper_cls import T
 
 
 const = iteration_utilities.constant
 
 
-@memory_leak_decorator()
 def test_constant_repr1():
     x = const(2)
     r = repr(x)
@@ -26,32 +24,27 @@ def test_constant_repr1():
     assert '2' in r
 
 
-@memory_leak_decorator()
 def test_constant_attributes1():
     x = const(T(2))
     assert x.item == T(2)
 
 
-@memory_leak_decorator()
 def test_constant_normal1():
     one = const(T(1))
     assert one() == T(1)
 
 
-@memory_leak_decorator()
 def test_constant_normal2():
     one = const(T(1))
     assert one(10, a=2) == T(1)
 
 
-@memory_leak_decorator()
 def test_constant_failure1():
     # Too few arguments
     with pytest.raises(TypeError):
         const()
 
 
-@memory_leak_decorator(offset=1)
 def test_constant_pickle1():
     x = pickle.dumps(const(T(10)))
     assert pickle.loads(x)() == T(10)

@@ -172,13 +172,7 @@ def itersubclasses(cls, seen=None):
 
     Examples
     --------
-    To get all subclasses for a ``set``::
-
-        >>> from iteration_utilities import itersubclasses
-        >>> list(itersubclasses(set))
-        []
-
-    It even works with custom classes and diamond structures::
+    It works with any class and also handles diamond inheritance structures::
 
         >>> class A(object): pass
         >>> class B(A): pass

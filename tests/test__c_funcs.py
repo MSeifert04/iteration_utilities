@@ -10,18 +10,7 @@ import pytest
 import iteration_utilities
 import _iteration_utilities
 
-# Test helper
-from helper_leak import memory_leak_decorator
 
-
-@memory_leak_decorator(dummy=True)
-def test_nothing():
-    """This is just here so that the leak-decorator runs once to avoid spurious
-    false-positives on the first invocation of the decorator."""
-    pass
-
-
-@memory_leak_decorator()
 def test_other_c_funcs():
     assert iteration_utilities.return_True()
     assert not iteration_utilities.return_False()
@@ -49,10 +38,6 @@ def test_other_c_funcs():
     assert iteration_utilities.is_iterable([1])
 
 
-# this is the first function that is executed that throws exceptions, no
-# idea why it "thinks" there are reference leaks in the first run but they
-# did disappear when I used "offset=1"...
-@memory_leak_decorator(collect=True, offset=1)
 def test_other_c_funcs_failures():
     with pytest.raises(TypeError):
         # no argument given.
@@ -75,22 +60,18 @@ def test_other_c_funcs_failures():
             return self
         __nonzero__ = __bool__
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         iteration_utilities.is_even(NoBool())
-    assert 'bad class' in str(exc)
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         iteration_utilities.is_odd(NoBool())
-    assert 'bad class' in str(exc)
 
     class NoIter(object):
         def __iter__(self):
             raise ValueError('bad class')
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         iteration_utilities.is_iterable(NoIter())
-    assert 'bad class' in str(exc)
 
 
-@memory_leak_decorator(collect=True)
 def test_reverse_math_ops():
     assert iteration_utilities.radd(1, 2) == 3
     assert iteration_utilities.rsub(1, 2) == 1
