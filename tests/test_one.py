@@ -41,9 +41,8 @@ def test_one_normal4():
 
 @memory_leak_decorator(collect=True)
 def test_one_failure1():
-    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
         one(_hf.FailIter())
-    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -63,17 +62,15 @@ def test_one_failure3():
 @memory_leak_decorator(collect=True)
 def test_one_failure4():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP, match=_hf.FailNext.EXC_MSG):
         one(_hf.FailNext())
-    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_one_failure5():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP, match=_hf.FailNext.EXC_MSG):
         one(_hf.FailNext(offset=1))
-    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -86,6 +83,5 @@ def test_one_failure6():
 @memory_leak_decorator(collect=True, offset=1)
 def test_one_failure7():
     # Changing next method
-    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.CacheNext.EXC_TYP, match=_hf.CacheNext.EXC_MSG):
         one(_hf.CacheNext(1))
-    assert _hf.CacheNext.EXC_MSG in str(exc)

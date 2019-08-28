@@ -67,9 +67,8 @@ def test_successive_normal4():
 
 @memory_leak_decorator(collect=True)
 def test_successive_failure1():
-    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
         successive(_hf.FailIter())
-    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -81,9 +80,8 @@ def test_successive_failure2():
 @memory_leak_decorator(collect=True)
 def test_successive_failure3():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP, match=_hf.FailNext.EXC_MSG):
         next(successive(_hf.FailNext(), 1))
-    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -96,9 +94,8 @@ def test_successive_failure4():
 @memory_leak_decorator(collect=True, offset=1)
 def test_successive_failure5():
     # Changing next method
-    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.CacheNext.EXC_TYP, match=_hf.CacheNext.EXC_MSG):
         list(successive(_hf.CacheNext(1), 3))
-    assert _hf.CacheNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -189,13 +186,11 @@ def test_successive_lengthhint2():
 def test_successive_failure_lengthhint1():
     f_it = _hf.FailLengthHint(toT([1, 2, 3]))
     it = successive(f_it)
-    with pytest.raises(_hf.FailLengthHint.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailLengthHint.EXC_TYP, match=_hf.FailLengthHint.EXC_MSG):
         operator.length_hint(it)
-    assert _hf.FailLengthHint.EXC_MSG in str(exc)
 
-    with pytest.raises(_hf.FailLengthHint.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailLengthHint.EXC_TYP, match=_hf.FailLengthHint.EXC_MSG):
         list(it)
-    assert _hf.FailLengthHint.EXC_MSG in str(exc)
 
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,

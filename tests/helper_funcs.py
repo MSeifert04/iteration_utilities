@@ -31,13 +31,12 @@ def iterator_copy(thing):
 def iterator_setstate_list_fail(thing):
     with pytest.raises(TypeError) as exc:
         thing.__setstate__([])
-    assert 'tuple' in str(exc) and 'list' in str(exc)
+    assert 'tuple' in str(exc.value) and 'list' in str(exc.value)
 
 
 def iterator_setstate_empty_fail(thing):
-    with pytest.raises(TypeError) as exc:
+    with pytest.raises(TypeError, match='0 given'):
         thing.__setstate__(())
-    assert '0 given' in str(exc)
 
 
 # Helper classes for certain fail conditions. Bundled here so the tests don't

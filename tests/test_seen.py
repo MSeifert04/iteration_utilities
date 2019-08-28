@@ -160,12 +160,10 @@ def test_seen_cmpfailure1():
             raise ValueError('bad class')
     s1 = Seen({HashButNoEq(1)})
     s2 = Seen({HashButNoEq(1)})
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         s1 == s2
-    assert 'bad class' in str(exc)
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         s1 != s2
-    assert 'bad class' in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -181,12 +179,10 @@ def test_seen_cmpfailure2():
             raise ValueError('bad class')
     s1 = Seen(set(), [HashButNoEq(1)])
     s2 = Seen(set(), [HashButNoEq(1)])
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         s1 == s2
-    assert 'bad class' in str(exc)
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         s1 != s2
-    assert 'bad class' in str(exc)
 
 
 @memory_leak_decorator()
@@ -270,9 +266,8 @@ def test_seen_contains_failure1():
             raise ValueError('bad class')
 
     x = Seen({T(0)})
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         NoHash() in x
-    assert 'bad class' in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -286,9 +281,8 @@ def test_seen_contains_failure2():
             raise ValueError('bad class')
 
     x = Seen(set(), [T(0)])
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         NoHashNoEq() in x
-    assert 'bad class' in str(exc)
 
 
 @memory_leak_decorator()
@@ -309,9 +303,8 @@ def test_seen_containsadd_failure1():
             raise ValueError('bad class')
 
     x = Seen({T(0)})
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         x.contains_add(NoHash())
-    assert 'bad class' in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -325,9 +318,8 @@ def test_seen_containsadd_failure2():
             raise ValueError('bad class')
 
     x = Seen(set(), [T(0)])
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         x.contains_add(NoHashNoEq())
-    assert 'bad class' in str(exc)
 
 
 # Pickle tests and most failure tests are implemented implicitly as part of
@@ -347,7 +339,7 @@ def test_seen_failures2():
     # seenset not a set
     with pytest.raises(TypeError) as exc:
         Seen(frozenset({10, 20}))
-    assert '`seenset`' in str(exc) and 'set' in str(exc)
+    assert '`seenset`' in str(exc.value) and 'set' in str(exc.value)
 
 
 @memory_leak_decorator(collect=True)
@@ -355,13 +347,13 @@ def test_seen_failures3():
     # seenlist must be a list
     with pytest.raises(TypeError) as exc:
         Seen({10, 20}, tuple([1, 2, 3]))
-    assert '`seenlist`' in str(exc) and 'list' in str(exc)
+    assert '`seenlist`' in str(exc.value) and 'list' in str(exc.value)
 
 
 @memory_leak_decorator(collect=True)
 def test_seen_failures4():
     # seen can only be compared to other seen's.
-    with pytest.raises(TypeError) as exc:
+    with pytest.raises(TypeError,
+                       match='`Seen` instances can only compared to other '
+                             '`Seen` instances.'):
         Seen() == set()
-    assert ('`Seen` instances can only compared to other `Seen` '
-            'instances.' in str(exc))

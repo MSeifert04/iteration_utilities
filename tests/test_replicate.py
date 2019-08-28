@@ -67,9 +67,8 @@ def test_replicate_failure1():
 
 @memory_leak_decorator(collect=True)
 def test_replicate_failure2():
-    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
         replicate(_hf.FailIter(), 2)
-    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -89,9 +88,8 @@ def test_replicate_failure4():
 @memory_leak_decorator(collect=True)
 def test_replicate_failure5():
     # iterator throws an exception different from StopIteration
-    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP, match=_hf.FailNext.EXC_MSG):
         list(replicate(_hf.FailNext(), 2))
-    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -157,13 +155,11 @@ def test_replicate_lengthhint1():
 def test_replicate_failure_lengthhint1():
     f_it = _hf.FailLengthHint(toT([1, 2, 3]))
     it = replicate(f_it, 3)
-    with pytest.raises(_hf.FailLengthHint.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailLengthHint.EXC_TYP, match=_hf.FailLengthHint.EXC_MSG):
         operator.length_hint(it)
-    assert _hf.FailLengthHint.EXC_MSG in str(exc)
 
-    with pytest.raises(_hf.FailLengthHint.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailLengthHint.EXC_TYP, match=_hf.FailLengthHint.EXC_MSG):
         list(it)
-    assert _hf.FailLengthHint.EXC_MSG in str(exc)
 
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,

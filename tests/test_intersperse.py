@@ -44,17 +44,15 @@ def test_intersperse_attributes1():
 
 @memory_leak_decorator(collect=True)
 def test_intersperse_failure1():
-    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
         intersperse(_hf.FailIter(), T(0))
-    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_intersperse_failure2():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP, match=_hf.FailNext.EXC_MSG):
         next(intersperse(_hf.FailNext(), T(0)))
-    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -153,13 +151,11 @@ def test_intersperse_lengthhint1():
 def test_intersperse_lengthhint_failure1():
     f_it = _hf.FailLengthHint(toT([1, 2, 3]))
     it = intersperse(f_it, 2)
-    with pytest.raises(_hf.FailLengthHint.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailLengthHint.EXC_TYP, match=_hf.FailLengthHint.EXC_MSG):
         operator.length_hint(it)
-    assert _hf.FailLengthHint.EXC_MSG in str(exc)
 
-    with pytest.raises(_hf.FailLengthHint.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailLengthHint.EXC_TYP, match=_hf.FailLengthHint.EXC_MSG):
         list(it)
-    assert _hf.FailLengthHint.EXC_MSG in str(exc)
 
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,

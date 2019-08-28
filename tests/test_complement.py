@@ -72,9 +72,8 @@ def test_complement_failure1():
     def failingfunction(x):
         raise ValueError('bad function')
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad function'):
         complement(failingfunction)(1)
-    assert 'bad function' in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -88,9 +87,8 @@ def test_complement_failure2():
     def failingfunction(x):
         return NoBool()
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         complement(failingfunction)(1)
-    assert 'bad class' in str(exc)
 
 
 @memory_leak_decorator(collect=True)

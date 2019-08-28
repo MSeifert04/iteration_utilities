@@ -76,7 +76,7 @@ def test_itemidxkey_failure2():
     iik = ItemIdxKey(T(10), 2)
     with pytest.raises(TypeError) as exc:
         ItemIdxKey(iik, 2)
-    assert "`ItemIdxKey`" in str(exc) and '`item`' in str(exc)
+    assert "`ItemIdxKey`" in str(exc.value) and '`item`' in str(exc.value)
 
 
 @memory_leak_decorator(collect=True)
@@ -85,7 +85,7 @@ def test_itemidxkey_failure3():
     iik = ItemIdxKey(T(10), 2)
     with pytest.raises(TypeError) as exc:
         ItemIdxKey(T(10), 2, iik)
-    assert "`ItemIdxKey`" in str(exc) and '`key`' in str(exc)
+    assert "`ItemIdxKey`" in str(exc.value) and '`key`' in str(exc.value)
 
 
 @memory_leak_decorator(collect=True)
@@ -108,9 +108,8 @@ def test_itemidxkey_failure5():
 @memory_leak_decorator(collect=True)
 def test_itemidxkey_failure6():
     # The item of the ItemIdxKey instances throws an Error when compared.
-    with pytest.raises(TypeError) as exc:
+    with pytest.raises(TypeError, match='simulated failure.'):
         ItemIdxKey(T(10), 2) < ItemIdxKey(T('a'), 2)
-    assert 'simulated failure.' in str(exc)
 
 
 @memory_leak_decorator()
@@ -163,12 +162,12 @@ def test_itemidxkey_setter_failure2():
     iik = ItemIdxKey(T(10), 2)
     with pytest.raises(TypeError) as exc:
         iik.item = iik
-    assert "`ItemIdxKey`" in str(exc) and '`item`' in str(exc)
+    assert "`ItemIdxKey`" in str(exc.value) and '`item`' in str(exc.value)
 
     iik = ItemIdxKey(T(10), 2, T(5))
     with pytest.raises(TypeError) as exc:
         iik.key = iik
-    assert "`ItemIdxKey`" in str(exc) and '`key`' in str(exc)
+    assert "`ItemIdxKey`" in str(exc.value) and '`key`' in str(exc.value)
 
 
 @memory_leak_decorator()

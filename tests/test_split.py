@@ -117,9 +117,8 @@ def test_split_attributes1():
 
 @memory_leak_decorator(collect=True)
 def test_split_failure1():
-    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
         split(_hf.FailIter(), lambda x: False)
-    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -142,7 +141,7 @@ def test_split_failure4():
     with pytest.raises(ValueError) as exc:
         split(toT([1, 2, 3, 4]), T(2), eq=True,
               keep=True, keep_before=True)
-    assert '`keep`, `keep_before`, `keep_after`' in str(exc)
+    assert '`keep`, `keep_before`, `keep_after`' in str(exc.value)
 
 
 @memory_leak_decorator(collect=True)
@@ -151,7 +150,7 @@ def test_split_failure5():
     with pytest.raises(ValueError) as exc:
         split(toT([1, 2, 3, 4]), T(2), eq=True,
               keep=True, keep_after=True)
-    assert '`keep`, `keep_before`, `keep_after`' in str(exc)
+    assert '`keep`, `keep_before`, `keep_after`' in str(exc.value)
 
 
 @memory_leak_decorator(collect=True)
@@ -160,7 +159,7 @@ def test_split_failure6():
     with pytest.raises(ValueError) as exc:
         split(toT([1, 2, 3, 4]), T(2), eq=True,
               keep_before=True, keep_after=True)
-    assert '`keep`, `keep_before`, `keep_after`' in str(exc)
+    assert '`keep`, `keep_before`, `keep_after`' in str(exc.value)
 
 
 @memory_leak_decorator(collect=True)
@@ -169,24 +168,22 @@ def test_split_failure7():
     with pytest.raises(ValueError) as exc:
         split(toT([1, 2, 3, 4]), T(2), eq=True,
               keep=True, keep_before=True, keep_after=True)
-    assert '`keep`, `keep_before`, `keep_after`' in str(exc)
+    assert '`keep`, `keep_before`, `keep_after`' in str(exc.value)
 
 
 @memory_leak_decorator(collect=True)
 def test_split_failure8():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP, match=_hf.FailNext.EXC_MSG):
         next(split(_hf.FailNext(), iteration_utilities.return_False))
-    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_split_failure9():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP, match=_hf.FailNext.EXC_MSG):
         next(split(_hf.FailNext(offset=1),
                    iteration_utilities.return_False))
-    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -199,17 +196,15 @@ def test_split_failure10():
 @memory_leak_decorator(collect=True)
 def test_split_failure11():
     # maxsplit <= -2
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='`maxsplit`'):
         split(toT([1, 2, 3, 4]), T(2), eq=True, maxsplit=-2)
-    assert '`maxsplit`' in str(exc)
 
 
 @memory_leak_decorator(collect=True, offset=1)
 def test_split_failure12():
     # Changing next method
-    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.CacheNext.EXC_TYP, match=_hf.CacheNext.EXC_MSG):
         list(split(_hf.CacheNext(1), lambda x: x == 10))
-    assert _hf.CacheNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)

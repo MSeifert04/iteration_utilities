@@ -51,17 +51,15 @@ def test_alldistinct_unhashable2():
 
 @memory_leak_decorator(collect=True)
 def test_alldistinct_failure1():
-    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailIter.EXC_TYP, match= _hf.FailIter.EXC_MSG):
         all_distinct(_hf.FailIter())
-    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_alldistinct_failure2():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP, match=_hf.FailNext.EXC_MSG):
         all_distinct(_hf.FailNext())
-    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -74,9 +72,8 @@ def test_alldistinct_failure3():
         def __eq__(self, other):
             raise ValueError('bad class')
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         all_distinct([[T(1)], NoHashNoEq()])
-    assert 'bad class' in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -86,14 +83,12 @@ def test_alldistinct_failure4():
         def __hash__(self):
             raise ValueError('bad class')
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         all_distinct([T(1), NoHash()])
-    assert 'bad class' in str(exc)
 
 
 @memory_leak_decorator(collect=True, offset=1)
 def test_alldistinct_failure5():
     # Changing next method
-    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.CacheNext.EXC_TYP, match=_hf.CacheNext.EXC_MSG):
         all_distinct(_hf.CacheNext(1))
-    assert _hf.CacheNext.EXC_MSG in str(exc)

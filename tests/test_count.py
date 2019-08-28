@@ -61,9 +61,8 @@ def test_count_normal7():
 
 @memory_leak_decorator(collect=True)
 def test_count_failure1():
-    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
         count_items(_hf.FailIter())
-    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -77,9 +76,8 @@ def test_count_failure3():
     # Regression test when accessing the next item of the iterable resulted
     # in an Exception. For example when the iterable was a filter and the
     # filter function threw an exception.
-    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP, match=_hf.FailNext.EXC_MSG):
         count_items(_hf.FailNext())
-    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -112,14 +110,12 @@ def test_count_failure7():
             raise ValueError('bad class')
         __nonzero__ = __bool__
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         count_items([T(0)], lambda x: NoBool())
-    assert 'bad class' in str(exc)
 
 
 @memory_leak_decorator(collect=True, offset=1)
 def test_count_failure8():
     # Changing next method
-    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.CacheNext.EXC_TYP, match=_hf.CacheNext.EXC_MSG):
         count_items(_hf.CacheNext(1))
-    assert _hf.CacheNext.EXC_MSG in str(exc)

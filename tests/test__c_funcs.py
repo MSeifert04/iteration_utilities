@@ -75,19 +75,16 @@ def test_other_c_funcs_failures():
             return self
         __nonzero__ = __bool__
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         iteration_utilities.is_even(NoBool())
-    assert 'bad class' in str(exc)
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         iteration_utilities.is_odd(NoBool())
-    assert 'bad class' in str(exc)
 
     class NoIter(object):
         def __iter__(self):
             raise ValueError('bad class')
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         iteration_utilities.is_iterable(NoIter())
-    assert 'bad class' in str(exc)
 
 
 @memory_leak_decorator(collect=True)

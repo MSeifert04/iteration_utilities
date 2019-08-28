@@ -156,9 +156,8 @@ def test_nth_regressiontest():
 
 @memory_leak_decorator(collect=True)
 def test_nth_failures1():
-    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
         nth(10)(_hf.FailIter())
-    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -189,9 +188,8 @@ def test_nth_failures5():
 @memory_leak_decorator(collect=True)
 def test_nth_failures6():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP, match=_hf.FailNext.EXC_MSG):
         nth(1)(_hf.FailNext())
-    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -211,9 +209,8 @@ def test_nth_failures8():
 @memory_leak_decorator(collect=True)
 def test_nth_failures9():
     # too few arguments for __call__
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='`retpred` or `retidx`'):
         nth(1)([T(0), T(1), T(2)], retpred=1, retidx=1)
-    assert '`retpred` or `retidx`' in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -231,9 +228,8 @@ def test_nth_failures11():
             raise ValueError('bad class')
         __nonzero__ = __bool__
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         nth(1)([T(0)], pred=lambda x: NoBool())
-    assert 'bad class' in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -244,9 +240,8 @@ def test_nth_failures12():
             raise ValueError('bad class')
         __nonzero__ = __bool__
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         nth(1)([T(0)], pred=lambda x: NoBool(), retpred=1)
-    assert 'bad class' in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -257,9 +252,8 @@ def test_nth_failures13():
             raise ValueError('bad class')
         __nonzero__ = __bool__
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         nth(1)([T(0)], pred=lambda x: NoBool(), retidx=1)
-    assert 'bad class' in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -270,17 +264,15 @@ def test_nth_failures14():
             raise ValueError('bad class')
         __nonzero__ = __bool__
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         nth(1)([T(0)], pred=lambda x: NoBool(), truthy=0)
-    assert 'bad class' in str(exc)
 
 
 @memory_leak_decorator(collect=True, offset=1)
 def test_nth_failure15():
     # Changing next method
-    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.CacheNext.EXC_TYP, match=_hf.CacheNext.EXC_MSG):
         nth(2)(_hf.CacheNext(1))
-    assert _hf.CacheNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(offset=1)

@@ -200,9 +200,8 @@ def test_minmax_failure4():
 
 @memory_leak_decorator(collect=True)
 def test_minmax_failure5():
-    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
         minmax(_hf.FailIter())
-    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -259,17 +258,15 @@ def test_minmax_failure11():
 @memory_leak_decorator(collect=True)
 def test_minmax_failure12():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP, match=_hf.FailNext.EXC_MSG):
         minmax(_hf.FailNext())
-    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_minmax_failure13():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP, match=_hf.FailNext.EXC_MSG):
         minmax(_hf.FailNext(offset=1))
-    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -283,16 +280,14 @@ def test_minmax_failure14():
             return self.val < other.val
 
         def __gt__(self, other):
-            raise ValueError('no gt!')
+            raise ValueError('no gt')
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='no gt'):
         minmax(ltbutnogt(10), ltbutnogt(5))
-    assert 'no gt!' in str(exc)
 
 
 @memory_leak_decorator(collect=True, offset=1)
 def test_minmax_failure15():
     # Changing next method
-    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.CacheNext.EXC_TYP, match=_hf.CacheNext.EXC_MSG):
         minmax(_hf.CacheNext(1))
-    assert _hf.CacheNext.EXC_MSG in str(exc)

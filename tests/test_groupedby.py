@@ -87,9 +87,8 @@ def test_groupedby_reduce4():
 
 @memory_leak_decorator(collect=True)
 def test_groupedby_failure1():
-    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
         groupedby(_hf.FailIter(), key=len)
-    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -140,9 +139,8 @@ def test_groupedby_failure7():
 @memory_leak_decorator(collect=True)
 def test_groupedby_failure8():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP, match=_hf.FailNext.EXC_MSG):
         groupedby(_hf.FailNext(), bool)
-    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -155,6 +153,5 @@ def test_groupedby_failure9():
 @memory_leak_decorator(collect=True, offset=1)
 def test_groupedby_failure10():
     # Changing next method
-    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.CacheNext.EXC_TYP, match=_hf.CacheNext.EXC_MSG):
         groupedby(_hf.CacheNext(1), iteration_utilities.return_True)
-    assert _hf.CacheNext.EXC_MSG in str(exc)

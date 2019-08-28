@@ -41,9 +41,8 @@ def test_all_equal_normal3():
 
 @memory_leak_decorator(collect=True)
 def test_all_equal_failure1():
-    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
         all_equal(_hf.FailIter())
-    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -56,14 +55,12 @@ def test_all_equal_failure2():
 @memory_leak_decorator(collect=True)
 def test_all_equal_failure3():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP, match=_hf.FailNext.EXC_MSG):
         all_equal(_hf.FailNext())
-    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True, offset=1)
 def test_all_equal_failure4():
     # Changing next method
-    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.CacheNext.EXC_TYP, match=_hf.CacheNext.EXC_MSG):
         all_equal(_hf.CacheNext(1))
-    assert _hf.CacheNext.EXC_MSG in str(exc)

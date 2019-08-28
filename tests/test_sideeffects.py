@@ -119,17 +119,15 @@ def test_sideeffects_attribute1():
 @memory_leak_decorator(collect=True)
 def test_sideeffects_failure1():
     l = []
-    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
         sideeffects(_hf.FailIter(), l.append)
-    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_sideeffects_failure2():
     l = []
-    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
         sideeffects(_hf.FailIter(), l.append, 1)
-    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -159,9 +157,8 @@ def test_sideeffects_failure6():
 @memory_leak_decorator(collect=True)
 def test_sideeffects_failure7():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP, match=_hf.FailNext.EXC_MSG):
         list(sideeffects(_hf.FailNext(), lambda x: x))
-    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -329,13 +326,11 @@ def test_sideeffects_lengthhint1():
 def test_sideeffects_failure_lengthhint1():
     f_it = _hf.FailLengthHint(toT([1, 2, 3]))
     it = sideeffects(f_it, return_None)
-    with pytest.raises(_hf.FailLengthHint.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailLengthHint.EXC_TYP, match=_hf.FailLengthHint.EXC_MSG):
         operator.length_hint(it)
-    assert _hf.FailLengthHint.EXC_MSG in str(exc)
 
-    with pytest.raises(_hf.FailLengthHint.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailLengthHint.EXC_TYP, match=_hf.FailLengthHint.EXC_MSG):
         list(it)
-    assert _hf.FailLengthHint.EXC_MSG in str(exc)
 
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,

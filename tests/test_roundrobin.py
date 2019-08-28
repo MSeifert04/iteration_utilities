@@ -66,32 +66,28 @@ def test_roundrobin_normal4():
 
 @memory_leak_decorator(collect=True)
 def test_roundrobin_failure1():
-    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
         roundrobin(_hf.FailIter())
-    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_roundrobin_failure2():
-    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
         roundrobin([T(1)], _hf.FailIter())
-    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_roundrobin_failure3():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP, match=_hf.FailNext.EXC_MSG):
         next(roundrobin(_hf.FailNext()))
-    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_roundrobin_failure4():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP, match=_hf.FailNext.EXC_MSG):
         list(roundrobin([T(1), T(2)], _hf.FailNext()))
-    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -101,9 +97,8 @@ def test_roundrobin_failure5():
                     [T(1), T(2), T(3), T(4)])
     assert next(rr) == T(1)
     assert next(rr) == T(1)
-    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP, match=_hf.FailNext.EXC_MSG):
         next(rr)
-    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -218,13 +213,11 @@ def test_roundrobin_lengthhint1():
 def test_roundrobin_failure_lengthhint1():
     f_it = _hf.FailLengthHint(toT([1, 2, 3]))
     it = roundrobin(f_it)
-    with pytest.raises(_hf.FailLengthHint.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailLengthHint.EXC_TYP, match=_hf.FailLengthHint.EXC_MSG):
         operator.length_hint(it)
-    assert _hf.FailLengthHint.EXC_MSG in str(exc)
 
-    with pytest.raises(_hf.FailLengthHint.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailLengthHint.EXC_TYP, match=_hf.FailLengthHint.EXC_MSG):
         list(it)
-    assert _hf.FailLengthHint.EXC_MSG in str(exc)
 
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,

@@ -71,9 +71,8 @@ def test_all_monotone_normal9():
 
 @memory_leak_decorator(collect=True)
 def test_all_monotone_failure1():
-    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
         all_monotone(_hf.FailIter())
-    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -86,9 +85,8 @@ def test_all_monotone_failure2():
 @memory_leak_decorator(collect=True)
 def test_all_monotone_failure3():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP, match=_hf.FailNext.EXC_MSG):
         all_monotone(_hf.FailNext())
-    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -101,6 +99,5 @@ def test_all_monotone_failure4():
 @memory_leak_decorator(collect=True, offset=1)
 def test_all_monotone_failure5():
     # Changing next method
-    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.CacheNext.EXC_TYP, match=_hf.CacheNext.EXC_MSG):
         all_monotone(_hf.CacheNext(1))
-    assert _hf.CacheNext.EXC_MSG in str(exc)

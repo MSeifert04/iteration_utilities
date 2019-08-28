@@ -102,9 +102,8 @@ def test_uniqueeverseen_getter2():
 
 @memory_leak_decorator(collect=True)
 def test_uniqueeverseen_failure1():
-    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
         unique_everseen(_hf.FailIter())
-    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -116,9 +115,8 @@ def test_uniqueeverseen_failure2():
 @memory_leak_decorator(collect=True)
 def test_uniqueeverseen_failure3():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP, match=_hf.FailNext.EXC_MSG):
         next(unique_everseen(_hf.FailNext()))
-    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -138,9 +136,8 @@ def test_uniqueeverseen_failure5():
         def __eq__(self, other):
             raise ValueError('bad class')
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         list(unique_everseen([[T(1)], NoHashNoEq()]))
-    assert 'bad class' in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -150,9 +147,8 @@ def test_uniqueeverseen_failure6():
         def __hash__(self):
             raise ValueError('bad class')
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         list(unique_everseen([T(1), NoHash()]))
-    assert 'bad class' in str(exc)
 
 
 @memory_leak_decorator(collect=True)

@@ -86,11 +86,10 @@ def test_packed_failure5():
 def test_packed_failure6():
     # function raised an Exception
     def failingfunc(a, b):
-        raise ValueError('bad func!')
+        raise ValueError('bad func')
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad func'):
         packed(failingfunc)((1, 2))
-    assert 'bad func!' in str(exc)
 
 
 @memory_leak_decorator(offset=1)

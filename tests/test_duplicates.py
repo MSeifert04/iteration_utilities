@@ -79,9 +79,8 @@ def test_duplicates_getter2():
 
 @memory_leak_decorator(collect=True)
 def test_duplicates_failure1():
-    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
         duplicates(_hf.FailIter())
-    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -93,9 +92,8 @@ def test_duplicates_failure2():
 @memory_leak_decorator(collect=True)
 def test_duplicates_failure3():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP, match=_hf.FailNext.EXC_MSG):
         next(duplicates(_hf.FailNext()))
-    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -115,9 +113,8 @@ def test_duplicates_failure5():
         def __eq__(self, other):
             raise ValueError('bad class')
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         list(duplicates([[T(1)], NoHashNoEq()]))
-    assert 'bad class' in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -127,17 +124,15 @@ def test_duplicates_failure6():
         def __hash__(self):
             raise ValueError('bad class')
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         list(duplicates([T(1), NoHash()]))
-    assert 'bad class' in str(exc)
 
 
 @memory_leak_decorator(collect=True, offset=1)
 def test_duplicates_failure7():
     # Changing next method
-    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.CacheNext.EXC_TYP, match=_hf.CacheNext.EXC_MSG):
         list(duplicates(_hf.CacheNext(1)))
-    assert _hf.CacheNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)

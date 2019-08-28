@@ -59,9 +59,8 @@ def test_starfilter_attributes1():
 
 @memory_leak_decorator(collect=True)
 def test_starfilter_failure1():
-    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
         starfilter(operator.eq, _hf.FailIter())
-    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -96,10 +95,9 @@ def test_starfilter_failure5():
 def test_starfilter_failure6():
     # function itself fails
     def failingfunc(a, b):
-        raise ValueError('bad func!')
-    with pytest.raises(ValueError) as exc:
+        raise ValueError('bad func')
+    with pytest.raises(ValueError, match='bad func'):
         next(starfilter(failingfunc, [(T(1), T(1))]))
-    assert 'bad func!' in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -107,24 +105,22 @@ def test_starfilter_failure7():
     # result of function has no boolean interpretation
     class NoBool(object):
         def __bool__(self):
-            raise ValueError('no bool!')
+            raise ValueError('no bool')
 
         __nonzero__ = __bool__
 
     def failingfunc(a, b):
         return NoBool()
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='no bool'):
         next(starfilter(failingfunc, [(T(1), T(1))]))
-    assert 'no bool!' in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_starfilter_failure8():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP, match=_hf.FailNext.EXC_MSG):
         next(starfilter(operator.ne, _hf.FailNext()))
-    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -137,11 +133,10 @@ def test_starfilter_failure9():
 @memory_leak_decorator(collect=True, offset=1)
 def test_starfilter_failure10():
     # Changing next method
-    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.CacheNext.EXC_TYP, match=_hf.CacheNext.EXC_MSG):
         # won't work with return_True because then "iternext" is refreshed
         # before the failure comes.
         list(starfilter(iteration_utilities.return_False, _hf.CacheNext([1])))
-    assert _hf.CacheNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)

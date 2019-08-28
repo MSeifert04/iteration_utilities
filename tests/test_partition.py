@@ -69,9 +69,8 @@ def test_partition_pred2():
 
 @memory_leak_decorator(collect=True)
 def test_partition_failure1():
-    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
         partition(_hf.FailIter())
-    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -95,9 +94,8 @@ def test_partition_failure4():
 @memory_leak_decorator(collect=True)
 def test_partition_failure5():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP, match=_hf.FailNext.EXC_MSG):
         partition(_hf.FailNext(), bool)
-    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -115,14 +113,12 @@ def test_partition_failure7():
             raise ValueError('bad class')
         __nonzero__ = __bool__
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='bad class'):
         partition([NoBool(10)])
-    assert 'bad class' in str(exc)
 
 
 @memory_leak_decorator(collect=True, offset=1)
 def test_partition_failure8():
     # Changing next method
-    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.CacheNext.EXC_TYP, match=_hf.CacheNext.EXC_MSG):
         partition(_hf.CacheNext(1))
-    assert _hf.CacheNext.EXC_MSG in str(exc)

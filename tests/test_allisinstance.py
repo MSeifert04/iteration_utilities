@@ -41,9 +41,8 @@ def test_allisinstance_normal3():
 
 @memory_leak_decorator(collect=True)
 def test_allisinstance_failure1():
-    with pytest.raises(_hf.FailIter.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
         all_isinstance(_hf.FailIter(), T)
-    assert _hf.FailIter.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
@@ -56,22 +55,20 @@ def test_allisinstance_failure2():
 @memory_leak_decorator(collect=True)
 def test_allisinstance_failure3():
     # Test that a failing iterator doesn't raise a SystemError
-    with pytest.raises(_hf.FailNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailNext.EXC_TYP, match=_hf.FailNext.EXC_MSG):
         all_isinstance(_hf.FailNext(), T)
-    assert _hf.FailNext.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True)
 def test_allisinstance_failure4():
     # Test failing isinstance operation
-    with pytest.raises(_hf.FailingIsinstanceClass.EXC_TYP) as exc:
+    with pytest.raises(_hf.FailingIsinstanceClass.EXC_TYP,
+                       match=_hf.FailingIsinstanceClass.EXC_MSG):
         all_isinstance(toT([1, 2, 3]), _hf.FailingIsinstanceClass)
-    assert _hf.FailingIsinstanceClass.EXC_MSG in str(exc)
 
 
 @memory_leak_decorator(collect=True, offset=1)
 def test_allisinstance_failure5():
     # Changing next method
-    with pytest.raises(_hf.CacheNext.EXC_TYP) as exc:
+    with pytest.raises(_hf.CacheNext.EXC_TYP, match=_hf.CacheNext.EXC_MSG):
         all_isinstance(_hf.CacheNext(1), int)
-    assert _hf.CacheNext.EXC_MSG in str(exc)
