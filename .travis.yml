@@ -12,8 +12,10 @@ matrix:
   include:
     - python: "2.7"
       install: CC=clang python setup.py install
-    - python: "3.6"
+    - python: "3.7"
       install: CC=clang python setup.py install
+      dist: xenial
+      sudo: true
     # Unfortunately there is currently no way to have these tested on Trusty.
     # This is hack to work around that:
     # https://docs.travis-ci.com/user/languages/python/#development-releases-support
