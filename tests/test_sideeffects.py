@@ -211,54 +211,54 @@ def test_sideeffects_failure_setstate9():
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_sideeffects_pickle1():
+def test_sideeffects_pickle1(protocol):
     suc = sideeffects([T(1), T(2), T(3), T(4)], return_None)
     assert next(suc) == T(1)
-    x = pickle.dumps(suc)
+    x = pickle.dumps(suc, protocol=protocol)
     assert list(pickle.loads(x)) == [T(2), T(3), T(4)]
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_sideeffects_pickle2():
+def test_sideeffects_pickle2(protocol):
     suc = sideeffects([T(1), T(2), T(3), T(4)], return_None)
-    x = pickle.dumps(suc)
+    x = pickle.dumps(suc, protocol=protocol)
     assert list(pickle.loads(x)) == [T(1), T(2), T(3), T(4)]
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_sideeffects_pickle3():
+def test_sideeffects_pickle3(protocol):
     suc = sideeffects([T(1), T(2), T(3), T(4)], return_None, 1)
-    x = pickle.dumps(suc)
+    x = pickle.dumps(suc, protocol=protocol)
     assert list(pickle.loads(x)) == [T(1), T(2), T(3), T(4)]
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_sideeffects_pickle4():
+def test_sideeffects_pickle4(protocol):
     suc = sideeffects([T(1), T(2), T(3), T(4)], return_None, 1)
     assert next(suc) == T(1)
-    x = pickle.dumps(suc)
+    x = pickle.dumps(suc, protocol=protocol)
     assert list(pickle.loads(x)) == [T(2), T(3), T(4)]
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_sideeffects_pickle5():
+def test_sideeffects_pickle5(protocol):
     suc = sideeffects([T(1), T(2), T(3), T(4)], return_None, 2)
     assert next(suc) == T(1)
-    x = pickle.dumps(suc)
+    x = pickle.dumps(suc, protocol=protocol)
     assert list(pickle.loads(x)) == [T(2), T(3), T(4)]
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_sideeffects_pickle6():
+def test_sideeffects_pickle6(protocol):
     suc = sideeffects([T(1), T(2), T(3), T(4)], return_None, 2)
     assert next(suc) == T(1)
     assert next(suc) == T(2)
-    x = pickle.dumps(suc)
+    x = pickle.dumps(suc, protocol=protocol)
     assert list(pickle.loads(x)) == [T(3), T(4)]
 
 

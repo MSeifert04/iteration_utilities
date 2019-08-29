@@ -89,8 +89,8 @@ def test_complement_failure4():
         complement()
 
 
-def test_complement_pickle1():
-    x = pickle.dumps(complement(iteration_utilities.is_None))
+def test_complement_pickle1(protocol):
+    x = pickle.dumps(complement(iteration_utilities.is_None), protocol=protocol)
     assert pickle.loads(x)(False)
     assert pickle.loads(x)(True)
     assert not pickle.loads(x)(None)

@@ -246,17 +246,17 @@ def test_deepflatten_setstate1():
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_deepflatten_pickle1():
+def test_deepflatten_pickle1(protocol):
     dpflt = deepflatten([[T(1)], [T(2)], [T(3)], [T(4)]])
     assert next(dpflt) == T(1)
-    x = pickle.dumps(dpflt)
+    x = pickle.dumps(dpflt, protocol=protocol)
     assert list(pickle.loads(x)) == toT([2, 3, 4])
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_deepflatten_pickle2():
+def test_deepflatten_pickle2(protocol):
     dpflt = deepflatten([['abc', T(1)], [T(2)], [T(3)], [T(4)]])
     assert next(dpflt) == 'a'
-    x = pickle.dumps(dpflt)
+    x = pickle.dumps(dpflt, protocol=protocol)
     assert list(pickle.loads(x)) == ['b', 'c'] + toT([1, 2, 3, 4])

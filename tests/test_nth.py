@@ -236,6 +236,6 @@ def test_nth_failure15():
         nth(2)(_hf.CacheNext(1))
 
 
-def test_nth_pickle1():
-    x = pickle.dumps(nth(2))
+def test_nth_pickle1(protocol):
+    x = pickle.dumps(nth(2), protocol=protocol)
     assert pickle.loads(x)([T(1), T(2), T(3), T(4)]) == T(3)

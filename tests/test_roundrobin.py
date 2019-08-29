@@ -147,21 +147,21 @@ def test_roundrobin_failure_setstate8():
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_roundrobin_pickle1():
+def test_roundrobin_pickle1(protocol):
     rr = roundrobin([T(1), T(2), T(3)], [T(1), T(2), T(3)])
     assert next(rr) == T(1)
-    x = pickle.dumps(rr)
+    x = pickle.dumps(rr, protocol=protocol)
     assert list(pickle.loads(x)) == toT([1, 2, 2, 3, 3])
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_roundrobin_pickle2():
+def test_roundrobin_pickle2(protocol):
     rr2 = roundrobin([T(1)], [T(1), T(2), T(3)])
     assert next(rr2) == T(1)
     assert next(rr2) == T(1)
     assert next(rr2) == T(2)
-    x = pickle.dumps(rr2)
+    x = pickle.dumps(rr2, protocol=protocol)
     assert list(pickle.loads(x)) == [T(3)]
 
 

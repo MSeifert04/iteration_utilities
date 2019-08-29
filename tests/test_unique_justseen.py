@@ -104,39 +104,39 @@ def test_unique_justseen_failure_setstate2():
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_unique_justseen_pickle1():
+def test_unique_justseen_pickle1(protocol):
     ujs = unique_justseen([T(1), T(2), T(3)])
-    x = pickle.dumps(ujs)
+    x = pickle.dumps(ujs, protocol=protocol)
     assert list(pickle.loads(x)) == toT([1, 2, 3])
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_unique_justseen_pickle2():
+def test_unique_justseen_pickle2(protocol):
     ujs = unique_justseen([T(1), T(2), T(3)])
     assert next(ujs) == T(1)
-    x = pickle.dumps(ujs)
+    x = pickle.dumps(ujs, protocol=protocol)
     assert list(pickle.loads(x)) == toT([2, 3])
 
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,
                    reason='see method comments')
-def test_unique_justseen_pickle3():
+def test_unique_justseen_pickle3(protocol):
     # Pickling a method descriptor is not possible for Python 3.3 and before
-    # Also operator.methodcaller loses it's methodname when pickled for Python
-    #   3.4 and lower...
+    # Also "operator.methodcaller" loses it's method name when pickled for
+    # Python 3.4 and lower...
     ujs = unique_justseen(['a', 'A', 'a'], key=str.lower)
-    x = pickle.dumps(ujs)
+    x = pickle.dumps(ujs, protocol=protocol)
     assert list(pickle.loads(x)) == ['a']
 
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,
                    reason='see method comments')
-def test_unique_justseen_pickle4():
+def test_unique_justseen_pickle4(protocol):
     # Pickling a method descriptor is not possible for Python 3.3 and before
     # Also operator.methodcaller loses it's methodname when pickled for Python
     #   3.4 and lower...
     ujs = unique_justseen(['a', 'A', 'a'], key=str.lower)
     assert next(ujs) == 'a'
-    x = pickle.dumps(ujs)
+    x = pickle.dumps(ujs, protocol=protocol)
     assert list(pickle.loads(x)) == []

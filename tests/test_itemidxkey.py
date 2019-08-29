@@ -183,16 +183,16 @@ def test_itemidxkey_deleter_failure():
         del iik.idx
 
 
-def test_itemidxkey_pickle1():
+def test_itemidxkey_pickle1(protocol):
     iik = ItemIdxKey(T(10), 2)
-    x = pickle.dumps(iik)
+    x = pickle.dumps(iik, protocol=protocol)
     assert pickle.loads(x).item == T(10)
     assert pickle.loads(x).idx == 2
 
 
-def test_itemidxkey_pickle2():
+def test_itemidxkey_pickle2(protocol):
     iik = ItemIdxKey(T(10), 2, T(5))
-    x = pickle.dumps(iik)
+    x = pickle.dumps(iik, protocol=protocol)
     assert pickle.loads(x).item == T(10)
     assert pickle.loads(x).idx == 2
     assert pickle.loads(x).key == T(5)

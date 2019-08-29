@@ -139,8 +139,8 @@ def test_duplicates_copy1():
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_duplicates_pickle1():
+def test_duplicates_pickle1(protocol):
     dpl = duplicates([T(1), T(2), T(1), T(2)])
     assert next(dpl) == T(1)
-    x = pickle.dumps(dpl)
+    x = pickle.dumps(dpl, protocol=protocol)
     assert list(pickle.loads(x)) == [T(2)]

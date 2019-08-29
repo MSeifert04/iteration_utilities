@@ -91,35 +91,35 @@ def test_accumulate_copy1():
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_accumulate_pickle1():
+def test_accumulate_pickle1(protocol):
     acc = accumulate([T(1), T(2), T(3), T(4)])
     assert next(acc) == T(1)
-    x = pickle.dumps(acc)
+    x = pickle.dumps(acc, protocol=protocol)
     assert list(pickle.loads(x)) == [T(3), T(6), T(10)]
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_accumulate_pickle2():
+def test_accumulate_pickle2(protocol):
     acc = accumulate([T(1), T(2), T(3), T(4)])
-    x = pickle.dumps(acc)
+    x = pickle.dumps(acc, protocol=protocol)
     assert list(pickle.loads(x)) == [T(1), T(3), T(6), T(10)]
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_accumulate_pickle3():
+def test_accumulate_pickle3(protocol):
     acc = accumulate([T(1), T(2), T(3), T(4)], operator.mul)
     assert next(acc) == T(1)
-    x = pickle.dumps(acc)
+    x = pickle.dumps(acc, protocol=protocol)
     assert list(pickle.loads(x)) == [T(2), T(6), T(24)]
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_accumulate_pickle4():
+def test_accumulate_pickle4(protocol):
     acc = accumulate([T(1), T(2), T(3), T(4)], None, T(4))
-    x = pickle.dumps(acc)
+    x = pickle.dumps(acc, protocol=protocol)
     assert list(pickle.loads(x)) == [T(5), T(7), T(10), T(14)]
 
 

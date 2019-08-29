@@ -74,38 +74,38 @@ def test_iterexcept_copy1():
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,
                    reason='cannot pickle this on Python < 3.4.')
-def test_iterexcept_pickle1():
+def test_iterexcept_pickle1(protocol):
     dct = {T('a'): T(10)}
     ie = iter_except(dct.popitem, KeyError)
-    x = pickle.dumps(ie)
+    x = pickle.dumps(ie, protocol=protocol)
     assert list(pickle.loads(x)) == [(T('a'), T(10))]
 
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,
                    reason='cannot pickle this on Python < 3.4.')
-def test_iterexcept_pickle2():
+def test_iterexcept_pickle2(protocol):
     dct = {T('a'): T(10)}
     ie = iter_except(dct.popitem, KeyError, None)
-    x = pickle.dumps(ie)
+    x = pickle.dumps(ie, protocol=protocol)
     assert list(pickle.loads(x)) == [(T('a'), T(10))]
 
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,
                    reason='cannot pickle this on Python < 3.4.')
-def test_iterexcept_pickle3():
+def test_iterexcept_pickle3(protocol):
     dct = {}
     first = partial(dct.setdefault, T('a'), T(10))
     ie = iter_except(dct.popitem, KeyError, first)
-    x = pickle.dumps(ie)
+    x = pickle.dumps(ie, protocol=protocol)
     assert list(pickle.loads(x)) == [T(10), (T('a'), T(10))]
 
 
 @pytest.mark.xfail(not iteration_utilities.GE_PY34,
                    reason='cannot pickle this on Python < 3.4.')
-def test_iterexcept_pickle4():
+def test_iterexcept_pickle4(protocol):
     dct = {}
     first = partial(dct.setdefault, T('a'), T(10))
     ie = iter_except(dct.popitem, KeyError, first)
     assert next(ie) == T(10)
-    x = pickle.dumps(ie)
+    x = pickle.dumps(ie, protocol=protocol)
     assert list(pickle.loads(x)) == [(T('a'), T(10))]

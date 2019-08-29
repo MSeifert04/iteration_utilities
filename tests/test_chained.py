@@ -174,24 +174,24 @@ def test_chained_failure_setstate2():
     helper_funcs.iterator_setstate_empty_fail(chained(lambda x: x))
 
 
-def test_chained_pickle1():
+def test_chained_pickle1(protocol):
     cmp = chained(iteration_utilities.square, iteration_utilities.reciprocal)
-    x = pickle.dumps(cmp)
+    x = pickle.dumps(cmp, protocol=protocol)
     assert pickle.loads(x)(T(10)) == T(1/100)
     assert pickle.loads(x)(T(2)) == T(1/4)
 
 
-def test_chained_pickle2():
+def test_chained_pickle2(protocol):
     cmp = chained(iteration_utilities.square, iteration_utilities.double,
                   reverse=True)
-    x = pickle.dumps(cmp)
+    x = pickle.dumps(cmp, protocol=protocol)
     assert pickle.loads(x)(T(10)) == T(400)
     assert pickle.loads(x)(T(3)) == T(36)
 
 
-def test_chained_pickle3():
+def test_chained_pickle3(protocol):
     cmp = chained(iteration_utilities.square, iteration_utilities.double,
                   all=True)
-    x = pickle.dumps(cmp)
+    x = pickle.dumps(cmp, protocol=protocol)
     assert pickle.loads(x)(T(10)) == (T(100), T(20))
     assert pickle.loads(x)(T(3)) == (T(9), T(6))

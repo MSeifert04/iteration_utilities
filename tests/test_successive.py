@@ -121,18 +121,18 @@ def test_successive_failure_setstate5():
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_successive_pickle1():
+def test_successive_pickle1(protocol):
     suc = successive([T(1), T(2), T(3), T(4)])
     assert next(suc) == (T(1), T(2))
-    x = pickle.dumps(suc)
+    x = pickle.dumps(suc, protocol=protocol)
     assert list(pickle.loads(x)) == [(T(2), T(3)), (T(3), T(4))]
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_successive_pickle2():
+def test_successive_pickle2(protocol):
     suc = successive([T(1), T(2), T(3), T(4)])
-    x = pickle.dumps(suc)
+    x = pickle.dumps(suc, protocol=protocol)
     assert list(pickle.loads(x)) == [(T(1), T(2)), (T(2), T(3)),
                                      (T(3), T(4))]
 
