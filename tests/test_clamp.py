@@ -122,80 +122,80 @@ def test_clamp_copy1():
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_clamp_pickle1():
+def test_clamp_pickle1(protocol):
     clmp = clamp(toT(range(10)), T(2), T(7))
     assert next(clmp) == T(2)
-    x = pickle.dumps(clmp)
+    x = pickle.dumps(clmp, protocol=protocol)
     assert list(pickle.loads(x)) == toT([3, 4, 5, 6, 7])
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_clamp_pickle2():
+def test_clamp_pickle2(protocol):
     # inclusive
     clmp = clamp(map(T, range(10)), T(2), T(7), inclusive=True)
     assert next(clmp) == T(3)
-    x = pickle.dumps(clmp)
+    x = pickle.dumps(clmp, protocol=protocol)
     assert list(pickle.loads(x)) == toT([4, 5, 6])
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_clamp_pickle3():
+def test_clamp_pickle3(protocol):
     # only low
     clmp = clamp(map(T, range(10)), T(2))
     assert next(clmp) == T(2)
-    x = pickle.dumps(clmp)
+    x = pickle.dumps(clmp, protocol=protocol)
     assert list(pickle.loads(x)) == toT([3, 4, 5, 6, 7, 8, 9])
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_clamp_pickle4():
+def test_clamp_pickle4(protocol):
     # only high
     clmp = clamp(map(T, range(10)), high=T(7))
     assert next(clmp) == T(0)
-    x = pickle.dumps(clmp)
+    x = pickle.dumps(clmp, protocol=protocol)
     assert list(pickle.loads(x)) == toT([1, 2, 3, 4, 5, 6, 7])
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_clamp_pickle5():
+def test_clamp_pickle5(protocol):
     # only high, with inclusive
     clmp = clamp(map(T, range(10)), high=T(7), inclusive=True)
     assert next(clmp) == T(0)
-    x = pickle.dumps(clmp)
+    x = pickle.dumps(clmp, protocol=protocol)
     assert list(pickle.loads(x)) == toT([1, 2, 3, 4, 5, 6])
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_clamp_pickle6():
+def test_clamp_pickle6(protocol):
     # only low, with inclusive
     clmp = clamp(map(T, range(10)), T(2), inclusive=True)
     assert next(clmp) == T(3)
-    x = pickle.dumps(clmp)
+    x = pickle.dumps(clmp, protocol=protocol)
     assert list(pickle.loads(x)) == toT([4, 5, 6, 7, 8, 9])
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_clamp_pickle7():
+def test_clamp_pickle7(protocol):
     # no low no high
     clmp = clamp(map(T, range(10)))
     assert next(clmp) == T(0)
-    x = pickle.dumps(clmp)
+    x = pickle.dumps(clmp, protocol=protocol)
     assert list(pickle.loads(x)) == toT([1, 2, 3, 4, 5, 6, 7, 8, 9])
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_clamp_pickle8():
+def test_clamp_pickle8(protocol):
     # only high but without remove
     clmp = clamp(map(T, range(10)), high=T(7), remove=False)
     assert next(clmp) == T(0)
-    x = pickle.dumps(clmp)
+    x = pickle.dumps(clmp, protocol=protocol)
     assert list(pickle.loads(x)) == toT([1, 2, 3, 4, 5, 6, 7, 7, 7])
 
 

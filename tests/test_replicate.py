@@ -97,20 +97,20 @@ def test_replicate_failure_setstate2():
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_replicate_pickle1():
+def test_replicate_pickle1(protocol):
     # normal
     rpl = replicate([T(1), T(2)], 3)
-    x = pickle.dumps(rpl)
+    x = pickle.dumps(rpl, protocol=protocol)
     assert list(pickle.loads(x)) == toT([1, 1, 1, 2, 2, 2])
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_replicate_pickle2():
+def test_replicate_pickle2(protocol):
     # normal
     rpl = replicate([T(1), T(2)], 3)
     assert next(rpl) == T(1)
-    x = pickle.dumps(rpl)
+    x = pickle.dumps(rpl, protocol=protocol)
     assert list(pickle.loads(x)) == toT([1, 1, 2, 2, 2])
 
 

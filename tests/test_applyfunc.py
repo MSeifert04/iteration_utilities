@@ -50,8 +50,8 @@ def test_applyfunc_copy1():
     iterator_copy(applyfunc(lambda x: x**T(2), T(2)))
 
 
-def test_applyfunc_pickle1():
+def test_applyfunc_pickle1(protocol):
     apf = applyfunc(iteration_utilities.square, T(2))
     assert next(apf) == T(4)
-    x = pickle.dumps(apf)
+    x = pickle.dumps(apf, protocol=protocol)
     assert next(pickle.loads(x)) == T(16)

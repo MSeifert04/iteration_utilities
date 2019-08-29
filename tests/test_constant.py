@@ -45,6 +45,6 @@ def test_constant_failure1():
         const()
 
 
-def test_constant_pickle1():
-    x = pickle.dumps(const(T(10)))
+def test_constant_pickle1(protocol):
+    x = pickle.dumps(const(T(10)), protocol=protocol)
     assert pickle.loads(x)() == T(10)

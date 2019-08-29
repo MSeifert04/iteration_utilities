@@ -197,30 +197,30 @@ def test_grouper_failure_setstate2():
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_grouper_pickle1():
+def test_grouper_pickle1(protocol):
     grp = grouper(toT(range(10)), 3)
     assert next(grp) == (T(0), T(1), T(2))
-    x = pickle.dumps(grp)
+    x = pickle.dumps(grp, protocol=protocol)
     assert list(pickle.loads(x)) == [(T(3), T(4), T(5)), (T(6), T(7), T(8)),
                                      (T(9), )]
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_grouper_pickle2():
+def test_grouper_pickle2(protocol):
     grp = grouper(toT(range(10)), 3, fillvalue=T(0))
     assert next(grp) == (T(0), T(1), T(2))
-    x = pickle.dumps(grp)
+    x = pickle.dumps(grp, protocol=protocol)
     assert list(pickle.loads(x)) == [(T(3), T(4), T(5)), (T(6), T(7), T(8)),
                                      (T(9), T(0), T(0))]
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_grouper_pickle3():
+def test_grouper_pickle3(protocol):
     grp = grouper(toT(range(10)), 3, truncate=True)
     assert next(grp) == (T(0), T(1), T(2))
-    x = pickle.dumps(grp)
+    x = pickle.dumps(grp, protocol=protocol)
     assert list(pickle.loads(x)) == [(T(3), T(4), T(5)), (T(6), T(7), T(8))]
 
 

@@ -128,16 +128,16 @@ def test_starfilter_copy1():
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_starfilter_pickle1():
+def test_starfilter_pickle1(protocol):
     sf = starfilter(operator.eq, [(T(1), T(1)), (T(2), T(2))])
-    x = pickle.dumps(sf)
+    x = pickle.dumps(sf, protocol=protocol)
     assert list(pickle.loads(x)) == [(T(1), T(1)), (T(2), T(2))]
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_starfilter_pickle2():
+def test_starfilter_pickle2(protocol):
     sf = starfilter(operator.eq, [(T(1), T(1)), (T(2), T(2))])
     assert next(sf) == (T(1), T(1))
-    x = pickle.dumps(sf)
+    x = pickle.dumps(sf, protocol=protocol)
     assert list(pickle.loads(x)) == [(T(2), T(2))]

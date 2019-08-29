@@ -97,8 +97,8 @@ def test_flip_failure3():
         flip(isinstance, bool)
 
 
-def test_flip_pickle1():
-    x = pickle.dumps(flip(isinstance))
+def test_flip_pickle1(protocol):
+    x = pickle.dumps(flip(isinstance), protocol=protocol)
     assert pickle.loads(x)(float, 10.)
     assert pickle.loads(x)(int, 10)
     assert not pickle.loads(x)(float, 10)

@@ -89,21 +89,21 @@ def test_tabulate_copy1():
     _hf.iterator_copy(tabulate(T))
 
 
-def test_tabulate_pickle1():
+def test_tabulate_pickle1(protocol):
     rr = tabulate(T)
     assert next(rr) == T(0)
-    x = pickle.dumps(rr)
+    x = pickle.dumps(rr, protocol=protocol)
     assert next(pickle.loads(x)) == T(1)
 
 
-def test_tabulate_pickle2():
+def test_tabulate_pickle2(protocol):
     rr = tabulate(T, 2)
     assert next(rr) == T(2)
-    x = pickle.dumps(rr)
+    x = pickle.dumps(rr, protocol=protocol)
     assert next(pickle.loads(x)) == T(3)
 
 
-def test_tabulate_pickle3():
+def test_tabulate_pickle3(protocol):
     rr = tabulate(T)
-    x = pickle.dumps(rr)
+    x = pickle.dumps(rr, protocol=protocol)
     assert next(pickle.loads(x)) == T(0)

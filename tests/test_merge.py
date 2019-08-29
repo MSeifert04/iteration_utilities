@@ -312,50 +312,50 @@ def test_merge_setstate1():
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_merge_pickle1():
+def test_merge_pickle1(protocol):
     # normal
     mge = merge([T(0)], [T(1), T(2)], [T(2)])
     assert next(mge) == T(0)
-    x = pickle.dumps(mge)
+    x = pickle.dumps(mge, protocol=protocol)
     assert list(pickle.loads(x)) == toT([1, 2, 2])
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_merge_pickle2():
+def test_merge_pickle2(protocol):
     # with key
     mge = merge([T(1), T(2)], [T(0)], [T(-2)], key=abs)
     assert next(mge) == T(0)
-    x = pickle.dumps(mge)
+    x = pickle.dumps(mge, protocol=protocol)
     assert list(pickle.loads(x)) == toT([1, 2, -2])
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_merge_pickle3():
+def test_merge_pickle3(protocol):
     # reverse
     mge = merge([T(2), T(1)], [T(0)], [T(3)], reverse=True)
     assert next(mge) == T(3)
-    x = pickle.dumps(mge)
+    x = pickle.dumps(mge, protocol=protocol)
     assert list(pickle.loads(x)) == toT([2, 1, 0])
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_merge_pickle4():
+def test_merge_pickle4(protocol):
     # pickle unstarted merge instance
     mge = merge([T(0)], [T(1), T(2)], [T(2)])
-    x = pickle.dumps(mge)
+    x = pickle.dumps(mge, protocol=protocol)
     assert list(pickle.loads(x)) == toT([0, 1, 2, 2])
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_merge_pickle5():
+def test_merge_pickle5(protocol):
     # pickle merge with no exhausted iterable
     mge = merge([T(0), T(1)], [T(1), T(2)])
     assert next(mge) == T(0)
-    x = pickle.dumps(mge)
+    x = pickle.dumps(mge, protocol=protocol)
     assert list(pickle.loads(x)) == toT([1, 1, 2])
 
 

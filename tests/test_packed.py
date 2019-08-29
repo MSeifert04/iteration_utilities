@@ -81,8 +81,8 @@ def test_packed_failure6():
         packed(failingfunc)((1, 2))
 
 
-def test_packed_pickle1():
+def test_packed_pickle1(protocol):
     eq = packed(operator.eq)
-    x = pickle.dumps(eq)
+    x = pickle.dumps(eq, protocol=protocol)
     assert pickle.loads(x)((T(1), T(1)))
     assert not pickle.loads(x)((T(1), T(2)))

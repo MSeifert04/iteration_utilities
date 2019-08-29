@@ -75,39 +75,39 @@ def test_intersperse_failure_setstate3():
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_intersperse_pickle1():
+def test_intersperse_pickle1(protocol):
     its = intersperse(toT([1, 2, 3]), T(0))
-    x = pickle.dumps(its)
+    x = pickle.dumps(its, protocol=protocol)
     assert list(pickle.loads(x)) == toT([1, 0, 2, 0, 3])
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_intersperse_pickle2():
+def test_intersperse_pickle2(protocol):
     its = intersperse(toT([1, 2, 3]), T(0))
     assert next(its) == T(1)
-    x = pickle.dumps(its)
+    x = pickle.dumps(its, protocol=protocol)
     assert list(pickle.loads(x)) == toT([0, 2, 0, 3])
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_intersperse_pickle3():
+def test_intersperse_pickle3(protocol):
     its = intersperse([T(1), T(2), T(3)], T(0))
     assert next(its) == T(1)
     assert next(its) == T(0)
-    x = pickle.dumps(its)
+    x = pickle.dumps(its, protocol=protocol)
     assert list(pickle.loads(x)) == toT([2, 0, 3])
 
 
 @pytest.mark.xfail(iteration_utilities.EQ_PY2,
                    reason='pickle does not work on Python 2')
-def test_intersperse_pickle4():
+def test_intersperse_pickle4(protocol):
     its = intersperse([T(1), T(2), T(3)], T(0))
     assert next(its) == T(1)
     assert next(its) == T(0)
     assert next(its) == T(2)
-    x = pickle.dumps(its)
+    x = pickle.dumps(its, protocol=protocol)
     assert list(pickle.loads(x)) == toT([0, 3])
 
 
