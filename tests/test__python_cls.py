@@ -10,6 +10,9 @@ import pytest
 # This module
 import iteration_utilities
 
+# Test helper
+import helper_funcs as _hf
+
 
 Iterable = iteration_utilities.Iterable
 
@@ -21,8 +24,7 @@ def test_sentinelfactory():
     assert as_str == "<default>"
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_cls_length_hint():
     assert operator.length_hint(Iterable([1, 2, 3])) == 3
     assert operator.length_hint(Iterable([1, 2, 3]).accumulate()) == 3

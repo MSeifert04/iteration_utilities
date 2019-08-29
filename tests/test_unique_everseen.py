@@ -153,8 +153,7 @@ def test_uniqueeverseen_failure_setstate3():
     _hf.iterator_setstate_empty_fail(unique_everseen(toT([1, 1])))
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_uniqueeverseen_pickle1(protocol):
     uqe = unique_everseen([T(1), T(2), T(1), T(2)])
     assert next(uqe) == T(1)

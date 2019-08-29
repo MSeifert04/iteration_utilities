@@ -17,6 +17,35 @@ from iteration_utilities._compat import filter
 from helper_cls import T
 
 
+def _skipif_wrapper(func, condition, reason):
+    return pytest.mark.skipif(condition, reason=reason)(func)
+
+
+def skip_because_iterators_cannot_be_pickled_before_py3(func):
+    """Most iterators like list-iterator, map, zip, ... can not be pickled in
+    Python 2.x.
+    """
+    return _skipif_wrapper(func, iteration_utilities.EQ_PY2,
+                           reason='pickle does not work on Python 2')
+
+
+def skip_before_py34_because_length_hint_was_added_in_py34(func):
+    """Support for __length_hint__ was added in Python 3.4.
+    """
+    return _skipif_wrapper(func, not iteration_utilities.GE_PY34,
+                           reason='length_hint does not work before Python 3.4')
+
+
+def xfail_before_py34_because_method_descriptors_cannot_be_pickled(func):
+    """Pickling a method descriptor is not possible for Python 3.3 and before
+    Also ``operator.methodcaller`` loses it's method name when pickled for
+    Python 3.4 and lower.
+    """
+    return _skipif_wrapper(func, not iteration_utilities.GE_PY34,
+                           reason='pickle does not work before Python 3.4'
+                                  ' on method descriptors')
+
+
 def iterator_copy(thing):
     """Normal copies are not officially supported but ``itertools.tee`` uses
     ``__copy__`` if implemented it is either forbid both or none. Given that
@@ -40,7 +69,7 @@ def iterator_setstate_empty_fail(thing):
 
 
 # Helper classes for certain fail conditions. Bundled here so the tests don't
-# need to reimplement them.
+# need to re-implement them.
 
 
 def CacheNext(item):

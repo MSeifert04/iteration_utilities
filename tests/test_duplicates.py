@@ -137,8 +137,7 @@ def test_duplicates_copy1():
     _hf.iterator_copy(duplicates(toT([1, 1])))
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_duplicates_pickle1(protocol):
     dpl = duplicates([T(1), T(2), T(1), T(2)])
     assert next(dpl) == T(1)

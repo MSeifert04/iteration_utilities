@@ -145,8 +145,7 @@ def test_roundrobin_failure_setstate8():
             roundrobin([T(1)], [T(1), T(2), T(3), T(4)]))
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_roundrobin_pickle1(protocol):
     rr = roundrobin([T(1), T(2), T(3)], [T(1), T(2), T(3)])
     assert next(rr) == T(1)
@@ -154,8 +153,7 @@ def test_roundrobin_pickle1(protocol):
     assert list(pickle.loads(x)) == toT([1, 2, 2, 3, 3])
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_roundrobin_pickle2(protocol):
     rr2 = roundrobin([T(1)], [T(1), T(2), T(3)])
     assert next(rr2) == T(1)
@@ -165,8 +163,7 @@ def test_roundrobin_pickle2(protocol):
     assert list(pickle.loads(x)) == [T(3)]
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_roundrobin_lengthhint1():
     it = roundrobin([0], [1, 2, 3], [1])
     assert operator.length_hint(it) == 5
@@ -182,8 +179,7 @@ def test_roundrobin_lengthhint1():
     assert operator.length_hint(it) == 0
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_roundrobin_failure_lengthhint1():
     f_it = _hf.FailLengthHint(toT([1, 2, 3]))
     it = roundrobin(f_it)
@@ -194,8 +190,7 @@ def test_roundrobin_failure_lengthhint1():
         list(it)
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_roundrobin_failure_lengthhint2():
     # This only checks for overflow if the length_hint is above PY_SSIZE_T_MAX
     of_it = _hf.OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
@@ -207,8 +202,7 @@ def test_roundrobin_failure_lengthhint2():
         list(it)
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_roundrobin_failure_lengthhint3():
     # Check if by adding the different lengths it could lead to overflow.
     # We use two iterables both with sys.maxsize length.

@@ -195,8 +195,7 @@ def test_grouper_failure_setstate2():
     _hf.iterator_setstate_empty_fail(grouper(toT(range(10)), 3))
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_grouper_pickle1(protocol):
     grp = grouper(toT(range(10)), 3)
     assert next(grp) == (T(0), T(1), T(2))
@@ -205,8 +204,7 @@ def test_grouper_pickle1(protocol):
                                      (T(9), )]
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_grouper_pickle2(protocol):
     grp = grouper(toT(range(10)), 3, fillvalue=T(0))
     assert next(grp) == (T(0), T(1), T(2))
@@ -215,8 +213,7 @@ def test_grouper_pickle2(protocol):
                                      (T(9), T(0), T(0))]
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_grouper_pickle3(protocol):
     grp = grouper(toT(range(10)), 3, truncate=True)
     assert next(grp) == (T(0), T(1), T(2))
@@ -224,8 +221,7 @@ def test_grouper_pickle3(protocol):
     assert list(pickle.loads(x)) == [(T(3), T(4), T(5)), (T(6), T(7), T(8))]
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_grouper_lengthhint1():
     assert operator.length_hint(grouper([1, 2, 3, 4, 5],
                                         2, truncate=True)) == 2
@@ -240,8 +236,7 @@ def test_grouper_lengthhint1():
                                         2, fillvalue=None)) == 3
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_grouper_lengthhint_failure1():
     f_it = _hf.FailLengthHint(toT([1, 2, 3]))
     it = grouper(f_it, 2)
@@ -252,8 +247,7 @@ def test_grouper_lengthhint_failure1():
         list(it)
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_grouper_lengthhint_failure2():
     of_it = _hf.OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
     it = grouper(of_it, 2)
