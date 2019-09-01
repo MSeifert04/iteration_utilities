@@ -209,8 +209,7 @@ def test_sideeffects_failure_setstate9():
             sideeffects([T(1), T(2), T(3), T(4)], return_None, 2))
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_sideeffects_pickle1(protocol):
     suc = sideeffects([T(1), T(2), T(3), T(4)], return_None)
     assert next(suc) == T(1)
@@ -218,24 +217,21 @@ def test_sideeffects_pickle1(protocol):
     assert list(pickle.loads(x)) == [T(2), T(3), T(4)]
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_sideeffects_pickle2(protocol):
     suc = sideeffects([T(1), T(2), T(3), T(4)], return_None)
     x = pickle.dumps(suc, protocol=protocol)
     assert list(pickle.loads(x)) == [T(1), T(2), T(3), T(4)]
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_sideeffects_pickle3(protocol):
     suc = sideeffects([T(1), T(2), T(3), T(4)], return_None, 1)
     x = pickle.dumps(suc, protocol=protocol)
     assert list(pickle.loads(x)) == [T(1), T(2), T(3), T(4)]
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_sideeffects_pickle4(protocol):
     suc = sideeffects([T(1), T(2), T(3), T(4)], return_None, 1)
     assert next(suc) == T(1)
@@ -243,8 +239,7 @@ def test_sideeffects_pickle4(protocol):
     assert list(pickle.loads(x)) == [T(2), T(3), T(4)]
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_sideeffects_pickle5(protocol):
     suc = sideeffects([T(1), T(2), T(3), T(4)], return_None, 2)
     assert next(suc) == T(1)
@@ -252,8 +247,7 @@ def test_sideeffects_pickle5(protocol):
     assert list(pickle.loads(x)) == [T(2), T(3), T(4)]
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_sideeffects_pickle6(protocol):
     suc = sideeffects([T(1), T(2), T(3), T(4)], return_None, 2)
     assert next(suc) == T(1)
@@ -262,8 +256,7 @@ def test_sideeffects_pickle6(protocol):
     assert list(pickle.loads(x)) == [T(3), T(4)]
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_sideeffects_lengthhint1():
     it = sideeffects([1, 2, 3, 4, 5, 6], return_None)
     assert operator.length_hint(it) == 6
@@ -281,8 +274,7 @@ def test_sideeffects_lengthhint1():
     assert operator.length_hint(it) == 0
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_sideeffects_failure_lengthhint1():
     f_it = _hf.FailLengthHint(toT([1, 2, 3]))
     it = sideeffects(f_it, return_None)
@@ -293,8 +285,7 @@ def test_sideeffects_failure_lengthhint1():
         list(it)
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_sideeffects_failure_lengthhint2():
     # This only checks for overflow if the length_hint is above PY_SSIZE_T_MAX
     of_it = _hf.OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)

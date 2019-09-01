@@ -310,8 +310,7 @@ def test_merge_setstate1():
     list(df)
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_merge_pickle1(protocol):
     # normal
     mge = merge([T(0)], [T(1), T(2)], [T(2)])
@@ -320,8 +319,7 @@ def test_merge_pickle1(protocol):
     assert list(pickle.loads(x)) == toT([1, 2, 2])
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_merge_pickle2(protocol):
     # with key
     mge = merge([T(1), T(2)], [T(0)], [T(-2)], key=abs)
@@ -330,8 +328,7 @@ def test_merge_pickle2(protocol):
     assert list(pickle.loads(x)) == toT([1, 2, -2])
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_merge_pickle3(protocol):
     # reverse
     mge = merge([T(2), T(1)], [T(0)], [T(3)], reverse=True)
@@ -340,8 +337,7 @@ def test_merge_pickle3(protocol):
     assert list(pickle.loads(x)) == toT([2, 1, 0])
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_merge_pickle4(protocol):
     # pickle unstarted merge instance
     mge = merge([T(0)], [T(1), T(2)], [T(2)])
@@ -349,8 +345,7 @@ def test_merge_pickle4(protocol):
     assert list(pickle.loads(x)) == toT([0, 1, 2, 2])
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_merge_pickle5(protocol):
     # pickle merge with no exhausted iterable
     mge = merge([T(0), T(1)], [T(1), T(2)])
@@ -359,8 +354,7 @@ def test_merge_pickle5(protocol):
     assert list(pickle.loads(x)) == toT([1, 1, 2])
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_merge_lengthhint1():
     it = merge([0], [1, 2, 3], [1])
     assert operator.length_hint(it) == 5
@@ -376,8 +370,7 @@ def test_merge_lengthhint1():
     assert operator.length_hint(it) == 0
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_merge_lengthhint_failure1():
     f_it = _hf.FailLengthHint(toT([1, 2, 3]))
     it = merge(f_it)
@@ -388,8 +381,7 @@ def test_merge_lengthhint_failure1():
         list(it)
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_merge_lengthhint_failure2():
     # This is the easy way to overflow the length_hint: If the iterable itself
     # has a length_hint > sys.maxsize
@@ -402,8 +394,7 @@ def test_merge_lengthhint_failure2():
         list(it)
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_merge_lengthhint_failure3():
     # Like the test case above but this time we take one item because
     # internally an unstarted "merge" and started "merge" are treated
@@ -418,8 +409,7 @@ def test_merge_lengthhint_failure3():
         list(it)
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_merge_lengthhint_failure4():
     # Overflow could also happen when adding length_hints that individually are
     # below the sys.maxsize
@@ -433,8 +423,7 @@ def test_merge_lengthhint_failure4():
         list(it)
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_merge_lengthhint_failure5():
     # Like the test above but this time with a "started" merge
     of_it = _hf.OverflowLengthHint(toT([1, 2, 3]), sys.maxsize)

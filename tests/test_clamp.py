@@ -120,8 +120,7 @@ def test_clamp_copy1():
     _hf.iterator_copy(clamp([T(20), T(50)], T(10), T(100)))
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_clamp_pickle1(protocol):
     clmp = clamp(toT(range(10)), T(2), T(7))
     assert next(clmp) == T(2)
@@ -129,8 +128,7 @@ def test_clamp_pickle1(protocol):
     assert list(pickle.loads(x)) == toT([3, 4, 5, 6, 7])
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_clamp_pickle2(protocol):
     # inclusive
     clmp = clamp(map(T, range(10)), T(2), T(7), inclusive=True)
@@ -139,8 +137,7 @@ def test_clamp_pickle2(protocol):
     assert list(pickle.loads(x)) == toT([4, 5, 6])
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_clamp_pickle3(protocol):
     # only low
     clmp = clamp(map(T, range(10)), T(2))
@@ -149,8 +146,7 @@ def test_clamp_pickle3(protocol):
     assert list(pickle.loads(x)) == toT([3, 4, 5, 6, 7, 8, 9])
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_clamp_pickle4(protocol):
     # only high
     clmp = clamp(map(T, range(10)), high=T(7))
@@ -159,8 +155,7 @@ def test_clamp_pickle4(protocol):
     assert list(pickle.loads(x)) == toT([1, 2, 3, 4, 5, 6, 7])
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_clamp_pickle5(protocol):
     # only high, with inclusive
     clmp = clamp(map(T, range(10)), high=T(7), inclusive=True)
@@ -169,8 +164,7 @@ def test_clamp_pickle5(protocol):
     assert list(pickle.loads(x)) == toT([1, 2, 3, 4, 5, 6])
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_clamp_pickle6(protocol):
     # only low, with inclusive
     clmp = clamp(map(T, range(10)), T(2), inclusive=True)
@@ -179,8 +173,7 @@ def test_clamp_pickle6(protocol):
     assert list(pickle.loads(x)) == toT([4, 5, 6, 7, 8, 9])
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_clamp_pickle7(protocol):
     # no low no high
     clmp = clamp(map(T, range(10)))
@@ -189,8 +182,7 @@ def test_clamp_pickle7(protocol):
     assert list(pickle.loads(x)) == toT([1, 2, 3, 4, 5, 6, 7, 8, 9])
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_clamp_pickle8(protocol):
     # only high but without remove
     clmp = clamp(map(T, range(10)), high=T(7), remove=False)
@@ -199,8 +191,7 @@ def test_clamp_pickle8(protocol):
     assert list(pickle.loads(x)) == toT([1, 2, 3, 4, 5, 6, 7, 7, 7])
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_clamp_lengthhint1():
     # When remove=False we can determine the length-hint.
     it = clamp(toT(range(5)), low=T(2), high=T(5), remove=False)
@@ -217,8 +208,7 @@ def test_clamp_lengthhint1():
     assert operator.length_hint(it) == 0
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_clamp_lengthhint2():
     # When low and high are not given we can determine the length-hint
     it = clamp(toT(range(5)))
@@ -235,16 +225,14 @@ def test_clamp_lengthhint2():
     assert operator.length_hint(it) == 0
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_clamp_lengthhint3():
     # Only works if "remove=False", otherwise the length-hint simply returns 0.
     it = clamp(toT(range(5)), low=T(2), high=T(5), remove=True)
     assert operator.length_hint(it) == 0
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_clamp_lengthhint_failure1():
     f_it = _hf.FailLengthHint(toT([1, 2, 3]))
     it = clamp(f_it)
@@ -255,8 +243,7 @@ def test_clamp_lengthhint_failure1():
         list(it)
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_clamp_lengthhint_failure2():
     of_it = _hf.OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
     it = clamp(of_it)

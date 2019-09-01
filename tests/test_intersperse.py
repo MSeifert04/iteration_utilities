@@ -73,16 +73,14 @@ def test_intersperse_failure_setstate3():
     _hf.iterator_setstate_empty_fail(intersperse(toT([1, 1]), None))
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_intersperse_pickle1(protocol):
     its = intersperse(toT([1, 2, 3]), T(0))
     x = pickle.dumps(its, protocol=protocol)
     assert list(pickle.loads(x)) == toT([1, 0, 2, 0, 3])
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_intersperse_pickle2(protocol):
     its = intersperse(toT([1, 2, 3]), T(0))
     assert next(its) == T(1)
@@ -90,8 +88,7 @@ def test_intersperse_pickle2(protocol):
     assert list(pickle.loads(x)) == toT([0, 2, 0, 3])
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_intersperse_pickle3(protocol):
     its = intersperse([T(1), T(2), T(3)], T(0))
     assert next(its) == T(1)
@@ -100,8 +97,7 @@ def test_intersperse_pickle3(protocol):
     assert list(pickle.loads(x)) == toT([2, 0, 3])
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2,
-                   reason='pickle does not work on Python 2')
+@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_intersperse_pickle4(protocol):
     its = intersperse([T(1), T(2), T(3)], T(0))
     assert next(its) == T(1)
@@ -111,8 +107,7 @@ def test_intersperse_pickle4(protocol):
     assert list(pickle.loads(x)) == toT([0, 3])
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_intersperse_lengthhint1():
     it = intersperse([1, 2, 3], 2)
     assert operator.length_hint(it) == 5
@@ -128,8 +123,7 @@ def test_intersperse_lengthhint1():
     assert operator.length_hint(it) == 0
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_intersperse_lengthhint_failure1():
     f_it = _hf.FailLengthHint(toT([1, 2, 3]))
     it = intersperse(f_it, 2)
@@ -140,8 +134,7 @@ def test_intersperse_lengthhint_failure1():
         list(it)
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_intersperse_lengthhint_failure2():
     # This is the easy way to overflow the length_hint: If the iterable itself
     # has a length_hint > sys.maxsize
@@ -154,8 +147,7 @@ def test_intersperse_lengthhint_failure2():
         list(it)
 
 
-@pytest.mark.xfail(not iteration_utilities.GE_PY34,
-                   reason='length does not work before Python 3.4')
+@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_intersperse_lengthhint_failure3():
     # The length_hint method multiplies the length_hint of the iterable with
     # 2 (and adds/subtracts 1) so it's actually possible to have overflow even
