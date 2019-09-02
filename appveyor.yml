@@ -16,7 +16,7 @@ install:
   # Install pytest before running the tests because that caused a problem
   # in #219 on Python 3.5 where pytest wasn't properly installed.
   # Probably can be removed at some point in the future...
-  - "%PYTHON%\\Scripts\\pip.exe install pytest"
+  - "%PYTHON%\\python.exe -m pip install pytest"
 
 build: off
 
@@ -24,4 +24,4 @@ test_script:
   # Note that you must use the environment variable %PYTHON% to refer to
   # the interpreter you're using - Appveyor does not do anything special
   # to put the Python version you want to use on PATH.
-  - "%PYTHON%\\python.exe setup.py test"
+  - "%PYTHON%\\python.exe -m pytest tests"

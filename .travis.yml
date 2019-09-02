@@ -35,14 +35,14 @@ matrix:
   allow_failures:
 
 before_install:
-  - pip install coveralls
+  - python -m pip install coveralls
 
 install:
   - python setup.py install
 
 # command to run tests
 script:
-  - coverage run --source=iteration_utilities setup.py test
+  - python -m pytest tests
 
 after_success:
   - coveralls

@@ -3,8 +3,6 @@ from setuptools import setup, Extension, find_packages
 from glob import glob
 from os import path
 
-import sys
-
 project_name = "iteration_utilities"
 
 
@@ -24,9 +22,6 @@ cfuncs_module = Extension('_iteration_utilities',
                           sources=[path.join('src', '_module.c')],
                           depends=glob(path.join('src', '*.c'))
                           )
-
-needs_pytest = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
-pytest_runner = ['pytest-runner'] if needs_pytest else []
 
 setup(name=project_name,
       version=version(),
@@ -60,17 +55,7 @@ setup(name=project_name,
       author='Michael Seifert',
       author_email='michaelseifert04@yahoo.de',
 
-      packages=find_packages(exclude=['ez_setup']),
-
-      install_requires=[
-          ],
-
-      setup_requires=[
-          ] + pytest_runner,
-
-      tests_require=[
-          'pytest',
-          ],
+      packages=find_packages(),
 
       ext_modules=[cfuncs_module],
 
