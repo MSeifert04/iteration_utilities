@@ -514,8 +514,7 @@ done:
  *****************************************************************************/
 
 static PyObject *
-partial_reduce(PyIUObject_Partial *self,
-               PyObject *Py_UNUSED(args))
+partial_reduce(PyIUObject_Partial *self, PyObject *Py_UNUSED(args))
 {
     return Py_BuildValue("O(O)(OOOO)", Py_TYPE(self), self->fn, self->fn,
                          self->args, self->kw,

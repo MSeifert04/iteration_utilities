@@ -131,8 +131,7 @@ packed_repr(PyIUObject_Packed *self)
  *****************************************************************************/
 
 static PyObject *
-packed_reduce(PyIUObject_Packed *self,
-              PyObject *Py_UNUSED(args))
+packed_reduce(PyIUObject_Packed *self, PyObject *Py_UNUSED(args))
 {
     return Py_BuildValue("O(O)", Py_TYPE(self), self->func);
 }
