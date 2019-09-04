@@ -9,7 +9,7 @@
  *****************************************************************************/
 
 static PyObject *
-PyIU_TupleToList_and_InsertItemAtIndex(PyObject *m,
+PyIU_TupleToList_and_InsertItemAtIndex(PyObject *Py_UNUSED(m),
                                        PyObject *args)
 {
     PyObject *tup;
@@ -53,7 +53,7 @@ PyIU_TupleToList_and_InsertItemAtIndex(PyObject *m,
 
 
 static PyObject *
-PyIU_RemoveFromDictWhereValueIs(PyObject *m,
+PyIU_RemoveFromDictWhereValueIs(PyObject *Py_UNUSED(m),
                                 PyObject *args)
 {
     PyObject *dct;

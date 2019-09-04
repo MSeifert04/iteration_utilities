@@ -135,7 +135,7 @@ flip_repr(PyIUObject_Flip *self)
 
 static PyObject *
 flip_reduce(PyIUObject_Flip *self,
-            PyObject *unused)
+            PyObject *Py_UNUSED(args))
 {
     return Py_BuildValue("O(O)", Py_TYPE(self),
                          self->func);

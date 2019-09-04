@@ -122,7 +122,7 @@ iterexcept_next(PyIUObject_Iterexcept *self)
  *****************************************************************************/
 
 static PyObject *
-iterexcept_reduce(PyIUObject_Iterexcept *self)
+iterexcept_reduce(PyIUObject_Iterexcept *self, PyObject *Py_UNUSED(args))
 {
     return Py_BuildValue("O(OOO)", Py_TYPE(self),
                          self->func,

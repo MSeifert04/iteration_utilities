@@ -283,7 +283,7 @@ nth_repr(PyIUObject_Nth *self)
 
 static PyObject *
 nth_reduce(PyIUObject_Nth *self,
-           PyObject *unused)
+           PyObject *Py_UNUSED(args))
 {
     return Py_BuildValue("O(n)", Py_TYPE(self),
                          self->index);

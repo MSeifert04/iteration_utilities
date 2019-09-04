@@ -133,6 +133,7 @@ Fail:
 static void
 seen_dealloc(PyIUObject_Seen *self)
 {
+    PyObject_GC_UnTrack(self);
     Py_XDECREF(self->seenset);
     Py_XDECREF(self->seenlist);
     Py_TYPE(self)->tp_free((PyObject*)self);
@@ -253,7 +254,7 @@ seen_richcompare(PyObject *v,
  *****************************************************************************/
 
 static PyObject *
-seen_reduce(PyIUObject_Seen *self)
+seen_reduce(PyIUObject_Seen *self, PyObject *Py_UNUSED(args))
 {
     return Py_BuildValue("O(OO)", Py_TYPE(self),
                          self->seenset,

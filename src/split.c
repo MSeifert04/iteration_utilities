@@ -250,7 +250,7 @@ Fail:
  *****************************************************************************/
 
 static PyObject *
-split_reduce(PyIUObject_Split *self)
+split_reduce(PyIUObject_Split *self, PyObject *Py_UNUSED(args))
 {
     /* Seperate cases depending on next == NULL because otherwise "None"
        would be ambiguous. It could mean that we did not had a next item or

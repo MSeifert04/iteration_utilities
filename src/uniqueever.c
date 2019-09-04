@@ -183,7 +183,7 @@ Fail:
  *****************************************************************************/
 
 static PyObject *
-uniqueever_reduce(PyIUObject_UniqueEver *self)
+uniqueever_reduce(PyIUObject_UniqueEver *self, PyObject *Py_UNUSED(args))
 {
     return Py_BuildValue("O(OO)(O)", Py_TYPE(self),
                          self->iterator,

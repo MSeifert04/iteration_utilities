@@ -226,7 +226,7 @@ grouper_next(PyIUObject_Grouper *self)
  *****************************************************************************/
 
 static PyObject *
-grouper_reduce(PyIUObject_Grouper *self)
+grouper_reduce(PyIUObject_Grouper *self, PyObject *Py_UNUSED(args))
 {
     /* Seperate cases depending on fillvalue == NULL because otherwise "None"
        would be ambiguous. It could mean that we did not had a fillvalue or
@@ -284,7 +284,7 @@ grouper_setstate(PyIUObject_Grouper *self,
 
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
 static PyObject *
-grouper_lengthhint(PyIUObject_Grouper *self)
+grouper_lengthhint(PyIUObject_Grouper *self, PyObject *Py_UNUSED(args))
 {
     Py_ssize_t groups, rem;
     Py_ssize_t len = PyObject_LengthHint(self->iterator, 0);

@@ -132,6 +132,7 @@ PyIU_ItemIdxKey_Copy(PyObject *iik)
 static void
 itemidxkey_dealloc(PyIUObject_ItemIdxKey *self)
 {
+    PyObject_GC_UnTrack(self);
     Py_XDECREF(self->item);
     Py_XDECREF(self->key);
     Py_TYPE(self)->tp_free((PyObject*)self);
@@ -342,7 +343,7 @@ itemidxkey_richcompare(PyObject *v,
 
 static PyObject *
 itemidxkey_getitem(PyIUObject_ItemIdxKey *self,
-                   void *closure)
+                   void *Py_UNUSED(closure))
 {
     Py_INCREF(self->item);
     return self->item;
@@ -351,7 +352,7 @@ itemidxkey_getitem(PyIUObject_ItemIdxKey *self,
 static int
 itemidxkey_setitem(PyIUObject_ItemIdxKey *self,
                    PyObject *o,
-                   void *closure)
+                   void *Py_UNUSED(closure))
 {
     if (o == NULL) {
         PyErr_SetString(PyExc_TypeError,
@@ -374,7 +375,7 @@ itemidxkey_setitem(PyIUObject_ItemIdxKey *self,
 
 static PyObject *
 itemidxkey_getidx(PyIUObject_ItemIdxKey *self,
-                  void *closure)
+                  void *Py_UNUSED(closure))
 {
     #if PY_MAJOR_VERSION == 2
         return PyInt_FromSsize_t(self->idx);
@@ -386,7 +387,7 @@ itemidxkey_getidx(PyIUObject_ItemIdxKey *self,
 static int
 itemidxkey_setidx(PyIUObject_ItemIdxKey *self,
                   PyObject *o,
-                  void *closure)
+                  void *Py_UNUSED(closure))
 {
     Py_ssize_t idx;
     if (o == NULL) {
@@ -422,7 +423,7 @@ itemidxkey_setidx(PyIUObject_ItemIdxKey *self,
 
 static PyObject *
 itemidxkey_getkey(PyIUObject_ItemIdxKey *self,
-                  void *closure)
+                  void *Py_UNUSED(closure))
 {
     if (self->key == NULL) {
         PyErr_SetString(PyExc_AttributeError,
@@ -437,7 +438,7 @@ itemidxkey_getkey(PyIUObject_ItemIdxKey *self,
 static int
 itemidxkey_setkey(PyIUObject_ItemIdxKey *self,
                   PyObject *o,
-                  void *closure)
+                  void *Py_UNUSED(closure))
 {
     if (o != NULL && PyIU_ItemIdxKey_Check(o)) {
         PyErr_SetString(PyExc_TypeError,
@@ -462,7 +463,7 @@ itemidxkey_setkey(PyIUObject_ItemIdxKey *self,
  *****************************************************************************/
 
 static PyObject *
-itemidxkey_reduce(PyIUObject_ItemIdxKey *self)
+itemidxkey_reduce(PyIUObject_ItemIdxKey *self, PyObject *Py_UNUSED(args))
 {
     if (self->key == NULL) {
         return Py_BuildValue("O(On)", Py_TYPE(self),

@@ -3,7 +3,7 @@
  *****************************************************************************/
 
 static PyObject *
-PyIU_Groupby(PyObject *m,
+PyIU_Groupby(PyObject *Py_UNUSED(m),
              PyObject *args,
              PyObject *kwargs)
 {

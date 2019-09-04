@@ -173,7 +173,7 @@ successive_next(PyIUObject_Successive *self)
  *****************************************************************************/
 
 static PyObject *
-successive_reduce(PyIUObject_Successive *self)
+successive_reduce(PyIUObject_Successive *self, PyObject *Py_UNUSED(args))
 {
     /* Seperate cases depending on the status of "result". We use and modify
        it in next. It is copied in next when the refcount isn't 1, so we
@@ -255,7 +255,7 @@ successive_setstate(PyIUObject_Successive *self,
 
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
 static PyObject *
-successive_lengthhint(PyIUObject_Successive *self)
+successive_lengthhint(PyIUObject_Successive *self, PyObject *Py_UNUSED(args))
 {
     Py_ssize_t len = PyObject_LengthHint(self->iterator, 0);
     if (len == -1) {

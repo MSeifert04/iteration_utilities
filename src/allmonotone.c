@@ -3,7 +3,7 @@
  *****************************************************************************/
 
 static PyObject *
-PyIU_Monotone(PyObject *m,
+PyIU_Monotone(PyObject *Py_UNUSED(m),
               PyObject *args,
               PyObject *kwargs)
 {

@@ -136,7 +136,7 @@ starfilter_next(PyIUObject_Starfilter *self)
  *****************************************************************************/
 
 static PyObject *
-starfilter_reduce(PyIUObject_Starfilter *self)
+starfilter_reduce(PyIUObject_Starfilter *self, PyObject *Py_UNUSED(args))
 {
     return Py_BuildValue("O(OO)", Py_TYPE(self), self->func, self->iterator);
 }

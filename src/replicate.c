@@ -143,7 +143,7 @@ replicate_next(PyIUObject_Replicate *self)
  *****************************************************************************/
 
 static PyObject *
-replicate_reduce(PyIUObject_Replicate *self)
+replicate_reduce(PyIUObject_Replicate *self, PyObject *Py_UNUSED(args))
 {
     /* Seperate cases depending on current == NULL because otherwise "None"
        would be ambiguous. It could mean that we did not had a current item or
@@ -210,7 +210,7 @@ replicate_setstate(PyIUObject_Replicate *self,
 
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
 static PyObject *
-replicate_lengthhint(PyIUObject_Replicate *self)
+replicate_lengthhint(PyIUObject_Replicate *self, PyObject *Py_UNUSED(args))
 {
     Py_ssize_t len = PyObject_LengthHint(self->iterator, 0);
     if (len == -1) {

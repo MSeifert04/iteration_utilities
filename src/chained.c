@@ -312,7 +312,7 @@ done:
 
 static PyObject *
 chained_reduce(PyIUObject_Chained *self,
-               PyObject *unused)
+               PyObject *Py_UNUSED(args))
 {
     return Py_BuildValue("OO(i)", Py_TYPE(self),
                          self->funcs,

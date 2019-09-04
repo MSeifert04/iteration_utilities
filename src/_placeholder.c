@@ -39,7 +39,7 @@ placeholder_repr(PyObject *self)
 
 #if PY_MAJOR_VERSION == 3
 static PyObject *
-placeholder_reduce(PyObject *self)
+placeholder_reduce(PyObject *self, PyObject *Py_UNUSED(args))
 {
     return PyUnicode_FromString("iteration_utilities.Placeholder");
 }

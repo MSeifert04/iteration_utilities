@@ -131,7 +131,7 @@ complement_repr(PyIUObject_Complement *self)
 
 static PyObject *
 complement_reduce(PyIUObject_Complement *self,
-                  PyObject *unused)
+                  PyObject *Py_UNUSED(args))
 {
     return Py_BuildValue("O(O)", Py_TYPE(self), self->func);
 }

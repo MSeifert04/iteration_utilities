@@ -3,7 +3,7 @@
  *****************************************************************************/
 
 static PyObject *
-PyIU_MinMax(PyObject *m,
+PyIU_MinMax(PyObject *Py_UNUSED(m),
             PyObject *args,
             PyObject *kwargs)
 {

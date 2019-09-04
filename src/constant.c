@@ -115,7 +115,7 @@ constant_repr(PyIUObject_Constant *self)
 
 static PyObject *
 constant_reduce(PyIUObject_Constant *self,
-                PyObject *unused)
+                PyObject *Py_UNUSED(args))
 {
     return Py_BuildValue("O(O)", Py_TYPE(self), self->item);
 }

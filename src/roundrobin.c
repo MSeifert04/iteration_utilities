@@ -143,7 +143,7 @@ roundrobin_next(PyIUObject_Roundrobin *self)
  *****************************************************************************/
 
 static PyObject *
-roundrobin_reduce(PyIUObject_Roundrobin *self)
+roundrobin_reduce(PyIUObject_Roundrobin *self, PyObject *Py_UNUSED(args))
 {
     PyObject *ittuple, *res;
 
@@ -261,7 +261,7 @@ roundrobin_setstate(PyIUObject_Roundrobin *self,
 
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
 static PyObject *
-roundrobin_lengthhint(PyIUObject_Roundrobin *self)
+roundrobin_lengthhint(PyIUObject_Roundrobin *self, PyObject *Py_UNUSED(args))
 {
     Py_ssize_t i;
     size_t len = 0;
