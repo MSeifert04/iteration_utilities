@@ -596,7 +596,7 @@ partial_setstate(PyIUObject_Partial *self,
 
 static PyObject *
 partial_sizeof(PyIUObject_Partial *self,
-               void *Py_UNUSED(unused))
+               PyObject *Py_UNUSED(args))
 {
     Py_ssize_t res;
     res = sizeof(PyIUObject_Partial);
