@@ -19,6 +19,8 @@
 #if PY_MAJOR_VERSION == 2
 #define Py_RETURN_NOTIMPLEMENTED \
     return PyErr_SetString(PyExc_TypeError, "not implemented."), NULL
+
+#define Py_UNUSED(name) _unused_ ## name
 #endif
 
 /******************************************************************************
