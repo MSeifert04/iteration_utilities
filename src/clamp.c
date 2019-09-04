@@ -161,7 +161,7 @@ clamp_next(PyIUObject_Clamp *self)
  *****************************************************************************/
 
 static PyObject *
-clamp_reduce(PyIUObject_Clamp *self)
+clamp_reduce(PyIUObject_Clamp *self, PyObject *Py_UNUSED(args))
 {
     return Py_BuildValue("O(OOOii)", Py_TYPE(self),
                          self->iterator,
@@ -177,7 +177,7 @@ clamp_reduce(PyIUObject_Clamp *self)
 
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
 static PyObject *
-clamp_lengthhint(PyIUObject_Clamp *self)
+clamp_lengthhint(PyIUObject_Clamp *self, PyObject *Py_UNUSED(args))
 {
     Py_ssize_t len = 0;
     /* If we don't remove outliers or there are no bounds at all we can

@@ -138,7 +138,7 @@ Fail:
  *****************************************************************************/
 
 static PyObject *
-PyIU_Argmin(PyObject *m,
+PyIU_Argmin(PyObject *Py_UNUSED(m),
             PyObject *args,
             PyObject *kwargs)
 {
@@ -150,7 +150,7 @@ PyIU_Argmin(PyObject *m,
  *****************************************************************************/
 
 static PyObject *
-PyIU_Argmax(PyObject *m,
+PyIU_Argmax(PyObject *Py_UNUSED(m),
             PyObject *args,
             PyObject *kwargs)
 {

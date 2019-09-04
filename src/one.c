@@ -3,7 +3,7 @@
  *****************************************************************************/
 
 static PyObject *
-PyIU_One(PyObject *m,
+PyIU_One(PyObject *Py_UNUSED(m),
          PyObject *iterable)
 {
     PyObject *iterator, *item1, *item2;

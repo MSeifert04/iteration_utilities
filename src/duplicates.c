@@ -183,7 +183,7 @@ Fail:
  *****************************************************************************/
 
 static PyObject *
-duplicates_reduce(PyIUObject_Duplicates *self)
+duplicates_reduce(PyIUObject_Duplicates *self, PyObject *Py_UNUSED(args))
 {
     PyObject *value;
     value = Py_BuildValue("O(OO)(O)", Py_TYPE(self),

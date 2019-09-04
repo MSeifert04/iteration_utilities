@@ -227,7 +227,7 @@ Fail:
  *****************************************************************************/
 
 static PyObject *
-sideeffects_reduce(PyIUObject_Sideeffects *self)
+sideeffects_reduce(PyIUObject_Sideeffects *self, PyObject *Py_UNUSED(args))
 {
     PyObject *collected;
     PyObject *res;
@@ -403,7 +403,7 @@ sideeffects_setstate(PyIUObject_Sideeffects *self,
 
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
 static PyObject *
-sideeffects_lengthhint(PyIUObject_Sideeffects *self)
+sideeffects_lengthhint(PyIUObject_Sideeffects *self, PyObject *Py_UNUSED(args))
 {
     Py_ssize_t len = PyObject_LengthHint(self->iterator, 0);
     if (len == -1) {

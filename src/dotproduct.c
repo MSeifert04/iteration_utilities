@@ -3,7 +3,7 @@
  *****************************************************************************/
 
 static PyObject *
-PyIU_DotProduct(PyObject *m, PyObject *args)
+PyIU_DotProduct(PyObject *Py_UNUSED(m), PyObject *args)
 {
     PyObject *vec1=NULL, *vec2=NULL;
     PyObject *iterator1=NULL, *iterator2=NULL;

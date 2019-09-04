@@ -11,7 +11,7 @@
  *****************************************************************************/
 
 static PyObject *
-PyIU_IsNone(PyObject *m,
+PyIU_IsNone(PyObject *Py_UNUSED(m),
             PyObject *o)
 {
     if (o == Py_None) {
@@ -30,7 +30,7 @@ PyIU_IsNone(PyObject *m,
  *****************************************************************************/
 
 static PyObject *
-PyIU_IsNotNone(PyObject *m,
+PyIU_IsNotNone(PyObject *Py_UNUSED(m),
                PyObject *o)
 {
     if (o != Py_None) {
@@ -49,7 +49,7 @@ PyIU_IsNotNone(PyObject *m,
  *****************************************************************************/
 
 static PyObject *
-PyIU_IsEven(PyObject *m,
+PyIU_IsEven(PyObject *Py_UNUSED(m),
             PyObject *o)
 {
     PyObject *remainder;
@@ -81,7 +81,7 @@ PyIU_IsEven(PyObject *m,
  *****************************************************************************/
 
 static PyObject *
-PyIU_IsOdd(PyObject *m,
+PyIU_IsOdd(PyObject *Py_UNUSED(m),
            PyObject *o)
 {
     PyObject *remainder;
@@ -118,7 +118,7 @@ PyIU_IsOdd(PyObject *m,
  *****************************************************************************/
 
 static PyObject *
-PyIU_IsIterable(PyObject *m,
+PyIU_IsIterable(PyObject *Py_UNUSED(m),
                 PyObject *o)
 {
     PyObject *it = PyObject_GetIter(o);

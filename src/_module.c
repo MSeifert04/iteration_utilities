@@ -4,11 +4,11 @@
 
 #include <Python.h>
 #include <structmember.h>
+#include "_helper.c"
 
 #include "_globaldocs.c"
 
 #include "_exported_helper.c"
-#include "_helper.c"
 #include "_seen.c"
 #include "_itemidxkey.c"
 #include "_isx.c"

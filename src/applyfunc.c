@@ -125,7 +125,7 @@ applyfunc_next(PyIUObject_Applyfunc *self)
  *****************************************************************************/
 
 static PyObject *
-applyfunc_reduce(PyIUObject_Applyfunc *self)
+applyfunc_reduce(PyIUObject_Applyfunc *self, PyObject *Py_UNUSED(args))
 {
     return Py_BuildValue("O(OO)",
                          Py_TYPE(self),

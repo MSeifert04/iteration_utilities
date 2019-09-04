@@ -3,7 +3,7 @@
  *****************************************************************************/
 
 static PyObject *
-PyIU_Partition(PyObject *m,
+PyIU_Partition(PyObject *Py_UNUSED(m),
                PyObject *args,
                PyObject *kwargs)
 {

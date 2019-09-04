@@ -11,21 +11,21 @@
  *****************************************************************************/
 
 static PyObject *
-PyIU_MathSquare(PyObject *m,
+PyIU_MathSquare(PyObject *Py_UNUSED(m),
                 PyObject *o)
 {
     return PyNumber_Power(o, PyIU_global_two, Py_None);
 }
 
 static PyObject *
-PyIU_MathDouble(PyObject *m,
+PyIU_MathDouble(PyObject *Py_UNUSED(m),
                 PyObject *o)
 {
     return PyNumber_Multiply(o, PyIU_global_two);
 }
 
 static PyObject *
-PyIU_MathReciprocal(PyObject *m,
+PyIU_MathReciprocal(PyObject *Py_UNUSED(m),
                     PyObject *o)
 {
     return PyNumber_TrueDivide(PyIU_global_one, o);
@@ -44,7 +44,7 @@ PyIU_MathReciprocal(PyObject *m,
  *****************************************************************************/
 
 static PyObject *
-PyIU_MathRadd(PyObject *m,
+PyIU_MathRadd(PyObject *Py_UNUSED(m),
               PyObject *args)
 {
     PyObject *op1, *op2;
@@ -56,7 +56,7 @@ PyIU_MathRadd(PyObject *m,
 }
 
 static PyObject *
-PyIU_MathRsub(PyObject *m,
+PyIU_MathRsub(PyObject *Py_UNUSED(m),
               PyObject *args)
 {
     PyObject *op1, *op2;
@@ -68,7 +68,7 @@ PyIU_MathRsub(PyObject *m,
 }
 
 static PyObject *
-PyIU_MathRmul(PyObject *m,
+PyIU_MathRmul(PyObject *Py_UNUSED(m),
               PyObject *args)
 {
     PyObject *op1, *op2;
@@ -80,7 +80,7 @@ PyIU_MathRmul(PyObject *m,
 }
 
 static PyObject *
-PyIU_MathRdiv(PyObject *m,
+PyIU_MathRdiv(PyObject *Py_UNUSED(m),
               PyObject *args)
 {
     PyObject *op1, *op2;
@@ -92,7 +92,7 @@ PyIU_MathRdiv(PyObject *m,
 }
 
 static PyObject *
-PyIU_MathRfdiv(PyObject *m,
+PyIU_MathRfdiv(PyObject *Py_UNUSED(m),
                PyObject *args)
 {
     PyObject *op1, *op2;
@@ -104,7 +104,7 @@ PyIU_MathRfdiv(PyObject *m,
 }
 
 static PyObject *
-PyIU_MathRpow(PyObject *m,
+PyIU_MathRpow(PyObject *Py_UNUSED(m),
               PyObject *args)
 {
     PyObject *op1, *op2;
@@ -116,7 +116,7 @@ PyIU_MathRpow(PyObject *m,
 }
 
 static PyObject *
-PyIU_MathRmod(PyObject *m,
+PyIU_MathRmod(PyObject *Py_UNUSED(m),
               PyObject *args)
 {
     PyObject *op1, *op2;

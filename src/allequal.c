@@ -3,7 +3,7 @@
  *****************************************************************************/
 
 static PyObject *
-PyIU_AllEqual(PyObject *m,
+PyIU_AllEqual(PyObject *Py_UNUSED(m),
               PyObject *iterable)
 {
     PyObject *iterator, *item, *first=NULL;

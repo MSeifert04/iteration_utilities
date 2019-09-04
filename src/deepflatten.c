@@ -287,7 +287,7 @@ deepflatten_next(PyIUObject_DeepFlatten *self)
  *****************************************************************************/
 
 static PyObject *
-deepflatten_reduce(PyIUObject_DeepFlatten *self)
+deepflatten_reduce(PyIUObject_DeepFlatten *self, PyObject *Py_UNUSED(args))
 {
     PyObject *res;
     /* We need to copy the iteratorlist in case someone grabs it. This could

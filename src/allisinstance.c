@@ -3,7 +3,7 @@
  *****************************************************************************/
 
 static PyObject *
-PyIU_AllIsinstance(PyObject *m,
+PyIU_AllIsinstance(PyObject *Py_UNUSED(m),
                    PyObject *args,
                    PyObject *kwargs)
 {

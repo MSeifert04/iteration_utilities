@@ -9,7 +9,7 @@
  *****************************************************************************/
 
 static PyObject *
-PyIU_ReturnIdentity(PyObject *m,
+PyIU_ReturnIdentity(PyObject *Py_UNUSED(m),
                     PyObject *o)
 {
     Py_INCREF(o);
@@ -17,16 +17,16 @@ PyIU_ReturnIdentity(PyObject *m,
 }
 
 static PyObject *
-PyIU_ReturnCalled(PyObject *m,
+PyIU_ReturnCalled(PyObject *Py_UNUSED(m),
                   PyObject *o)
 {
     return PyObject_CallFunctionObjArgs(o, NULL);
 }
 
 static PyObject *
-PyIU_ReturnFirstArg(PyObject *m,
+PyIU_ReturnFirstArg(PyObject *Py_UNUSED(m),
                     PyObject *args,
-                    PyObject *kwargs)
+                    PyObject *Py_UNUSED(kwargs))
 {
     PyObject *first;
 

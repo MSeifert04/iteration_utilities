@@ -172,7 +172,7 @@ Fail:
  *****************************************************************************/
 
 static PyObject *
-uniquejust_reduce(PyIUObject_UniqueJust *self)
+uniquejust_reduce(PyIUObject_UniqueJust *self, PyObject *Py_UNUSED(args))
 {
     /* Seperate cases depending on lastitem == NULL because otherwise "None"
        would be ambiguous. It could mean that we did not had a last item or

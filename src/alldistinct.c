@@ -3,7 +3,7 @@
  *****************************************************************************/
 
 static PyObject *
-PyIU_AllDistinct(PyObject *m,
+PyIU_AllDistinct(PyObject *Py_UNUSED(m),
                  PyObject *iterable)
 {
     PyObject *iterator=NULL, *item=NULL, *seen=NULL;

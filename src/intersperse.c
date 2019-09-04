@@ -131,7 +131,7 @@ intersperse_next(PyIUObject_Intersperse *self)
  *****************************************************************************/
 
 static PyObject *
-intersperse_reduce(PyIUObject_Intersperse *self)
+intersperse_reduce(PyIUObject_Intersperse *self, PyObject *Py_UNUSED(args))
 {
     /* Seperate cases depending on nextitem == NULL because otherwise "None"
        would be ambiguous. It could mean that we did not had a next item or
@@ -210,7 +210,7 @@ intersperse_setstate(PyIUObject_Intersperse *self,
 
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
 static PyObject *
-intersperse_lengthhint(PyIUObject_Intersperse *self)
+intersperse_lengthhint(PyIUObject_Intersperse *self, PyObject *Py_UNUSED(args))
 {
     Py_ssize_t len = PyObject_LengthHint(self->iterator, 0);
     if (len == -1) {

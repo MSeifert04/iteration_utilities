@@ -140,7 +140,7 @@ Fail:
  *****************************************************************************/
 
 static PyObject *
-tabulate_reduce(PyIUObject_Tabulate *self)
+tabulate_reduce(PyIUObject_Tabulate *self, PyObject *Py_UNUSED(args))
 {
     return Py_BuildValue("O(OO)",
                          Py_TYPE(self),

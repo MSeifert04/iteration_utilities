@@ -3,7 +3,7 @@
  *****************************************************************************/
 
 static PyObject *
-PyIU_Count(PyObject *m,
+PyIU_Count(PyObject *Py_UNUSED(m),
            PyObject *args,
            PyObject *kwargs)
 {

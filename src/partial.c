@@ -400,7 +400,7 @@ Fail:
  *****************************************************************************/
 
 static PyObject *
-partial_get_dict(PyIUObject_Partial *self)
+partial_get_dict(PyIUObject_Partial *self, void *Py_UNUSED(closure))
 {
     if (self->dict == NULL) {
         self->dict = PyDict_New();
@@ -414,7 +414,8 @@ partial_get_dict(PyIUObject_Partial *self)
 
 static int
 partial_set_dict(PyIUObject_Partial *self,
-                 PyObject *value)
+                 PyObject *value,
+                 void *Py_UNUSED(closure))
 {
     PyObject *tmp;
 
@@ -513,8 +514,7 @@ done:
  *****************************************************************************/
 
 static PyObject *
-partial_reduce(PyIUObject_Partial *self,
-               PyObject *unused)
+partial_reduce(PyIUObject_Partial *self, PyObject *Py_UNUSED(args))
 {
     return Py_BuildValue("O(O)(OOOO)", Py_TYPE(self), self->fn, self->fn,
                          self->args, self->kw,
@@ -596,7 +596,7 @@ partial_setstate(PyIUObject_Partial *self,
 
 static PyObject *
 partial_sizeof(PyIUObject_Partial *self,
-               void *unused)
+               PyObject *Py_UNUSED(args))
 {
     Py_ssize_t res;
     res = sizeof(PyIUObject_Partial);

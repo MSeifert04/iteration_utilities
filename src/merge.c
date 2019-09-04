@@ -380,7 +380,7 @@ merge_next(PyIUObject_Merge *self)
  *****************************************************************************/
 
 static PyObject *
-merge_reduce(PyIUObject_Merge *self)
+merge_reduce(PyIUObject_Merge *self, PyObject *Py_UNUSED(args))
 {
     PyObject *res;
     PyObject *current;
@@ -636,7 +636,7 @@ merge_setstate(PyIUObject_Merge *self,
 
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
 static PyObject *
-merge_lengthhint(PyIUObject_Merge *self)
+merge_lengthhint(PyIUObject_Merge *self, PyObject *Py_UNUSED(args))
 {
     Py_ssize_t i;
     size_t len = 0;
