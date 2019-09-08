@@ -1,0 +1,365 @@
+name: Python package
+
+on: pull_request
+
+jobs:
+
+  build-clang:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      max-parallel: 6
+      matrix:
+        os: [macOS-10.14]
+        python-version: [2.7, 3.7]
+
+    steps:
+    - name: Check out source
+      uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install pip --upgrade
+        python -m pip install setuptools wheel --upgrade
+    - name: Install package
+      run: |
+        CC=clang python -m pip install . --no-deps -vv
+    - name: Import package
+      run: |
+        python -c "import iteration_utilities"
+    - name: Install test dependencies
+      run: |
+        python -m pip install pytest
+    - name: Run tests
+      run: |
+        cd tests
+        python -m pytest .
+
+
+  build-manylinux:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        docker-image: [manylinux1_x86_64, manylinux1_i686, manylinux2010_x86_64]
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+      - name: Get Docker image
+        run: |
+          docker pull quay.io/pypa/${{ matrix.docker-image }}
+      - name: Build in Docker
+        run: |
+          docker run --rm \
+          -e PLAT=${{ matrix.docker-image }} \
+          -v $(pwd):/io \
+          quay.io/pypa/${{ matrix.docker-image }} \
+          /bin/bash -c "$(cat ./ci/build-wheels.sh)"
+        if: matrix.docker-image != 'manylinux1_i686'
+      - name: Build in Docker
+        run: |
+          docker run --rm \
+          -e PLAT=${{ matrix.docker-image }} \
+          -v $(pwd):/io \
+          quay.io/pypa/${{ matrix.docker-image }} \
+          linux32 /bin/bash -c "$(cat ./ci/build-wheels.sh)"
+        if: matrix.docker-image == 'manylinux1_i686'
+      - name: Upload wheels
+        uses: actions/upload-artifact@master
+        with:
+          name: py${{ matrix.docker-image }}
+          path: ./wheelhouse/
+
+
+  build:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      max-parallel: 6
+      matrix:
+        os: [windows-2019, ubuntu-18.04, macOS-10.14]
+        python-version: [2.7, 3.6, 3.7]
+        architecture: [x64, x86]
+        exclude:
+          - architecture: x86
+            os: macOS-10.14
+          - architecture: x86
+            os: ubuntu-18.04
+
+    steps:
+    - name: Check out source
+      uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+    - name: Install VC
+      if: matrix.os == 'windows-2019' && matrix.python-version == 2.7
+      run: |
+        choco install vcpython27 --yes --no-progress
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+        architecture: ${{ matrix.architecture }}
+    - name: Install dependencies
+      run: |
+        python -m pip install pip --upgrade
+        python -m pip install setuptools wheel --upgrade
+    - name: Create wheel
+      run: |
+        python -m pip wheel . --no-deps --wheel-dir=./wheelhouse/
+    - name: Install package
+      run: |
+        python -m pip install . --no-deps -vv
+    - name: Import package
+      run: |
+        python -c "import iteration_utilities"
+    - name: Install test dependencies
+      run: |
+        python -m pip install pytest
+    - name: Run tests
+      run: |
+        cd tests
+        python -m pytest .
+    - name: Upload wheel
+      uses: actions/upload-artifact@master
+      with:
+        name: py${{ matrix.python-version }}-${{ matrix.architecture }}-${{ matrix.os }}
+        path: ./wheelhouse/
+
+  coverage:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      max-parallel: 6
+      matrix:
+        os: [ubuntu-18.04]
+        python-version: [2.7, 3.6, 3.7]
+
+    steps:
+    - name: Check out source
+      uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+    - name: Install VC
+      if: matrix.os == 'windows-2019' && matrix.python-version == 2.7
+      run: |
+        choco install vcpython27 --yes --no-progress
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install pip --upgrade
+        python -m pip install setuptools wheel --upgrade
+    - name: Install package
+      run: |
+        CFLAGS="-coverage" python setup.py install # TODO: Check if there's a way with pip install
+    - name: Import package
+      run: |
+        python -c "import iteration_utilities"
+    - name: Install test dependencies
+      run: |
+        python -m pip install pytest pytest-cov
+    - name: Run tests
+      run: |
+        python -m pytest tests --cov=./ --cov-report=xml
+        gcov ./build/temp.linux-x86_64-${{ matrix.python-version }}/src/_module.c
+    - name: Upload Coverage report
+      uses: codecov/codecov-action@v1.0.2
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        flags: unittests
+
+
+  build-docs:
+    runs-on: windows-2019
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        python-version: [3.7]
+        architecture: [x86]
+
+    steps:
+    - name: Check out source
+      uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+        architecture: ${{ matrix.architecture }}
+    - name: Install dependencies
+      run: |
+        python -m pip install pip --upgrade
+        python -m pip install setuptools wheel --upgrade
+    - name: Install package
+      run: |
+        python -m pip install . --no-deps -vv
+    - name: Install doc dependencies
+      run: |
+        python -m pip install sphinx==2.1 numpydoc six
+    - name: Build doc
+      run: |
+        python setup.py build_sphinx
+    - name: Upload documentation
+      uses: actions/upload-artifact@master
+      with:
+        name: docs
+        path: ./build/sphinx/html/
+
+
+  build-py38-windows:
+    runs-on: windows-2019
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        architecture: [x86, x64]
+
+    steps:
+    - name: Check out source
+      uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+    - name: Download Python 3.8 (x86)
+      if: matrix.architecture == 'x86'
+      run: |
+        curl https://www.python.org/ftp/python/3.8.0/python-3.8.0b4.exe --output pythoninstaller.exe
+        python ci/verify_checksum.py pythoninstaller.exe 9317e2376bb1eb2275aabcc4ba6f9acd
+    - name: Install Python 3.8 (x86)
+      if: matrix.architecture == 'x86'
+      run: |
+        pythoninstaller.exe /passive TargetDir=%LocalAppData%\Programs\Python38 AssociateFiles=0 CompileAll=0 PrependPath=1 Shortcuts=0 Include_doc=0 Include_debug=0 Include_dev=1 Include_exe=1 Include_launcher=0 Include_lib=1 Include_pip=1 Include_symbols=0 Include_tcltk=0 Include_test=0 Include_tools=0
+    - name: Download Python 3.8 (x64)
+      if: matrix.architecture == 'x64'
+      run: |
+        curl https://www.python.org/ftp/python/3.8.0/python-3.8.0b4-amd64.exe --output pythoninstaller.exe
+        python ci/verify_checksum.py pythoninstaller.exe a0101cb5ec30e669dc790e202856da91
+    - name: Install Python 3.8 (x64)
+      if: matrix.architecture == 'x64'
+      run: |
+        pythoninstaller.exe /passive TargetDir=%LocalAppData%\Programs\Python38 AssociateFiles=0 CompileAll=0 PrependPath=1 Shortcuts=0 Include_doc=0 Include_debug=0 Include_dev=1 Include_exe=1 Include_launcher=0 Include_lib=1 Include_pip=1 Include_symbols=0 Include_tcltk=0 Include_test=0 Include_tools=0
+    - name: Install dependencies
+      run: |
+        "%LocalAppData%\Programs\Python38\python.exe" -m pip install pip --upgrade
+        "%LocalAppData%\Programs\Python38\python.exe" -m pip install setuptools wheel --upgrade
+    - name: Create wheel
+      run: |
+        "%LocalAppData%\Programs\Python38\python.exe" -m pip wheel . --no-deps --wheel-dir=./wheelhouse/
+    - name: Install package
+      run: |
+        "%LocalAppData%\Programs\Python38\python.exe" -m pip install . --no-deps -vv
+    - name: Import package
+      run: |
+        "%LocalAppData%\Programs\Python38\python.exe" -c "import iteration_utilities"
+    - name: Install test dependencies
+      run: |
+        "%LocalAppData%\Programs\Python38\python.exe" -m pip install pytest
+    - name: Run tests
+      run: |
+        cd tests
+        "%LocalAppData%\Programs\Python38\python.exe" -m pytest .
+    - name: Upload wheel
+      uses: actions/upload-artifact@master
+      with:
+        name: py3.8-${{ matrix.architecture }}-windows-2019
+        path: ./wheelhouse/
+
+
+  build-py38-ubuntu:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 10
+
+    steps:
+    - name: Check out source
+      uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+    - name: Download Python 3.8
+      run: |
+        wget https://www.python.org/ftp/python/3.8.0/Python-3.8.0b4.tgz -q
+        python ci/verify_checksum.py Python-3.8.0b4.tgz b8f4f897df967014ddb42033b90c3058
+    - name: Install Python 3.8
+      run: |
+        tar xzf Python-3.8.0b4.tgz
+        cd Python-3.8.0b4
+        ./configure --enable-optimizations
+        sudo make altinstall
+        cd ..
+    - name: Install dependencies
+      run: |
+        python3.8 -m pip install pip --upgrade --user
+        python3.8 -m pip install setuptools wheel --upgrade --user
+    - name: Create wheel
+      run: |
+        python3.8 -m pip wheel . --no-deps --wheel-dir=./wheelhouse/
+    - name: Install package
+      run: |
+        python3.8 -m pip install . --no-deps -vv --user
+    - name: Import package
+      run: |
+        python3.8 -c "import iteration_utilities"
+    - name: Install test dependencies
+      run: |
+        python3.8 -m pip install pytest --user
+    - name: Run tests
+      run: |
+        cd tests
+        python3.8 -m pytest .
+    - name: Upload wheel
+      uses: actions/upload-artifact@master
+      with:
+        name: py3.8-x64-ubuntu-18.04
+        path: ./wheelhouse/
+
+
+  build-py38-macOS:
+    runs-on: macOS-10.14
+    timeout-minutes: 10
+
+    steps:
+    - name: Check out source
+      uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+    - name: Download Python 3.8
+      run: |
+        curl https://www.python.org/ftp/python/3.8.0/python-3.8.0b4-macosx10.9.pkg --output pythoninstaller.pkg
+        python ci/verify_checksum.py pythoninstaller.pkg 232c1ea4b069aa46d8392339183ff7b7
+    - name: Install Python 3.8
+      run: |
+        sudo installer -pkg pythoninstaller.pkg -target /
+    - name: Install dependencies
+      run: |
+        python3.8 -m pip install pip --upgrade --user
+        python3.8 -m pip install setuptools wheel --upgrade --user
+    - name: Create wheel
+      run: |
+        python3.8 -m pip wheel . --no-deps --wheel-dir=./wheelhouse/
+    - name: Install package
+      run: |
+        python3.8 -m pip install . --no-deps -vv --user
+    - name: Import package
+      run: |
+        python3.8 -c "import iteration_utilities"
+    - name: Install test dependencies
+      run: |
+        python3.8 -m pip install pytest --user
+    - name: Run tests
+      run: |
+        cd tests
+        python3.8 -m pytest .
+    - name: Upload wheel
+      uses: actions/upload-artifact@master
+      with:
+        name: py3.8-x64-macOS-10.14
+        path: ./wheelhouse/

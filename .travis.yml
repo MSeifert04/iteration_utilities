@@ -32,17 +32,9 @@ matrix:
       dist: xenial
       sudo: true
 
-  allow_failures:
-
-before_install:
-  - pip install coveralls
-
 install:
   - python setup.py install
 
 # command to run tests
 script:
-  - coverage run --source=iteration_utilities setup.py test
-
-after_success:
-  - coveralls
+  - python setup.py test
