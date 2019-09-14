@@ -40,7 +40,7 @@ PyIU_MinMax(PyObject *Py_UNUSED(m),
     }
 
     if (keyfunc != NULL) {
-        funcargs = PyTuple_New(0);
+        funcargs = PyTuple_New(1);
         if (funcargs == NULL) {
             goto Fail;
         }
