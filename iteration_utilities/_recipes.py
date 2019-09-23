@@ -99,7 +99,7 @@ def ncycles(iterable, n):
         Any `iterable` to repeat.
 
     n : :py:class:`int`
-        Number of repeatitions.
+        Number of repetitions.
 
     Returns
     -------
@@ -173,7 +173,7 @@ def repeatfunc(func, *args, **times):
     >>> random.seed(None)
 
     .. warning::
-        This will return an infinitly long generator if you don't specify
+        This will return an infinitely long generator if you don't specify
         ``times``.
     """
     times = times.get('times', None)
@@ -288,10 +288,10 @@ def random_permutation(iterable, r=None):
     Parameters
     ----------
     iterable : iterable
-        The `iterable` to permutate with :py:func:`itertools.permutations`.
+        The `iterable` to permute with :py:func:`itertools.permutations`.
 
     r : :py:class:`int` or None, optional
-        The number of elements to permutate. If ``None`` use all elements from
+        The number of elements to permute. If ``None`` use all elements from
         the iterable.
         Default is ``None``.
 
@@ -369,7 +369,7 @@ def random_combination(iterable, r, replacement=False):
 
 
 def tee_lookahead(tee, i):
-    """Inspect the `i`-th upcomping value from a :py:func:`~itertools.tee`
+    """Inspect the `i`-th upcoming value from a :py:func:`~itertools.tee`
     object while leaving the :py:func:`~itertools.tee` object at its current
     position.
 
