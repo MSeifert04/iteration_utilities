@@ -327,7 +327,7 @@ autosummary_generate = False
 # sphinx.ext.intersphinx
 # #############################################################################
 
-intersphinx_mapping = {'python': ('https://docs.python.org/3.6/',  # target
+intersphinx_mapping = {'python': ('https://docs.python.org/3.7/',  # target
                                   None),                           # inventory
                        }
 # intersphinx_cache_limit

@@ -1169,7 +1169,7 @@ class Iterable(_Base):
         >>> Iterable.from_repeat(10, times=2)  # but not always!
         <Iterable: repeat(10, 2)>
 
-    This logic allows the class to be aware if the iterable is infinitly long or
+    This logic allows the class to be aware if the iterable is infinitely long or
     not and prevent accidental infinite loops.
     Some methods can also convert an :py:class:`.InfiniteIterable` to a normal
     :py:class:`.Iterable` again::
@@ -1316,7 +1316,7 @@ class Iterable(_Base):
         Parameters
         ----------
         seperator : :py:class:`str`, optional
-            The seperator between each item from the iterable in the output
+            The separator between each item from the iterable in the output
             string.
 
         Examples
@@ -2035,7 +2035,7 @@ class ManyIterables(object):
 
         Notes
         -----
-        This is just a convenience class to seperate the expressions dealing
+        This is just a convenience class to separate the expressions dealing
         with multiple iterables from those applying on one.
 
         Available methods:

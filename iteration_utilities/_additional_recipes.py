@@ -244,7 +244,7 @@ def pad(iterable, fillvalue=None, nlead=0, ntail=0):
 
     nlead, ntail : :py:class:`int` or None, optional
         The number of times to pad in front (`nlead`) and after (`ntail`) the
-        `iterable`. If `ntail` is ``None`` pad indefinitly (not possible for
+        `iterable`. If `ntail` is ``None`` pad indefinitely (not possible for
         `nlead`).
         Default is ``0``.
 
@@ -269,7 +269,7 @@ def pad(iterable, fillvalue=None, nlead=0, ntail=0):
     [1, 2, 3, 0, 0, 0, 0, 0, 0, 0]
 
     .. warning::
-        This will return an infinitly long generator if ``ntail`` is ``None``,
+        This will return an infinitely long generator if ``ntail`` is ``None``,
         so do not try to do something like ``list(pad([], ntail=None))``!
     """
     prepend = repeat(fillvalue, nlead)
@@ -329,7 +329,7 @@ def getitem(iterable, idx=None, start=None, stop=None, step=None):
            This parameter is ignored if `idx` is not ``None``.
 
     step : positive :py:class:`int` or None, optional
-        If ``None`` then take all items seperated by `step`, otherwise take
+        If ``None`` then take all items separated by `step`, otherwise take
         successive items.
         Default is ``None``.
 
