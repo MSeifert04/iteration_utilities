@@ -37,11 +37,15 @@ from ``git`` [1]_ and install it::
 
     git clone https://github.com/MSeifert04/iteration_utilities.git
     cd iteration_utilities
-    python setup.py install
+    python -m pip install .
 
-with the clone from ``git`` one can also run::
+with the clone from ``git`` one can also run the tests::
 
-    python setup.py test          # run the test suite
+    cd tests
+    python -m pytest .
+
+Or build the documentation::
+
     python setup.py build_sphinx  # local documentation build
 
 

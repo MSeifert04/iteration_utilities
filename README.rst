@@ -82,8 +82,8 @@ Test status
    :target: https://ci.appveyor.com/project/MSeifert04/iteration-utilities
    :alt: AppVeyor Status
 
-.. image:: https://coveralls.io/repos/github/MSeifert04/iteration_utilities/badge.svg?branch=master
-   :target: https://coveralls.io/github/MSeifert04/iteration_utilities?branch=master
+.. image:: https://codecov.io/gh/MSeifert04/iteration_utilities/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/MSeifert04/iteration_utilities
    :alt: Coverage Status
 
 .. image:: https://img.shields.io/badge/benchmarked%20by-asv-green.svg?style=flat

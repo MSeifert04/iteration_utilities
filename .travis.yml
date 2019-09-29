@@ -11,9 +11,9 @@ python:
 matrix:
   include:
     - python: "2.7"
-      install: CC=clang python setup.py install
+      install: CC=clang python -m pip install . --no-deps -vv
     - python: "3.7"
-      install: CC=clang python setup.py install
+      install: CC=clang python -m pip install . --no-deps -vv
       dist: xenial
       sudo: true
     # Unfortunately there is currently no way to have these tested on Trusty.
@@ -32,9 +32,14 @@ matrix:
       dist: xenial
       sudo: true
 
+before_install:
+  - python -m pip install pip --upgrade
+  - python -m pip install setuptools --upgrade
+
 install:
-  - python setup.py install
+  - python -m pip install . --no-deps -vv
 
 # command to run tests
 script:
-  - python setup.py test
+  - cd tests
+  - python -m pytest .
