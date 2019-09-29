@@ -62,13 +62,12 @@ Installation:
 Tests:
 
 - pytest
-- pytest-runner
+- pytest-cov (for coverage)
 
 
 Documentation:
 
 - sphinx
-- six
 - numpydoc
 
 
