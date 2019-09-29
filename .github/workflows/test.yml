@@ -207,7 +207,7 @@ jobs:
         python -m pip install . --no-deps -vv
     - name: Install doc dependencies
       run: |
-        python -m pip install sphinx==2.1 numpydoc six
+        python -m pip install sphinx==2.1 numpydoc
     - name: Build doc
       run: |
         python setup.py build_sphinx
