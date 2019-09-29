@@ -148,10 +148,6 @@ jobs:
       uses: actions/checkout@v1
       with:
         fetch-depth: 1
-    - name: Install VC
-      if: matrix.os == 'windows-2019' && matrix.python-version == 2.7
-      run: |
-        choco install vcpython27 --yes --no-progress
     - name: Set up Python
       uses: actions/setup-python@v1
       with:
@@ -159,19 +155,16 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install pip --upgrade
-        python -m pip install setuptools wheel --upgrade
+        python -m pip install setuptools --upgrade
     - name: Install package
       run: |
         CFLAGS="-coverage" python setup.py install # TODO: Check if there's a way with pip install
-    - name: Import package
-      run: |
-        python -c "import iteration_utilities"
     - name: Install test dependencies
       run: |
         python -m pip install pytest pytest-cov
     - name: Run tests
       run: |
-        python -m pytest tests --cov=./ --cov-report=xml
+        python -m pytest tests --cov=./ --cov-report=xml --cov-config=./setup.cfg
         gcov ./build/temp.linux-x86_64-${{ matrix.python-version }}/src/_module.c
     - name: Upload Coverage report
       uses: codecov/codecov-action@v1.0.2
