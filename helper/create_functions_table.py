@@ -10,8 +10,8 @@ contents can be copy pasted there. Just use::
 
     >>> python helper/create_functions_table.py
 
-Unfortunatly the header lines of these tables have to be removed manually,
-I haven't found a way to remove them programatically using the
+Unfortunately the header lines of these tables have to be removed manually,
+I haven't found a way to remove them programmatically using the
 astropy.io.ascii.RST class.
 
 It's actually important to call this helper from the main repo directory
