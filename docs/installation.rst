@@ -39,10 +39,9 @@ from ``git`` [1]_ and install it::
     cd iteration_utilities
     python -m pip install .
 
-with the clone from ``git`` one can also run the tests::
+with the clone from ``git`` one can also run the tests after the installation::
 
-    cd tests
-    python -m pytest .
+    python -m pytest tests/
 
 Or build the documentation::
 

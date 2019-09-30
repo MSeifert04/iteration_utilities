@@ -2,7 +2,7 @@
 
 """Utilities based on Pythons iterators and generators."""
 
-from _iteration_utilities import *
+from ._iteration_utilities import *
 
 from ._utils import *
 from ._recipes import *

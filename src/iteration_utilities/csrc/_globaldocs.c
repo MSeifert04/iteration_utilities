@@ -49,7 +49,7 @@ PyDoc_STRVAR(PyIU_ReduceLast_name, "last");
 PyDoc_STRVAR(PyIU_Placeholder_name, "Placeholder");
 
 /* Name and docstring of C-module. */
-PyDoc_STRVAR(PyIU_module_name, "_iteration_utilities");
+PyDoc_STRVAR(PyIU_module_name, "iteration_utilities._iteration_utilities");
 PyDoc_STRVAR(PyIU_module_doc,
              "This is the C extension module used by iteration_utilities.");
 
