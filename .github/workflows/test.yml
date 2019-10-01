@@ -44,8 +44,7 @@ jobs:
         python -m pip install pytest
     - name: Run tests
       run: |
-        cd tests
-        python -m pytest .
+        python -m pytest tests/
 
 
   build-manylinux:
@@ -133,13 +132,13 @@ jobs:
         python -m pip install pytest
     - name: Run tests
       run: |
-        cd tests
-        python -m pytest .
+        python -m pytest tests/
     - name: Upload wheel
       uses: actions/upload-artifact@master
       with:
         name: py${{ matrix.python-version }}-${{ matrix.architecture }}-${{ matrix.os }}
         path: ./wheelhouse/
+
 
   coverage:
     runs-on: ${{ matrix.os }}
@@ -171,13 +170,14 @@ jobs:
         python -m pip install pytest pytest-cov
     - name: Run tests
       run: |
-        python -m pytest tests --cov=./ --cov-report=xml --cov-config=./setup.cfg
-        gcov ./build/temp.linux-x86_64-${{ matrix.python-version }}/src/_module.c
+        python -m pytest tests/ --cov=iteration_utilities --cov-report=xml --cov-config=./setup.cfg
     - name: Upload Coverage report
-      uses: codecov/codecov-action@v1.0.2
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        flags: unittests
+      # It would probably be better to use the codecov-action but that's very slow:
+      # https://github.com/codecov/codecov-action/issues/21
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      run: |
+        curl -s https://codecov.io/bash | bash -s -- -t $CODECOV_TOKEN -F unittests -n ${{ matrix.os }}-${{ matrix.python-version }}
 
 
   build-docs:
@@ -266,8 +266,7 @@ jobs:
         "%LocalAppData%\Programs\Python38\python.exe" -m pip install pytest
     - name: Run tests
       run: |
-        cd tests
-        "%LocalAppData%\Programs\Python38\python.exe" -m pytest .
+        "%LocalAppData%\Programs\Python38\python.exe" -m pytest tests/
     - name: Upload wheel
       uses: actions/upload-artifact@master
       with:
@@ -313,8 +312,7 @@ jobs:
         python3.8 -m pip install pytest --user
     - name: Run tests
       run: |
-        cd tests
-        python3.8 -m pytest .
+        python3.8 -m pytest tests/
     - name: Upload wheel
       uses: actions/upload-artifact@master
       with:
@@ -356,8 +354,7 @@ jobs:
         python3.8 -m pip install pytest --user
     - name: Run tests
       run: |
-        cd tests
-        python3.8 -m pytest .
+        python3.8 -m pytest tests/
     - name: Upload wheel
       uses: actions/upload-artifact@master
       with:

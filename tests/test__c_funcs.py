@@ -8,7 +8,7 @@ import pytest
 
 # This module
 import iteration_utilities
-import _iteration_utilities
+from iteration_utilities import _iteration_utilities
 
 
 def test_other_c_funcs():

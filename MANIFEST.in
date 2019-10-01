@@ -4,4 +4,6 @@ include LICENSE.txt
 recursive-include licenses *
 
 # Source code
-recursive-include src *.c
+graft src
+
+global-exclude *.py[cod] __pycache__/* *.so *.dylib

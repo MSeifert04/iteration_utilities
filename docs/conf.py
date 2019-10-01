@@ -13,7 +13,7 @@ project = 'iteration_utilities'
 
 
 def get_version():
-    with open('../{}/__init__.py'.format(project)) as f:
+    with open('../src/{}/__init__.py'.format(project)) as f:
         for line in f:
             if line.startswith('__version__'):
                 return line.split(r"'")[1]
