@@ -267,7 +267,7 @@ texinfo_documents = [(master_doc,                   # startdocname
 
 autoclass_content = "both"
 # autodoc_member_order
-autodoc_default_flags = ['members', 'inherited-members']
+autodoc_default_options = {'members': True, 'inherited-members': True}
 autodoc_docstring_signature = True
 # autodoc_mock_imports
 
@@ -276,7 +276,9 @@ autodoc_docstring_signature = True
 # sphinx.ext.autosummary
 # #############################################################################
 
-autosummary_generate = False
+# Workaround for https://github.com/sphinx-doc/sphinx/issues/6695
+# otherwise we could also use = False here.
+autosummary_generate = []
 
 # #############################################################################
 # sphinx.ext.coverage
