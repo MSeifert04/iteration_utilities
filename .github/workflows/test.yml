@@ -389,3 +389,118 @@ jobs:
       with:
         name: py3.8-x64-macOS-10.14
         path: ./wheelhouse/
+
+
+  bundle-artifacts:
+    runs-on: windows-2019
+    timeout-minutes: 10
+    needs: [build-py38-macOS, build-py38-ubuntu, build-py38-windows, build-docs, build, build-manylinux, build-sdist]
+
+    steps:
+    - uses: actions/download-artifact@master
+      with:
+        name: docs
+
+    - uses: actions/download-artifact@master
+      with:
+        name: py_sdist
+    - run: |
+        rename py_sdist sdist
+
+    - run: |
+        mkdir wheels
+    - uses: actions/download-artifact@master
+      with:
+        name: pymanylinux1_x86_64
+    - run: |
+        move pymanylinux1_x86_64\* wheels
+        rmdir pymanylinux1_x86_64
+    - uses: actions/download-artifact@master
+      with:
+        name: pymanylinux1_i686
+    - run: |
+        move pymanylinux1_i686\* wheels
+        rmdir pymanylinux1_i686
+    - uses: actions/download-artifact@master
+      with:
+        name: pymanylinux2010_x86_64
+    - run: |
+        move pymanylinux2010_x86_64\* wheels
+        rmdir pymanylinux2010_x86_64
+    - uses: actions/download-artifact@master
+      with:
+        name: py2.7-x64-windows-2019
+    - run: |
+        move py2.7-x64-windows-2019\* wheels
+        rmdir py2.7-x64-windows-2019
+    - uses: actions/download-artifact@master
+      with:
+        name: py2.7-x86-windows-2019
+    - run: |
+        move py2.7-x86-windows-2019\* wheels
+        rmdir py2.7-x86-windows-2019
+    - uses: actions/download-artifact@master
+      with:
+        name: py2.7-x64-macOS-10.14
+    - run: |
+        move py2.7-x64-macOS-10.14\* wheels
+        rmdir py2.7-x64-macOS-10.14
+    - uses: actions/download-artifact@master
+      with:
+        name: py3.6-x64-windows-2019
+    - run: |
+        move py3.6-x64-windows-2019\* wheels
+        rmdir py3.6-x64-windows-2019
+    - uses: actions/download-artifact@master
+      with:
+        name: py3.6-x86-windows-2019
+    - run: |
+        move py3.6-x86-windows-2019\* wheels
+        rmdir py3.6-x86-windows-2019
+    - uses: actions/download-artifact@master
+      with:
+        name: py3.6-x64-macOS-10.14
+    - run: |
+        move py3.6-x64-macOS-10.14\* wheels
+        rmdir py3.6-x64-macOS-10.14
+    - uses: actions/download-artifact@master
+      with:
+        name: py3.7-x64-windows-2019
+    - run: |
+        move py3.7-x64-windows-2019\* wheels
+        rmdir py3.7-x64-windows-2019
+    - uses: actions/download-artifact@master
+      with:
+        name: py3.7-x86-windows-2019
+    - run: |
+        move py3.7-x86-windows-2019\* wheels
+        rmdir py3.7-x86-windows-2019
+    - uses: actions/download-artifact@master
+      with:
+        name: py3.7-x64-macOS-10.14
+    - run: |
+        move py3.7-x64-macOS-10.14\* wheels
+        rmdir py3.7-x64-macOS-10.14
+    - uses: actions/download-artifact@master
+      with:
+        name: py3.8-x64-windows-2019
+    - run: |
+        move py3.8-x64-windows-2019\* wheels
+        rmdir py3.8-x64-windows-2019
+    - uses: actions/download-artifact@master
+      with:
+        name: py3.8-x86-windows-2019
+    - run: |
+        move py3.8-x86-windows-2019\* wheels
+        rmdir py3.8-x86-windows-2019
+    - uses: actions/download-artifact@master
+      with:
+        name: py3.8-x64-macOS-10.14
+    - run: |
+        move py3.8-x64-macOS-10.14\* wheels
+        rmdir py3.8-x64-macOS-10.14
+    - name: Upload all
+      uses: actions/upload-artifact@master
+      with:
+        name: all
+        path: ./
