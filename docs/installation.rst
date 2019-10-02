@@ -11,22 +11,21 @@ supporting the Python versions:
 Using pip
 ^^^^^^^^^
 
-and can be installed with ``pip`` [0]_:
+and can be installed with ``pip`` [0]_::
 
-- ``pip install iteration_utilities``
+    python -m pip install iteration_utilities
 
+or to install the development version::
 
-or to install the development version:
-
-- ``pip install git+https://github.com/MSeifert04/iteration_utilities.git@master``
+    python -m pip install git+https://github.com/MSeifert04/iteration_utilities.git@master
 
 
 Using conda
 ^^^^^^^^^^^
 
-It can by installed with ``conda`` [2]_ from the ``conda-forge`` channel:
+It can by installed with ``conda`` [2]_ from the ``conda-forge`` channel::
 
-- ``conda install -c conda-forge iteration_utilities``
+    conda install -c conda-forge iteration_utilities
 
 
 Manual installation
@@ -58,11 +57,21 @@ Installation:
 - C compiler
 
 
+Developer Dependencies
+^^^^^^^^^^^^^^^^^^^^^^
+
+All dependencies can be installed using::
+
+    python -m pip install iteration_utilities[all]
+
+Or individual dependencies::
+
+    python -m pip install iteration_utilities[test]
+    python -m pip install iteration_utilities[doc]
+
 Tests:
 
 - pytest
-- pytest-cov (for coverage)
-
 
 Documentation:
 
