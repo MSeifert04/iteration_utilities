@@ -13,9 +13,9 @@ def version():
                 return line.split(r"'")[1]
 
 
-cfuncs_module = Extension(
+_iteration_utilities_module = Extension(
     'iteration_utilities._iteration_utilities',
-    sources=[path.join('src', 'iteration_utilities', 'csrc', '_module.c')],
+    sources=[path.join('src', 'iteration_utilities', '_iteration_utilities', '_module.c')],
     depends=glob(path.join('src', '*.c'))
     )
 
@@ -24,5 +24,5 @@ setup(
     package_dir={'': 'src'},
     py_modules=[path.splitext(path.basename(p))[0] for p in glob('src/*.py')],
     version=version(),
-    ext_modules=[cfuncs_module],
+    ext_modules=[_iteration_utilities_module],
 )
