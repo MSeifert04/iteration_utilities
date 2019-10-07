@@ -1,1 +1,2 @@
 numpydoc
+sphinx>=2.2
