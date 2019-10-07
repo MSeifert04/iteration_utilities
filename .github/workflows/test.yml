@@ -270,8 +270,8 @@ jobs:
     - name: Download Python 3.8 (x86)
       if: matrix.architecture == 'x86'
       run: |
-        curl https://www.python.org/ftp/python/3.8.0/python-3.8.0b4.exe --output pythoninstaller.exe
-        python ci/verify_checksum.py pythoninstaller.exe 9317e2376bb1eb2275aabcc4ba6f9acd
+        curl https://www.python.org/ftp/python/3.8.0/python-3.8.0rc1.exe --output pythoninstaller.exe
+        python ci/verify_checksum.py pythoninstaller.exe bd2fa3653c21a03f47a582a9be561126
     - name: Install Python 3.8 (x86)
       if: matrix.architecture == 'x86'
       run: |
@@ -279,8 +279,8 @@ jobs:
     - name: Download Python 3.8 (x64)
       if: matrix.architecture == 'x64'
       run: |
-        curl https://www.python.org/ftp/python/3.8.0/python-3.8.0b4-amd64.exe --output pythoninstaller.exe
-        python ci/verify_checksum.py pythoninstaller.exe a0101cb5ec30e669dc790e202856da91
+        curl https://www.python.org/ftp/python/3.8.0/python-3.8.0rc1-amd64.exe --output pythoninstaller.exe
+        python ci/verify_checksum.py pythoninstaller.exe ed7a7fa4d96577d9aa6948f125374426
     - name: Install Python 3.8 (x64)
       if: matrix.architecture == 'x64'
       run: |
@@ -321,12 +321,12 @@ jobs:
         fetch-depth: 1
     - name: Download Python 3.8
       run: |
-        wget https://www.python.org/ftp/python/3.8.0/Python-3.8.0b4.tgz -q
-        python ci/verify_checksum.py Python-3.8.0b4.tgz b8f4f897df967014ddb42033b90c3058
+        wget https://www.python.org/ftp/python/3.8.0/Python-3.8.0rc1.tgz -q
+        python ci/verify_checksum.py Python-3.8.0rc1.tgz 3e1be2f9a8a73dae196d04f23c90d749
     - name: Install Python 3.8
       run: |
-        tar xzf Python-3.8.0b4.tgz
-        cd Python-3.8.0b4
+        tar xzf Python-3.8.0rc1.tgz
+        cd Python-3.8.0rc1
         ./configure --enable-optimizations
         sudo make altinstall
         cd ..
@@ -361,8 +361,8 @@ jobs:
         fetch-depth: 1
     - name: Download Python 3.8
       run: |
-        curl https://www.python.org/ftp/python/3.8.0/python-3.8.0b4-macosx10.9.pkg --output pythoninstaller.pkg
-        python ci/verify_checksum.py pythoninstaller.pkg 232c1ea4b069aa46d8392339183ff7b7
+        curl https://www.python.org/ftp/python/3.8.0/python-3.8.0rc1-macosx10.9.pkg --output pythoninstaller.pkg
+        python ci/verify_checksum.py pythoninstaller.pkg a9a1e46cf083a97ab4b7dbb91808028d
     - name: Install Python 3.8
       run: |
         sudo installer -pkg pythoninstaller.pkg -target /
