@@ -652,6 +652,12 @@ class _Base(object):
         >>> Iterable(range(1, 10)).islice(2, 6, 2).as_list()
         [3, 5]
 
+        >>> Iterable([1, 2, 3, 4]).islice(1, None).as_list()
+        [2, 3, 4]
+
+        >>> Iterable([1, 2, 3, 4]).islice(None).as_list()
+        [1, 2, 3, 4]
+
         .. note::
            This method converts an :py:class:`.InfiniteIterable` to a normal
            :py:class:`.Iterable` if a `stop` is given.
@@ -661,7 +667,7 @@ class _Base(object):
         if nargs == 1:
             if args[0] is not None:
                 meth = self._call_finite
-        else:
+        elif nargs > 1:
             if args[1] is not None:
                 meth = self._call_finite
         return meth(islice, 0, *args)
