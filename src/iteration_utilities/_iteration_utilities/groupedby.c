@@ -16,8 +16,6 @@ PyIU_Groupby(PyObject *Py_UNUSED(m),
     PyObject *reducefunc = NULL;
     PyObject *reducestart = NULL;
     PyObject *resdict = NULL;
-    PyObject *funcargs1 = NULL;
-    PyObject *funcargs2 = NULL;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|OOO:groupedby", kwlist,
                                      &iterable, &keyfunc, &valfunc, &reducefunc,
@@ -45,18 +43,6 @@ PyIU_Groupby(PyObject *Py_UNUSED(m),
         goto Fail;
     }
 
-    funcargs1 = PyTuple_New(1);
-    if (funcargs1 == NULL) {
-        goto Fail;
-    }
-
-    if (reducefunc != NULL) {
-        funcargs2 = PyTuple_New(2);
-        if (funcargs2 == NULL) {
-            goto Fail;
-        }
-    }
-
     for (;;) {
         PyObject *item;
         PyObject *val;
@@ -73,9 +59,7 @@ PyIU_Groupby(PyObject *Py_UNUSED(m),
         }
 
         /* Calculate the key for the dictionary (val). */
-        PYIU_RECYCLE_ARG_TUPLE(funcargs1, item, Py_DECREF(item);
-                                                goto Fail);
-        val = PyObject_Call(keyfunc, funcargs1, NULL);
+        val = PyIU_CallWithOneArgument(keyfunc, item);
         if (val == NULL) {
             Py_DECREF(item);
             goto Fail;
@@ -87,8 +71,7 @@ PyIU_Groupby(PyObject *Py_UNUSED(m),
         } else {
             /* We use the same item again to calculate the keep so we don't need
                to replace. */
-            //PYIU_RECYCLE_ARG_TUPLE(funcargs1, item, Py_DECREF(item); goto Fail)
-            keep = PyObject_Call(valfunc, funcargs1, NULL);
+            keep = PyIU_CallWithOneArgument(valfunc, item);
             Py_DECREF(item);
             if (keep == NULL) {
                 Py_DECREF(val);
@@ -178,14 +161,9 @@ PyIU_Groupby(PyObject *Py_UNUSED(m),
                 int ok;
 
                 if (current == NULL) {
-                    PYIU_RECYCLE_ARG_TUPLE_BINOP(funcargs2, reducestart, keep, Py_DECREF(keep);
-                                                                               goto Fail);
-                    reducetmp = PyObject_Call(reducefunc, funcargs2, NULL);
+                    reducetmp = PyIU_CallWithTwoArguments(reducefunc, reducestart, keep);
                 } else {
-                    PYIU_RECYCLE_ARG_TUPLE_BINOP(funcargs2, current, keep, Py_DECREF(keep);
-                                                                           Py_DECREF(current);
-                                                                           goto Fail);
-                    reducetmp = PyObject_Call(reducefunc, funcargs2, NULL);
+                    reducetmp = PyIU_CallWithTwoArguments(reducefunc, current, keep);
                     Py_DECREF(current);
                 }
                 Py_DECREF(keep);
@@ -207,8 +185,6 @@ PyIU_Groupby(PyObject *Py_UNUSED(m),
         }
     }
 
-    Py_DECREF(funcargs1);
-    Py_XDECREF(funcargs2);
     Py_DECREF(iterator);
 
     if (PyErr_Occurred()) {
@@ -223,8 +199,6 @@ PyIU_Groupby(PyObject *Py_UNUSED(m),
     return resdict;
 
 Fail:
-    Py_XDECREF(funcargs1);
-    Py_XDECREF(funcargs2);
     Py_XDECREF(iterator);
     Py_XDECREF(resdict);
     return NULL;

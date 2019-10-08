@@ -16,7 +16,6 @@ typedef struct {
     PyObject *iterator;
     PyObject *key;
     PyObject *seen;
-    PyObject *funcargs;
 } PyIUObject_Duplicates;
 
 static PyTypeObject PyIUType_Duplicates;
@@ -37,7 +36,6 @@ duplicates_new(PyTypeObject *type,
     PyObject *iterator = NULL;
     PyObject *seen = NULL;
     PyObject *key = NULL;
-    PyObject *funcargs = NULL;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:duplicates", kwlist,
@@ -45,13 +43,6 @@ duplicates_new(PyTypeObject *type,
         goto Fail;
     }
     PYIU_NULL_IF_NONE(key);
-
-    if (key != NULL) {
-        funcargs = PyTuple_New(1);
-        if (funcargs == NULL) {
-            goto Fail;
-        }
-    }
 
     /* Create and fill struct */
     iterator = PyObject_GetIter(iterable);
@@ -70,11 +61,9 @@ duplicates_new(PyTypeObject *type,
     self->iterator = iterator;
     self->key = key;
     self->seen = seen;
-    self->funcargs = funcargs;
     return (PyObject *)self;
 
 Fail:
-    Py_XDECREF(funcargs);
     Py_XDECREF(iterator);
     Py_XDECREF(seen);
     return NULL;
@@ -91,7 +80,6 @@ duplicates_dealloc(PyIUObject_Duplicates *self)
     Py_XDECREF(self->iterator);
     Py_XDECREF(self->key);
     Py_XDECREF(self->seen);
-    Py_XDECREF(self->funcargs);
     Py_TYPE(self)->tp_free(self);
 }
 
@@ -107,7 +95,6 @@ duplicates_traverse(PyIUObject_Duplicates *self,
     Py_VISIT(self->iterator);
     Py_VISIT(self->key);
     Py_VISIT(self->seen);
-    Py_VISIT(self->funcargs);
     return 0;
 }
 
@@ -121,7 +108,6 @@ duplicates_clear(PyIUObject_Duplicates *self)
     Py_CLEAR(self->iterator);
     Py_CLEAR(self->key);
     Py_CLEAR(self->seen);
-    Py_CLEAR(self->funcargs);
     return 0;
 }
 
@@ -141,8 +127,7 @@ duplicates_next(PyIUObject_Duplicates *self)
         if (self->key == NULL) {
             temp = item;
         } else {
-            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, goto Fail);
-            temp = PyObject_Call(self->key, self->funcargs, NULL);
+            temp = PyIU_CallWithOneArgument(self->key, item);
             if (temp == NULL) {
                 goto Fail;
             }

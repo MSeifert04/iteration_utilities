@@ -13,7 +13,6 @@ PyIU_Partition(PyObject *Py_UNUSED(m),
     PyObject *iterator = NULL;
     PyObject *result1 = NULL;
     PyObject *result2 = NULL;
-    PyObject *funcargs = NULL;
     PyObject *result = NULL;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:partition", kwlist,
@@ -39,13 +38,6 @@ PyIU_Partition(PyObject *Py_UNUSED(m),
         func = NULL;
     }
 
-    if (func != NULL) {
-        funcargs = PyTuple_New(1);
-        if (funcargs == NULL) {
-            goto Fail;
-        }
-    }
-
     for (;;) {
         PyObject *item;
         PyObject *temp;
@@ -60,9 +52,7 @@ PyIU_Partition(PyObject *Py_UNUSED(m),
             temp = item;
             Py_INCREF(temp);
         } else {
-            PYIU_RECYCLE_ARG_TUPLE(funcargs, item, Py_DECREF(item);
-                                                   goto Fail);
-            temp = PyObject_Call(func, funcargs, NULL);
+            temp = PyIU_CallWithOneArgument(func, item);
             if (temp == NULL) {
                 Py_DECREF(item);
                 goto Fail;
@@ -97,7 +87,6 @@ PyIU_Partition(PyObject *Py_UNUSED(m),
         }
     }
 
-    Py_XDECREF(funcargs);
     Py_DECREF(iterator);
 
     if (PyErr_Occurred()) {
@@ -117,7 +106,6 @@ PyIU_Partition(PyObject *Py_UNUSED(m),
     return result;
 
 Fail:
-    Py_XDECREF(funcargs);
     Py_XDECREF(result1);
     Py_XDECREF(result2);
     Py_XDECREF(iterator);

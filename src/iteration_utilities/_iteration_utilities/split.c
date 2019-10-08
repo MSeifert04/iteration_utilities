@@ -12,7 +12,6 @@ typedef struct {
     int keep_after;
     int cmp;
     PyObject *next;
-    PyObject *funcargs;
 } PyIUObject_Split;
 
 static PyTypeObject PyIUType_Split;
@@ -33,7 +32,6 @@ split_new(PyTypeObject *type,
     PyObject *iterable;
     PyObject *delimiter;
     PyObject *iterator=NULL;
-    PyObject *funcargs=NULL;
     Py_ssize_t maxsplit = -1;  /* -1 means no maxsplit! */
     int keep_delimiter = 0, keep_before = 0, keep_after = 0, cmp = 0;
 
@@ -62,12 +60,6 @@ split_new(PyTypeObject *type,
     if (iterator == NULL) {
         goto Fail;
     }
-    if (!cmp) {
-        funcargs = PyTuple_New(1);
-        if (funcargs == NULL) {
-            goto Fail;
-        }
-    }
     self = (PyIUObject_Split *)type->tp_alloc(type, 0);
     if (self == NULL) {
         goto Fail;
@@ -81,12 +73,10 @@ split_new(PyTypeObject *type,
     self->keep_after = keep_after;
     self->cmp = cmp;
     self->next = NULL;
-    self->funcargs = funcargs;
     return (PyObject *)self;
 
 Fail:
     Py_XDECREF(iterator);
-    Py_XDECREF(funcargs);
     return NULL;
 
 }
@@ -102,7 +92,6 @@ split_dealloc(PyIUObject_Split *self)
     Py_XDECREF(self->iterator);
     Py_XDECREF(self->delimiter);
     Py_XDECREF(self->next);
-    Py_XDECREF(self->funcargs);
     Py_TYPE(self)->tp_free(self);
 }
 
@@ -118,7 +107,6 @@ split_traverse(PyIUObject_Split *self,
     Py_VISIT(self->iterator);
     Py_VISIT(self->delimiter);
     Py_VISIT(self->next);
-    Py_VISIT(self->funcargs);
     return 0;
 }
 
@@ -132,7 +120,6 @@ split_clear(PyIUObject_Split *self)
     Py_CLEAR(self->iterator);
     Py_CLEAR(self->delimiter);
     Py_CLEAR(self->next);
-    Py_CLEAR(self->funcargs);
     return 0;
 }
 
@@ -175,8 +162,7 @@ split_next(PyIUObject_Split *self)
             ok = PyObject_RichCompareBool(self->delimiter, item, Py_EQ);
 
         } else {
-            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, goto Fail);
-            val = PyObject_Call(self->delimiter, self->funcargs, NULL);
+            val = PyIU_CallWithOneArgument(self->delimiter, item);
             if (val == NULL) {
                 goto Fail;
             }

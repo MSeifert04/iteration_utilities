@@ -6,7 +6,6 @@ typedef struct {
     PyObject_HEAD
     PyObject *funcs;
     int all;
-    PyObject *funcargs;
 } PyIUObject_Chained;
 
 static PyTypeObject PyIUType_Chained;
@@ -44,13 +43,6 @@ chained_new(PyTypeObject *type,
     self = (PyIUObject_Chained *)type->tp_alloc(type, 0);
     if (self == NULL) {
         goto Fail;
-    }
-
-    if (!all) {
-        self->funcargs = PyTuple_New(1);
-        if (self->funcargs == NULL) {
-            goto Fail;
-        }
     }
 
     /* In case we want consecutive function calls (and not all) of them we can
@@ -154,7 +146,6 @@ chained_dealloc(PyIUObject_Chained *self)
 {
     PyObject_GC_UnTrack(self);
     Py_XDECREF(self->funcs);
-    Py_XDECREF(self->funcargs);
     Py_TYPE(self)->tp_free(self);
 }
 
@@ -168,7 +159,6 @@ chained_traverse(PyIUObject_Chained *self,
                  void *arg)
 {
     Py_VISIT(self->funcs);
-    Py_VISIT(self->funcargs);
     return 0;
 }
 
@@ -180,7 +170,6 @@ static int
 chained_clear(PyIUObject_Chained *self)
 {
     Py_CLEAR(self->funcs);
-    Py_CLEAR(self->funcargs);
     return 0;
 }
 
@@ -204,9 +193,7 @@ chained_call_normal(PyIUObject_Chained *self,
     for (idx=1 ; idx < PyTuple_GET_SIZE(self->funcs) ; idx++) {
         PyObject *func = PyTuple_GET_ITEM(self->funcs, idx);
         PyObject *oldtemp = temp;
-        PYIU_RECYCLE_ARG_TUPLE(self->funcargs, temp, Py_DECREF(oldtemp);
-                                                     return NULL);
-        temp = PyObject_Call(func, self->funcargs, NULL);
+        temp = PyIU_CallWithOneArgument(func, temp);
         Py_DECREF(oldtemp);
 
         if (temp == NULL) {

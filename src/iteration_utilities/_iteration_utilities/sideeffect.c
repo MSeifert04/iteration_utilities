@@ -9,7 +9,6 @@ typedef struct {
     Py_ssize_t times;    /* Call side effects each x items */
     Py_ssize_t count;    /* Current counter when to call func */
     PyObject *collected; /* Collect items to pass to side-effects */
-    PyObject *funcargs;  /* Wrapper for the arguments for the function */
 } PyIUObject_Sideeffects;
 
 static PyTypeObject PyIUType_Sideeffects;
@@ -30,7 +29,6 @@ sideeffects_new(PyTypeObject *type,
     PyObject *func;
     PyObject *iterator=NULL;
     PyObject *collected=NULL;
-    PyObject *funcargs=NULL;
     Py_ssize_t times = 0;
     Py_ssize_t count = 0;
 
@@ -54,10 +52,6 @@ sideeffects_new(PyTypeObject *type,
     if (iterator == NULL) {
         goto Fail;
     }
-    funcargs = PyTuple_New(1);
-    if (funcargs == NULL) {
-        goto Fail;
-    }
     self = (PyIUObject_Sideeffects *)type->tp_alloc(type, 0);
     if (self == NULL) {
         goto Fail;
@@ -68,13 +62,11 @@ sideeffects_new(PyTypeObject *type,
     self->times = times;
     self->count = count;
     self->collected = collected;
-    self->funcargs = funcargs;
     return (PyObject *)self;
 
 Fail:
     Py_XDECREF(collected);
     Py_XDECREF(iterator);
-    Py_XDECREF(funcargs);
     return NULL;
 }
 
@@ -89,7 +81,6 @@ sideeffects_dealloc(PyIUObject_Sideeffects *self)
     Py_XDECREF(self->iterator);
     Py_XDECREF(self->func);
     Py_XDECREF(self->collected);
-    Py_XDECREF(self->funcargs);
     Py_TYPE(self)->tp_free(self);
 }
 
@@ -105,7 +96,6 @@ sideeffects_traverse(PyIUObject_Sideeffects *self,
     Py_VISIT(self->iterator);
     Py_VISIT(self->func);
     Py_VISIT(self->collected);
-    Py_VISIT(self->funcargs);
     return 0;
 }
 
@@ -119,7 +109,6 @@ sideeffects_clear(PyIUObject_Sideeffects *self)
     Py_CLEAR(self->iterator);
     Py_CLEAR(self->func);
     Py_CLEAR(self->collected);
-    Py_CLEAR(self->funcargs);
     return 0;
 }
 
@@ -151,8 +140,7 @@ sideeffects_next(PyIUObject_Sideeffects *self)
             if (tmptuple == NULL) {
                 return NULL;
             }
-            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, tmptuple, return NULL);
-            temp = PyObject_Call(self->func, self->funcargs, NULL);
+            temp = PyIU_CallWithOneArgument(self->func, tmptuple);
             Py_DECREF(tmptuple);
             if (temp != NULL) {
                 Py_DECREF(temp);
@@ -166,8 +154,7 @@ sideeffects_next(PyIUObject_Sideeffects *self)
 
     if (self->times == 0) {
         /* Always call the function if times == 0 */
-        PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, goto Fail);
-        temp = PyObject_Call(self->func, self->funcargs, NULL);
+        temp = PyIU_CallWithOneArgument(self->func, item);
         if (temp == NULL) {
             goto Fail;
         } else {
@@ -181,8 +168,7 @@ sideeffects_next(PyIUObject_Sideeffects *self)
         self->count++;
         if (self->count == self->times) {
             self->count = 0;
-            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, self->collected, goto Fail);
-            temp = PyObject_Call(self->func, self->funcargs, NULL);
+            temp = PyIU_CallWithOneArgument(self->func, self->collected);
             if (temp == NULL) {
                 goto Fail;
             } else {
@@ -191,15 +177,13 @@ sideeffects_next(PyIUObject_Sideeffects *self)
             /* Try to reuse collected if possible. In this case the "funcargs"
                and the class own a reference to collected so we can only
                reuse the collected tuple IF nobody except the instance owns
-               the "funcargs" and nobody except the instance and the funcargs
-               owns the "collected". This can be up to 40-50% faster for small
+               the "funcargs". This can be up to 40-50% faster for small
                "times" values. Even for relativly bigger ones this is still
                10% faster.
                To avoid needing to decrement the values in the tuple while
                iterating these are simply set to NULL.
                */
-            if (Py_REFCNT(self->funcargs) == 1 &&
-                    Py_REFCNT(self->collected) <= 2) {
+            if (Py_REFCNT(self->collected) <= 1) {
                 for (i=0 ; i < self->times ; i++) {
                     temp = PyTuple_GET_ITEM(self->collected, i);
                     PyTuple_SET_ITEM(self->collected, i, NULL);
