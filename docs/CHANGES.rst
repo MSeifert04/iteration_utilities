@@ -8,6 +8,9 @@ Python 3.3 and 3.4 support was dropped. But: Existing workarounds and
 compatibility code won't be removed soon (unless there's a good reason for it,
 e.g. performance).
 
+- ``Iterable.islice`` will raise a more appropriate ``TypeError`` when called
+  without arguments.
+
 
 Version 0.7.0 (2018-01-28)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^

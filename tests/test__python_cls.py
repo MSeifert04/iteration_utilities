@@ -30,6 +30,13 @@ def test_cls_length_hint():
     assert operator.length_hint(Iterable([1, 2, 3]).accumulate()) == 3
 
 
+def test_islice_no_arguments():
+    # This previously raised an IndexError, this makes sure the correct
+    # exception is raised (#250).
+    with pytest.raises(TypeError):
+        Iterable([1]).islice()
+
+
 def test_cls_exception():
     with pytest.raises(TypeError):
         Iterable.from_count().pad(ntail=None)
