@@ -7,7 +7,6 @@ typedef struct {
     PyObject *iterator;
     PyObject *keyfunc;
     PyObject *lastitem;
-    PyObject *funcargs;
 } PyIUObject_UniqueJust;
 
 static PyTypeObject PyIUType_UniqueJust;
@@ -27,7 +26,6 @@ uniquejust_new(PyTypeObject *type,
     PyObject *iterable;
     PyObject *iterator=NULL;
     PyObject *keyfunc=NULL;
-    PyObject *funcargs=NULL;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:unique_justseen", kwlist,
@@ -42,12 +40,6 @@ uniquejust_new(PyTypeObject *type,
     if (iterator == NULL) {
         goto Fail;
     }
-    if (keyfunc != NULL) {
-        funcargs = PyTuple_New(1);
-        if (funcargs == NULL) {
-            goto Fail;
-        }
-    }
     self = (PyIUObject_UniqueJust *)type->tp_alloc(type, 0);
     if (self == NULL) {
         goto Fail;
@@ -56,12 +48,10 @@ uniquejust_new(PyTypeObject *type,
     self->iterator = iterator;
     self->keyfunc = keyfunc;
     self->lastitem = NULL;
-    self->funcargs = funcargs;
     return (PyObject *)self;
 
 Fail:
     Py_XDECREF(iterator);
-    Py_XDECREF(funcargs);
     return NULL;
 }
 
@@ -76,7 +66,6 @@ uniquejust_dealloc(PyIUObject_UniqueJust *self)
     Py_XDECREF(self->iterator);
     Py_XDECREF(self->keyfunc);
     Py_XDECREF(self->lastitem);
-    Py_XDECREF(self->funcargs);
     Py_TYPE(self)->tp_free(self);
 }
 
@@ -92,7 +81,6 @@ uniquejust_traverse(PyIUObject_UniqueJust *self,
     Py_VISIT(self->iterator);
     Py_VISIT(self->keyfunc);
     Py_VISIT(self->lastitem);
-    Py_VISIT(self->funcargs);
     return 0;
 }
 
@@ -106,7 +94,6 @@ uniquejust_clear(PyIUObject_UniqueJust *self)
     Py_CLEAR(self->iterator);
     Py_CLEAR(self->keyfunc);
     Py_CLEAR(self->lastitem);
-    Py_CLEAR(self->funcargs);
     return 0;
 }
 
@@ -127,8 +114,7 @@ uniquejust_next(PyIUObject_UniqueJust *self)
             Py_INCREF(item);
             val = item;
         } else {
-            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, goto Fail);
-            val = PyObject_Call(self->keyfunc, self->funcargs, NULL);
+            val = PyIU_CallWithOneArgument(self->keyfunc, item);
             if (val == NULL) {
                 goto Fail;
             }

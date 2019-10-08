@@ -40,67 +40,72 @@
         }                          \
     } while (0)
 
+
 /******************************************************************************
- * Complex Convenience macros
+ * Function call abstractions
  *
- * TODO: These are much too complex for macros but yield a 20-35% speedup over
- *       functions (which are 10-20% slower than using
- *       PyObject_CallFunctionArgs or similar).
+ * TODO: To support the different calling conventions across Python versions
  *
- * PYIU_RECYCLE_ARG_TUPLE :
- *     args (Tuple of length 1)
- *     newarg (PyObject *)
- *     error_stmt (for example "return NULL" or "goto Fail")
+ * PyIU_CallWithOneArgument :
+ *     Calls a function with one argument.
  *
- * PYIU_RECYCLE_ARG_TUPLE_BINOP :
- *     args (Tuple of length 1)
- *     new1, new2 (PyObject *)
- *     error_stmt (for example "return NULL" or "goto Fail")
+ * PyIU_CallWithTwoArguments :
+ *     Calls a function with two arguments.
  *****************************************************************************/
 
-#define PYIU_RECYCLE_ARG_TUPLE(args, newarg, error_stmt)                 \
-    do {                                                                 \
-        if (Py_REFCNT(args) == 1) {                                      \
-            /* Recycle args by replacing the element with newarg. */     \
-            PyObject *tmp = PyTuple_GET_ITEM(args, 0);                   \
-            Py_INCREF(newarg);                                           \
-            PyTuple_SET_ITEM(args, 0, newarg);                           \
-            Py_XDECREF(tmp);                                             \
-        } else {                                                         \
-            /* Create a new tuple and insert the newarg. */              \
-            PyObject *tmp = args;                                        \
-            args = PyTuple_New(1);                                       \
-            if (args == NULL) {                                          \
-                error_stmt;                                              \
-            }                                                            \
-            Py_INCREF(newarg);                                           \
-            PyTuple_SET_ITEM(args, 0, newarg);                           \
-            Py_DECREF(tmp);                                              \
-        }                                                                \
-    } while (0)
 
+static PyObject*
+PyIU_CallWithOneArgument(PyObject *callable, PyObject *arg1) {
+    #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+        PyObject *args[1];
+        args[0] = arg1;
+        return _PyObject_Vectorcall(callable, args, 1, NULL);
+    #elif PY_MAJOR_VERSION == 3 && (PY_MINOR_VERSION == 6 || PY_MINOR_VERSION == 7)
+        PyObject *args[1];
+        args[0] = arg1;
+        return _PyObject_FastCall(callable, args, 1);
+    #else
+        PyObject *result;
+        PyObject *args = PyTuple_New(1);
+        if (args == NULL) {
+            Py_DECREF(arg1);
+            return NULL;
+        }
+        Py_INCREF(arg1);
+        PyTuple_SET_ITEM(args, 0, arg1);
+        result = PyObject_Call(callable, args, NULL);
+        Py_DECREF(args);
+        return result;
+    #endif
+}
 
-#define PYIU_RECYCLE_ARG_TUPLE_BINOP(args, new1, new2, error_stmt)                \
-    do {                                                                          \
-        if (Py_REFCNT(args) == 1) {                                               \
-            /* Recycle args by replacing the element with newarg. */              \
-            PyObject *tmp1 = PyTuple_GET_ITEM(args, 0);                           \
-            PyObject *tmp2 = PyTuple_GET_ITEM(args, 1);                           \
-            Py_INCREF(new1);                  Py_INCREF(new2);                    \
-            PyTuple_SET_ITEM(args, 0, new1);  PyTuple_SET_ITEM(args, 1, new2);    \
-            Py_XDECREF(tmp1);                 Py_XDECREF(tmp2);                   \
-        } else {                                                                  \
-            /* Create a new tuple and insert the newarg. */                       \
-            PyObject *tmp = (args);                                               \
-            args = PyTuple_New(2);                                                \
-            if (args == NULL) {                                                   \
-                error_stmt;                                                       \
-            }                                                                     \
-            Py_INCREF(new1);                 Py_INCREF(new2);                     \
-            PyTuple_SET_ITEM(args, 0, new1); PyTuple_SET_ITEM(args, 1, new2);     \
-            Py_DECREF(tmp);                                                       \
-        }                                                                         \
-    } while (0)
+static PyObject*
+PyIU_CallWithTwoArguments(PyObject *callable, PyObject *arg1, PyObject *arg2) {
+    #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+        PyObject *args[2];
+        args[0] = arg1;
+        args[1] = arg2;
+        return _PyObject_Vectorcall(callable, args, 2, NULL);
+    #elif PY_MAJOR_VERSION == 3 && (PY_MINOR_VERSION == 6 || PY_MINOR_VERSION == 7)
+        PyObject *args[2];
+        args[0] = arg1;
+        args[1] = arg2;
+        return _PyObject_FastCall(callable, args, 2);
+    #else
+        PyObject *result;
+        PyObject *args = PyTuple_New(2);
+        if (args == NULL) {
+            return NULL;
+        }
+        Py_INCREF(arg1);
+        Py_INCREF(arg2);
+        PyTuple_SET_ITEM(args, 0, arg1);
+        PyTuple_SET_ITEM(args, 1, arg2);
+        result = PyObject_Call(callable, args, NULL);
+        Py_DECREF(args);
+        return result;
+    #endif
+}
 
 /******************************************************************************
  * Global constants.

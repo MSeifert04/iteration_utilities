@@ -14,7 +14,6 @@ PyIU_Count(PyObject *Py_UNUSED(m),
     PyObject *iterator=NULL;
     PyObject *val=NULL;
     PyObject *pred=NULL;
-    PyObject *funcargs=NULL;
     Py_ssize_t sum_int = 0;
     int ok, eq=0;
 
@@ -29,13 +28,6 @@ PyIU_Count(PyObject *Py_UNUSED(m),
                         "`pred` argument for `count_items` must be specified "
                         "if `eq=True`.");
         goto Fail;
-    }
-
-    if (pred != NULL && pred != (PyObject *)&PyBool_Type) {
-        funcargs = PyTuple_New(1);
-        if (funcargs == NULL) {
-            goto Fail;
-        }
     }
 
     iterator = PyObject_GetIter(iterable);
@@ -64,8 +56,7 @@ PyIU_Count(PyObject *Py_UNUSED(m),
 
         /* Call the function and check if the returned value is truthy. */
         } else {
-            PYIU_RECYCLE_ARG_TUPLE(funcargs, item, goto Fail);
-            val = PyObject_Call(pred, funcargs, NULL);
+            val = PyIU_CallWithOneArgument(pred, item);
             Py_DECREF(item);
             if (val == NULL) {
                 goto Fail;
@@ -94,7 +85,6 @@ PyIU_Count(PyObject *Py_UNUSED(m),
         }
     }
 
-    Py_XDECREF(funcargs);
     Py_DECREF(iterator);
 
     if (PyErr_Occurred()) {
@@ -113,6 +103,5 @@ PyIU_Count(PyObject *Py_UNUSED(m),
 
 Fail:
     Py_XDECREF(iterator);
-    Py_XDECREF(funcargs);
     return NULL;
 }

@@ -6,7 +6,6 @@ typedef struct {
     PyObject_HEAD
     PyObject *func;
     PyObject *cnt;
-    PyObject *funcargs;
 } PyIUObject_Tabulate;
 
 static PyTypeObject PyIUType_Tabulate;
@@ -23,7 +22,7 @@ tabulate_new(PyTypeObject *type,
     static char *kwlist[] = {"func", "start", NULL};
     PyIUObject_Tabulate *self;
 
-    PyObject *func, *cnt=NULL, *funcargs=NULL;
+    PyObject *func, *cnt=NULL;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:tabulate", kwlist,
@@ -35,11 +34,6 @@ tabulate_new(PyTypeObject *type,
     }
     Py_INCREF(cnt);
 
-    funcargs = PyTuple_New(1);
-    if (funcargs == NULL) {
-        goto Fail;
-    }
-
     /* Create and fill struct */
     self = (PyIUObject_Tabulate *)type->tp_alloc(type, 0);
     if (self == NULL) {
@@ -48,13 +42,11 @@ tabulate_new(PyTypeObject *type,
     Py_INCREF(func);
     self->func = func;
     self->cnt = cnt;
-    self->funcargs = funcargs;
 
     return (PyObject *)self;
 
 Fail:
     Py_XDECREF(cnt);
-    Py_XDECREF(funcargs);
     return NULL;
 }
 
@@ -68,7 +60,6 @@ tabulate_dealloc(PyIUObject_Tabulate *self)
     PyObject_GC_UnTrack(self);
     Py_XDECREF(self->func);
     Py_XDECREF(self->cnt);
-    Py_XDECREF(self->funcargs);
     Py_TYPE(self)->tp_free(self);
 }
 
@@ -83,7 +74,6 @@ tabulate_traverse(PyIUObject_Tabulate *self,
 {
     Py_VISIT(self->func);
     Py_VISIT(self->cnt);
-    Py_VISIT(self->funcargs);
     return 0;
 }
 
@@ -96,7 +86,6 @@ tabulate_clear(PyIUObject_Tabulate *self)
 {
     Py_CLEAR(self->func);
     Py_CLEAR(self->cnt);
-    Py_CLEAR(self->funcargs);
     return 0;
 }
 
@@ -112,8 +101,7 @@ tabulate_next(PyIUObject_Tabulate *self)
         goto Fail;
     }
     /* Call the function with the current value as argument. */
-    PYIU_RECYCLE_ARG_TUPLE(self->funcargs, self->cnt, return NULL);
-    result = PyObject_Call(self->func, self->funcargs, NULL);
+    result = PyIU_CallWithOneArgument(self->func, self->cnt);
     if (result == NULL) {
         goto Fail;
     }

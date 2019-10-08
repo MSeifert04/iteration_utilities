@@ -5,7 +5,6 @@
 typedef struct {
     PyObject_HEAD
     Py_ssize_t index;
-    PyObject *funcargs;
 } PyIUObject_Nth;
 
 static PyTypeObject PyIUType_Nth;
@@ -21,16 +20,10 @@ nth_new(PyTypeObject *type,
 {
     PyIUObject_Nth *self;
 
-    PyObject *funcargs = NULL;
     Py_ssize_t index;
 
     /* Parse arguments */
     if (!PyArg_ParseTuple(args, "n:nth", &index)) {
-        goto Fail;
-    }
-
-    funcargs = PyTuple_New(1);
-    if (funcargs == NULL) {
         goto Fail;
     }
 
@@ -40,11 +33,9 @@ nth_new(PyTypeObject *type,
         goto Fail;
     }
     self->index = index;
-    self->funcargs = funcargs;
     return (PyObject *)self;
 
 Fail:
-    Py_XDECREF(funcargs);
     return NULL;
 }
 
@@ -56,7 +47,6 @@ static void
 nth_dealloc(PyIUObject_Nth *self)
 {
     PyObject_GC_UnTrack(self);
-    Py_XDECREF(self->funcargs);
     Py_TYPE(self)->tp_free(self);
 }
 
@@ -69,7 +59,6 @@ nth_traverse(PyIUObject_Nth *self,
              visitproc visit,
              void *arg)
 {
-    Py_VISIT(self->funcargs);
     return 0;
 }
 
@@ -80,7 +69,6 @@ nth_traverse(PyIUObject_Nth *self,
 static int
 nth_clear(PyIUObject_Nth *self)
 {
-    Py_CLEAR(self->funcargs);
     return 0;
 }
 
@@ -168,11 +156,7 @@ nth_call(PyIUObject_Nth *self,
 
         /* Otherwise call the function.  */
         } else {
-            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, Py_DECREF(iterator);
-                                                         Py_DECREF(item);
-                                                         Py_XDECREF(last);
-                                                         return NULL);
-            val = PyObject_Call(func, self->funcargs, NULL);
+            val = PyIU_CallWithOneArgument(func, item);
             if (val == NULL) {
                 Py_DECREF(iterator);
                 Py_DECREF(item);

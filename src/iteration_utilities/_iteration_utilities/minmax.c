@@ -13,7 +13,6 @@ PyIU_MinMax(PyObject *Py_UNUSED(m),
     PyObject *item1 = NULL, *item2 = NULL, *val1 = NULL, *val2 = NULL;
     PyObject *maxitem = NULL, *maxval = NULL, *minitem = NULL, *minval = NULL;
     PyObject *temp = NULL, *resulttuple = NULL;
-    PyObject *funcargs=NULL;
     int cmp;
     const int positional = PyTuple_GET_SIZE(args) > 1;
 
@@ -39,13 +38,6 @@ PyIU_MinMax(PyObject *Py_UNUSED(m),
         goto Fail;
     }
 
-    if (keyfunc != NULL) {
-        funcargs = PyTuple_New(1);
-        if (funcargs == NULL) {
-            goto Fail;
-        }
-    }
-
     iterator = PyObject_GetIter(sequence);
     if (iterator == NULL) {
         goto Fail;
@@ -69,14 +61,12 @@ PyIU_MinMax(PyObject *Py_UNUSED(m),
 
         /* get the value from the key function. */
         if (keyfunc != NULL) {
-            PYIU_RECYCLE_ARG_TUPLE(funcargs, item1, goto Fail);
-            val1 = PyObject_Call(keyfunc, funcargs, NULL);
+            val1 = PyIU_CallWithOneArgument(keyfunc, item1);
             if (val1 == NULL) {
                 goto Fail;
             }
             if (item2 != NULL) {
-                PYIU_RECYCLE_ARG_TUPLE(funcargs, item2, goto Fail);
-                val2 = PyObject_Call(keyfunc, funcargs, NULL);
+                val2 = PyIU_CallWithOneArgument(keyfunc, item2);
                 if (val2 == NULL) {
                     goto Fail;
                 }
@@ -231,7 +221,6 @@ PyIU_MinMax(PyObject *Py_UNUSED(m),
     }
 
     Py_DECREF(iterator);
-    Py_XDECREF(funcargs);
     Py_XDECREF(keyfunc);
     Py_XDECREF(defaultitem);
 
@@ -245,7 +234,6 @@ PyIU_MinMax(PyObject *Py_UNUSED(m),
     return resulttuple;
 
 Fail:
-    Py_XDECREF(funcargs);
     Py_XDECREF(keyfunc);
     Py_XDECREF(defaultitem);
     Py_XDECREF(item1);

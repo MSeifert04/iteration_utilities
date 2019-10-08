@@ -6,7 +6,6 @@ typedef struct {
     PyObject_HEAD
     PyObject *func;
     PyObject *value;
-    PyObject *funcargs;
 } PyIUObject_Applyfunc;
 
 static PyTypeObject PyIUType_Applyfunc;
@@ -23,15 +22,11 @@ applyfunc_new(PyTypeObject *type,
     static char *kwlist[] = {"func", "initial", NULL};
     PyIUObject_Applyfunc *self;
 
-    PyObject *func, *initial, *funcargs=NULL;
+    PyObject *func, *initial;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO:applyfunc", kwlist,
                                      &func, &initial)) {
-        goto Fail;
-    }
-    funcargs = PyTuple_New(1);
-    if (funcargs == NULL) {
         goto Fail;
     }
 
@@ -44,12 +39,10 @@ applyfunc_new(PyTypeObject *type,
     Py_INCREF(initial);
     self->func = func;
     self->value = initial;
-    self->funcargs = funcargs;
 
     return (PyObject *)self;
 
 Fail:
-    Py_XDECREF(funcargs);
     return NULL;
 }
 
@@ -63,7 +56,6 @@ applyfunc_dealloc(PyIUObject_Applyfunc *self)
     PyObject_GC_UnTrack(self);
     Py_XDECREF(self->func);
     Py_XDECREF(self->value);
-    Py_XDECREF(self->funcargs);
     Py_TYPE(self)->tp_free(self);
 }
 
@@ -78,7 +70,6 @@ applyfunc_traverse(PyIUObject_Applyfunc *self,
 {
     Py_VISIT(self->func);
     Py_VISIT(self->value);
-    Py_VISIT(self->funcargs);
     return 0;
 }
 
@@ -91,7 +82,6 @@ applyfunc_clear(PyIUObject_Applyfunc *self)
 {
     Py_CLEAR(self->func);
     Py_CLEAR(self->value);
-    Py_CLEAR(self->funcargs);
     return 0;
 }
 
@@ -105,8 +95,7 @@ applyfunc_next(PyIUObject_Applyfunc *self)
     PyObject *newval, *temp;
 
     /* Call the function with the current value as argument.  */
-    PYIU_RECYCLE_ARG_TUPLE(self->funcargs, self->value, return NULL);
-    newval = PyObject_Call(self->func, self->funcargs, NULL);
+    newval = PyIU_CallWithOneArgument(self->func, self->value);
     if (newval == NULL) {
         return NULL;
     }

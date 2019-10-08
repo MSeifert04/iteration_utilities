@@ -10,7 +10,7 @@ argminmax(PyObject *args,
     static char *kwlist[] = {"key", "default", NULL};
 
     PyObject *sequence, *keyfunc=NULL, *iterator=NULL;
-    PyObject *item=NULL, *val=NULL, *maxval=NULL, *funcargs=NULL;
+    PyObject *item=NULL, *val=NULL, *maxval=NULL;
     Py_ssize_t defaultitem=0, idx=-1, maxidx=-1;
     int defaultisset = 0;
     const int positional = PyTuple_GET_SIZE(args) > 1;
@@ -38,13 +38,6 @@ argminmax(PyObject *args,
     PYIU_NULL_IF_NONE(keyfunc);
     Py_XINCREF(keyfunc);
 
-    if (keyfunc != NULL) {
-        funcargs = PyTuple_New(1);
-        if (funcargs == NULL) {
-            goto Fail;
-        }
-    }
-
     if (positional && defaultisset) {
         PyErr_Format(PyExc_TypeError,
                      "Cannot specify a `default` for `%s` with "
@@ -63,8 +56,7 @@ argminmax(PyObject *args,
 
         /* Use the item itself or keyfunc(item). */
         if (keyfunc != NULL) {
-            PYIU_RECYCLE_ARG_TUPLE(funcargs, item, goto Fail);
-            val = PyObject_Call(keyfunc, funcargs, NULL);
+            val = PyIU_CallWithOneArgument(keyfunc, item);
             if (val == NULL) {
                 goto Fail;
             }
@@ -95,7 +87,6 @@ argminmax(PyObject *args,
     }
 
     Py_DECREF(iterator);
-    Py_XDECREF(funcargs);
     Py_XDECREF(maxval);
     Py_XDECREF(keyfunc);
 
@@ -124,7 +115,6 @@ argminmax(PyObject *args,
 #endif
 
 Fail:
-    Py_XDECREF(funcargs);
     Py_XDECREF(keyfunc);
     Py_XDECREF(item);
     Py_XDECREF(val);
