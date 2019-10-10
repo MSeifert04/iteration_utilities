@@ -99,7 +99,6 @@ typedef struct {
     PyObject *current;
     Py_ssize_t numactive;
     int reverse;
-    PyObject *funcargs;
 } PyIUObject_Merge;
 
 static PyTypeObject PyIUType_Merge;
@@ -118,7 +117,6 @@ merge_new(PyTypeObject *type,
 
     PyObject *iteratortuple = NULL;
     PyObject *keyfunc = NULL;
-    PyObject *funcargs = NULL;
     int reverse = 0;
 
     /* Parse arguments */
@@ -140,13 +138,6 @@ merge_new(PyTypeObject *type,
         goto Fail;
     }
 
-    if (keyfunc != NULL) {
-        funcargs = PyTuple_New(1);
-        if (funcargs == NULL) {
-            goto Fail;
-        }
-    }
-
     self = (PyIUObject_Merge *)type->tp_alloc(type, 0);
     if (self == NULL) {
         goto Fail;
@@ -157,13 +148,11 @@ merge_new(PyTypeObject *type,
     self->reverse = reverse;
     self->current = NULL;
     self->numactive = PyTuple_GET_SIZE(args);
-    self->funcargs = funcargs;
     return (PyObject *)self;
 
 Fail:
     Py_XDECREF(iteratortuple);
     Py_XDECREF(keyfunc);
-    Py_XDECREF(funcargs);
     return NULL;
 }
 
@@ -178,7 +167,6 @@ merge_dealloc(PyIUObject_Merge *self)
     Py_XDECREF(self->iteratortuple);
     Py_XDECREF(self->keyfunc);
     Py_XDECREF(self->current);
-    Py_XDECREF(self->funcargs);
     Py_TYPE(self)->tp_free(self);
 }
 
@@ -194,7 +182,6 @@ merge_traverse(PyIUObject_Merge *self,
     Py_VISIT(self->iteratortuple);
     Py_VISIT(self->keyfunc);
     Py_VISIT(self->current);
-    Py_VISIT(self->funcargs);
     return 0;
 }
 
@@ -208,7 +195,6 @@ merge_clear(PyIUObject_Merge *self)
     Py_CLEAR(self->iteratortuple);
     Py_CLEAR(self->keyfunc);
     Py_CLEAR(self->current);
-    Py_CLEAR(self->funcargs);
     return 0;
 }
 
@@ -237,10 +223,7 @@ merge_init_current(PyIUObject_Merge *self)
                from which iterable to get the next item if it is yielded).
                */
             if (self->keyfunc != NULL) {
-                PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, Py_DECREF(current);
-                                                             Py_DECREF(item);
-                                                             return -1;);
-                keyval = PyObject_Call(self->keyfunc, self->funcargs, NULL);
+                keyval = PyIU_CallWithOneArgument(self->keyfunc, item);
                 if (keyval == NULL) {
                     Py_DECREF(item);
                     goto Fail;
@@ -340,11 +323,7 @@ merge_next(PyIUObject_Merge *self)
     } else {
         if (self->keyfunc != NULL) {
             oldkeyval = next->key;
-            PYIU_RECYCLE_ARG_TUPLE(self->funcargs, item, Py_DECREF(item);
-                                                         Py_DECREF(val);
-                                                         Py_DECREF(next);
-                                                         return NULL;);
-            keyval = PyObject_Call(self->keyfunc, self->funcargs, NULL);
+            keyval = PyIU_CallWithOneArgument(self->keyfunc, item);
             if (keyval == NULL) {
                 Py_DECREF(item);
                 Py_DECREF(val);
@@ -603,18 +582,6 @@ merge_setstate(PyIUObject_Merge *self,
             PyTuple_SET_ITEM(new_current, i, iik2);
         }
         current = new_current;
-    }
-
-    /* If we have a keyfunc we need to create funcargs if the class doesn't
-       have them already.
-       */
-    if (keyfunc != NULL && self->funcargs == NULL) {
-        PyObject *funcargs = PyTuple_New(1);
-        if (funcargs == NULL) {
-            return NULL;
-        }
-        Py_CLEAR(self->funcargs);
-        self->funcargs = funcargs;
     }
 
     Py_CLEAR(self->keyfunc);

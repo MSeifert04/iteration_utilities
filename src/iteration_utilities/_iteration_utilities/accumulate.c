@@ -11,7 +11,6 @@ typedef struct {
     PyObject *iterator;
     PyObject *binop;
     PyObject *total;
-    PyObject *funcargs;
 } PyIUObject_Accumulate;
 
 static PyTypeObject PyIUType_Accumulate;
@@ -32,7 +31,6 @@ accumulate_new(PyTypeObject *type,
     PyObject *iterator = NULL;
     PyObject *binop = NULL;
     PyObject *start = NULL;
-    PyObject *funcargs = NULL;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OO:accumulate", kwlist,
@@ -47,13 +45,6 @@ accumulate_new(PyTypeObject *type,
         goto Fail;
     }
 
-    if (binop != NULL) {
-        funcargs = PyTuple_New(2);
-        if (funcargs == NULL) {
-            goto Fail;
-        }
-    }
-
     self = (PyIUObject_Accumulate *)type->tp_alloc(type, 0);
     if (self == NULL) {
         goto Fail;
@@ -63,11 +54,9 @@ accumulate_new(PyTypeObject *type,
     self->binop = binop;
     self->iterator = iterator;
     self->total = start;
-    self->funcargs = funcargs;
     return (PyObject *)self;
 
 Fail:
-    Py_XDECREF(funcargs);
     Py_XDECREF(iterator);
     return NULL;
 }
@@ -83,7 +72,6 @@ accumulate_dealloc(PyIUObject_Accumulate *self)
     Py_XDECREF(self->iterator);
     Py_XDECREF(self->binop);
     Py_XDECREF(self->total);
-    Py_XDECREF(self->funcargs);
     Py_TYPE(self)->tp_free(self);
 }
 
@@ -99,7 +87,6 @@ accumulate_traverse(PyIUObject_Accumulate *self,
     Py_VISIT(self->iterator);
     Py_VISIT(self->binop);
     Py_VISIT(self->total);
-    Py_VISIT(self->funcargs);
     return 0;
 }
 
@@ -113,7 +100,6 @@ accumulate_clear(PyIUObject_Accumulate *self)
     Py_CLEAR(self->iterator);
     Py_CLEAR(self->binop);
     Py_CLEAR(self->total);
-    Py_CLEAR(self->funcargs);
     return 0;
 }
 
@@ -147,9 +133,7 @@ accumulate_next(PyIUObject_Accumulate *self)
     if (self->binop == NULL) {
         newtotal = PyNumber_Add(self->total, item);
     } else {
-        PYIU_RECYCLE_ARG_TUPLE_BINOP(self->funcargs, self->total, item, Py_DECREF(item);
-                                                                        return NULL);
-        newtotal = PyObject_Call(self->binop, self->funcargs, NULL);
+        newtotal = PyIU_CallWithTwoArguments(self->binop, self->total, item);
     }
     Py_DECREF(item);
     if (newtotal == NULL) {
