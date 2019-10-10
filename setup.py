@@ -16,7 +16,7 @@ def version():
 _iteration_utilities_module = Extension(
     'iteration_utilities._iteration_utilities',
     sources=[path.join('src', 'iteration_utilities', '_iteration_utilities', '_module.c')],
-    depends=glob(path.join('src', '*.c'))
+    depends=glob(path.join('src', 'iteration_utilities', '_iteration_utilities', '*.c'))
     )
 
 setup(
