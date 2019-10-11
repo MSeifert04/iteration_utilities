@@ -22,9 +22,12 @@ PyIU_Groupby(PyObject *Py_UNUSED(m),
                                      &reducestart)) {
         goto Fail;
     }
-
-    PYIU_NULL_IF_NONE(reducefunc);
-    PYIU_NULL_IF_NONE(valfunc);
+    if (reducefunc == Py_None) {
+        reducefunc = NULL;
+    }
+    if (valfunc == Py_None) {
+        valfunc = NULL;
+    }
 
     if (reducefunc == NULL && reducestart != NULL) {
         PyErr_SetString(PyExc_TypeError,

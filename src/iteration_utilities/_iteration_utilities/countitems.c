@@ -21,7 +21,9 @@ PyIU_Count(PyObject *Py_UNUSED(m),
                                      &iterable, &pred, &eq)) {
         return NULL;
     }
-    PYIU_NULL_IF_NONE(pred);
+    if (pred == Py_None) {
+        pred = NULL;
+    }
 
     if (eq && pred == NULL) {
         PyErr_SetString(PyExc_TypeError,

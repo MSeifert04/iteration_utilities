@@ -39,8 +39,12 @@ deepflatten_new(PyTypeObject *type,
                                      &iterable, &depth, &types, &ignore)) {
         goto Fail;
     }
-    PYIU_NULL_IF_NONE(types);
-    PYIU_NULL_IF_NONE(ignore);
+    if (types == Py_None) {
+        types = NULL;
+    }
+    if (ignore == Py_None) {
+        ignore = NULL;
+    }
 
     /* Create and fill struct */
     iterator = PyObject_GetIter(iterable);

@@ -24,24 +24,6 @@
 #endif
 
 /******************************************************************************
- * Simple Convenience macros
- *
- * Set a value to NULL if it's None.
- *
- * PYIU_NULL_IF_NONE :
- *     arg : PyObject *
- *
- *****************************************************************************/
-
-#define PYIU_NULL_IF_NONE(arg)     \
-    do {                           \
-        if (arg == Py_None) {      \
-           arg = NULL;             \
-        }                          \
-    } while (0)
-
-
-/******************************************************************************
  * Function call abstractions
  *
  * TODO: To support the different calling conventions across Python versions

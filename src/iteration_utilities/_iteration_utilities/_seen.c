@@ -84,8 +84,12 @@ seen_new(PyTypeObject *type,
                                      &seenset, &seenlist)) {
         goto Fail;
     }
-    PYIU_NULL_IF_NONE(seenset);
-    PYIU_NULL_IF_NONE(seenlist);
+    if (seenset == Py_None) {
+        seenset = NULL;
+    }
+    if (seenlist == Py_None) {
+        seenlist = NULL;
+    }
 
     if (seenset == NULL) {
         seenset = PySet_New(NULL);

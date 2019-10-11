@@ -30,7 +30,9 @@ iterexcept_new(PyTypeObject *type,
                                      &func, &except, &first)) {
         return NULL;
     }
-    PYIU_NULL_IF_NONE(first);
+    if (first == Py_None) {
+        first = NULL;
+    }
 
     /* Create and fill struct */
     self = (PyIUObject_Iterexcept *)type->tp_alloc(type, 0);

@@ -32,9 +32,9 @@ uniquejust_new(PyTypeObject *type,
                                      &iterable, &keyfunc)) {
         goto Fail;
     }
-
-    /* Create and fill struct */
-    PYIU_NULL_IF_NONE(keyfunc);
+    if (keyfunc == Py_None) {
+        keyfunc = NULL;
+    }
 
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {

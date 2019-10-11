@@ -42,7 +42,9 @@ uniqueever_new(PyTypeObject *type,
                                      &iterable, &key)) {
         goto Fail;
     }
-    PYIU_NULL_IF_NONE(key);
+    if (key == Py_None) {
+        key = NULL;
+    }
 
     /* Create and fill struct */
     iterator = PyObject_GetIter(iterable);
