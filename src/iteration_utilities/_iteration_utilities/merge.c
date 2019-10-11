@@ -128,8 +128,9 @@ merge_new(PyTypeObject *type,
     }
 
     reverse = reverse ? Py_GT : Py_LT;
-
-    PYIU_NULL_IF_NONE(keyfunc);
+    if (keyfunc == Py_None) {
+        keyfunc = NULL;
+    }
     Py_XINCREF(keyfunc);
 
     /* Create and fill struct */
@@ -431,9 +432,12 @@ merge_setstate(PyIUObject_Merge *self,
                           &keyfunc, &reverse, &current, &numactive)) {
         return NULL;
     }
-
-    PYIU_NULL_IF_NONE(current);
-    PYIU_NULL_IF_NONE(keyfunc);
+    if (current == Py_None) {
+        current = NULL;
+    }
+    if (keyfunc == Py_None) {
+        keyfunc = NULL;
+    }
 
     /* If it's from a "reduce" call then it should work fine, but if someone
        tries to feed anything in here we need to check the conditions the

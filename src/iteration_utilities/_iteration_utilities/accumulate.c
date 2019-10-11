@@ -37,7 +37,9 @@ accumulate_new(PyTypeObject *type,
                                      &iterable, &binop, &start)) {
         goto Fail;
     }
-    PYIU_NULL_IF_NONE(binop);
+    if (binop == Py_None) {
+        binop = NULL;
+    }
 
     /* Create and fill struct */
     iterator = PyObject_GetIter(iterable);

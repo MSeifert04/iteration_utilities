@@ -39,8 +39,12 @@ clamp_new(PyTypeObject *type,
     /* None cannot be compared so it's unlikely we exclude use-cases by
        allowing low=None as equivalent to not giving any "low" argument.
        */
-    PYIU_NULL_IF_NONE(low);
-    PYIU_NULL_IF_NONE(high);
+    if (low == Py_None) {
+        low = NULL;
+    }
+    if (high == Py_None) {
+        high = NULL;
+    }
 
     /* Create and fill struct */
     iterator = PyObject_GetIter(iterable);
