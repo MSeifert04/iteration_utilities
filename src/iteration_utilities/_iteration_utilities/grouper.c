@@ -2,16 +2,74 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-typedef struct {
-    PyObject_HEAD
-    PyObject *iterator;
-    PyObject *fillvalue;
-    PyObject *result;
-    Py_ssize_t times;
-    int truncate;
-} PyIUObject_Grouper;
+#include "grouper.h"
+#include "docs_reduce.h"
+#include "docs_setstate.h"
+#include "docs_lengthhint.h"
+#include <structmember.h>
 
-static PyTypeObject PyIUType_Grouper;
+PyDoc_STRVAR(grouper_prop_fillvalue_doc,
+    "(any type) The fillvalue if the last group does not contain enough "
+    "items (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+PyDoc_STRVAR(grouper_prop_times_doc,
+    "(:py:class:`int`) The size of each group (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+PyDoc_STRVAR(grouper_prop_truncate_doc,
+    "(:py:class:`int`) ``True`` if an incomplete last group is discarded "
+     "(readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+
+PyDoc_STRVAR(grouper_doc,
+    "grouper(iterable, n, fillvalue=None, truncate=False)\n"
+    "--\n\n"
+    "Collect data into fixed-length chunks or blocks.\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "iterable : iterable\n"
+    "    Any `iterable` to group.\n"
+    "\n"
+    "n : :py:class:`int`\n"
+    "    The number of elements in each chunk.\n"
+    "\n"
+    "fillvalue : any type, optional\n"
+    "    The `fillvalue` if the `iterable` is consumed and the last yielded group\n"
+    "    should be filled. If not given the last yielded group may be shorter\n"
+    "    than the group before. Using ``fillvalue=None`` is different from not \n"
+    "    giving a `fillvalue` in that the last group will be filled with ``None``.\n"
+    "\n"
+    "truncate : :py:class:`bool`, optional\n"
+    "    As alternative to `fillvalue` the last group is discarded if it is\n"
+    "    shorter than `n` and `truncate` is ``True``.\n"
+    "    Default is ``False``.\n"
+    "\n"
+    "Raises\n"
+    "------\n"
+    "TypeError\n"
+    "    If `truncate` is ``True`` and a `fillvalue` is given.\n"
+    "\n"
+    "Returns\n"
+    "-------\n"
+    "groups : generator\n"
+    "    An `iterable` containing the groups/chunks as ``tuple``.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    ">>> from iteration_utilities import grouper\n"
+    "\n"
+    ">>> list(grouper('ABCDEFG', 3))\n"
+    "[('A', 'B', 'C'), ('D', 'E', 'F'), ('G',)]\n"
+    "\n"
+    ">>> list(grouper('ABCDEFG', 3, fillvalue='x'))\n"
+    "[('A', 'B', 'C'), ('D', 'E', 'F'), ('G', 'x', 'x')]\n"
+    "\n"
+    ">>> list(grouper('ABCDEFG', 3, truncate=True))\n"
+    "[('A', 'B', 'C'), ('D', 'E', 'F')]\n"
+);
 
 /******************************************************************************
  * New
@@ -362,7 +420,7 @@ static PyMemberDef grouper_memberlist[] = {
 };
 #undef OFF
 
-static PyTypeObject PyIUType_Grouper = {
+PyTypeObject PyIUType_Grouper = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.grouper",        /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Grouper),             /* tp_basicsize */

@@ -2,15 +2,55 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-typedef struct {
-    PyObject_HEAD
-    PyObject *iterator;
-    PyObject *current;
-    Py_ssize_t repeattotal;
-    Py_ssize_t repeatcurrent;
-} PyIUObject_Replicate;
+#include "replicate.h"
+#include "docs_reduce.h"
+#include "docs_setstate.h"
+#include "docs_lengthhint.h"
+#include <structmember.h>
 
-static PyTypeObject PyIUType_Replicate;
+PyDoc_STRVAR(replicate_prop_times_doc,
+    "(:py:class:`int`) The number of times each item is replicated (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+PyDoc_STRVAR(replicate_prop_timescurrent_doc,
+    "(:py:class:`int`) A counter indicating how often the current item was "
+     "already replicated (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+PyDoc_STRVAR(replicate_prop_current_doc,
+    "(any type) The item that is currently replicated (readonly).\n"
+    "\n"
+    "Only available if an item has been replicated.\n"
+    "\n"
+    ".. versionadded:: 0.6");
+
+PyDoc_STRVAR(replicate_doc,
+    "replicate(iterable, times)\n"
+    "--\n\n"
+    "Replicates each item in the `iterable` for `times` times.\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "iterable : iterable\n"
+    "    The iterable which contains the elements to be replicated.\n"
+    "\n"
+    "times : positive :py:class:`int`\n"
+    "    The number of `times` each element is replicated.\n"
+    "\n"
+    "Returns\n"
+    "-------\n"
+    "repeated_iterable : generator\n"
+    "    A generator containing the replicated items from `iterable`.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    ">>> from iteration_utilities import replicate\n"
+    ">>> ''.join(replicate('abc', 3))\n"
+    "'aaabbbccc'\n"
+    "\n"
+    ">>> list(replicate(range(3), 5))\n"
+    "[0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2]\n"
+);
 
 /******************************************************************************
  * New
@@ -300,7 +340,7 @@ static PyMemberDef replicate_memberlist[] = {
 };
 #undef OFF
 
-static PyTypeObject PyIUType_Replicate = {
+PyTypeObject PyIUType_Replicate = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.replicate",      /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Replicate),           /* tp_basicsize */

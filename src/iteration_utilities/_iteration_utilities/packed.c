@@ -2,12 +2,59 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-typedef struct {
-    PyObject_HEAD
-    PyObject *func;
-} PyIUObject_Packed;
+#include "packed.h"
+#include "docs_reduce.h"
+#include <structmember.h>
 
-static PyTypeObject PyIUType_Packed;
+PyDoc_STRVAR(packed_prop_func_doc,
+    "(callable) The function with packed arguments (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+
+PyDoc_STRVAR(packed_doc,
+    "packed(func, /)\n"
+    "--\n\n"
+    "Class that always returns ``func(*x)`` when called with ``packed(func)(x)``.\n"
+    "\n"
+    ".. versionadded:: 0.3\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "func : callable\n"
+    "    The function that should be called when the packed-instance is called.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    "Creating :py:class:`~iteration_utilities.packed` instances::\n"
+    "\n"
+    "    >>> from iteration_utilities import packed\n"
+    "    >>> from operator import eq\n"
+    "    >>> five = packed(eq)\n"
+    "    >>> five((2, 2))\n"
+    "    True\n"
+    "\n"
+    "This is a convenience class that emulates the behaviour of \n"
+    ":py:func:`itertools.starmap` (compared to :py:func:`map`)::\n"
+    "\n"
+    "    >>> from itertools import starmap\n"
+    "    >>> list(map(packed(eq), [(2, 2), (3, 3), (2, 3)]))\n"
+    "    [True, True, False]\n"
+    "    >>> list(starmap(eq, [(2, 2), (3, 3), (2, 3)]))\n"
+    "    [True, True, False]\n"
+    "\n"
+    "and :py:func:`~iteration_utilities.starfilter` (compared to \n"
+    ":py:func:`filter`)::\n"
+    "\n"
+    "    >>> from iteration_utilities import starfilter\n"
+    "    >>> list(filter(packed(eq), [(2, 2), (3, 3), (2, 3)]))\n"
+    "    [(2, 2), (3, 3)]\n"
+    "    >>> list(starfilter(eq, [(2, 2), (3, 3), (2, 3)]))\n"
+    "    [(2, 2), (3, 3)]\n"
+    "\n"
+    "Of course in these cases the appropriate `star`-function can be used but \n"
+    "in case a function does not have such a convenience function already \n"
+    ":py:class:`~iteration_utilities.packed` can be used.\n"
+);
 
 /******************************************************************************
  * New
@@ -165,7 +212,7 @@ static PyMemberDef packed_memberlist[] = {
 };
 #undef OFF
 
-static PyTypeObject PyIUType_Packed = {
+PyTypeObject PyIUType_Packed = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.packed",         /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Packed),              /* tp_basicsize */

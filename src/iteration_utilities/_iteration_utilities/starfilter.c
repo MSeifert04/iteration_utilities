@@ -2,13 +2,60 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-typedef struct {
-    PyObject_HEAD
-    PyObject *func;
-    PyObject *iterator;
-} PyIUObject_Starfilter;
+#include "starfilter.h"
+#include "docs_reduce.h"
+#include <structmember.h>
 
-static PyTypeObject PyIUType_Starfilter;
+PyDoc_STRVAR(starfilter_prop_pred_doc,
+    "(callable) The function by which to filter (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+
+PyDoc_STRVAR(starfilter_doc,
+    "starfilter(pred, iterable)\n"
+    "--\n\n"
+    "Like :py:func:`filter` but unpacks the current item in `iterable` when \n"
+    "calling `pred`. This is similar to the difference between :py:func:`map` and \n"
+    ":py:func:`itertools.starmap`.\n"
+    "\n"
+    ".. versionadded:: 0.3\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "pred : callable\n"
+    "    The predicate function that is called to determine if the items should\n"
+    "    be kept.\n"
+    "\n"
+    "    .. note::\n"
+    "       Unlike :py:func:`filter` the `pred` cannot be ``None``.\n"
+    "\n"
+    "iterable : iterable\n"
+    "    `Iterable` containing the elements.\n"
+    "\n"
+    "Returns\n"
+    "-------\n"
+    "iterator : generator\n"
+    "    A normal iterator over `iterable` containing only the items where \n"
+    "    ``pred(*item)`` is ``True``.\n"
+    "\n"
+    "Notes\n"
+    "-----\n"
+    "This is identical to ``filter(lambda x: pred(*x), iterable)`` but faster.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    "A simple example::\n"
+    "\n"
+    "    >>> from iteration_utilities import starfilter\n"
+    "    >>> from operator import eq\n"
+    "    >>> list(starfilter(eq, zip([1,2,3], [2,2,2])))\n"
+    "    [(2, 2)]\n"
+    "\n"
+    "See also\n"
+    "--------\n"
+    "filter\n"
+    "iteration_utilities.packed\n"
+);
 
 /******************************************************************************
  * New
@@ -170,7 +217,7 @@ static PyMemberDef starfilter_memberlist[] = {
 };
 #undef OFF
 
-static PyTypeObject PyIUType_Starfilter = {
+PyTypeObject PyIUType_Starfilter = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.starfilter",     /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Starfilter),          /* tp_basicsize */

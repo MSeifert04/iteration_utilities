@@ -2,7 +2,9 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-static PyObject *
+#include "allisinstance.h"
+
+PyObject *
 PyIU_AllIsinstance(PyObject *Py_UNUSED(m),
                    PyObject *args,
                    PyObject *kwargs)

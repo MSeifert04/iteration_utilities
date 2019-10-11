@@ -2,15 +2,16 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
+#include "exported_helper.h"
+
 /******************************************************************************
  * This file contains functions that are meant as helpers, they are especially
  * written to speed up parts of the Python code, they shouldn't be considered
  * safe to use elsewhere.
  *****************************************************************************/
 
-static PyObject *
-PyIU_TupleToList_and_InsertItemAtIndex(PyObject *Py_UNUSED(m),
-                                       PyObject *args)
+PyObject *
+PyIU_TupleToList_and_InsertItemAtIndex(PyObject *Py_UNUSED(m), PyObject *args)
 {
     PyObject *tup;
     PyObject *item;
@@ -52,9 +53,8 @@ PyIU_TupleToList_and_InsertItemAtIndex(PyObject *Py_UNUSED(m),
 }
 
 
-static PyObject *
-PyIU_RemoveFromDictWhereValueIs(PyObject *Py_UNUSED(m),
-                                PyObject *args)
+PyObject *
+PyIU_RemoveFromDictWhereValueIs(PyObject *Py_UNUSED(m), PyObject *args)
 {
     PyObject *dct;
     PyObject *remvalue;

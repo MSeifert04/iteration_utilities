@@ -2,9 +2,19 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-static PyObject PlaceholderStruct;
+#include "placeholder.h"
+#if PY_MAJOR_VERSION == 3
+#include "docs_reduce.h"
+#endif
+#include <structmember.h>
 
-#define PYIU_Placeholder (&PlaceholderStruct)
+PyDoc_STRVAR(placeholder_doc,
+    "PlaceholderType(/)\n"
+    "--\n\n"
+    "A placeholder for :py:func:`iteration_utilities.partial`. It defines the\n"
+    "class for :attr:`iteration_utilities.partial._` and \n"
+    ":py:const:`iteration_utilities.Placeholder`.\n"
+);
 
 /******************************************************************************
  * New
@@ -67,7 +77,7 @@ static PyMethodDef placeholder_methods[] = {
 };
 #endif
 
-static PyTypeObject Placeholder_Type = {
+PyTypeObject Placeholder_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.PlaceholderType",/* tp_name */
     (Py_ssize_t)0,                                      /* tp_basicsize */
@@ -109,7 +119,7 @@ static PyTypeObject Placeholder_Type = {
     (newfunc)placeholder_new,                           /* tp_new */
 };
 
-static PyObject PlaceholderStruct = {
+PyObject PlaceholderStruct = {
     _PyObject_EXTRA_INIT
     1, &Placeholder_Type
 };

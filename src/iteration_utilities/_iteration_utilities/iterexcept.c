@@ -2,14 +2,83 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-typedef struct {
-    PyObject_HEAD
-    PyObject *func;
-    PyObject *except;
-    PyObject *first;
-} PyIUObject_Iterexcept;
+#include "iterexcept.h"
+#include "docs_reduce.h"
+#include <structmember.h>
 
-static PyTypeObject PyIUType_Iterexcept;
+PyDoc_STRVAR(iterexcept_prop_func_doc,
+    "(any type) The function that is called by `iter_except` (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+PyDoc_STRVAR(iterexcept_prop_exception_doc,
+    "(any type) The exception that ends `iter_except` (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+PyDoc_STRVAR(iterexcept_prop_first_doc,
+    "(any type) The function that is called once (as setup) by `iter_except` "
+     "(readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+
+PyDoc_STRVAR(iterexcept_doc,
+    "iter_except(func, exception, first=None)\n"
+    "--\n\n"
+    "Call a function repeatedly until an `exception` is raised.\n"
+    "\n"
+    "Converts a call-until-exception interface to an iterator interface.\n"
+    "Like ``iter(func, sentinel)`` but uses an `exception` instead of a sentinel\n"
+    "to end the loop.\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "func : callable\n"
+    "    The function that is called until `exception` is raised.\n"
+    "\n"
+    "exception : Exception\n"
+    "    The `exception` which terminates the iteration.\n"
+    "\n"
+    "first : callable or None, optional\n"
+    "    If not given (or not ``None``) this function is called once before the \n"
+    "    `func` is executed.\n"
+    "\n"
+    "Returns\n"
+    "-------\n"
+    "result : generator\n"
+    "    The result of the `func` calls as generator.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    ">>> from iteration_utilities import iter_except\n"
+    ">>> from collections import OrderedDict\n"
+    "\n"
+    ">>> d = OrderedDict([('a', 1), ('b', 2)])\n"
+    ">>> list(iter_except(d.popitem, KeyError))\n"
+    "[('b', 2), ('a', 1)]\n"
+    "\n"
+    ".. note::\n"
+    "    ``d.items()`` would yield the same result. At least with Python3.\n"
+    "\n"
+    ">>> from math import sqrt\n"
+    ">>> import sys\n"
+    "\n"
+    ">>> g = (sqrt(i) for i in [5, 4, 3, 2, 1, 0, -1, -2, -3])\n"
+    ">>> func = g.next if sys.version_info.major == 2 else g.__next__\n"
+    ">>> def say_go():\n"
+    "...     return 'go'\n"
+    ">>> list(iter_except(func, ValueError, say_go))\n"
+    "['go', 2.23606797749979, 2.0, 1.7320508075688772, 1.4142135623730951, 1.0, 0.0]\n"
+    "\n"
+    "Notes\n"
+    "-----\n"
+    "Further examples:\n"
+    "\n"
+    "- ``bsd_db_iter = iter_except(db.next, bsddb.error, db.first)``\n"
+    "- ``heap_iter = iter_except(functools.partial(heappop, h), IndexError)``\n"
+    "- ``dict_iter = iter_except(d.popitem, KeyError)``\n"
+    "- ``deque_iter = iter_except(d.popleft, IndexError)``\n"
+    "- ``queue_iter = iter_except(q.get_nowait, Queue.Empty)``\n"
+    "- ``set_iter = iter_except(s.pop, KeyError)``\n"
+);
 
 /******************************************************************************
  * New
@@ -175,7 +244,7 @@ static PyMemberDef iterexcept_memberlist[] = {
 };
 #undef OFF
 
-static PyTypeObject PyIUType_Iterexcept = {
+PyTypeObject PyIUType_Iterexcept = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.iter_except",    /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Iterexcept),          /* tp_basicsize */

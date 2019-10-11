@@ -2,14 +2,50 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-typedef struct {
-    PyObject_HEAD
-    PyObject *iterator;
-    PyObject *keyfunc;
-    PyObject *lastitem;
-} PyIUObject_UniqueJust;
+#include "uniquejust.h"
+#include "docs_reduce.h"
+#include "docs_setstate.h"
+#include "helper.h"
+#include <structmember.h>
 
-static PyTypeObject PyIUType_UniqueJust;
+PyDoc_STRVAR(uniquejust_prop_key_doc,
+    "(callable or None) The key function (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+PyDoc_STRVAR(uniquejust_prop_lastseen_doc,
+    "(any type) The last seen item (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+
+PyDoc_STRVAR(uniquejust_doc,
+    "unique_justseen(iterable, key=None)\n"
+    "--\n\n"
+    "List unique elements, preserving order. Remember only the element just seen.\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "iterable : iterable\n"
+    "    `Iterable` to check.\n"
+    "\n"
+    "key : callable or None, optional\n"
+    "    If ``None`` the values are taken as they are. If it's a callable the\n"
+    "    callable is applied to the value before comparing it.\n"
+    "    Default is ``None``.\n"
+    "\n"
+    "Returns\n"
+    "-------\n"
+    "iterable : generator\n"
+    "    An iterable containing all unique values just seen in the `iterable`.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    ">>> from iteration_utilities import unique_justseen\n"
+    ">>> list(unique_justseen('AAAABBBCCDAABBB'))\n"
+    "['A', 'B', 'C', 'D', 'A', 'B']\n"
+    "\n"
+    ">>> list(unique_justseen('ABBCcAD', str.lower))\n"
+    "['A', 'B', 'C', 'A', 'D']\n"
+);
 
 /******************************************************************************
  * New
@@ -253,7 +289,7 @@ static PyMemberDef uniquejust_memberlist[] = {
 };
 #undef OFF
 
-static PyTypeObject PyIUType_UniqueJust = {
+PyTypeObject PyIUType_UniqueJust = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.unique_justseen",/* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_UniqueJust),          /* tp_basicsize */

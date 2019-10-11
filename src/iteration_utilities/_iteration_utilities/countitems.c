@@ -2,7 +2,10 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-static PyObject *
+#include "countitems.h"
+#include "helper.h"
+
+PyObject *
 PyIU_Count(PyObject *Py_UNUSED(m),
            PyObject *args,
            PyObject *kwargs)

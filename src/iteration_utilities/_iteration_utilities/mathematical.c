@@ -2,6 +2,9 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
+#include "mathematical.h"
+#include "helper.h"
+
 /******************************************************************************
  * partial-like functions:
  *
@@ -10,21 +13,21 @@
  * reciprocal : lambda value: 1 / value
  *****************************************************************************/
 
-static PyObject *
+PyObject *
 PyIU_MathSquare(PyObject *Py_UNUSED(m),
                 PyObject *o)
 {
     return PyNumber_Power(o, PyIU_global_two, Py_None);
 }
 
-static PyObject *
+PyObject *
 PyIU_MathDouble(PyObject *Py_UNUSED(m),
                 PyObject *o)
 {
     return PyNumber_Multiply(o, PyIU_global_two);
 }
 
-static PyObject *
+PyObject *
 PyIU_MathReciprocal(PyObject *Py_UNUSED(m),
                     PyObject *o)
 {
@@ -43,7 +46,7 @@ PyIU_MathReciprocal(PyObject *Py_UNUSED(m),
  * rmod  : lambda o1, o2: o2 % o1
  *****************************************************************************/
 
-static PyObject *
+PyObject *
 PyIU_MathRadd(PyObject *Py_UNUSED(m),
               PyObject *args)
 {
@@ -55,7 +58,7 @@ PyIU_MathRadd(PyObject *Py_UNUSED(m),
     }
 }
 
-static PyObject *
+PyObject *
 PyIU_MathRsub(PyObject *Py_UNUSED(m),
               PyObject *args)
 {
@@ -67,7 +70,7 @@ PyIU_MathRsub(PyObject *Py_UNUSED(m),
     }
 }
 
-static PyObject *
+PyObject *
 PyIU_MathRmul(PyObject *Py_UNUSED(m),
               PyObject *args)
 {
@@ -79,7 +82,7 @@ PyIU_MathRmul(PyObject *Py_UNUSED(m),
     }
 }
 
-static PyObject *
+PyObject *
 PyIU_MathRdiv(PyObject *Py_UNUSED(m),
               PyObject *args)
 {
@@ -91,7 +94,7 @@ PyIU_MathRdiv(PyObject *Py_UNUSED(m),
     }
 }
 
-static PyObject *
+PyObject *
 PyIU_MathRfdiv(PyObject *Py_UNUSED(m),
                PyObject *args)
 {
@@ -103,7 +106,7 @@ PyIU_MathRfdiv(PyObject *Py_UNUSED(m),
     }
 }
 
-static PyObject *
+PyObject *
 PyIU_MathRpow(PyObject *Py_UNUSED(m),
               PyObject *args)
 {
@@ -115,7 +118,7 @@ PyIU_MathRpow(PyObject *Py_UNUSED(m),
     }
 }
 
-static PyObject *
+PyObject *
 PyIU_MathRmod(PyObject *Py_UNUSED(m),
               PyObject *args)
 {

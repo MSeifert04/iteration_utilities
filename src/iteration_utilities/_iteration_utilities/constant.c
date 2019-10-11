@@ -2,12 +2,77 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-typedef struct {
-    PyObject_HEAD
-    PyObject *item;
-} PyIUObject_Constant;
+#include "constant.h"
+#include "docs_reduce.h"
+#include <structmember.h>
 
-static PyTypeObject PyIUType_Constant;
+PyDoc_STRVAR(constant_prop_item_doc,
+    "(any type) The value that is returned each time the instance is called "
+     "(readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+
+PyDoc_STRVAR(constant_doc,
+    "constant(item, /)\n"
+    "--\n\n"
+    "Class that always returns a constant value when called.\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "item : any type\n"
+    "    The item that should be returned when called.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    "Creating :py:class:`~iteration_utilities.constant` instances::\n"
+    "\n"
+    "    >>> from iteration_utilities import constant\n"
+    "    >>> five = constant(5)\n"
+    "    >>> five()\n"
+    "    5\n"
+    "    >>> ten = constant(10)\n"
+    "    >>> # Any parameters are ignored\n"
+    "    >>> ten(5, give_me=100)\n"
+    "    10\n"
+    "\n"
+    "There are already three predefined instances:\n"
+    "\n"
+    "- :py:func:`~iteration_utilities.return_True`: equivalent to ``constant(True)``.\n"
+    "- :py:func:`~iteration_utilities.return_False`: equivalent to ``constant(False)``.\n"
+    "- :py:func:`~iteration_utilities.return_None`: equivalent to ``constant(None)``.\n"
+    "\n"
+    "For example::\n"
+    "\n"
+    "    >>> from iteration_utilities import return_True, return_False, return_None\n"
+    "    >>> return_True()\n"
+    "    True\n"
+    "    >>> return_False()\n"
+    "    False\n"
+    "    >>> return_None()\n"
+    "    >>> return_None() is None\n"
+    "    True\n"
+);
+
+PyObject *
+PyIUConstant_New(PyObject *value)
+{
+    PyIUObject_Constant *self;
+
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Must not be null!");
+        return NULL;
+    }
+
+    self = PyObject_GC_New(PyIUObject_Constant, &PyIUType_Constant);
+    if (self == NULL) {
+        return NULL;
+    }
+    Py_INCREF(value);
+    self->item = value;
+    PyObject_GC_Track(self);
+    return (PyObject *)self;
+}
 
 /******************************************************************************
  * New
@@ -148,7 +213,7 @@ static PyMemberDef constant_memberlist[] = {
 };
 #undef OFF
 
-static PyTypeObject PyIUType_Constant = {
+PyTypeObject PyIUType_Constant = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.constant",       /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Constant),            /* tp_basicsize */

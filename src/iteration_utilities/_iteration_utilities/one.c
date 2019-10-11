@@ -2,7 +2,9 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-static PyObject *
+#include "one.h"
+
+PyObject *
 PyIU_One(PyObject *Py_UNUSED(m),
          PyObject *iterable)
 {

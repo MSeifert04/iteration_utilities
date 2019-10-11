@@ -2,6 +2,92 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
+#include "partial.h"
+#include "docs_reduce.h"
+#include "docs_setstate.h"
+#include "docs_sizeof.h"
+#include "placeholder.h"
+#include "helper.h"
+#include <structmember.h>
+
+PyDoc_STRVAR(partial_prop_func_doc,
+    "(callable) Function object to use in future partial calls (readonly).");
+PyDoc_STRVAR(partial_prop_args_doc,
+    "(:py:class:`tuple`) arguments for future partial calls (readonly).");
+PyDoc_STRVAR(partial_prop_keywords_doc,
+    "(:py:class:`dict`) keyword arguments for future partial calls (readonly).");
+PyDoc_STRVAR(partial_prop_nplaceholders_doc,
+    "(:py:class:`int`) Number of placeholders in the args (readonly).");
+PyDoc_STRVAR(partial_prop___dict___doc,
+    "");
+
+PyDoc_STRVAR(partial_doc,
+    "partial(func, *args, **kwargs)\n"
+    "--\n\n"
+    "Like :py:func:`functools.partial` but supporting placeholders.\n"
+    "\n"
+    ".. versionadded:: 0.4.0\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "\n"
+    "func : callable\n"
+    "    The function to partially wrap.\n"
+    "\n"
+    "args : any type\n"
+    "    The positional arguments for `func`.\n"
+    "    \n"
+    "    .. note::\n"
+    "       Using :py:attr:`.partial._` as one or multiple positional arguments \n"
+    "       will be interpreted as placeholder that need to be filled when the \n"
+    "       :py:class:`~iteration_utilities.partial` instance is called.\n"
+    "\n"
+    "kwargs : any type\n"
+    "    The keyword arguments for `func`.\n"
+    "\n"
+    "Returns\n"
+    "-------\n"
+    "\n"
+    "partial : callable\n"
+    "    The `func` where the given positional arguments are fixed (or represented\n"
+    "    as placeholders) and with optional keyword arguments.\n"
+    "\n"
+    "Notes\n"
+    "-----\n"
+    "While placeholders can be used for the :py:attr:`args` they can't be used \n"
+    "for the :py:attr:`keywords`.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    "The :py:class:`iteration_utilities.partial` can be used as slightly slower\n"
+    "drop-in replacement for :py:func:`functools.partial`. However it offers the\n"
+    "possibility to pass in placeholders as positional arguments. This can be\n"
+    "especially useful if a function does not allow keyword arguments::\n"
+    "\n"
+    "    >>> from iteration_utilities import partial\n"
+    "    >>> isint = partial(isinstance, partial._, int)\n"
+    "    >>> isint(10)\n"
+    "    True\n"
+    "    >>> isint(11.11)\n"
+    "    False\n"
+    "\n"
+    "In this case the `isint` function is equivalent but faster than\n"
+    "``lambda x: isinstance(x, int)``.\n"
+    "The :py:attr:`.partial._` attribute or the \n"
+    ":py:const:`~iteration_utilities.Placeholder`  or instances of \n"
+    ":py:func:`~iteration_utilities.PlaceholderType` can be used as placeholders \n"
+    "for the positional arguments.\n"
+    "\n"
+    "For example most iterators in :py:mod:`iteration_utilities` take the `iterable` \n"
+    "as the first argument so other arguments can be easily added::\n"
+    "\n"
+    "    >>> from iteration_utilities import accumulate, Placeholder\n"
+    "    >>> from operator import mul\n"
+    "    >>> cumprod = partial(accumulate, Placeholder, mul)\n"
+    "    >>> list(cumprod([1,2,3,4,5]))\n"
+    "    [1, 2, 6, 24, 120]\n"
+);
+
 /******************************************************************************
  * Helper to get the amount and positions of Placeholders in a tuple.
  *****************************************************************************/
@@ -62,19 +148,6 @@ Fail:
 /******************************************************************************
  * Parts are taken from the CPython package (PSF licensed).
  *****************************************************************************/
-
-typedef struct {
-    PyObject_HEAD
-    PyObject *fn;
-    PyObject *args;
-    PyObject *kw;
-    PyObject *dict;
-    PyObject *weakreflist; /* List of weak references */
-    Py_ssize_t numph;
-    Py_ssize_t *posph;
-} PyIUObject_Partial;
-
-static PyTypeObject PyIUType_Partial;
 
 /******************************************************************************
  * Dealloc
@@ -703,7 +776,7 @@ static PyMemberDef partial_memberlist[] = {
 };
 #undef OFF
 
-static PyTypeObject PyIUType_Partial = {
+PyTypeObject PyIUType_Partial = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.partial",        /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Partial),             /* tp_basicsize */

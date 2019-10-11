@@ -2,114 +2,37 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-/******************************************************************************
- * Missing stdlib MACROS
- *
- * PySet_CheckExact : check for a set but not subtype
- *****************************************************************************/
-
-#define PySet_CheckExact(ob) (Py_TYPE(ob) == &PySet_Type)
-
-/******************************************************************************
- * Compatibility macros
- *
- * Py_RETURN_NOTIMPLEMENTED : sets TypeError and returns NULL.
- *****************************************************************************/
-
-#if PY_MAJOR_VERSION == 2
-#define Py_RETURN_NOTIMPLEMENTED \
-    return PyErr_SetString(PyExc_TypeError, "not implemented."), NULL
-
-#define Py_UNUSED(name) _unused_ ## name
-#endif
-
-/******************************************************************************
- * Function call abstractions
- *
- * TODO: To support the different calling conventions across Python versions
- *
- * PyIU_CallWithOneArgument :
- *     Calls a function with one argument.
- *
- * PyIU_CallWithTwoArguments :
- *     Calls a function with two arguments.
- *****************************************************************************/
-
-
-static PyObject*
-PyIU_CallWithOneArgument(PyObject *callable, PyObject *arg1) {
-    #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
-        PyObject *args[1];
-        args[0] = arg1;
-        return _PyObject_Vectorcall(callable, args, 1, NULL);
-    #elif PY_MAJOR_VERSION == 3 && (PY_MINOR_VERSION == 6 || PY_MINOR_VERSION == 7)
-        PyObject *args[1];
-        args[0] = arg1;
-        return _PyObject_FastCall(callable, args, 1);
-    #else
-        PyObject *result;
-        PyObject *args = PyTuple_New(1);
-        if (args == NULL) {
-            Py_DECREF(arg1);
-            return NULL;
-        }
-        Py_INCREF(arg1);
-        PyTuple_SET_ITEM(args, 0, arg1);
-        result = PyObject_Call(callable, args, NULL);
-        Py_DECREF(args);
-        return result;
-    #endif
-}
-
-static PyObject*
-PyIU_CallWithTwoArguments(PyObject *callable, PyObject *arg1, PyObject *arg2) {
-    #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
-        PyObject *args[2];
-        args[0] = arg1;
-        args[1] = arg2;
-        return _PyObject_Vectorcall(callable, args, 2, NULL);
-    #elif PY_MAJOR_VERSION == 3 && (PY_MINOR_VERSION == 6 || PY_MINOR_VERSION == 7)
-        PyObject *args[2];
-        args[0] = arg1;
-        args[1] = arg2;
-        return _PyObject_FastCall(callable, args, 2);
-    #else
-        PyObject *result;
-        PyObject *args = PyTuple_New(2);
-        if (args == NULL) {
-            return NULL;
-        }
-        Py_INCREF(arg1);
-        Py_INCREF(arg2);
-        PyTuple_SET_ITEM(args, 0, arg1);
-        PyTuple_SET_ITEM(args, 1, arg2);
-        result = PyObject_Call(callable, args, NULL);
-        Py_DECREF(args);
-        return result;
-    #endif
-}
+#include "helper.h"
 
 /******************************************************************************
  * Global constants.
  *
- * Python objects that are created only once and stay in memory:
- *
- * PyIU_LongTwo : 1
- * PyIU_LongTwo : 2
- *
- * These are created in "_module.c"!
+ * Python objects that are created only once and stay in memory.
  *****************************************************************************/
 
-static PyObject *PyIU_global_zero = NULL;
-static PyObject *PyIU_global_one = NULL;
-static PyObject *PyIU_global_two = NULL;
-static PyObject *PyIU_global_0tuple = NULL;
+PyObject *PyIU_global_zero = NULL;
+PyObject *PyIU_global_one = NULL;
+PyObject *PyIU_global_two = NULL;
+PyObject *PyIU_global_0tuple = NULL;
+
+void PyIU_InitializeConstants(void) {
+    #if PY_MAJOR_VERSION == 2
+        PyIU_global_zero = PyInt_FromLong((long)0);
+        PyIU_global_one = PyInt_FromLong((long)1);
+        PyIU_global_two = PyInt_FromLong((long)2);
+    #else
+        PyIU_global_zero = PyLong_FromLong((long)0);
+        PyIU_global_one = PyLong_FromLong((long)1);
+        PyIU_global_two = PyLong_FromLong((long)2);
+    #endif
+    PyIU_global_0tuple = PyTuple_New(0);
+}
 
 /******************************************************************************
  * Create a new tuple containing iterators for the input-tuple.
  *****************************************************************************/
 
-static PyObject *
+PyObject *
 PyIU_CreateIteratorTuple(PyObject *tuple)
 {
     PyObject *newtuple;
@@ -137,7 +60,7 @@ PyIU_CreateIteratorTuple(PyObject *tuple)
  * Create a new reversed tuple from another tuple.
  *****************************************************************************/
 
-static PyObject *
+PyObject *
 PyIU_TupleReverse(PyObject *tuple)
 {
     PyObject *newtuple;
@@ -165,7 +88,7 @@ PyIU_TupleReverse(PyObject *tuple)
  * tuple : Tuple where the value should be inserted.
  *****************************************************************************/
 
-static PyObject *
+PyObject *
 PyIU_TupleCopy(PyObject *tuple)
 {
     PyObject *newtuple;
@@ -201,7 +124,7 @@ PyIU_TupleCopy(PyObject *tuple)
  *         PyObject, see Warning.)
  *****************************************************************************/
 
-static void
+void
 PyIU_TupleInsert(PyObject *tuple,
                  Py_ssize_t where,
                  PyObject *v,
@@ -236,7 +159,7 @@ PyIU_TupleInsert(PyObject *tuple,
  *         moved to "where".
  *****************************************************************************/
 
-static void
+void
 PyIU_TupleRemove(PyObject *tuple,
                  Py_ssize_t where,
                  Py_ssize_t num)

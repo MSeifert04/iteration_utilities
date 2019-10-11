@@ -2,12 +2,49 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-typedef struct {
-    PyObject_HEAD
-    PyObject *func;
-} PyIUObject_Complement;
+#include "complement.h"
+#include "docs_reduce.h"
+#include <structmember.h>
 
-static PyTypeObject PyIUType_Complement;
+PyDoc_STRVAR(complement_prop_func_doc,
+    "(callable) The function that is complemented (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+
+PyDoc_STRVAR(complement_doc,
+    "complement(func)\n"
+    "--\n\n"
+    "Invert a predicate function. There is a homonymous function in the `toolz` \n"
+    "package ([0]_) but significantly modified.\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "func : callable\n"
+    "    The function to complement.\n"
+    "\n"
+    "Returns\n"
+    "-------\n"
+    "complemented_func : callable\n"
+    "    The complement to `func`.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    "`complement` is equivalent to ``lambda x: not x()`` but significantly faster::\n"
+    "\n"
+    "    >>> from iteration_utilities import complement\n"
+    "    >>> from iteration_utilities import is_None\n"
+    "    >>> is_not_None = complement(is_None)\n"
+    "    >>> list(filter(is_not_None, [1,2,None,3,4,None]))\n"
+    "    [1, 2, 3, 4]\n"
+    "\n"
+    ".. note::\n"
+    "    The example code could also be done with :py:func:`itertools.filterfalse` \n"
+    "    or :py:func:`iteration_utilities.is_not_None`.\n"
+    "\n"
+    "References\n"
+    "----------\n"
+    ".. [0] https://toolz.readthedocs.io/en/latest/index.html\n"
+);
 
 /******************************************************************************
  * New
@@ -164,7 +201,7 @@ static PyMemberDef complement_memberlist[] = {
 };
 #undef OFF
 
-static PyTypeObject PyIUType_Complement = {
+PyTypeObject PyIUType_Complement = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.complement",     /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Complement),          /* tp_basicsize */

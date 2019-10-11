@@ -2,6 +2,88 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
+#include "merge.h"
+#include "docs_reduce.h"
+#include "docs_setstate.h"
+#include "docs_lengthhint.h"
+#include "helper.h"
+#include "itemidxkey.h"
+#include <structmember.h>
+
+PyDoc_STRVAR(merge_prop_key_doc,
+    "(callable or None) The key function used by merge (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+PyDoc_STRVAR(merge_prop_reverse_doc,
+    "(:py:class:`bool`) Indicates if merged by ``>`` instead of ``<`` "
+     "(readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+
+PyDoc_STRVAR(merge_doc,
+    "merge(*iterables, /, key=None, reverse=False)\n"
+    "--\n\n"
+    "Merge several sorted `iterables` into one.\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "iterables : iterable\n"
+    "    Any amount of already sorted `iterable` objects.\n"
+    "\n"
+    "key : callable or None, optional\n"
+    "    If not given compare the item themselves otherwise compare the\n"
+    "    result of ``key(item)``, like the `key` parameter for\n"
+    "    :py:func:`sorted`.\n"
+    "\n"
+    "reverse : :py:class:`bool`, optional\n"
+    "    If ``True`` then merge in decreasing order instead of increasing order.\n"
+    "    Default is ``False``.\n"
+    "\n"
+    "Returns\n"
+    "-------\n"
+    "merged : generator\n"
+    "    The merged iterables as generator.\n"
+    "\n"
+    "See also\n"
+    "--------\n"
+    "heapq.merge : Equivalent since Python 3.5 but in most cases slower!\n"
+    "    Earlier Python versions did not support the `key` or `reverse` argument.\n"
+    "\n"
+    "sorted : ``sorted(itertools.chain(*iterables))`` supports the same options\n"
+    "    and *can* be faster.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    "To merge multiple sorted `iterables`::\n"
+    "\n"
+    "    >>> from iteration_utilities import merge\n"
+    "    >>> list(merge([1, 3, 5, 7, 9], [2, 4, 6, 8, 10]))\n"
+    "    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]\n"
+    "\n"
+    "It's stable and allows a `key` function::\n"
+    "\n"
+    "    >>> seq1 = [(1, 3), (3, 3)]\n"
+    "    >>> seq2 = [(-1, 3), (-3, 3)]\n"
+    "    >>> list(merge(seq1, seq2, key=lambda x: abs(x[0])))\n"
+    "    [(1, 3), (-1, 3), (3, 3), (-3, 3)]\n"
+    "\n"
+    "Also possible to `reverse` (biggest to smallest order) the merge::\n"
+    "\n"
+    "    >>> list(merge([5,1,-8], [10, 2, 1, 0], reverse=True))\n"
+    "    [10, 5, 2, 1, 1, 0, -8]\n"
+    "\n"
+    "But also more than two `iterables`::\n"
+    "\n"
+    "    >>> list(merge([1, 10, 11], [2, 9], [3, 8], [4, 7], [5, 6], range(10)))\n"
+    "    [0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 11]\n"
+    "\n"
+    "However if the `iterables` are not sorted the result will be unsorted\n"
+    "(partially sorted)::\n"
+    "\n"
+    "    >>> list(merge(range(10), [6,1,3,2,6,1,6]))\n"
+    "    [0, 1, 2, 3, 4, 5, 6, 6, 1, 3, 2, 6, 1, 6, 7, 8, 9]\n"
+);
+
 /******************************************************************************
  *
  * IMPORTANT NOTE:
@@ -90,18 +172,6 @@ PyIU_TupleBisectRight_LastFirst(PyObject *tuple,
     }
     return lo;
 }
-
-
-typedef struct {
-    PyObject_HEAD
-    PyObject *iteratortuple;
-    PyObject *keyfunc;
-    PyObject *current;
-    Py_ssize_t numactive;
-    int reverse;
-} PyIUObject_Merge;
-
-static PyTypeObject PyIUType_Merge;
 
 /******************************************************************************
  * New
@@ -724,7 +794,7 @@ static PyMemberDef merge_memberlist[] = {
 };
 #undef OFF
 
-static PyTypeObject PyIUType_Merge = {
+PyTypeObject PyIUType_Merge = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.merge",          /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Merge),               /* tp_basicsize */

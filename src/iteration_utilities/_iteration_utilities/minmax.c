@@ -2,7 +2,10 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-static PyObject *
+#include "minmax.h"
+#include "helper.h"
+
+PyObject *
 PyIU_MinMax(PyObject *Py_UNUSED(m),
             PyObject *args,
             PyObject *kwargs)

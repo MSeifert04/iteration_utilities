@@ -2,13 +2,53 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-typedef struct {
-    PyObject_HEAD
-    PyObject *func;
-    PyObject *value;
-} PyIUObject_Applyfunc;
+#include "applyfunc.h"
+#include "docs_reduce.h"
+#include "helper.h"
+#include <structmember.h>
 
-static PyTypeObject PyIUType_Applyfunc;
+PyDoc_STRVAR(applyfunc_prop_func_doc,
+    "(callable) The function used (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+PyDoc_STRVAR(applyfunc_prop_current_doc,
+    "(any type) The current value for the function (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+
+PyDoc_STRVAR(applyfunc_doc,
+    "applyfunc(func, initial)\n"
+    "--\n\n"
+    "Successively apply `func` on `value`.\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "func : callable\n"
+    "    The function to apply. The `value` is given as first argument to the \n"
+    "    `func`, no other arguments will be passed during the function call.\n"
+    "\n"
+    "initial : any type\n"
+    "    The `initial` `value` for the function.\n"
+    "\n"
+    "Returns\n"
+    "-------\n"
+    "results : generator\n"
+    "    The result of the successively applied `func`.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    "The first element is the initial `value` and the next elements are\n"
+    "the result of ``func(value)``, then ``func(func(value))``, ...::\n"
+    "\n"
+    "    >>> from iteration_utilities import applyfunc, getitem\n"
+    "    >>> import math\n"
+    "    >>> list(getitem(applyfunc(math.sqrt, 10), stop=4))\n"
+    "    [3.1622776601683795, 1.7782794100389228, 1.333521432163324, 1.1547819846894583]\n"
+    "\n"
+    ".. warning::\n"
+    "    This will return an infinitely long generator so do **not** try to do\n"
+    "    something like ``list(applyfunc())``!\n"
+);
 
 /******************************************************************************
  * New
@@ -158,7 +198,7 @@ static PyMemberDef applyfunc_memberlist[] = {
 };
 #undef OFF
 
-static PyTypeObject PyIUType_Applyfunc = {
+PyTypeObject PyIUType_Applyfunc = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.applyfunc",      /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Applyfunc),           /* tp_basicsize */

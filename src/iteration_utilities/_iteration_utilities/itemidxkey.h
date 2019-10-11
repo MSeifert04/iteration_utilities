@@ -1,0 +1,23 @@
+#ifndef PYIU_ITEMIDXKEY_H
+#define PYIU_ITEMIDXKEY_H
+
+#include <Python.h>
+#include "helpercompat.h"
+
+typedef struct {
+    PyObject_HEAD
+    PyObject *item;
+    PyObject *key;
+    Py_ssize_t idx;
+} PyIUObject_ItemIdxKey;
+
+extern PyTypeObject PyIUType_ItemIdxKey;
+
+#define PyIU_ItemIdxKey_Check(o) PyObject_TypeCheck(o, &PyIUType_ItemIdxKey)
+#define PyIU_ItemIdxKey_CheckExact(o) (Py_TYPE(o) == &PyIUType_ItemIdxKey)
+
+PyObject * PyIU_ItemIdxKey_FromC(PyObject *item, Py_ssize_t idx, PyObject *key);
+PyObject * PyIU_ItemIdxKey_Copy(PyObject *iik);
+int PyIU_ItemIdxKey_Compare(PyObject *v, PyObject *w, int op);
+
+#endif

@@ -2,13 +2,15 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
+#include "returnx.h"
+
 /******************************************************************************
  * return_identity : lambda o: o
  * return_called : lambda o: o()
  * return_first_arg : (roughly) lambda *args, **kwargs: args[0]
  *****************************************************************************/
 
-static PyObject *
+PyObject *
 PyIU_ReturnIdentity(PyObject *Py_UNUSED(m),
                     PyObject *o)
 {
@@ -16,14 +18,14 @@ PyIU_ReturnIdentity(PyObject *Py_UNUSED(m),
     return o;
 }
 
-static PyObject *
+PyObject *
 PyIU_ReturnCalled(PyObject *Py_UNUSED(m),
                   PyObject *o)
 {
     return PyObject_CallFunctionObjArgs(o, NULL);
 }
 
-static PyObject *
+PyObject *
 PyIU_ReturnFirstArg(PyObject *Py_UNUSED(m),
                     PyObject *args,
                     PyObject *Py_UNUSED(kwargs))
