@@ -164,11 +164,7 @@ constant_call_impl(PyIUObject_Constant *self) {
     constant_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf,
                         PyObject *kwnames)
     {
-        if (Py_TYPE(obj) == &PyIUType_Constant) {
-            return constant_call_impl((PyIUObject_Constant *)obj);
-        }
-        PyErr_SetString(PyExc_TypeError, "must be a constant object.");
-        return NULL;
+        return constant_call_impl((PyIUObject_Constant *)obj);
     }
 #else
     static PyObject *

@@ -11,6 +11,10 @@ e.g. performance).
 - ``Iterable.islice`` will raise a more appropriate ``TypeError`` when called
   without arguments.
 
+- Some classes cannot be subclassed anymore, this includes:
+
+  - ``constant``
+
 
 Version 0.7.0 (2018-01-28)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
