@@ -7,6 +7,9 @@
 typedef struct {
     PyObject_HEAD
     PyObject *item;
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+    vectorcallfunc vectorcall;
+#endif
 } PyIUObject_Constant;
 
 extern PyTypeObject PyIUType_Constant;

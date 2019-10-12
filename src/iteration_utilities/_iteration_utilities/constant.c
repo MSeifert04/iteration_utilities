@@ -53,6 +53,10 @@ PyDoc_STRVAR(constant_doc,
     "    True\n"
 );
 
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+PyObject * constant_vectorcall(PyIUObject_Constant *self, PyObject *const *args, size_t nargsf, PyObject *kwnames);
+#endif
+
 PyObject *
 PyIUConstant_New(PyObject *value)
 {
@@ -70,6 +74,9 @@ PyIUConstant_New(PyObject *value)
     }
     Py_INCREF(value);
     self->item = value;
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+    self->vectorcall = constant_vectorcall;
+#endif
     PyObject_GC_Track(self);
     return (PyObject *)self;
 }
@@ -99,6 +106,9 @@ constant_new(PyTypeObject *type,
     }
     Py_INCREF(item);
     self->item = item;
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+    self->vectorcall = constant_vectorcall;
+#endif
     return (PyObject *)self;
 }
 
@@ -139,17 +149,27 @@ constant_clear(PyIUObject_Constant *self)
 }
 
 /******************************************************************************
- * Call
+ * Vectorcall & Call
  *****************************************************************************/
 
-static PyObject *
-constant_call(PyIUObject_Constant *self,
-              PyObject *args,
-              PyObject *kwargs)
-{
-    Py_INCREF(self->item);
-    return self->item;
-}
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+    PyObject *
+    constant_vectorcall(PyIUObject_Constant *self, PyObject *const *args,
+                        size_t nargsf, PyObject *kwnames)
+    {
+        Py_INCREF(self->item);
+        return self->item;
+    }
+#else
+    static PyObject *
+    constant_call(PyIUObject_Constant *self,
+                PyObject *args,
+                PyObject *kwargs)
+    {
+        Py_INCREF(self->item);
+        return self->item;
+    }
+#endif
 
 /******************************************************************************
  * Repr
@@ -220,7 +240,11 @@ PyTypeObject PyIUType_Constant = {
     (Py_ssize_t)0,                                      /* tp_itemsize */
     /* methods */
     (destructor)constant_dealloc,                       /* tp_dealloc */
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+    offsetof(PyIUObject_Constant, vectorcall),          /* tp_vectorcall_offset */
+#else
     (printfunc)0,                                       /* tp_print */
+#endif
     (getattrfunc)0,                                     /* tp_getattr */
     (setattrfunc)0,                                     /* tp_setattr */
     0,                                                  /* tp_reserved */
@@ -229,13 +253,20 @@ PyTypeObject PyIUType_Constant = {
     (PySequenceMethods *)0,                             /* tp_as_sequence */
     (PyMappingMethods *)0,                              /* tp_as_mapping */
     (hashfunc)0,                                        /* tp_hash */
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+    (ternaryfunc)PyVectorcall_Call,                     /* tp_call */
+#else
     (ternaryfunc)constant_call,                         /* tp_call */
+#endif
     (reprfunc)0,                                        /* tp_str */
     (getattrofunc)PyObject_GenericGetAttr,              /* tp_getattro */
     (setattrofunc)0,                                    /* tp_setattro */
     (PyBufferProcs *)0,                                 /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
-        Py_TPFLAGS_BASETYPE,                            /* tp_flags */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+        | _Py_TPFLAGS_HAVE_VECTORCALL
+#endif
+        ,                                               /* tp_flags */
     (const char *)constant_doc,                         /* tp_doc */
     (traverseproc)constant_traverse,                    /* tp_traverse */
     (inquiry)constant_clear,                            /* tp_clear */
