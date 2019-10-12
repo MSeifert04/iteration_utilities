@@ -2,7 +2,9 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-static PyObject *
+#include "allequal.h"
+
+PyObject *
 PyIU_AllEqual(PyObject *Py_UNUSED(m),
               PyObject *iterable)
 {

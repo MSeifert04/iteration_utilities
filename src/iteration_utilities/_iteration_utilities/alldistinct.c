@@ -2,7 +2,10 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-static PyObject *
+#include "alldistinct.h"
+#include "seen.h"
+
+PyObject *
 PyIU_AllDistinct(PyObject *Py_UNUSED(m),
                  PyObject *iterable)
 {

@@ -2,6 +2,129 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
+#include "itemidxkey.h"
+#include "docs_reduce.h"
+#include <structmember.h>
+
+PyDoc_STRVAR(itemidxkey_prop_item_doc,
+    "(any type) The `item` to sort.");
+PyDoc_STRVAR(itemidxkey_prop_idx_doc,
+    "(:py:class:`int`) The original position of the `item`.");
+PyDoc_STRVAR(itemidxkey_prop_key_doc,
+    "(any type) The result of a key function applied to the `item`.");
+PyDoc_STRVAR(itemidxkey_doc,
+    "ItemIdxKey(item, idx, /, key)\n"
+    "--\n\n"
+    "Helper class that makes it easier and faster to compare two values for\n"
+    "*stable* sorting algorithms supporting key functions.\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "item : any type\n"
+    "    The original `item`.\n"
+    "\n"
+    "idx : :py:class:`int`\n"
+    "    The position (index) of the `item`.\n"
+    "\n"
+    "key : any type, optional\n"
+    "    If given (even as ``None``) this should be the `item` processed by the \n"
+    "    `key` function. If it is set then comparisons will compare the `key` \n"
+    "    instead of the `item`.\n"
+    "\n"
+    "Notes\n"
+    "-----\n"
+    "Comparisons involving :py:class:`~iteration_utilities.ItemIdxKey` have some \n"
+    "limitations:\n"
+    "\n"
+    "- Both have to be :py:class:`~iteration_utilities.ItemIdxKey` instances.\n"
+    "- If the first operand has no :py:attr:`.key` then the :py:attr:`.item` are \n"
+    "  compared.\n"
+    "- The :py:attr:`.idx` must be different.\n"
+    "- only :py:meth:`< <.__lt__>` and :py:meth:`> <.__gt__>` are supported!\n"
+    "\n"
+    "The implementation is roughly like:\n"
+    "\n"
+    ".. code::\n"
+    "\n"
+    "   _notgiven = object()\n"
+    "   \n"
+    "   class ItemIdxKey(object):\n"
+    "       def __init__(self, item, idx, key=_notgiven):\n"
+    "           self.item = item\n"
+    "           self.idx = idx\n"
+    "           self.key = key\n"
+    "   \n"
+    "       def __lt__(self, other):\n"
+    "           if type(other) != ItemIdxKey:\n"
+    "               raise TypeError()\n"
+    "           if self.key is _notgiven:\n"
+    "               item1, item2 = self.item, other.item\n"
+    "           else:\n"
+    "               item1, item2 = self.key, other.key\n"
+    "           if self.idx < other.idx:\n"
+    "               return item1 <= item2\n"
+    "           else:\n"
+    "               return item1 < item2\n"
+    "   \n"
+    "       def __gt__(self, other):\n"
+    "           if type(other) != ItemIdxKey:\n"
+    "               raise TypeError()\n"
+    "           if self.key is _notgiven:\n"
+    "               item1, item2 = self.item, other.item\n"
+    "           else:\n"
+    "               item1, item2 = self.key, other.key\n"
+    "           if self.idx < other.idx:\n"
+    "               return item1 >= item2\n"
+    "           else:\n"
+    "               return item1 > item2\n"
+    "\n"
+    ".. note::\n"
+    "   The actual C makes the initialization and comparisons several times faster\n"
+    "   than the above illustrated Python class! But it's only slightly faster\n"
+    "   than comparing :py:class:`tuple` or :py:class:`list`. If you do not plan \n"
+    "   to support `reverse` or `key` then there is no need to use this class!\n"
+    "\n"
+    ".. warning::\n"
+    "   You should **never** insert a :py:class:`~iteration_utilities.ItemIdxKey` \n"
+    "   instance as :py:attr:`.item` or :py:attr:`.key` in another\n"
+    "   :py:class:`~iteration_utilities.ItemIdxKey` instance. This would yield \n"
+    "   wrong results and breaks your computer! (the latter might not be true.)\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    "Stability is one of the distinct features of sorting algorithms. This class\n"
+    "aids in supporting those algorithms which allow `reverse` and `key`.\n"
+    "This means that comparisons require absolute lesser (or greater if `reverse`)\n"
+    "if the :py:attr:`.idx` is bigger but only require lesser or equal (or greater or equal)\n"
+    "if the :py:attr:`.idx` is smaller. This class implements exactly these conditions::\n"
+    "\n"
+    "    >>> # Use < for normal sorting.\n"
+    "    >>> ItemIdxKey(10, 2) < ItemIdxKey(10, 3)\n"
+    "    True\n"
+    "    >>> # and > for reverse sorting.\n"
+    "    >>> ItemIdxKey(10, 2) > ItemIdxKey(10, 3)\n"
+    "    True\n"
+    "\n"
+    "The result may seem surprising but if the :py:attr:`.item` (or :py:attr:`.key`) is equal then\n"
+    "in either normal or `reverse` sorting the one with the smaller :py:attr:`.idx` should\n"
+    "come first! If the :py:attr:`.item` (or :py:attr:`.key`) differ they take precedence.\n"
+    "\n"
+    "    >>> ItemIdxKey(10, 2) < ItemIdxKey(11, 3)\n"
+    "    True\n"
+    "    >>> ItemIdxKey(10, 2) > ItemIdxKey(11, 3)\n"
+    "    False\n"
+    "\n"
+    "But it compares the :py:attr:`.key` instead of the :py:attr:`.item` if it's given::\n"
+    "\n"
+    "    >>> ItemIdxKey(0, 2, 20) < ItemIdxKey(10, 3, 19)\n"
+    "    False\n"
+    "    >>> ItemIdxKey(0, 2, 20) > ItemIdxKey(10, 3, 19)\n"
+    "    True\n"
+    "\n"
+    "This allows to sort based on :py:attr:`.item` or :py:attr:`.key` but always \n"
+    "to access the :py:attr:`.item` for the value that should be sorted.\n"
+);
+
 /******************************************************************************
  *
  * Helper class that mimics a 2-tuple when compared but dynamically decides
@@ -11,18 +134,6 @@
  * It also has a constructor function that bypasses the args/kwargs unpacking
  * to allow faster creation from within C code.
  *****************************************************************************/
-
-typedef struct {
-    PyObject_HEAD
-    PyObject *item;
-    PyObject *key;
-    Py_ssize_t idx;
-} PyIUObject_ItemIdxKey;
-
-static PyTypeObject PyIUType_ItemIdxKey;
-
-#define PyIU_ItemIdxKey_Check(o) PyObject_TypeCheck(o, &PyIUType_ItemIdxKey)
-#define PyIU_ItemIdxKey_CheckExact(o) (Py_TYPE(o) == &PyIUType_ItemIdxKey)
 
 /******************************************************************************
  * New
@@ -75,7 +186,7 @@ itemidxkey_new(PyTypeObject *type,
  * This bypasses the argument unpacking!
  *****************************************************************************/
 
-static PyObject *
+PyObject *
 PyIU_ItemIdxKey_FromC(PyObject *item,
                       Py_ssize_t idx,
                       PyObject *key)
@@ -106,7 +217,7 @@ PyIU_ItemIdxKey_FromC(PyObject *item,
  * Copy (only from C code)
  *****************************************************************************/
 
-static PyObject *
+PyObject *
 PyIU_ItemIdxKey_Copy(PyObject *iik)
 {
     PyIUObject_ItemIdxKey *n;
@@ -203,7 +314,7 @@ itemidxkey_repr(PyIUObject_ItemIdxKey *self)
  * Richcompare
  *****************************************************************************/
 
-static int
+int
 PyIU_ItemIdxKey_Compare(PyObject *v,
                         PyObject *w,
                         int op)
@@ -515,7 +626,7 @@ static PyGetSetDef itemidxkey_getsetlist[] = {
     {NULL}                                              /* sentinel */
 };
 
-static PyTypeObject PyIUType_ItemIdxKey = {
+PyTypeObject PyIUType_ItemIdxKey = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.ItemIdxKey",     /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_ItemIdxKey),          /* tp_basicsize */

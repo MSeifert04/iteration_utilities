@@ -2,15 +2,58 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-typedef struct {
-    PyObject_HEAD
-    PyObject *iterator;
-    PyObject *filler;
-    PyObject *nextitem;
-    int started;
-} PyIUObject_Intersperse;
+#include "intersperse.h"
+#include "docs_reduce.h"
+#include "docs_setstate.h"
+#include "docs_lengthhint.h"
+#include <structmember.h>
 
-static PyTypeObject PyIUType_Intersperse;
+PyDoc_STRVAR(intersperse_prop_fillvalue_doc,
+    "(any type) The interspersed fillvalue (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+
+PyDoc_STRVAR(intersperse_doc,
+    "intersperse(iterable, e)\n"
+    "--\n\n"
+    "Alternately yield an item from the `iterable` and `e`. Recipe based on the\n"
+    "homonymous function in the `more-itertools` package ([0]_) but significantly\n"
+    "modified.\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "iterable : iterable\n"
+    "    The iterable to intersperse.\n"
+    "\n"
+    "e : any type\n"
+    "    The value with which to intersperse the `iterable`.\n"
+    "\n"
+    "Returns\n"
+    "-------\n"
+    "interspersed : generator\n"
+    "    Interspersed `iterable` as generator.\n"
+    "\n"
+    "Notes\n"
+    "-----\n"
+    "This is similar to\n"
+    "``itertools.chain.from_iterable(zip(iterable, itertools.repeat(e)))`` except\n"
+    "that `intersperse` does not yield `e` as last item.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    "A few simple examples::\n"
+    "\n"
+    "    >>> from iteration_utilities import intersperse\n"
+    "    >>> list(intersperse([1,2,3], 0))\n"
+    "    [1, 0, 2, 0, 3]\n"
+    "\n"
+    "    >>> list(intersperse('abc', 'x'))\n"
+    "    ['a', 'x', 'b', 'x', 'c']\n"
+    "\n"
+    "References\n"
+    "----------\n"
+    ".. [0] https://github.com/erikrose/more-itertools\n"
+);
 
 /******************************************************************************
  * New
@@ -280,7 +323,7 @@ static PyMemberDef intersperse_memberlist[] = {
 };
 #undef OFF
 
-static PyTypeObject PyIUType_Intersperse = {
+PyTypeObject PyIUType_Intersperse = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.intersperse",    /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Intersperse),         /* tp_basicsize */

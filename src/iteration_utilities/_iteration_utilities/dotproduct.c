@@ -2,7 +2,9 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-static PyObject *
+#include "dotproduct.h"
+
+PyObject *
 PyIU_DotProduct(PyObject *Py_UNUSED(m), PyObject *args)
 {
     PyObject *vec1=NULL, *vec2=NULL;

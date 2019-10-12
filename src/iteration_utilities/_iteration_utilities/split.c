@@ -2,19 +2,110 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-typedef struct {
-    PyObject_HEAD
-    PyObject *iterator;
-    PyObject *delimiter;
-    Py_ssize_t maxsplit;
-    int keep_delimiter;
-    int keep_before;
-    int keep_after;
-    int cmp;
-    PyObject *next;
-} PyIUObject_Split;
+#include "split.h"
+#include "docs_reduce.h"
+#include "docs_setstate.h"
+#include "helper.h"
+#include <structmember.h>
 
-static PyTypeObject PyIUType_Split;
+PyDoc_STRVAR(split_prop_key_doc,
+    "(callable or any type) The function or value by which to split (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+PyDoc_STRVAR(split_prop_maxsplit_doc,
+    "(:py:class:`int`) The number of maximum splits (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+PyDoc_STRVAR(split_prop_keep_doc,
+    "(:py:class:`bool`) Keep the delimiter (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+PyDoc_STRVAR(split_prop_keepbefore_doc,
+    "(:py:class:`bool`) Keep the delimiter as last item of the last group "
+     "(readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+PyDoc_STRVAR(split_prop_keepafter_doc,
+    "(:py:class:`bool`) Keep the delimiter as first item of the next group "
+     "(readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+PyDoc_STRVAR(split_prop_eq_doc,
+    "(:py:class:`bool`) Instead of calling :py:attr:`key` compare the items "
+     "with it (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+
+PyDoc_STRVAR(split_doc,
+    "split(iterable, key, maxsplit=-1, keep=False, keep_before=False, keep_after=False, eq=False)\n"
+    "--\n\n"
+    "Splits an `iterable` by a `key` function or delimiter.\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "iterable : iterable\n"
+    "    The `iterable` to split.\n"
+    "\n"
+    "key : callable\n"
+    "    The function by which to split the `iterable` (split where\n"
+    "    ``key(item) == True``).\n"
+    "\n"
+    "maxsplit : :py:class:`int`, optional\n"
+    "    The number of maximal splits. If ``maxsplit=-1`` then there is no limit.\n"
+    "    Default is ``-1``.\n"
+    "\n"
+    "keep : :py:class:`bool`\n"
+    "    If ``True`` also include the items where ``key(item)=True`` as seperate list.\n"
+    "    Default is ``False``.\n"
+    "\n"
+    "keep_before : :py:class:`bool`\n"
+    "    If ``True`` also include the items where ``key(item)=True`` in the \n"
+    "    list before splitting.\n"
+    "    Default is ``False``.\n"
+    "\n"
+    "keep_after : :py:class:`bool`\n"
+    "    If ``True`` also include the items where ``key(item)=True`` as first \n"
+    "    item in the list after splitting.\n"
+    "    Default is ``False``.\n"
+    "\n"
+    "eq : :py:class:`bool`\n"
+    "    If ``True`` split the `iterable` where ``key == item`` instead of\n"
+    "    ``key(item) == True``. This can significantly speed up the function if a\n"
+    "    single delimiter is used.\n"
+    "    Default is ``False``.\n"
+    "\n"
+    "Returns\n"
+    "-------\n"
+    "splitted_iterable : generator\n"
+    "    Generator containing the splitted `iterable` (lists).\n"
+    "\n"
+    "Raises\n"
+    "-------\n"
+    "TypeError\n"
+    "    If ``maxsplit`` is smaller than ``-2``. If more than one of the ``keep``\n"
+    "    arguments is ``True``.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    ">>> from iteration_utilities import split\n"
+    ">>> list(split(range(1, 10), lambda x: x%3==0))\n"
+    "[[1, 2], [4, 5], [7, 8]]\n"
+    "\n"
+    ">>> list(split(range(1, 10), lambda x: x%3==0, keep=True))\n"
+    "[[1, 2], [3], [4, 5], [6], [7, 8], [9]]\n"
+    "\n"
+    ">>> list(split(range(1, 10), lambda x: x%3==0, keep_before=True))\n"
+    "[[1, 2, 3], [4, 5, 6], [7, 8, 9]]\n"
+    "\n"
+    ">>> list(split(range(1, 10), lambda x: x%3==0, keep_after=True))\n"
+    "[[1, 2], [3, 4, 5], [6, 7, 8], [9]]\n"
+    "\n"
+    ">>> list(split(range(1, 10), lambda x: x%3==0, maxsplit=1))\n"
+    "[[1, 2], [4, 5, 6, 7, 8, 9]]\n"
+    "\n"
+    ">>> list(split([1,2,3,4,5,3,7,8,3], 3, eq=True))\n"
+    "[[1, 2], [4, 5], [7, 8]]\n"
+);
 
 /******************************************************************************
  * New
@@ -369,7 +460,7 @@ static PyMemberDef split_memberlist[] = {
 };
 #undef OFF
 
-static PyTypeObject PyIUType_Split = {
+PyTypeObject PyIUType_Split = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.split",          /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Split),               /* tp_basicsize */

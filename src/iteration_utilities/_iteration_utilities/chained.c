@@ -2,13 +2,68 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-typedef struct {
-    PyObject_HEAD
-    PyObject *funcs;
-    int all;
-} PyIUObject_Chained;
+#include "chained.h"
+#include "docs_reduce.h"
+#include "docs_setstate.h"
+#include "helper.h"
+#include <structmember.h>
 
-static PyTypeObject PyIUType_Chained;
+PyDoc_STRVAR(chained_prop_funcs_doc,
+    "(:py:class:`tuple`) The functions to be used (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+PyDoc_STRVAR(chained_prop_all_doc,
+    "(:py:class:`bool`) Apply functions on each other (``False``) or "
+     "separate (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+
+PyDoc_STRVAR(chained_doc,
+    "chained(*funcs, /, reverse=False, all=False)\n"
+    "--\n\n"
+    "Chained function calls.\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "funcs\n"
+    "    Any number of callables.\n"
+    "\n"
+    "reverse : :py:class:`bool`, optional\n"
+    "    If ``True`` apply the the `funcs` in reversed order.\n"
+    "    Default is ``False``.\n"
+    "\n"
+    "all : :py:class:`bool`, optional\n"
+    "    If ``True`` apply each of the `funcs` separately and return a tuple\n"
+    "    containing the individual results when calling the instance.\n"
+    "\n"
+    "Returns\n"
+    "-------\n"
+    "chained_func : callable\n"
+    "    The chained `funcs`.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    "`chained` simple calls all `funcs` on the result of the previous one::\n"
+    "\n"
+    "    >>> from iteration_utilities import chained\n"
+    "    >>> double = lambda x: x*2\n"
+    "    >>> increment = lambda x: x+1\n"
+    "    >>> double_then_increment = chained(double, increment)\n"
+    "    >>> double_then_increment(10)\n"
+    "    21\n"
+    "\n"
+    "Or apply them in reversed order::\n"
+    "\n"
+    "    >>> increment_then_double = chained(double, increment, reverse=True)\n"
+    "    >>> increment_then_double(10)\n"
+    "    22\n"
+    "\n"
+    "Or apply all of them on the input::\n"
+    "\n"
+    "    >>> double_and_increment = chained(double, increment, all=True)\n"
+    "    >>> double_and_increment(10)\n"
+    "    (20, 11)\n"
+);
 
 /******************************************************************************
  * New
@@ -373,7 +428,7 @@ static PyMemberDef chained_memberlist[] = {
 };
 #undef OFF
 
-static PyTypeObject PyIUType_Chained = {
+PyTypeObject PyIUType_Chained = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.chained",        /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Chained),             /* tp_basicsize */

@@ -2,13 +2,66 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-typedef struct {
-    PyObject_HEAD
-    PyObject *func;
-    PyObject *cnt;
-} PyIUObject_Tabulate;
+#include "tabulate.h"
+#include "docs_reduce.h"
+#include "helper.h"
+#include <structmember.h>
 
-static PyTypeObject PyIUType_Tabulate;
+PyDoc_STRVAR(tabulate_prop_func_doc,
+    "(callable) The function to tabulate (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+PyDoc_STRVAR(tabulate_prop_current_doc,
+    "(any type) The current value to tabulate (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+
+PyDoc_STRVAR(tabulate_doc,
+    "tabulate(func, start=0)\n"
+    "--\n\n"
+    "Return ``function(0)``, ``function(1)``, ...\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "func : callable\n"
+    "    The `function` to apply.\n"
+    "\n"
+    "start : any type, optional\n"
+    "    The starting value to apply the `function` on. Each time `tabulate` is\n"
+    "    called this value will be incremented by one.\n"
+    "    Default is ``0``.\n"
+    "\n"
+    "Returns\n"
+    "-------\n"
+    "tabulated : generator\n"
+    "    An infinite generator containing the results of the `function` applied\n"
+    "    on the values beginning by `start`.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    "Since the return is an infinite generator you need some other function\n"
+    "to extract only the needed values. For example\n"
+    ":py:func:`~iteration_utilities.getitem`::\n"
+    "\n"
+    "    >>> from iteration_utilities import tabulate, getitem\n"
+    "    >>> from math import sqrt\n"
+    "    >>> t = tabulate(sqrt, 0)\n"
+    "    >>> list(getitem(t, stop=3))\n"
+    "    [0.0, 1.0, 1.4142135623730951]\n"
+    "\n"
+    ".. warning::\n"
+    "    This will return an infinitely long generator so do **not** try to do\n"
+    "    something like ``list(tabulate())``!\n"
+    "\n"
+    "This is equivalent to:\n"
+    "\n"
+    ".. code::\n"
+    "\n"
+    "    import itertools\n"
+    "    \n"
+    "    def tabulate(function, start=0)\n"
+    "        return map(function, itertools.count(start))\n"
+);
 
 /******************************************************************************
  * New
@@ -172,7 +225,7 @@ static PyMemberDef tabulate_memberlist[] = {
 };
 #undef OFF
 
-static PyTypeObject PyIUType_Tabulate = {
+PyTypeObject PyIUType_Tabulate = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.tabulate",       /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Tabulate),            /* tp_basicsize */

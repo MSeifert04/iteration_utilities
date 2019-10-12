@@ -2,6 +2,110 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
+#include "seen.h"
+#include "docs_reduce.h"
+#include "helper.h"
+#include <structmember.h>
+
+PyDoc_STRVAR(seen_prop_seenset_doc,
+    "(:py:class:`set`) The (hashable) seen values (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+PyDoc_STRVAR(seen_prop_seenlist_doc,
+    "(:py:class:`list` or None) The (unhashable) seen values (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+
+PyDoc_STRVAR(seen_doc,
+    "Seen(seenset=None, seenlist=None)\n"
+    "--\n\n"
+    "Helper class which adds the items after each :py:meth:`.contains_add` check.\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "seenset : :py:class:`set` or None, optional\n"
+    "    A :py:class:`set` containing initial values.\n"
+    "\n"
+    "seenlist : :py:class:`list` or None, optional\n"
+    "    A :py:class:`list` containing only unhashable initial values.\n"
+    "    \n"
+    "    .. note::\n"
+    "        The `seenlist` should not contain hashable values (these will \n"
+    "        be ignored for all practical purposes)!\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    "This class adds each item after :py:meth:`.contains_add` call but also \n"
+    "supports normal :py:meth:`in <.__contains__>` operations::\n"
+    "\n"
+    "    >>> from iteration_utilities import Seen\n"
+    "    >>> x = Seen()\n"
+    "    >>> # normal \"in\" operations do not add the element to the instance\n"
+    "    >>> 1 in x\n"
+    "    False\n"
+    "    >>> 1 in x\n"
+    "    False\n"
+    "    \n"
+    "    >>> # \"contains_add\" checks if the item is contained but also adds it\n"
+    "    >>> x.contains_add(2)\n"
+    "    False\n"
+    "    >>> x.contains_add(2)\n"
+    "    True\n"
+    "    >>> x  # doctest: +SKIP\n"
+    "    iteration_utilities.Seen({2})\n"
+    "    \n"
+    "    >>> x.contains_add([1, 2])\n"
+    "    False\n"
+    "    >>> [1, 2] in x\n"
+    "    True\n"
+    "    >>> x  # doctest: +SKIP\n"
+    "    iteration_utilities.Seen({2}, unhashable=[[1, 2]])\n"
+    "\n"
+    "This class does only support :py:meth:`in <.__contains__>`, \n"
+    ":py:meth:`== <.__eq__>`, :py:meth:`\\!= <.__ne__>` and \n"
+    ":py:meth:`len <.__len__>`.\n"
+    "It is mostly included because it unified the code in \n"
+    ":py:func:`~iteration_utilities.duplicates`,\n"
+    ":py:func:`~iteration_utilities.unique_everseen`, and \n"
+    ":py:func:`~iteration_utilities.all_distinct` and might be useful in other \n"
+    "applications.\n"
+);
+
+PyDoc_STRVAR(seen_containsadd_doc,
+    "contains_add(o, /)\n"
+    "--\n\n"
+    "Check if `o` is already contained in `self` and return the result.\n"
+    "But also adds `o` to `self` if it's not contained.\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "o : any type\n"
+    "    The object to check if it's contained in `self` and added to\n"
+    "    `self` if not.\n"
+    "\n"
+    "Returns\n"
+    "-------\n"
+    "contained : :py:class:`bool`\n"
+    "    ``True`` if `o` is contained in `self` otherwise ``False``.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    "A simple example::\n"
+    "\n"
+    "    >>> from iteration_utilities import Seen\n"
+    "    >>> x = Seen()\n"
+    "    >>> 10 in x\n"
+    "    False\n"
+    "    >>> x.contains_add(10)\n"
+    "    False\n"
+    "    >>> 10 in x\n"
+    "    True\n"
+    "    >>> x.contains_add(10)\n"
+    "    True\n"
+    "    >>> x  #doctest: +SKIP\n"
+    "    iteration_utilities.Seen({10})\n"
+);
+
 /******************************************************************************
  *
  * Helper class that wraps a set and list. This class is simply for convenience
@@ -23,23 +127,12 @@
  *          (-1 failure, 0 not contained, 1 contained)
  *****************************************************************************/
 
-typedef struct {
-    PyObject_HEAD
-    PyObject *seenset;
-    PyObject *seenlist;
-} PyIUObject_Seen;
-
-static PyTypeObject PyIUType_Seen;
-
-#define PyIUSeen_Check(o) (PyObject_TypeCheck(o, &PyIUType_Seen))
-#define PyIUSeen_CheckExact(o) (Py_TYPE(o) == &PyIUType_Seen)
-
 /******************************************************************************
  * Creates a new PyIUSeen objects with empty seenset and seenlist.
  * Returns ``NULL`` on failure with the appropriate exception.
  *****************************************************************************/
 
-static PyObject *
+PyObject *
 PyIUSeen_New(void)
 {
     /* Create and fill new object. */
@@ -271,7 +364,7 @@ seen_reduce(PyIUObject_Seen *self, PyObject *Py_UNUSED(args))
  * May be not overflow safe ...
  *****************************************************************************/
 
-static Py_ssize_t
+Py_ssize_t
 PyIUSeen_Size(PyIUObject_Seen *self)
 {
     if (self->seenlist != NULL) {
@@ -364,7 +457,7 @@ seen_containsnoadd_direct(PyIUObject_Seen *self,
     }
 }
 
-static int
+int
 PyIUSeen_ContainsAdd(PyObject *self,
                      PyObject *o)
 {
@@ -450,7 +543,7 @@ static PyMemberDef seen_memberlist[] = {
 };
 #undef OFF
 
-static PyTypeObject PyIUType_Seen = {
+PyTypeObject PyIUType_Seen = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.Seen",           /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Seen),                /* tp_basicsize */

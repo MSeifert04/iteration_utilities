@@ -2,14 +2,55 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-typedef struct {
-    PyObject_HEAD
-    PyObject *iterator;
-    Py_ssize_t times;
-    PyObject *result;
-} PyIUObject_Successive;
+#include "successive.h"
+#include "docs_reduce.h"
+#include "docs_setstate.h"
+#include "docs_lengthhint.h"
+#include "helper.h"
+#include <structmember.h>
 
-static PyTypeObject PyIUType_Successive;
+PyDoc_STRVAR(successive_prop_times_doc,
+    "(:py:class:`int`) The number of successive items (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+
+PyDoc_STRVAR(successive_doc,
+    "successive(iterable, times=2)\n"
+    "--\n\n"
+    "Like the recipe for pairwise but allows to get an arbitrary number\n"
+    "of successive elements.\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "iterable : iterable\n"
+    "    Get the successive elements from this `iterable`.\n"
+    "\n"
+    "times : :py:class:`int`, optional\n"
+    "    The number of successive elements.\n"
+    "    Default is ``2``.\n"
+    "\n"
+    "Returns\n"
+    "-------\n"
+    "successive_elements : generator\n"
+    "    The successive elements as generator. Each element of the generator\n"
+    "    is a tuple containing `times` successive elements.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    "Each item of the `iterable` is returned as ``tuple`` with `times` successive\n"
+    "items::\n"
+    "\n"
+    "    >>> from iteration_utilities import successive\n"
+    "    >>> list(successive(range(5)))\n"
+    "    [(0, 1), (1, 2), (2, 3), (3, 4)]\n"
+    "\n"
+    "Varying the `times` can give you also 3 successive elements::\n"
+    "\n"
+    "    >>> list(successive(range(5), times=3))\n"
+    "    [(0, 1, 2), (1, 2, 3), (2, 3, 4)]\n"
+    "    >>> list(successive('Hello!', times=2))\n"
+    "    [('H', 'e'), ('e', 'l'), ('l', 'l'), ('l', 'o'), ('o', '!')]\n"
+);
 
 /******************************************************************************
  * New
@@ -323,7 +364,7 @@ static PyMemberDef successive_memberlist[] = {
 };
 #undef OFF
 
-static PyTypeObject PyIUType_Successive = {
+PyTypeObject PyIUType_Successive = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.successive",     /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Successive),          /* tp_basicsize */

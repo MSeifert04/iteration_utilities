@@ -2,6 +2,62 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
+#include "duplicates.h"
+#include "docs_reduce.h"
+#include "docs_setstate.h"
+#include "helper.h"
+#include "seen.h"
+#include <structmember.h>
+
+PyDoc_STRVAR(duplicates_prop_seen_doc,
+    "(:py:class:`~iteration_utilities.Seen`) Already seen values (readonly).");
+PyDoc_STRVAR(duplicates_prop_key_doc,
+    "(callable or `None`) The key function (readonly).");
+
+PyDoc_STRVAR(duplicates_doc,
+    "duplicates(iterable, key=None)\n"
+    "--\n\n"
+    "Return only duplicate entries, remembers all items ever seen.\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "iterable : iterable\n"
+    "    `Iterable` containing the elements.\n"
+    "\n"
+    "key : callable, optional\n"
+    "    If given it must be a callable taking one argument and this\n"
+    "    callable is applied to the value before checking if it was seen yet.\n"
+    "\n"
+    "Returns\n"
+    "-------\n"
+    "iterable : generator\n"
+    "    An iterable containing all duplicates values of the `iterable`.\n"
+    "\n"
+    "Notes\n"
+    "-----\n"
+    "The items in the `iterable` should implement equality.\n"
+    "\n"
+    "If the items are hashable the function is much faster.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    "Multiple duplicates will be kept::\n"
+    "\n"
+    "    >>> from iteration_utilities import duplicates\n"
+    "    >>> list(duplicates('AABBCCDA'))\n"
+    "    ['A', 'B', 'C', 'A']\n"
+    "\n"
+    "    >>> list(duplicates('ABBCcAD', str.lower))\n"
+    "    ['B', 'c', 'A']\n"
+    "\n"
+    "To get each duplicate only once this can be combined with \n"
+    ":py:func:`~iteration_utilities.unique_everseen`::\n"
+    "\n"
+    "    >>> from iteration_utilities import unique_everseen\n"
+    "    >>> list(unique_everseen(duplicates('AABBCCDA')))\n"
+    "    ['A', 'B', 'C']\n"
+);
+
 /******************************************************************************
  *
  * IMPORTANT NOTE (Implementation):
@@ -10,15 +66,6 @@
  * or bugfixes should also be implemented there!!!
  *
  *****************************************************************************/
-
-typedef struct {
-    PyObject_HEAD
-    PyObject *iterator;
-    PyObject *key;
-    PyObject *seen;
-} PyIUObject_Duplicates;
-
-static PyTypeObject PyIUType_Duplicates;
 
 /******************************************************************************
  * New
@@ -262,7 +309,7 @@ static PyMemberDef duplicates_memberlist[] = {
 };
 #undef OFF
 
-static PyTypeObject PyIUType_Duplicates = {
+PyTypeObject PyIUType_Duplicates = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.duplicates",     /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Duplicates),          /* tp_basicsize */

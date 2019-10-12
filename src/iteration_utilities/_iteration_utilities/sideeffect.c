@@ -2,16 +2,71 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-typedef struct {
-    PyObject_HEAD
-    PyObject *iterator;  /* iterator over data */
-    PyObject *func;      /* Function to call */
-    Py_ssize_t times;    /* Call side effects each x items */
-    Py_ssize_t count;    /* Current counter when to call func */
-    PyObject *collected; /* Collect items to pass to side-effects */
-} PyIUObject_Sideeffects;
+#include "sideeffect.h"
+#include "docs_reduce.h"
+#include "docs_setstate.h"
+#include "docs_lengthhint.h"
+#include "helper.h"
+#include <structmember.h>
 
-static PyTypeObject PyIUType_Sideeffects;
+PyDoc_STRVAR(sideeffects_prop_func_doc,
+    "(callable) The function that is called by `sideeffects` (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+PyDoc_STRVAR(sideeffects_prop_times_doc,
+    "(:py:class:`int`) A counter indicating after how many items the `func` "
+     "is called (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+PyDoc_STRVAR(sideeffects_prop_count_doc,
+    "(:py:class:`int`) The current count for the next `func` call (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+
+PyDoc_STRVAR(sideeffects_doc,
+    "sideeffects(iterable, func, times=0)\n"
+    "--\n\n"
+    "Does a normal iteration over `iterable` and only uses `func` each `times` \n"
+    "items for it's side effects.\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "iterable : iterable\n"
+    "    `Iterable` containing the elements.\n"
+    "\n"
+    "func : callable\n"
+    "    Function that is called for the side effects.\n"
+    "\n"
+    "times : :py:class:`int`, optional\n"
+    "    Call the function each `times` items with the last `times` items. \n"
+    "    If ``0`` the argument for `func` will be the item itself. For any \n"
+    "    number greater than zero the argument will be a tuple.\n"
+    "    Default is ``0``.\n"
+    "\n"
+    "Returns\n"
+    "-------\n"
+    "iterator : generator\n"
+    "    A normal iterator over `iterable`.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    "A simple example::\n"
+    "\n"
+    "    >>> from iteration_utilities import sideeffects\n"
+    "    >>> def printit(val):\n"
+    "    ...     print(val)\n"
+    "    >>> list(sideeffects([1,2,3,4], printit))  # in python3 one could use print directly\n"
+    "    1\n"
+    "    2\n"
+    "    3\n"
+    "    4\n"
+    "    [1, 2, 3, 4]\n"
+    "    >>> list(sideeffects([1,2,3,4,5], printit, 2))\n"
+    "    (1, 2)\n"
+    "    (3, 4)\n"
+    "    (5,)\n"
+    "    [1, 2, 3, 4, 5]\n"
+);
 
 /******************************************************************************
  * New
@@ -454,7 +509,7 @@ static PyMemberDef sideeffects_memberlist[] = {
 };
 #undef OFF
 
-static PyTypeObject PyIUType_Sideeffects = {
+PyTypeObject PyIUType_Sideeffects = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.sideeffects",    /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Sideeffects),         /* tp_basicsize */

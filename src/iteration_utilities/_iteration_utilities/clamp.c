@@ -2,16 +2,87 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-typedef struct {
-    PyObject_HEAD
-    PyObject *iterator;
-    PyObject *low;
-    PyObject *high;
-    int inclusive;
-    int remove;
-} PyIUObject_Clamp;
+#include "clamp.h"
+#include "docs_reduce.h"
+#include "docs_lengthhint.h"
+#include <structmember.h>
 
-static PyTypeObject PyIUType_Clamp;
+PyDoc_STRVAR(clamp_prop_low_doc,
+    "(any type) The lower bound for `clamp` (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+PyDoc_STRVAR(clamp_prop_high_doc,
+    "(any type) The upper bound for `clamp` (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+PyDoc_STRVAR(clamp_prop_inclusive_doc,
+    "(:py:class:`bool`) Are the bounds inclusive (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+PyDoc_STRVAR(clamp_prop_remove_doc,
+    "(:py:class:`bool`) Remove the outliers or clamp them to nearest bound "
+     "(readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+
+PyDoc_STRVAR(clamp_doc,
+    "clamp(iterable, low=None, high=None, inclusive=False, remove=True)\n"
+    "--\n\n"
+    "Remove values which are not between `low` and `high`.\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "iterable : iterable\n"
+    "    Clamp the values from this `iterable`.\n"
+    "\n"
+    "low : any type, optional\n"
+    "    The lower bound for clamp. If not given or ``None`` there is no lower \n"
+    "    bound.\n"
+    "\n"
+    "high : any type, optional\n"
+    "    The upper bound for clamp. If not given or ``None`` there is no upper \n"
+    "    bound.\n"
+    "\n"
+    "inclusive : :py:class:`bool`, optional\n"
+    "    If ``True`` also remove values that are equal to `low` and `high`.\n"
+    "    Default is ``False``.\n"
+    "\n"
+    "remove : :py:class:`bool`, optional\n"
+    "    If ``True`` remove the items outside the range given by ``low`` and\n"
+    "    ``high``, otherwise replace them with ``low`` if they are lower or\n"
+    "    ``high`` if they are higher.\n"
+    "    Default is ``True``.\n"
+    "\n"
+    "    .. versionadded:: 0.2\n"
+    "\n"
+    "Returns\n"
+    "-------\n"
+    "clamped : generator\n"
+    "    A generator containing the values of `iterable` which are between `low`\n"
+    "    and `high`.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    "This function is equivalent to a generator expression like:\n"
+    "``(item for item in iterable if low <= item <= high)`` or\n"
+    "``(item for item in iterable if low < item < high)`` if `inclusive=True`.\n"
+    "Or a similar `filter`: ``filter(lambda item: low <= item <= high, iterable)``\n"
+    "But it also allows for either ``low`` or ``high`` to be ignored and is faster.\n"
+    "Some simple examples::\n"
+    "\n"
+    "    >>> from iteration_utilities import clamp\n"
+    "    >>> list(clamp(range(5), low=2))\n"
+    "    [2, 3, 4]\n"
+    "    >>> list(clamp(range(5), high=2))\n"
+    "    [0, 1, 2]\n"
+    "    >>> list(clamp(range(1000), low=2, high=8, inclusive=True))\n"
+    "    [3, 4, 5, 6, 7]\n"
+    "\n"
+    "If ``remove=False`` the function will replace values instead::\n"
+    "\n"
+    "    >>> list(clamp(range(10), low=4, high=8, remove=False))\n"
+    "    [4, 4, 4, 4, 4, 5, 6, 7, 8, 8]\n"
+);
 
 /******************************************************************************
  * New
@@ -254,7 +325,7 @@ static PyMemberDef clamp_memberlist[] = {
 };
 #undef OFF
 
-static PyTypeObject PyIUType_Clamp = {
+PyTypeObject PyIUType_Clamp = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.clamp",          /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Clamp),               /* tp_basicsize */

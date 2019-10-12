@@ -2,6 +2,9 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
+#include "argminmax.h"
+#include "helper.h"
+
 static PyObject *
 argminmax(PyObject *args,
           PyObject *kwargs,
@@ -125,26 +128,10 @@ Fail:
     return NULL;
 }
 
-/******************************************************************************
- * Argmin
- *****************************************************************************/
-
-static PyObject *
-PyIU_Argmin(PyObject *Py_UNUSED(m),
-            PyObject *args,
-            PyObject *kwargs)
-{
+PyObject * PyIU_Argmin(PyObject *Py_UNUSED(m), PyObject *args, PyObject *kwargs) {
     return argminmax(args, kwargs, Py_LT);
 }
 
-/******************************************************************************
- * Argmax
- *****************************************************************************/
-
-static PyObject *
-PyIU_Argmax(PyObject *Py_UNUSED(m),
-            PyObject *args,
-            PyObject *kwargs)
-{
+PyObject * PyIU_Argmax(PyObject *Py_UNUSED(m), PyObject *args, PyObject *kwargs) {
     return argminmax(args, kwargs, Py_GT);
 }

@@ -2,6 +2,67 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
+#include "uniqueever.h"
+#include "docs_reduce.h"
+#include "docs_setstate.h"
+#include "helper.h"
+#include "seen.h"
+#include <structmember.h>
+
+PyDoc_STRVAR(uniqueever_prop_seen_doc,
+    "(:py:class:`~iteration_utilities.Seen`) Already seen values (readonly).");
+PyDoc_STRVAR(uniqueever_prop_key_doc,
+    "(callable or None) The key function (readonly).");
+
+PyDoc_STRVAR(uniqueever_doc,
+    "unique_everseen(iterable, key=None)\n"
+    "--\n\n"
+    "Find unique elements, preserving their order. Remembers all elements ever seen.\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "iterable : iterable\n"
+    "    `Iterable` containing the elements.\n"
+    "\n"
+    "key : callable, optional\n"
+    "    If given it must be a callable taking one argument and this\n"
+    "    callable is applied to the value before checking if it was seen yet.\n"
+    "\n"
+    "Returns\n"
+    "-------\n"
+    "iterable : generator\n"
+    "    An iterable containing all unique values ever seen in the `iterable`.\n"
+    "\n"
+    "Notes\n"
+    "-----\n"
+    "The items in the `iterable` should implement equality.\n"
+    "\n"
+    "If the items are hashable the function is much faster.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    "Some simple examples::\n"
+    "\n"
+    "    >>> from iteration_utilities import unique_everseen\n"
+    "    >>> list(unique_everseen('AAAABBBCCDAABBB'))\n"
+    "    ['A', 'B', 'C', 'D']\n"
+    "    \n"
+    "    >>> list(unique_everseen('ABBCcAD', str.lower))\n"
+    "    ['A', 'B', 'C', 'D']\n"
+    "    \n"
+    "Even unhashable values can be processed, like `list`::\n"
+    "\n"
+    "    >>> list(unique_everseen([[1, 2], [1, 1], [1, 2]]))\n"
+    "    [[1, 2], [1, 1]]\n"
+    "    \n"
+    "However using ``key=tuple`` (to make them hashable) will be faster::\n"
+    "\n"
+    "    >>> list(unique_everseen([[1, 2], [1, 1], [1, 2]], key=tuple))\n"
+    "    [[1, 2], [1, 1]]\n"
+    "    \n"
+    "One can access the already seen values by accessing the `seen` attribute.\n"
+);
+
 /******************************************************************************
  *
  * IMPORTANT NOTE (Implementation):
@@ -10,15 +71,6 @@
  * or bugfixes should also be implemented there!!!
  *
  *****************************************************************************/
-
-typedef struct {
-    PyObject_HEAD
-    PyObject *iterator;
-    PyObject *key;
-    PyObject *seen;
-} PyIUObject_UniqueEver;
-
-static PyTypeObject PyIUType_UniqueEver;
 
 /******************************************************************************
  * New
@@ -260,7 +312,7 @@ static PyMemberDef uniqueever_memberlist[] = {
 };
 #undef OFF
 
-static PyTypeObject PyIUType_UniqueEver = {
+PyTypeObject PyIUType_UniqueEver = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.unique_everseen",/* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_UniqueEver),          /* tp_basicsize */

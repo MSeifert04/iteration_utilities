@@ -2,14 +2,39 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-typedef struct {
-    PyObject_HEAD
-    PyObject *iteratortuple;
-    Py_ssize_t numactive;
-    Py_ssize_t active;
-} PyIUObject_Roundrobin;
+#include "roundrobin.h"
+#include "docs_reduce.h"
+#include "docs_setstate.h"
+#include "docs_lengthhint.h"
+#include "helper.h"
+#include <structmember.h>
 
-static PyTypeObject PyIUType_Roundrobin;
+PyDoc_STRVAR(roundrobin_doc,
+    "roundrobin(*iterables)\n"
+    "--\n\n"
+    "Round-Robin implementation ([0]_).\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "iterables : iterable\n"
+    "    `Iterables` to combine using the round-robin. Any amount of iterables\n"
+    "    are supported.\n"
+    "\n"
+    "Returns\n"
+    "-------\n"
+    "roundrobin : generator\n"
+    "    Iterable filled with the values of the `iterables`.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    ">>> from iteration_utilities import roundrobin\n"
+    ">>> list(roundrobin('ABC', 'D', 'EF'))\n"
+    "['A', 'D', 'E', 'B', 'F', 'C']\n"
+    "\n"
+    "References\n"
+    "----------\n"
+    ".. [0] https://en.wikipedia.org/wiki/Round-robin_scheduling\n"
+);
 
 /******************************************************************************
  * New
@@ -321,7 +346,7 @@ static PyMethodDef roundrobin_methods[] = {
     {NULL, NULL}                                        /* sentinel */
 };
 
-static PyTypeObject PyIUType_Roundrobin = {
+PyTypeObject PyIUType_Roundrobin = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.roundrobin",     /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Roundrobin),          /* tp_basicsize */

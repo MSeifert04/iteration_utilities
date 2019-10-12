@@ -2,12 +2,40 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
-typedef struct {
-    PyObject_HEAD
-    PyObject *func;
-} PyIUObject_Flip;
+#include "flip.h"
+#include "docs_reduce.h"
+#include "helper.h"
+#include <structmember.h>
 
-static PyTypeObject PyIUType_Flip;
+PyDoc_STRVAR(flip_prop_func_doc,
+    "(callable) The function with flipped arguments (readonly).\n"
+    "\n"
+    ".. versionadded:: 0.6");
+
+PyDoc_STRVAR(flip_doc,
+    "flip(x, /)\n"
+    "--\n\n"
+    "Class that reverses the positional arguments to a `func` when called.\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "func : callable\n"
+    "    The function that should be called with the flipped (reversed) arguments.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    "This can be used to alter the call to a function::\n"
+    "\n"
+    "    >>> from iteration_utilities import flip\n"
+    "    >>> from functools import partial\n"
+    "    >>> flipped = flip(isinstance)\n"
+    "    >>> isfloat = partial(flipped, float)\n"
+    "\n"
+    "    >>> isfloat(10)\n"
+    "    False\n"
+    "    >>> isfloat(11.25)\n"
+    "    True\n"
+);
 
 /******************************************************************************
  * New
@@ -169,7 +197,7 @@ static PyMemberDef flip_memberlist[] = {
 };
 #undef OFF
 
-static PyTypeObject PyIUType_Flip = {
+PyTypeObject PyIUType_Flip = {
     PyVarObject_HEAD_INIT(NULL, 0)
     (const char *)"iteration_utilities.flip",           /* tp_name */
     (Py_ssize_t)sizeof(PyIUObject_Flip),                /* tp_basicsize */

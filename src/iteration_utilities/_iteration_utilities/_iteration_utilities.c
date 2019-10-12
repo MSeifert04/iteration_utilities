@@ -3,59 +3,58 @@
  *****************************************************************************/
 
 #include <Python.h>
-#include <structmember.h>
-#include "_helper.c"
 
-#include "_globaldocs.c"
+#include "docsfunctions.h"
+#include "helper.h"
 
-#include "_exported_helper.c"
-#include "_seen.c"
-#include "_itemidxkey.c"
-#include "_isx.c"
-#include "_returnx.c"
-#include "_placeholder.c"
-#include "_mathematical.c"
+#include "exported_helper.h"
+#include "seen.h"
+#include "itemidxkey.h"
+#include "isx.h"
+#include "returnx.h"
+#include "placeholder.h"
+#include "mathematical.h"
 
-#include "chained.c"
-#include "complement.c"
-#include "constant.c"
-#include "flip.c"
-#include "packed.c"
-#include "partial.c"
+#include "chained.h"
+#include "complement.h"
+#include "constant.h"
+#include "flip.h"
+#include "packed.h"
+#include "partial.h"
 
-#include "nth.c"
+#include "nth.h"
 
-#include "argminmax.c"
-#include "alldistinct.c"
-#include "allequal.c"
-#include "allisinstance.c"
-#include "allmonotone.c"
-#include "anyisinstance.c"
-#include "countitems.c"
-#include "dotproduct.c"
-#include "groupedby.c"
-#include "minmax.c"
-#include "one.c"
-#include "partition.c"
+#include "argminmax.h"
+#include "alldistinct.h"
+#include "allequal.h"
+#include "allisinstance.h"
+#include "allmonotone.h"
+#include "anyisinstance.h"
+#include "countitems.h"
+#include "dotproduct.h"
+#include "groupedby.h"
+#include "minmax.h"
+#include "one.h"
+#include "partition.h"
 
-#include "accumulate.c"
-#include "applyfunc.c"
-#include "clamp.c"
-#include "deepflatten.c"
-#include "duplicates.c"
-#include "grouper.c"
-#include "intersperse.c"
-#include "iterexcept.c"
-#include "merge.c"
-#include "replicate.c"
-#include "roundrobin.c"
-#include "sideeffect.c"
-#include "split.c"
-#include "starfilter.c"
-#include "successive.c"
-#include "tabulate.c"
-#include "uniqueever.c"
-#include "uniquejust.c"
+#include "accumulate.h"
+#include "applyfunc.h"
+#include "clamp.h"
+#include "deepflatten.h"
+#include "duplicates.h"
+#include "grouper.h"
+#include "intersperse.h"
+#include "iterexcept.h"
+#include "merge.h"
+#include "replicate.h"
+#include "roundrobin.h"
+#include "sideeffect.h"
+#include "split.h"
+#include "starfilter.h"
+#include "successive.h"
+#include "tabulate.h"
+#include "uniqueever.h"
+#include "uniquejust.h"
 
 
 static PyMethodDef PyIU_methods[] = {
@@ -375,46 +374,22 @@ static PyMethodDef PyIU_methods[] = {
         }
 
         /* Add pre-defined instances. */
-        PyIU_returnTrue = constant_new(&PyIUType_Constant,
-                                       Py_BuildValue("(O)", Py_True),
-                                       NULL);
+        PyIU_InitializeConstants();
+        PyIU_returnTrue = PyIUConstant_New(Py_True);
         PyModule_AddObject(m, PyIU_returnTrue_name, PyIU_returnTrue);
-        PyIU_returnFalse = constant_new(&PyIUType_Constant,
-                                        Py_BuildValue("(O)", Py_False),
-                                        NULL);
+        PyIU_returnFalse = PyIUConstant_New(Py_False);
         PyModule_AddObject(m, PyIU_returnFalse_name, PyIU_returnFalse);
-        PyIU_returnNone = constant_new(&PyIUType_Constant,
-                                       Py_BuildValue("(O)", Py_None),
-                                       NULL);
+        PyIU_returnNone = PyIUConstant_New(Py_None);
         PyModule_AddObject(m, PyIU_returnNone_name, PyIU_returnNone);
 
-        PyIU_ReduceFirst = nth_new(&PyIUType_Nth,
-                                   Py_BuildValue("(n)", 0),
-                                   NULL);
+        PyIU_ReduceFirst = PyIUNth_New(0);
         PyModule_AddObject(m, PyIU_ReduceFirst_name, PyIU_ReduceFirst);
-        PyIU_ReduceSecond = nth_new(&PyIUType_Nth,
-                                    Py_BuildValue("(n)", 1),
-                                    NULL);
+        PyIU_ReduceSecond = PyIUNth_New(1);
         PyModule_AddObject(m, PyIU_ReduceSecond_name, PyIU_ReduceSecond);
-        PyIU_ReduceThird = nth_new(&PyIUType_Nth,
-                                   Py_BuildValue("(n)", 2),
-                                   NULL);
+        PyIU_ReduceThird = PyIUNth_New(2);
         PyModule_AddObject(m, PyIU_ReduceThird_name, PyIU_ReduceThird);
-        PyIU_ReduceLast = nth_new(&PyIUType_Nth,
-                                  Py_BuildValue("(n)", minus_one),
-                                  NULL);
+        PyIU_ReduceLast = PyIUNth_New(minus_one);
         PyModule_AddObject(m, PyIU_ReduceLast_name, PyIU_ReduceLast);
-
-        #if PY_MAJOR_VERSION == 2
-            PyIU_global_zero = PyInt_FromLong((long)0);
-            PyIU_global_one = PyInt_FromLong((long)1);
-            PyIU_global_two = PyInt_FromLong((long)2);
-        #else
-            PyIU_global_zero = PyLong_FromLong((long)0);
-            PyIU_global_one = PyLong_FromLong((long)1);
-            PyIU_global_two = PyLong_FromLong((long)2);
-        #endif
-        PyIU_global_0tuple = PyTuple_New(0);
     }
 
 #if PY_MAJOR_VERSION >= 3

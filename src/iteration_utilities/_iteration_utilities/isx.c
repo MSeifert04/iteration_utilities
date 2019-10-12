@@ -2,6 +2,9 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
+#include "isx.h"
+#include "helper.h"
+
 /******************************************************************************
  * is_None
  *
@@ -10,7 +13,7 @@
  * lambda value: value is None
  *****************************************************************************/
 
-static PyObject *
+PyObject *
 PyIU_IsNone(PyObject *Py_UNUSED(m),
             PyObject *o)
 {
@@ -29,7 +32,7 @@ PyIU_IsNone(PyObject *Py_UNUSED(m),
  * lambda value: value is not None
  *****************************************************************************/
 
-static PyObject *
+PyObject *
 PyIU_IsNotNone(PyObject *Py_UNUSED(m),
                PyObject *o)
 {
@@ -48,7 +51,7 @@ PyIU_IsNotNone(PyObject *Py_UNUSED(m),
  * lambda value: value % 2 == 0
  *****************************************************************************/
 
-static PyObject *
+PyObject *
 PyIU_IsEven(PyObject *Py_UNUSED(m),
             PyObject *o)
 {
@@ -80,7 +83,7 @@ PyIU_IsEven(PyObject *Py_UNUSED(m),
  * lambda value: value % 2 != 0
  *****************************************************************************/
 
-static PyObject *
+PyObject *
 PyIU_IsOdd(PyObject *Py_UNUSED(m),
            PyObject *o)
 {
@@ -117,7 +120,7 @@ PyIU_IsOdd(PyObject *Py_UNUSED(m),
  *     return True
  *****************************************************************************/
 
-static PyObject *
+PyObject *
 PyIU_IsIterable(PyObject *Py_UNUSED(m),
                 PyObject *o)
 {
