@@ -65,6 +65,10 @@ PyDoc_STRVAR(chained_doc,
     "    (20, 11)\n"
 );
 
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+static PyObject * chained_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *kwnames);
+#endif
+
 /******************************************************************************
  * New
  *****************************************************************************/
@@ -185,6 +189,9 @@ chained_new(PyTypeObject *type,
     }
 
     self->all = all;
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+    self->vectorcall = (vectorcallfunc)chained_vectorcall;
+#endif
     return (PyObject *)self;
 
 Fail:
@@ -229,8 +236,74 @@ chained_clear(PyIUObject_Chained *self)
 }
 
 /******************************************************************************
- * Call
+ * Vectorcall & Call
  *****************************************************************************/
+
+
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+
+static PyObject *
+chained_vectorcall_normal(PyIUObject_Chained *self, PyObject *const *args, size_t nargsf, PyObject *kwnames)
+{
+    Py_ssize_t idx;
+
+    PyObject *temp = _PyObject_Vectorcall(PyTuple_GET_ITEM(self->funcs, 0), args, nargsf, kwnames);
+    if (temp == NULL) {
+        return NULL;
+    }
+
+    for (idx=1 ; idx < PyTuple_GET_SIZE(self->funcs) ; idx++) {
+        PyObject *func = PyTuple_GET_ITEM(self->funcs, idx);
+        PyObject *oldtemp = temp;
+        temp = PyIU_CallWithOneArgument(func, temp);
+        Py_DECREF(oldtemp);
+
+        if (temp == NULL) {
+            return NULL;
+        }
+    }
+
+    return temp;
+}
+
+static PyObject *
+chained_vectorcall_all(PyIUObject_Chained *self, PyObject *const *args, size_t nargsf, PyObject *kwnames)
+{
+    PyObject *result;
+    Py_ssize_t idx;
+    Py_ssize_t num_funcs = PyTuple_GET_SIZE(self->funcs);
+
+    /* Create a placeholder tuple for "all=True".  */
+    result = PyTuple_New(num_funcs);
+    if (result == NULL) {
+        return NULL;
+    }
+
+    for (idx=0 ; idx<num_funcs ; idx++) {
+        PyObject *temp = _PyObject_Vectorcall(PyTuple_GET_ITEM(self->funcs, idx), args, nargsf, kwnames);
+        PyTuple_SET_ITEM(result, idx, temp);
+        if (temp == NULL) {
+            Py_DECREF(result);
+            return NULL;
+        }
+    }
+
+    return result;
+}
+
+
+static PyObject *
+chained_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *kwnames)
+{
+    PyIUObject_Chained *self = (PyIUObject_Chained *)obj;
+    if (self->all) {
+        return chained_vectorcall_all(self, args, nargsf, kwnames);
+    } else {
+        return chained_vectorcall_normal(self, args, nargsf, kwnames);
+    }
+}
+
+#else
 
 static PyObject *
 chained_call_normal(PyIUObject_Chained *self,
@@ -300,6 +373,8 @@ chained_call(PyIUObject_Chained *self,
         return chained_call_normal(self, args, kwargs);
     }
 }
+
+#endif
 
 /******************************************************************************
  * Repr
@@ -435,7 +510,11 @@ PyTypeObject PyIUType_Chained = {
     (Py_ssize_t)0,                                      /* tp_itemsize */
     /* methods */
     (destructor)chained_dealloc,                        /* tp_dealloc */
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+    offsetof(PyIUObject_Chained, vectorcall),          /* tp_vectorcall_offset */
+#else
     (printfunc)0,                                       /* tp_print */
+#endif
     (getattrfunc)0,                                     /* tp_getattr */
     (setattrfunc)0,                                     /* tp_setattr */
     0,                                                  /* tp_reserved */
@@ -444,13 +523,20 @@ PyTypeObject PyIUType_Chained = {
     (PySequenceMethods *)0,                             /* tp_as_sequence */
     (PyMappingMethods *)0,                              /* tp_as_mapping */
     (hashfunc)0,                                        /* tp_hash */
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+    (ternaryfunc)PyVectorcall_Call,                     /* tp_call */
+#else
     (ternaryfunc)chained_call,                          /* tp_call */
+#endif
     (reprfunc)0,                                        /* tp_str */
     (getattrofunc)PyObject_GenericGetAttr,              /* tp_getattro */
     (setattrofunc)0,                                    /* tp_setattro */
     (PyBufferProcs *)0,                                 /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
-        Py_TPFLAGS_BASETYPE,                            /* tp_flags */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+        | _Py_TPFLAGS_HAVE_VECTORCALL
+#endif
+        ,                                               /* tp_flags */
     (const char *)chained_doc,                          /* tp_doc */
     (traverseproc)chained_traverse,                     /* tp_traverse */
     (inquiry)chained_clear,                             /* tp_clear */

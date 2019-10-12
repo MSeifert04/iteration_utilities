@@ -32,10 +32,6 @@ class T(Original_T):
         return self.__class__(self.value ** other)
 
 
-class ChainedSubclass(chained):
-    pass
-
-
 def test_chained_repr1():
     x = chained(int, float)
     r = repr(x)
