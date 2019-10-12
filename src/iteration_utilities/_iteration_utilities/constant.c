@@ -54,7 +54,7 @@ PyDoc_STRVAR(constant_doc,
 );
 
 #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
-PyObject * constant_vectorcall(PyIUObject_Constant *self, PyObject *const *args, size_t nargsf, PyObject *kwnames);
+static PyObject * constant_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *kwnames);
 #endif
 
 PyObject *
@@ -75,7 +75,7 @@ PyIUConstant_New(PyObject *value)
     Py_INCREF(value);
     self->item = value;
 #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
-    self->vectorcall = constant_vectorcall;
+    self->vectorcall = (vectorcallfunc)constant_vectorcall;
 #endif
     PyObject_GC_Track(self);
     return (PyObject *)self;
@@ -107,7 +107,7 @@ constant_new(PyTypeObject *type,
     Py_INCREF(item);
     self->item = item;
 #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
-    self->vectorcall = constant_vectorcall;
+    self->vectorcall = (vectorcallfunc)constant_vectorcall;
 #endif
     return (PyObject *)self;
 }
@@ -152,22 +152,29 @@ constant_clear(PyIUObject_Constant *self)
  * Vectorcall & Call
  *****************************************************************************/
 
+static PyObject *
+constant_call_impl(PyIUObject_Constant *self) {
+    PyObject *item = self->item;
+    Py_INCREF(item);
+    return item;
+}
+
 #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
-    PyObject *
-    constant_vectorcall(PyIUObject_Constant *self, PyObject *const *args,
-                        size_t nargsf, PyObject *kwnames)
+    static PyObject *
+    constant_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf,
+                        PyObject *kwnames)
     {
-        Py_INCREF(self->item);
-        return self->item;
+        if (Py_TYPE(obj) == &PyIUType_Constant) {
+            return constant_call_impl((PyIUObject_Constant *)obj);
+        }
+        PyErr_SetString(PyExc_TypeError, "must be a constant object.");
+        return NULL;
     }
 #else
     static PyObject *
-    constant_call(PyIUObject_Constant *self,
-                PyObject *args,
-                PyObject *kwargs)
+    constant_call(PyIUObject_Constant *self, PyObject *args, PyObject *kwargs)
     {
-        Py_INCREF(self->item);
-        return self->item;
+        return constant_call_impl(self);
     }
 #endif
 
