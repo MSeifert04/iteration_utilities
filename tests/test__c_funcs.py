@@ -2,6 +2,7 @@
 
 # Built-ins
 from __future__ import absolute_import, division, print_function
+import gc
 
 # 3rd party
 import pytest
@@ -91,6 +92,39 @@ def test_reverse_math_ops():
         with pytest.raises(TypeError):
             # Too many arguments
             rfunc(1, 2, 3)
+
+
+def test_traverse():
+    """To test the traverse implementation we call gc.collect() while instances
+    of all the C objects are still valid."""
+    acc = iteration_utilities.accumulate([])
+    app = iteration_utilities.applyfunc(lambda x: x, 1)
+    cha = iteration_utilities.chained(int, float)
+    cla = iteration_utilities.clamp([], 0, 1)
+    com = iteration_utilities.complement(int)
+    con = iteration_utilities.constant(1)
+    dee = iteration_utilities.deepflatten([])
+    dup = iteration_utilities.duplicates([])
+    fli = iteration_utilities.flip(int)
+    gro = iteration_utilities.grouper([], 2)
+    ine = iteration_utilities.intersperse([], 1)
+    iik = iteration_utilities.ItemIdxKey(10, 2)
+    ite = iteration_utilities.iter_except(int, TypeError)
+    mer = iteration_utilities.merge([])
+    nth = iteration_utilities.nth(1)
+    pac = iteration_utilities.packed(int)
+    par = iteration_utilities.partial(int, 10)
+    rep = iteration_utilities.replicate([], 3)
+    rou = iteration_utilities.roundrobin([])
+    see = iteration_utilities.Seen()
+    sid = iteration_utilities.sideeffects([], lambda x: x)
+    spl = iteration_utilities.split([], lambda x: True)
+    sta = iteration_utilities.starfilter(lambda x: True, [])
+    suc = iteration_utilities.successive([])
+    tab = iteration_utilities.tabulate(int)
+    une = iteration_utilities.unique_everseen([])
+    unj = iteration_utilities.unique_justseen([])
+    gc.collect()
 
 
 @pytest.mark.skipif(not iteration_utilities.GE_PY35,
