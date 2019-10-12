@@ -46,6 +46,10 @@ PyDoc_STRVAR(complement_doc,
     ".. [0] https://toolz.readthedocs.io/en/latest/index.html\n"
 );
 
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+static PyObject * complement_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *kwnames);
+#endif
+
 /******************************************************************************
  * New
  *****************************************************************************/
@@ -71,6 +75,9 @@ complement_new(PyTypeObject *type,
     }
     Py_INCREF(func);
     self->func = func;
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+    self->vectorcall = (vectorcallfunc)complement_vectorcall;
+#endif
     return (PyObject *)self;
 }
 
@@ -111,19 +118,12 @@ complement_clear(PyIUObject_Complement *self)
 }
 
 /******************************************************************************
- * Call
+ * Vectorcall & Call
  *****************************************************************************/
 
 static PyObject *
-complement_call(PyIUObject_Complement *self,
-                PyObject *args,
-                PyObject *kwargs)
-{
-    PyObject *temp;
+complement_aftercall(PyObject *temp) {
     int res;
-
-    /* "not func(*args, **kwargs)" */
-    temp = PyObject_Call(self->func, args, kwargs);
     if (temp == NULL) {
         return NULL;
     }
@@ -138,6 +138,28 @@ complement_call(PyIUObject_Complement *self,
         return NULL;
     }
 }
+
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+    static PyObject *
+    complement_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf,
+                          PyObject *kwnames)
+    {
+        PyObject *temp;
+        PyIUObject_Complement *self = (PyIUObject_Complement *)obj;
+        temp = _PyObject_Vectorcall(self->func, args, nargsf, kwnames);
+        return complement_aftercall(temp);
+    }
+#else
+    static PyObject *
+    complement_call(PyIUObject_Complement *self,
+                    PyObject *args,
+                    PyObject *kwargs)
+    {
+        PyObject *temp;
+        temp = PyObject_Call(self->func, args, kwargs);
+        return complement_aftercall(temp);
+    }
+#endif
 
 /******************************************************************************
  * Repr
@@ -208,7 +230,11 @@ PyTypeObject PyIUType_Complement = {
     (Py_ssize_t)0,                                      /* tp_itemsize */
     /* methods */
     (destructor)complement_dealloc,                     /* tp_dealloc */
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+    offsetof(PyIUObject_Complement, vectorcall),        /* tp_vectorcall_offset */
+#else
     (printfunc)0,                                       /* tp_print */
+#endif
     (getattrfunc)0,                                     /* tp_getattr */
     (setattrfunc)0,                                     /* tp_setattr */
     0,                                                  /* tp_reserved */
@@ -217,13 +243,20 @@ PyTypeObject PyIUType_Complement = {
     (PySequenceMethods *)0,                             /* tp_as_sequence */
     (PyMappingMethods *)0,                              /* tp_as_mapping */
     (hashfunc)0,                                        /* tp_hash */
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+    (ternaryfunc)PyVectorcall_Call,                     /* tp_call */
+#else
     (ternaryfunc)complement_call,                       /* tp_call */
+#endif
     (reprfunc)0,                                        /* tp_str */
     (getattrofunc)PyObject_GenericGetAttr,              /* tp_getattro */
     (setattrofunc)0,                                    /* tp_setattro */
     (PyBufferProcs *)0,                                 /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
-        Py_TPFLAGS_BASETYPE,                            /* tp_flags */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+        | _Py_TPFLAGS_HAVE_VECTORCALL
+#endif
+        ,                                               /* tp_flags */
     (const char *)complement_doc,                       /* tp_doc */
     (traverseproc)complement_traverse,                  /* tp_traverse */
     (inquiry)complement_clear,                          /* tp_clear */

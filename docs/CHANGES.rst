@@ -14,6 +14,7 @@ e.g. performance).
 - Some classes cannot be subclassed anymore, this includes:
 
   - ``constant``
+  - ``complement``
 
 
 Version 0.7.0 (2018-01-28)
