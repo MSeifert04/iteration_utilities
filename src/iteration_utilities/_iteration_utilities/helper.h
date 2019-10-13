@@ -38,7 +38,6 @@ PyIU_CallWithOneArgument(PyObject *callable, PyObject *arg1) {
         PyObject *result;
         PyObject *args = PyTuple_New(1);
         if (args == NULL) {
-            Py_DECREF(arg1);
             return NULL;
         }
         Py_INCREF(arg1);
