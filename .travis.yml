@@ -7,6 +7,10 @@ python:
   - "2.7"
   - "3.5"
   - "3.6"
+  - "3.7"
+  - "3.7-dev"
+  - "3.8-dev"
+  - "nightly"
 
 matrix:
   include:
@@ -14,23 +18,6 @@ matrix:
       install: CC=clang python -m pip install . --no-deps -vv
     - python: "3.7"
       install: CC=clang python -m pip install . --no-deps -vv
-      dist: xenial
-      sudo: true
-    # Unfortunately there is currently no way to have these tested on Trusty.
-    # This is hack to work around that:
-    # https://docs.travis-ci.com/user/languages/python/#development-releases-support
-    - python: "3.7"
-      dist: xenial
-      sudo: true
-    - python: "3.7-dev"
-      dist: xenial
-      sudo: true
-    - python: "3.8-dev"
-      dist: xenial
-      sudo: true
-    - python: "nightly"
-      dist: xenial
-      sudo: true
 
 before_install:
   - python -m pip install pip --upgrade
