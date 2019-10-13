@@ -4,7 +4,10 @@
 #include <Python.h>
 #include "helpercompat.h"
 
-#define PySet_CheckExact(ob) (Py_TYPE(ob) == &PySet_Type)
+#define PyIU_USE_FASTCALL PYIU_CPYTHON && PY_MAJOR_VERSION == 3 && (PY_MINOR_VERSION == 6 || PY_MINOR_VERSION == 7)
+#define PyIU_USE_VECTORCALL PYIU_CPYTHON && PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+
+#define PyIU_Set_CheckExact(ob) (Py_TYPE(ob) == &PySet_Type)
 
 extern PyObject *PyIU_global_zero;
 extern PyObject *PyIU_global_one;
@@ -16,6 +19,7 @@ PyObject *PyIU_TupleReverse(PyObject *tuple);
 PyObject *PyIU_TupleCopy(PyObject *tuple);
 void PyIU_TupleInsert(PyObject *tuple, Py_ssize_t where, PyObject *v, Py_ssize_t num);
 void PyIU_TupleRemove(PyObject *tuple, Py_ssize_t where, Py_ssize_t num);
+PyObject *PyIU_TupleGetSlice(PyObject *tuple, Py_ssize_t num);
 void PyIU_InitializeConstants(void);
 
 /******************************************************************************
@@ -26,11 +30,11 @@ void PyIU_InitializeConstants(void);
 
 static inline PyObject*
 PyIU_CallWithOneArgument(PyObject *callable, PyObject *arg1) {
-    #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+    #if PyIU_USE_VECTORCALL
         PyObject *args[1];
         args[0] = arg1;
         return _PyObject_Vectorcall(callable, args, 1, NULL);
-    #elif PY_MAJOR_VERSION == 3 && (PY_MINOR_VERSION == 6 || PY_MINOR_VERSION == 7)
+    #elif PyIU_USE_FASTCALL
         PyObject *args[1];
         args[0] = arg1;
         return _PyObject_FastCall(callable, args, 1);
@@ -50,12 +54,12 @@ PyIU_CallWithOneArgument(PyObject *callable, PyObject *arg1) {
 
 static inline PyObject*
 PyIU_CallWithTwoArguments(PyObject *callable, PyObject *arg1, PyObject *arg2) {
-    #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+    #if PyIU_USE_VECTORCALL
         PyObject *args[2];
         args[0] = arg1;
         args[1] = arg2;
         return _PyObject_Vectorcall(callable, args, 2, NULL);
-    #elif PY_MAJOR_VERSION == 3 && (PY_MINOR_VERSION == 6 || PY_MINOR_VERSION == 7)
+    #elif PyIU_USE_FASTCALL
         PyObject *args[2];
         args[0] = arg1;
         args[1] = arg2;

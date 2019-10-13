@@ -51,6 +51,7 @@ def test_all_equal_failure3():
         all_equal(_hf.FailNext())
 
 
+@_hf.skip_on_pypy_because_cache_next_works_differently
 def test_all_equal_failure4():
     # Changing next method
     with pytest.raises(_hf.CacheNext.EXC_TYP, match=_hf.CacheNext.EXC_MSG):

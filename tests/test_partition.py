@@ -100,6 +100,7 @@ def test_partition_failure7():
         partition([NoBool(10)])
 
 
+@_hf.skip_on_pypy_because_cache_next_works_differently
 def test_partition_failure8():
     # Changing next method
     with pytest.raises(_hf.CacheNext.EXC_TYP, match=_hf.CacheNext.EXC_MSG):

@@ -174,6 +174,7 @@ def test_split_failure11():
         split(toT([1, 2, 3, 4]), T(2), eq=True, maxsplit=-2)
 
 
+@_hf.skip_on_pypy_because_cache_next_works_differently
 def test_split_failure12():
     # Changing next method
     with pytest.raises(_hf.CacheNext.EXC_TYP, match=_hf.CacheNext.EXC_MSG):

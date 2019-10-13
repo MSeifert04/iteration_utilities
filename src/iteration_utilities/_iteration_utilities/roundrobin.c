@@ -182,7 +182,7 @@ roundrobin_reduce(PyIUObject_Roundrobin *self, PyObject *Py_UNUSED(args))
        when there are already exhausted iterators inside.
        */
     if (PyTuple_GET_SIZE(self->iteratortuple) != self->numactive) {
-        ittuple = PyTuple_GetSlice(self->iteratortuple, 0, self->numactive);
+        ittuple = PyIU_TupleGetSlice(self->iteratortuple, self->numactive);
     } else {
         ittuple = PyIU_TupleCopy(self->iteratortuple);
     }

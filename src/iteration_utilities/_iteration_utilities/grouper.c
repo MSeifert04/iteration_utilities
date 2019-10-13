@@ -194,7 +194,7 @@ grouper_next(PyIUObject_Grouper *self)
     /* Recycle old result if the instance is the only one holding a reference,
        otherwise create a new tuple.
        */
-    recycle = (Py_REFCNT(result) == 1);
+    recycle = PYIU_CPYTHON && (Py_REFCNT(result) == 1);
     if (recycle) {
         newresult = result;
     } else {

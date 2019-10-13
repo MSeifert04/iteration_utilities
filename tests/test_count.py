@@ -98,6 +98,7 @@ def test_count_failure7():
         count_items([T(0)], lambda x: NoBool())
 
 
+@_hf.skip_on_pypy_because_cache_next_works_differently
 def test_count_failure8():
     # Changing next method
     with pytest.raises(_hf.CacheNext.EXC_TYP, match=_hf.CacheNext.EXC_MSG):

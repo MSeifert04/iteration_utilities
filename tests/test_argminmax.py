@@ -112,6 +112,7 @@ def test_argmin_failure10():
         argmin(_hf.FailIter())
 
 
+@_hf.skip_on_pypy_because_cache_next_works_differently
 def test_argmin_failure11():
     # Changing next method
     with pytest.raises(_hf.CacheNext.EXC_TYP, match=_hf.CacheNext.EXC_MSG):

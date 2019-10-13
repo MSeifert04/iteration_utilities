@@ -175,6 +175,7 @@ def test_grouper_failure6():
         grouper(toT([1, 2, 3, 4]))
 
 
+@_hf.skip_on_pypy_because_cache_next_works_differently
 def test_grouper_failure7():
     # Changing next method
     with pytest.raises(_hf.CacheNext.EXC_TYP, match=_hf.CacheNext.EXC_MSG):

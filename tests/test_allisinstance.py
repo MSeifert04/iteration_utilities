@@ -58,6 +58,7 @@ def test_allisinstance_failure4():
         all_isinstance(toT([1, 2, 3]), _hf.FailingIsinstanceClass)
 
 
+@_hf.skip_on_pypy_because_cache_next_works_differently
 def test_allisinstance_failure5():
     # Changing next method
     with pytest.raises(_hf.CacheNext.EXC_TYP, match=_hf.CacheNext.EXC_MSG):

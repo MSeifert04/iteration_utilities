@@ -191,7 +191,7 @@ seen_new(PyTypeObject *type,
         }
     } else {
         Py_INCREF(seenset);
-        if (!PySet_CheckExact(seenset)) {
+        if (!PyIU_Set_CheckExact(seenset)) {
             PyErr_Format(PyExc_TypeError,
                          "`seenset` argument for `Seen` must be a set or "
                          "None, not `%.200s`.",

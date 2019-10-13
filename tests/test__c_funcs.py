@@ -11,6 +11,9 @@ import pytest
 import iteration_utilities
 from iteration_utilities import _iteration_utilities
 
+# Test helper
+import helper_funcs as _hf
+
 
 def test_other_c_funcs():
     assert iteration_utilities.return_True()
@@ -127,6 +130,7 @@ def test_traverse():
     gc.collect()
 
 
+@_hf.skip_on_pypy_not_investigated_why
 @pytest.mark.skipif(not iteration_utilities.GE_PY35,
                     reason="requires python3.5")
 def test_c_funcs_signatures():
