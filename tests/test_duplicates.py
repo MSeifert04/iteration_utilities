@@ -112,6 +112,7 @@ def test_duplicates_failure6():
         list(duplicates([T(1), NoHash()]))
 
 
+@_hf.skip_on_pypy_because_cache_next_works_differently
 def test_duplicates_failure7():
     # Changing next method
     with pytest.raises(_hf.CacheNext.EXC_TYP, match=_hf.CacheNext.EXC_MSG):

@@ -245,6 +245,7 @@ def test_minmax_failure14():
         minmax(ltbutnogt(10), ltbutnogt(5))
 
 
+@_hf.skip_on_pypy_because_cache_next_works_differently
 def test_minmax_failure15():
     # Changing next method
     with pytest.raises(_hf.CacheNext.EXC_TYP, match=_hf.CacheNext.EXC_MSG):

@@ -120,6 +120,11 @@ PyTypeObject Placeholder_Type = {
 };
 
 PyObject PlaceholderStruct = {
+#if PYIU_CPYTHON
     _PyObject_EXTRA_INIT
     1, &Placeholder_Type
+#else
+    // Taken from PyObject_HEAD_INIT implementation...
+    1, 0, &Placeholder_Type
+#endif
 };

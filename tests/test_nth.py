@@ -230,6 +230,7 @@ def test_nth_failures14():
         nth(1)([T(0)], pred=lambda x: NoBool(), truthy=0)
 
 
+@_hf.skip_on_pypy_because_cache_next_works_differently
 def test_nth_failure15():
     # Changing next method
     with pytest.raises(_hf.CacheNext.EXC_TYP, match=_hf.CacheNext.EXC_MSG):

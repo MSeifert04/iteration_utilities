@@ -175,7 +175,7 @@ successive_next(PyIUObject_Successive *self)
     }
 
     /* Recycle old tuple or create a new one. */
-    if (Py_REFCNT(result) == 1) {
+    if (PYIU_CPYTHON && (Py_REFCNT(result) == 1)) {
 
         /* Remove the first item of the result. */
         temp = PyTuple_GET_ITEM(result, 0);

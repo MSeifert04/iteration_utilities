@@ -177,3 +177,28 @@ PyIU_TupleRemove(PyObject *tuple,
     /* Insert NULL at the last position. */
     PyTuple_SET_ITEM(tuple, num-1, NULL);
 }
+
+/******************************************************************************
+ * Get the first 'n' values of a tuple.
+ *
+ * PyPy does not allow slicing tuples with NULL in it with PyTuple_GetSlice()
+ * even if the NULL would not be copied. So this is put in a separate helper.
+ *
+ * tuple : Tuple to slice
+ * num   : The number of items to copy from the tuple.
+ *****************************************************************************/
+
+PyObject *
+PyIU_TupleGetSlice(PyObject *tuple, Py_ssize_t num) {
+    Py_ssize_t i;
+    PyObject *result = PyTuple_New(num);
+    if (result == NULL) {
+        return NULL;
+    }
+    for (i = 0; i < num; i++) {
+        PyObject *tmp = PyTuple_GET_ITEM(tuple, i);
+        Py_INCREF(tmp);
+        PyTuple_SET_ITEM(result, i, tmp);
+    }
+    return result;
+}

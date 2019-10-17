@@ -5,6 +5,8 @@
 #include "groupedby.h"
 #include "helper.h"
 
+#define PyIU_USE_DICT_INTERNALS PYIU_CPYTHON && (PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 5))
+
 PyObject *
 PyIU_Groupby(PyObject *Py_UNUSED(m),
              PyObject *args,
@@ -54,7 +56,7 @@ PyIU_Groupby(PyObject *Py_UNUSED(m),
         PyObject *val;
         PyObject *keep;
 
-#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 5)
+#if PyIU_USE_DICT_INTERNALS
         Py_hash_t hash;
 #endif
 
@@ -85,7 +87,7 @@ PyIU_Groupby(PyObject *Py_UNUSED(m),
             }
         }
 
-#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 5)
+#if PyIU_USE_DICT_INTERNALS
         /* Taken from dictobject.c CPython 3.5 */
         if (!PyUnicode_CheckExact(val) ||
                 (hash = ((PyASCIIObject *) val)->hash) == -1) {
@@ -102,7 +104,7 @@ PyIU_Groupby(PyObject *Py_UNUSED(m),
         if (reducefunc == NULL) {
             PyObject *lst;
 
-#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 5)
+#if PyIU_USE_DICT_INTERNALS
             lst = _PyDict_GetItem_KnownHash(resdict, val, hash);
 #else
             lst = PyDict_GetItem(resdict, val);
@@ -116,7 +118,7 @@ PyIU_Groupby(PyObject *Py_UNUSED(m),
                     goto Fail;
                 }
                 PyList_SET_ITEM(lst, 0, keep);
-#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 5)
+#if PyIU_USE_DICT_INTERNALS
                 ok = _PyDict_SetItem_KnownHash(resdict, val, lst, hash);
 #else
                 ok = PyDict_SetItem(resdict, val, lst);
@@ -140,7 +142,7 @@ PyIU_Groupby(PyObject *Py_UNUSED(m),
         } else {
             PyObject *current;
 
-#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 5)
+#if PyIU_USE_DICT_INTERNALS
             current = _PyDict_GetItem_KnownHash(resdict, val, hash);
 #else
             current = PyDict_GetItem(resdict, val);
@@ -150,7 +152,7 @@ PyIU_Groupby(PyObject *Py_UNUSED(m),
             /* No item yet and no starting value given: Keep the "keep". */
             if (current == NULL && reducestart == NULL) {
                 int ok;
-#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 5)
+#if PyIU_USE_DICT_INTERNALS
                 ok = _PyDict_SetItem_KnownHash(resdict, val, keep, hash);
 #else
                 ok = PyDict_SetItem(resdict, val, keep);
@@ -177,7 +179,7 @@ PyIU_Groupby(PyObject *Py_UNUSED(m),
                     Py_DECREF(val);
                     goto Fail;
                 }
-#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 5)
+#if PyIU_USE_DICT_INTERNALS
                 ok = _PyDict_SetItem_KnownHash(resdict, val, reducetmp, hash);
 #else
                 ok = PyDict_SetItem(resdict, val, reducetmp);

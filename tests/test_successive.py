@@ -78,6 +78,7 @@ def test_successive_failure4():
         successive()
 
 
+@_hf.skip_on_pypy_because_cache_next_works_differently
 def test_successive_failure5():
     # Changing next method
     with pytest.raises(_hf.CacheNext.EXC_TYP, match=_hf.CacheNext.EXC_MSG):

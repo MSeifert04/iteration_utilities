@@ -191,7 +191,7 @@ sideeffects_next(PyIUObject_Sideeffects *self)
         }
         if (self->count != 0) {
             /* Call function with the remaining items. */
-            tmptuple = PyTuple_GetSlice(self->collected, 0, self->count);
+            tmptuple = PyIU_TupleGetSlice(self->collected, self->count);
             if (tmptuple == NULL) {
                 return NULL;
             }
@@ -238,7 +238,7 @@ sideeffects_next(PyIUObject_Sideeffects *self)
                To avoid needing to decrement the values in the tuple while
                iterating these are simply set to NULL.
                */
-            if (Py_REFCNT(self->collected) <= 1) {
+            if (PYIU_CPYTHON && (Py_REFCNT(self->collected) == 1)) {
                 for (i=0 ; i < self->times ; i++) {
                     temp = PyTuple_GET_ITEM(self->collected, i);
                     PyTuple_SET_ITEM(self->collected, i, NULL);

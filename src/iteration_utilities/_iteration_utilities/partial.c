@@ -326,7 +326,7 @@ partial_new(PyTypeObject *type,
     if (pkw == NULL || PyDict_Size(pkw) == 0) {
         if (kw == NULL) {
             self->kw = PyDict_New();
-        } else if (Py_REFCNT(kw) == 1) {
+        } else if (PYIU_CPYTHON && (Py_REFCNT(kw) == 1)) {
             Py_INCREF(kw);
             self->kw = kw;
         } else {
@@ -463,7 +463,7 @@ Fail:
     return ret;
 }
 
-#if PY_MAJOR_VERSION == 2 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION < 3)
+#if PYIU_PYPY || PY_MAJOR_VERSION == 2 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION < 3)
 
 /******************************************************************************
  * __dict__ getter and setter
@@ -711,7 +711,7 @@ static PyMethodDef partial_methods[] = {
     {NULL, NULL}                                        /* sentinel */
 };
 
-#if PY_MAJOR_VERSION == 2 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION < 3)
+#if PYIU_PYPY || PY_MAJOR_VERSION == 2 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION < 3)
 
 static PyGetSetDef partial_getsetlist[] = {
 

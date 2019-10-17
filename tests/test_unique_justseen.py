@@ -117,14 +117,14 @@ def test_unique_justseen_pickle2(protocol):
     assert list(pickle.loads(x)) == toT([2, 3])
 
 
-@_hf.xfail_before_py34_because_method_descriptors_cannot_be_pickled
+@_hf.skip_before_py34_because_method_descriptors_cannot_be_pickled
 def test_unique_justseen_pickle3(protocol):
     ujs = unique_justseen(['a', 'A', 'a'], key=str.lower)
     x = pickle.dumps(ujs, protocol=protocol)
     assert list(pickle.loads(x)) == ['a']
 
 
-@_hf.xfail_before_py34_because_method_descriptors_cannot_be_pickled
+@_hf.skip_before_py34_because_method_descriptors_cannot_be_pickled
 def test_unique_justseen_pickle4(protocol):
     ujs = unique_justseen(['a', 'A', 'a'], key=str.lower)
     assert next(ujs) == 'a'
