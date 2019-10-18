@@ -285,6 +285,9 @@ jobs:
       if: matrix.architecture == 'x64'
       run: |
         pythoninstaller.exe /passive TargetDir=%LocalAppData%\Programs\Python38 AssociateFiles=0 CompileAll=0 PrependPath=1 Shortcuts=0 Include_doc=0 Include_debug=0 Include_dev=1 Include_exe=1 Include_launcher=0 Include_lib=1 Include_pip=1 Include_symbols=0 Include_tcltk=0 Include_test=0 Include_tools=0
+    - name: Remove download
+      run: |
+        python -c "import os; os.remove('./pythoninstaller.exe')"
     - name: Install dependencies
       run: |
         "%LocalAppData%\Programs\Python38\python.exe" -m pip install pip setuptools wheel --upgrade
@@ -322,14 +325,16 @@ jobs:
     - name: Download Python 3.8
       run: |
         wget https://www.python.org/ftp/python/3.8.0/Python-3.8.0.tgz -q
-        python ci/verify_checksum.py Python-3.8.0.tgz e18a9d1a0a6d858b9787e03fc6fdaa20
+        python3 ci/verify_checksum.py Python-3.8.0.tgz e18a9d1a0a6d858b9787e03fc6fdaa20
     - name: Install Python 3.8
       run: |
         tar xzf Python-3.8.0.tgz
         cd Python-3.8.0
         ./configure --enable-optimizations
         sudo make altinstall
-        cd ..
+    - name: Remove download
+      run: |
+        sudo python3.8 -c "import os; os.remove('./Python-3.8.0.tgz'); import shutil; shutil.rmtree('./Python-3.8.0/')"
     - name: Install dependencies
       run: |
         python3.8 -m pip install pip setuptools wheel --upgrade --user
@@ -350,6 +355,47 @@ jobs:
         python3.8 -m pytest tests/
 
 
+  build-py38-ubuntu-coverage:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 10
+
+    steps:
+    - name: Check out source
+      uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+    - name: Download Python 3.8
+      run: |
+        wget https://www.python.org/ftp/python/3.8.0/Python-3.8.0.tgz -q
+        python3 ci/verify_checksum.py Python-3.8.0.tgz e18a9d1a0a6d858b9787e03fc6fdaa20
+    - name: Install Python 3.8
+      run: |
+        tar xzf Python-3.8.0.tgz
+        cd Python-3.8.0
+        ./configure --enable-optimizations
+        sudo make altinstall
+    - name: Remove download
+      run: |
+        sudo python3.8 -c "import os; os.remove('./Python-3.8.0.tgz'); import shutil; shutil.rmtree('./Python-3.8.0/')"
+    - name: Install dependencies
+      run: |
+        python3.8 -m pip install pip setuptools wheel --upgrade --user
+    - name: Install package
+      run: |
+        CFLAGS="-coverage" python3.8 setup.py install --user
+    - name: Install test dependencies
+      run: |
+        python3.8 -m pip install pytest pytest-cov --user
+    - name: Run tests
+      run: |
+        python3.8 -m pytest tests/ --cov=iteration_utilities --cov-report=xml --cov-config=./setup.cfg
+    - name: Upload Coverage report
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      run: |
+        curl -s https://codecov.io/bash | bash -s -- -t $CODECOV_TOKEN -F unittests -n ubuntu-18.04-3.8
+
+
   build-py38-macOS:
     runs-on: macOS-10.14
     timeout-minutes: 10
@@ -362,10 +408,13 @@ jobs:
     - name: Download Python 3.8
       run: |
         curl https://www.python.org/ftp/python/3.8.0/python-3.8.0-macosx10.9.pkg --output pythoninstaller.pkg
-        python ci/verify_checksum.py pythoninstaller.pkg f5f9ae9f416170c6355cab7256bb75b5
+        python3 ci/verify_checksum.py pythoninstaller.pkg f5f9ae9f416170c6355cab7256bb75b5
     - name: Install Python 3.8
       run: |
         sudo installer -pkg pythoninstaller.pkg -target /
+    - name: Remove download
+      run: |
+        python3 -c "import os; os.remove('./pythoninstaller.pkg')"
     - name: Install dependencies
       run: |
         python3.8 -m pip install pip setuptools wheel --upgrade --user
