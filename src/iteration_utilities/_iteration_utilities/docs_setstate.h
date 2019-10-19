@@ -1,6 +1,7 @@
 #ifndef PYIU_DOCSSETSTATE_H
 #define PYIU_DOCSSETSTATE_H
 
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
 PyDoc_STRVAR(PYIU_setstate_doc,

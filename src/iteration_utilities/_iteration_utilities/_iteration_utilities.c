@@ -2,6 +2,7 @@
  * Licensed under Apache License Version 2.0 - see LICENSE
  *****************************************************************************/
 
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
 #include "docsfunctions.h"

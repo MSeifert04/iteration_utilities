@@ -1,6 +1,7 @@
 #ifndef PYIU_APPLYFUNC_H
 #define PYIU_APPLYFUNC_H
 
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include "helpercompat.h"
 
