@@ -5,6 +5,7 @@
 #ifndef PYIU_DOCSFUNCTIONS_H
 #define PYIU_DOCSFUNCTIONS_H
 
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
 PyDoc_STRVAR(PyIU_Placeholder_name, "Placeholder");

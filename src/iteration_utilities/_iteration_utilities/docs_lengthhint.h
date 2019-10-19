@@ -1,6 +1,7 @@
 #ifndef PYIU_DOCSLENGTHHINT_H
 #define PYIU_DOCSLENGTHHINT_H
 
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)

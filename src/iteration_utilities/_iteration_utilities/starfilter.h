@@ -1,6 +1,7 @@
 #ifndef PYIU_STARFILTER_H
 #define PYIU_STARFILTER_H
 
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include "helpercompat.h"
 
