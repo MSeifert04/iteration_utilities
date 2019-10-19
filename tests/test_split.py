@@ -99,6 +99,21 @@ def test_split_attributes1():
     assert not it.keep_after
     assert not it.eq
 
+    it = split([], iteration_utilities.return_False, keep=True)
+    assert it.keep
+    assert not it.keep_before
+    assert not it.keep_after
+
+    it = split([], iteration_utilities.return_False, keep_before=True)
+    assert not it.keep
+    assert it.keep_before
+    assert not it.keep_after
+
+    it = split([], iteration_utilities.return_False, keep_after=True)
+    assert not it.keep
+    assert not it.keep_before
+    assert it.keep_after
+
 
 def test_split_failure1():
     with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):

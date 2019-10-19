@@ -125,6 +125,7 @@ split_new(PyTypeObject *type,
     PyObject *iterator=NULL;
     Py_ssize_t maxsplit = -1;  /* -1 means no maxsplit! */
     int keep_delimiter = 0, keep_before = 0, keep_after = 0, cmp = 0;
+    int keep = PyIU_Split_KeepNone;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|niiii:split", kwlist,
@@ -145,6 +146,13 @@ split_new(PyTypeObject *type,
                         "`keep_after` arguments for `split` may be set.");
         goto Fail;
     }
+    if (keep_delimiter) {
+        keep = PyIU_Split_Keep;
+    } else if (keep_before) {
+        keep = PyIU_Split_KeepBefore;
+    } else if (keep_after) {
+        keep = PyIU_Split_KeepAfter;
+    }
 
     /* Create and fill struct */
     iterator = PyObject_GetIter(iterable);
@@ -159,9 +167,7 @@ split_new(PyTypeObject *type,
     self->iterator = iterator;
     self->delimiter = delimiter;
     self->maxsplit = maxsplit;
-    self->keep_delimiter = keep_delimiter;
-    self->keep_before = keep_before;
-    self->keep_after = keep_after;
+    self->keep = keep;
     self->cmp = cmp;
     self->next = NULL;
     return (PyObject *)self;
@@ -237,7 +243,7 @@ split_next(PyIUObject_Split *self)
         ok = PyList_Append(result, self->next);
         Py_CLEAR(self->next);
         if (ok == 0) {
-            if ( !self->keep_after ) {
+            if (self->keep != PyIU_Split_KeepAfter) {
                 return result;
             }
         } else {
@@ -278,9 +284,9 @@ split_next(PyIUObject_Split *self)
                 self->maxsplit--;
             }
             /* Keep the delimiter (if requested) as next item. */
-            if (self->keep_delimiter || self->keep_after) {
+            if (self->keep == PyIU_Split_Keep || self->keep == PyIU_Split_KeepAfter) {
                 self->next = item;
-            } else if (self->keep_before) {
+            } else if (self->keep == PyIU_Split_KeepBefore) {
                 ok = PyList_Append(result, item);
                 if (ok != 0) {
                     goto Fail;
@@ -340,18 +346,18 @@ split_reduce(PyIUObject_Split *self, PyObject *Py_UNUSED(args))
                              self->iterator,
                              self->delimiter,
                              self->maxsplit,
-                             self->keep_delimiter,
-                             self->keep_before,
-                             self->keep_after,
+                             self->keep == PyIU_Split_Keep,
+                             self->keep == PyIU_Split_KeepBefore,
+                             self->keep == PyIU_Split_KeepAfter,
                              self->cmp);
     } else {
         return Py_BuildValue("O(OOniiii)(O)", Py_TYPE(self),
                              self->iterator,
                              self->delimiter,
                              self->maxsplit,
-                             self->keep_delimiter,
-                             self->keep_before,
-                             self->keep_after,
+                             self->keep == PyIU_Split_Keep,
+                             self->keep == PyIU_Split_KeepBefore,
+                             self->keep == PyIU_Split_KeepAfter,
                              self->cmp,
                              self->next);
     }
@@ -390,6 +396,33 @@ split_setstate(PyIUObject_Split *self,
     Py_RETURN_NONE;
 }
 
+static PyObject *
+split_getkeep(PyIUObject_Split *self, void *Py_UNUSED(closure))
+{
+    if (self->keep == PyIU_Split_Keep) {
+        Py_RETURN_TRUE;
+    }
+    Py_RETURN_FALSE;
+}
+
+static PyObject *
+split_getkeepbefore(PyIUObject_Split *self, void *Py_UNUSED(closure))
+{
+    if (self->keep == PyIU_Split_KeepBefore) {
+        Py_RETURN_TRUE;
+    }
+    Py_RETURN_FALSE;
+}
+
+static PyObject *
+split_getkeepafter(PyIUObject_Split *self, void *Py_UNUSED(closure))
+{
+    if (self->keep == PyIU_Split_KeepAfter) {
+        Py_RETURN_TRUE;
+    }
+    Py_RETURN_FALSE;
+}
+
 /******************************************************************************
  * Type
  *****************************************************************************/
@@ -411,6 +444,32 @@ static PyMethodDef split_methods[] = {
     {NULL, NULL}                                        /* sentinel */
 };
 
+static PyGetSetDef split_getsetlist[] = {
+
+    {"keep",                                            /* name */
+     (getter)split_getkeep,                             /* get */
+     (setter)0,                                         /* set */
+     split_prop_keep_doc,                               /* doc */
+     (void *)NULL                                       /* closure */
+     },
+
+    {"keep_before",                                     /* name */
+     (getter)split_getkeepbefore,                       /* get */
+     (setter)0,                                         /* set */
+     split_prop_keepbefore_doc,                         /* doc */
+     (void *)NULL                                       /* closure */
+     },
+
+    {"keep_after",                                      /* name */
+     (getter)split_getkeepafter,                        /* get */
+     (setter)0,                                         /* set */
+     split_prop_keepafter_doc,                          /* doc */
+     (void *)NULL                                       /* closure */
+     },
+
+    {NULL}                                              /* sentinel */
+};
+
 #define OFF(x) offsetof(PyIUObject_Split, x)
 static PyMemberDef split_memberlist[] = {
 
@@ -425,28 +484,7 @@ static PyMemberDef split_memberlist[] = {
      T_PYSSIZET,                                        /* type */
      OFF(maxsplit),                                     /* offset */
      READONLY,                                          /* flags */
-     split_prop_maxsplit_doc /* doc */
-     },
-
-    {"keep",                                            /* name */
-     T_BOOL,                                            /* type */
-     OFF(keep_delimiter),                               /* offset */
-     READONLY,                                          /* flags */
-     split_prop_keep_doc /* doc */
-     },
-
-    {"keep_before",                                     /* name */
-     T_BOOL,                                            /* type */
-     OFF(keep_before),                                  /* offset */
-     READONLY,                                          /* flags */
-     split_prop_keepbefore_doc                          /* doc */
-     },
-
-    {"keep_after",                                      /* name */
-     T_BOOL,                                            /* type */
-     OFF(keep_after),                                   /* offset */
-     READONLY,                                          /* flags */
-     split_prop_keepafter_doc                           /* doc */
+     split_prop_maxsplit_doc                            /* doc */
      },
 
     {"eq",                                              /* name */
@@ -492,7 +530,7 @@ PyTypeObject PyIUType_Split = {
     (iternextfunc)split_next,                           /* tp_iternext */
     split_methods,                                      /* tp_methods */
     split_memberlist,                                   /* tp_members */
-    0,                                                  /* tp_getset */
+    split_getsetlist,                                   /* tp_getset */
     0,                                                  /* tp_base */
     0,                                                  /* tp_dict */
     (descrgetfunc)0,                                    /* tp_descr_get */
