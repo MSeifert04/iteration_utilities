@@ -4,9 +4,6 @@
 #include <Python.h>
 #include "helpercompat.h"
 
-#define PyIU_USE_FASTCALL PYIU_CPYTHON && PY_MAJOR_VERSION == 3 && (PY_MINOR_VERSION == 6 || PY_MINOR_VERSION == 7)
-#define PyIU_USE_VECTORCALL PYIU_CPYTHON && PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
-
 #define PyIU_Set_CheckExact(ob) (Py_TYPE(ob) == &PySet_Type)
 
 extern PyObject *PyIU_global_zero;
