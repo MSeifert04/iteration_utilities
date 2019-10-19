@@ -1,31 +1,31 @@
-language: python
+language: c
+os: linux
+arch: arm64
 
-os:
-  - linux
-
-python:
-  - "2.7"
-  - "3.5"
-  - "3.6"
-  - "3.7"
-  - "3.7-dev"
-  - "3.8-dev"
-  - "nightly"
-
-matrix:
+jobs:
   include:
-    - python: "2.7"
-      install: CC=clang python -m pip install . --no-deps -vv
-    - python: "3.7"
-      install: CC=clang python -m pip install . --no-deps -vv
+  - python: "2.7"
+    env:
+    - PYVER=python2.7
+    - PIPPKG=python-pip
+  - python: "3.6"
+    env:
+    - PYVER=python3.6
+    - PIPPKG=python3-pip
+  - python: "3.7"
+    env:
+    - PYVER=python3.7
+    - PIPPKG=python3-pip
 
 before_install:
-  - python -m pip install pip --upgrade
-  - python -m pip install setuptools --upgrade
+  - sudo apt-get update --yes
+  - sudo apt-get install $PYVER $PYVER-dev $PIPPKG --yes
+  - $PYVER -m pip install pip setuptools --upgrade
 
 install:
-  - python -m pip install . --no-deps -vv
+  - $PYVER -m pip install . --no-deps -vv --user
 
 # command to run tests
 script:
-  - python -m pytest tests/
+  - $PYVER -m pip install pytest --user
+  - $PYVER -m pytest tests/
