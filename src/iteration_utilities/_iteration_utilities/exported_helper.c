@@ -76,7 +76,7 @@ PyIU_RemoveFromDictWhereValueIs(PyObject *Py_UNUSED(m), PyObject *args)
         Py_RETURN_NONE;
     }
 
-    toberemoved = malloc((size_t)dctsize * sizeof(PyObject*));
+    toberemoved = PyMem_Malloc((size_t)dctsize * sizeof(PyObject*));
 
     if (toberemoved == NULL) {
         PyErr_SetString(PyExc_MemoryError,
@@ -102,6 +102,6 @@ PyIU_RemoveFromDictWhereValueIs(PyObject *Py_UNUSED(m), PyObject *args)
             PyDict_DelItem(dct, toberemoved[j]);
         }
     }
-    free(toberemoved);
+    PyMem_Free(toberemoved);
     Py_RETURN_NONE;
 }
