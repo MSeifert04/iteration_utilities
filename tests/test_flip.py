@@ -21,6 +21,22 @@ class FlipSubclass(flip):
     pass
 
 
+def _one_arg(a):
+    return a,
+
+
+def _two_args(a, b):
+    return a, b
+
+
+def _three_args(a, b, c):
+    return a, b, c
+
+
+def _six_args(a, b, c, d, e, f):
+    return a, b, c, d, e, f
+
+
 def test_flip_repr1():
     x = flip(int)
     r = repr(x)
@@ -63,21 +79,59 @@ def test_flip_args0():
 
 
 def test_flip_args1():
-    def func(a):
-        return (a, )
-    assert flip(func)(T(10)) == (T(10), )
+    assert flip(_one_arg)(T(10)) == (T(10),)
+
+
+def test_flip_args1_only_kwargs():
+    assert flip(_one_arg)(a=T(10)) == (T(10),)
 
 
 def test_flip_args2():
-    def func(a, b):
-        return a, b
-    assert flip(func)(T(1), T(2)) == (T(2), T(1))
+    assert flip(_two_args)(T(1), T(2)) == (T(2), T(1))
+
+
+def test_flip_args2_with_kwargs():
+    assert flip(_two_args)(T(1), b=T(2)) == (T(1), T(2))
+
+
+def test_flip_args2_only_kwargs():
+    assert flip(_two_args)(a=T(1), b=T(2)) == (T(1), T(2))
 
 
 def test_flip_args3():
-    def func(a, b, c):
-        return a, b, c
-    assert flip(func)(T(1), T(2), T(3)) == (T(3), T(2), T(1))
+    assert flip(_three_args)(T(1), T(2), T(3)) == (T(3), T(2), T(1))
+
+
+def test_flip_args3_with_kwargs():
+    assert flip(_three_args)(T(1), T(2), c=T(3)) == (T(2), T(1), T(3))
+
+
+def test_flip_args3_with_2_kwargs():
+    assert flip(_three_args)(T(1), b=T(2), c=T(3)) == (T(1), T(2), T(3))
+
+
+def test_flip_args3_only_kwargs():
+    assert flip(_three_args)(a=T(1), b=T(2), c=T(3)) == (T(1), T(2), T(3))
+
+
+def test_flip_args6():
+    expected = T(6), T(5), T(4), T(3), T(2), T(1)
+    assert flip(_six_args)(T(1), T(2), T(3), T(4), T(5), T(6)) == expected
+
+
+def test_flip_args6_with_kwargs():
+    expected = T(3), T(2), T(1), T(4), T(5), T(6)
+    assert flip(_six_args)(T(1), T(2), T(3), d=T(4), e=T(5), f=T(6)) == expected
+
+
+def test_flip_args6_with_5_kwargs():
+    expected = T(1), T(2), T(3), T(4), T(5), T(6)
+    assert flip(_six_args)(T(1), b=T(2), c=T(3), d=T(4), e=T(5), f=T(6)) == expected
+
+
+def test_flip_args6_only_kwargs():
+    expected = T(1), T(2), T(3), T(4), T(5), T(6)
+    assert flip(_six_args)(a=T(1), b=T(2), c=T(3), d=T(4), e=T(5), f=T(6)) == expected
 
 
 def test_flip_failure1():
