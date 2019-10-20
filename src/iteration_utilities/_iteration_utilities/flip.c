@@ -37,6 +37,10 @@ PyDoc_STRVAR(flip_doc,
     "    True\n"
 );
 
+#if PyIU_USE_VECTORCALL
+static PyObject * flip_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *kwnames);
+#endif
+
 /******************************************************************************
  * New
  *****************************************************************************/
@@ -73,6 +77,9 @@ flip_new(PyTypeObject *type,
     }
     Py_INCREF(func);
     self->func = func;
+#if PyIU_USE_VECTORCALL
+    self->vectorcall = flip_vectorcall;
+#endif
     return (PyObject *)self;
 }
 
@@ -112,6 +119,57 @@ flip_clear(PyIUObject_Flip *self)
     return 0;
 }
 
+#if PyIU_USE_VECTORCALL
+/******************************************************************************
+ * Vectorcall
+ *****************************************************************************/
+
+static PyObject *
+flip_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *kwnames)
+{
+    PyObject *result;
+    PyIUObject_Flip *self = (PyIUObject_Flip *)obj;
+
+    Py_ssize_t n_pos_args = PyVectorcall_NARGS(nargsf);
+    Py_ssize_t n_args = n_pos_args + (kwnames == NULL ? 0 : PyTuple_GET_SIZE(kwnames));
+
+    if (n_pos_args <= 1) {
+        result = _PyObject_Vectorcall(self->func, args, n_pos_args, kwnames);
+    } else {
+        if (n_args <= 5) {
+            PyObject *newargs[5];
+            Py_ssize_t i;
+            Py_ssize_t j;
+
+            for (i = 0, j = n_pos_args - 1; i < n_pos_args; i++, j--) {
+                newargs[i] = args[j];
+            }
+            for (i = n_pos_args; i < n_args; i++) {
+                newargs[i] = args[i];
+            }
+            result = _PyObject_Vectorcall(self->func, newargs, n_pos_args, kwnames);
+        } else {
+            PyObject ** newargs;
+            Py_ssize_t i;
+            Py_ssize_t j;
+
+            newargs = PyMem_Malloc(n_args * sizeof(PyObject *));
+
+            for (i = 0, j = n_pos_args - 1; i < n_pos_args; i++, j--) {
+                newargs[i] = args[j];
+            }
+            for (i = n_pos_args; i < n_args; i++) {
+                newargs[i] = args[i];
+            }
+            result = _PyObject_Vectorcall(self->func, newargs, n_pos_args, kwnames);
+            PyMem_Free(newargs);
+        }
+    }
+
+    return result;
+}
+
+#else
 /******************************************************************************
  * Call
  *****************************************************************************/
@@ -133,6 +191,7 @@ flip_call(PyIUObject_Flip *self,
 
     return result;
 }
+#endif
 
 /******************************************************************************
  * Repr
@@ -204,7 +263,11 @@ PyTypeObject PyIUType_Flip = {
     (Py_ssize_t)0,                                      /* tp_itemsize */
     /* methods */
     (destructor)flip_dealloc,                           /* tp_dealloc */
+#if PyIU_USE_VECTORCALL
+    offsetof(PyIUObject_Flip, vectorcall),              /* tp_vectorcall_offset */
+#else
     (printfunc)0,                                       /* tp_print */
+#endif
     (getattrfunc)0,                                     /* tp_getattr */
     (setattrfunc)0,                                     /* tp_setattr */
     0,                                                  /* tp_reserved */
@@ -213,13 +276,21 @@ PyTypeObject PyIUType_Flip = {
     (PySequenceMethods *)0,                             /* tp_as_sequence */
     (PyMappingMethods *)0,                              /* tp_as_mapping */
     (hashfunc)0,                                        /* tp_hash */
+#if PyIU_USE_VECTORCALL
+    (ternaryfunc)PyVectorcall_Call,                     /* tp_call */
+#else
     (ternaryfunc)flip_call,                             /* tp_call */
+#endif
     (reprfunc)0,                                        /* tp_str */
     (getattrofunc)PyObject_GenericGetAttr,              /* tp_getattro */
     (setattrofunc)0,                                    /* tp_setattro */
     (PyBufferProcs *)0,                                 /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
-        Py_TPFLAGS_BASETYPE,                            /* tp_flags */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC
+        | Py_TPFLAGS_BASETYPE
+#if PyIU_USE_VECTORCALL
+        | _Py_TPFLAGS_HAVE_VECTORCALL
+#endif
+        ,                                               /* tp_flags */
     (const char *)flip_doc,                             /* tp_doc */
     (traverseproc)flip_traverse,                        /* tp_traverse */
     (inquiry)flip_clear,                                /* tp_clear */
