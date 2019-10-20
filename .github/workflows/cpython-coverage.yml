@@ -1,0 +1,91 @@
+name: Coverage (CPython)
+
+on:
+  pull_request:
+    branches:
+      - '*'
+  push:
+    branches:
+      - master
+
+
+jobs:
+
+  coverage:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      max-parallel: 6
+      matrix:
+        os: [ubuntu-18.04]
+        python-version: [2.7, 3.6, 3.7]
+
+    steps:
+    - name: Check out source
+      uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install pip setuptools --upgrade
+    - name: Install package
+      run: |
+        CFLAGS="-coverage" python setup.py install # TODO: Check if there's a way with pip install
+    - name: Install test dependencies
+      run: |
+        python -m pip install pytest pytest-cov
+    - name: Run tests
+      run: |
+        python -m pytest tests/ --cov=iteration_utilities --cov-report=xml --cov-config=./setup.cfg
+    - name: Upload Coverage report
+      # It would probably be better to use the codecov-action but that's very slow:
+      # https://github.com/codecov/codecov-action/issues/21
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      run: |
+        curl -s https://codecov.io/bash | bash -s -- -t $CODECOV_TOKEN -F unittests -n ${{ matrix.os }}-${{ matrix.python-version }}
+
+
+  build-py38-ubuntu-coverage:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 10
+
+    steps:
+    - name: Check out source
+      uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+    - name: Download Python 3.8
+      run: |
+        wget https://www.python.org/ftp/python/3.8.0/Python-3.8.0.tgz -q
+        python3 ci/verify_checksum.py Python-3.8.0.tgz e18a9d1a0a6d858b9787e03fc6fdaa20
+    - name: Install Python 3.8
+      run: |
+        tar xzf Python-3.8.0.tgz
+        cd Python-3.8.0
+        ./configure --enable-optimizations
+        sudo make altinstall
+    - name: Remove download
+      run: |
+        sudo python3.8 -c "import os; os.remove('./Python-3.8.0.tgz'); import shutil; shutil.rmtree('./Python-3.8.0/')"
+    - name: Install dependencies
+      run: |
+        python3.8 -m pip install pip setuptools wheel --upgrade --user
+    - name: Install package
+      run: |
+        CFLAGS="-coverage" python3.8 setup.py install --user
+    - name: Install test dependencies
+      run: |
+        python3.8 -m pip install pytest pytest-cov --user
+    - name: Run tests
+      run: |
+        python3.8 -m pytest tests/ --cov=iteration_utilities --cov-report=xml --cov-config=./setup.cfg
+    - name: Upload Coverage report
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      run: |
+        curl -s https://codecov.io/bash | bash -s -- -t $CODECOV_TOKEN -F unittests -n ubuntu-18.04-3.8
