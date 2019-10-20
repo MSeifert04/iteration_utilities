@@ -15,6 +15,7 @@ import pytest
 import iteration_utilities
 from iteration_utilities._compat import (
     RecursionError, AttributeUnwriteableException)
+from iteration_utilities._utils import IS_PYPY
 
 # Test helper
 import helper_funcs as _hf
@@ -43,9 +44,16 @@ def signature(part):
 
 class AllowPickle:
     def __enter__(self):
+        if IS_PYPY:
+            # PyPy sometimes runs into a StackOverflow with the default
+            # recursion limit. So use something smaller for this test.
+            self._oldlimit = sys.getrecursionlimit()
+            sys.setrecursionlimit(100)
         return self
 
     def __exit__(self, typ, value, tb):
+        if IS_PYPY:
+            sys.setrecursionlimit(self._oldlimit)
         return False
 
 
