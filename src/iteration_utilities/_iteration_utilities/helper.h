@@ -7,6 +7,8 @@
 
 #define PyIU_Set_CheckExact(ob) (Py_TYPE(ob) == &PySet_Type)
 
+#define PyIU_SMALL_ARG_STACK_SIZE 5
+
 extern PyObject *PyIU_global_zero;
 extern PyObject *PyIU_global_one;
 extern PyObject *PyIU_global_two;

@@ -4,6 +4,7 @@
 
 #include "packed.h"
 #include "docs_reduce.h"
+#include "helper.h"
 #include <structmember.h>
 
 PyDoc_STRVAR(packed_prop_func_doc,
@@ -56,6 +57,10 @@ PyDoc_STRVAR(packed_doc,
     ":py:class:`~iteration_utilities.packed` can be used.\n"
 );
 
+#if PyIU_USE_VECTORCALL
+static PyObject * packed_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *kwnames);
+#endif
+
 /******************************************************************************
  * New
  *****************************************************************************/
@@ -81,6 +86,9 @@ packed_new(PyTypeObject *type,
     }
     Py_INCREF(func);
     self->func = func;
+#if PyIU_USE_VECTORCALL
+    self->vectorcall = packed_vectorcall;
+#endif
     return (PyObject *)self;
 }
 
@@ -120,6 +128,105 @@ packed_clear(PyIUObject_Packed *self)
     return 0;
 }
 
+#if PyIU_USE_VECTORCALL
+/******************************************************************************
+ * Vectorcall
+ *****************************************************************************/
+
+static PyObject *
+packed_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *kwnames) {
+    PyIUObject_Packed *self;
+    PyObject *packed;
+    PyObject *result;
+    int is_tuple;
+    int is_list;
+    Py_ssize_t num_packed_args;
+    Py_ssize_t num_new_args;
+    Py_ssize_t num_keyword_args = kwnames == NULL ? 0 : PyTuple_Size(kwnames);
+
+    if (PyVectorcall_NARGS(nargsf) != 1) {
+        PyErr_Format(PyExc_TypeError, "expected one argument.");
+        return NULL;
+    }
+
+    packed = args[0];
+    is_tuple = PyTuple_CheckExact(packed);
+    self = (PyIUObject_Packed *)obj;
+
+    if (!is_tuple && !PyList_CheckExact(packed)) {
+        packed = PySequence_Tuple(packed);
+        if (packed == NULL) {
+            return NULL;
+        }
+        is_tuple = 1;
+    } else {
+        Py_INCREF(packed);
+    }
+
+    /* From this point on the "packed" is either a list or a tuple. */
+
+    if (is_tuple) {
+        num_packed_args = PyTuple_GET_SIZE(packed);
+    } else {
+        num_packed_args = PyList_GET_SIZE(packed);
+    }
+
+    num_new_args = num_packed_args + num_keyword_args;
+
+    if (num_new_args <= PyIU_SMALL_ARG_STACK_SIZE) {
+        /* Fast path */
+        PyObject *new_args[PyIU_SMALL_ARG_STACK_SIZE];
+        Py_ssize_t i;
+        Py_ssize_t j;
+        // Positional arguments
+        if (is_tuple) {
+            for (i = 0; i < num_packed_args; i++) {
+                new_args[i] = PyTuple_GET_ITEM(packed, i);
+            }
+        } else  { // list
+            for (i = 0; i < num_packed_args; i++) {
+                new_args[i] = PyList_GET_ITEM(packed, i);
+            }
+        }
+        // Keyword arguments
+        for (i = num_packed_args, j = 1; i < num_new_args; i++, j++) {
+            new_args[i] = args[j];
+        }
+        result = _PyObject_Vectorcall(self->func, new_args, num_packed_args, kwnames);
+        Py_DECREF(packed);
+        return result;
+    }
+
+    /* Slow path */
+    PyObject **new_args = PyMem_Malloc(num_new_args * sizeof(PyObject *));
+    Py_ssize_t i;
+    Py_ssize_t j;
+    if (new_args == NULL) {
+        PyErr_Format(PyExc_MemoryError, "failed to allocate memory.");
+        Py_DECREF(packed);
+        return NULL;
+    }
+        // Positional arguments
+    if (is_tuple) {
+        for (i = 0; i < num_packed_args; i++) {
+            new_args[i] = PyTuple_GET_ITEM(packed, i);
+        }
+    } else { // list
+        for (i = 0; i < num_packed_args; i++) {
+            new_args[i] = PyList_GET_ITEM(packed, i);
+        }
+    }
+    // Keyword arguments
+    for (i = num_packed_args, j = 1; i < num_new_args; i++, j++) {
+        new_args[i] = args[j];
+    }
+    result = _PyObject_Vectorcall(self->func, new_args, num_packed_args, kwnames);
+    PyMem_Free(new_args);
+    Py_DECREF(packed);
+    return result;
+}
+
+#else
 /******************************************************************************
  * Call
  *****************************************************************************/
@@ -149,6 +256,7 @@ packed_call(PyIUObject_Packed *self,
     Py_DECREF(packed);
     return res;
 }
+#endif
 
 /******************************************************************************
  * Repr
@@ -219,7 +327,11 @@ PyTypeObject PyIUType_Packed = {
     (Py_ssize_t)0,                                      /* tp_itemsize */
     /* methods */
     (destructor)packed_dealloc,                         /* tp_dealloc */
+#if PyIU_USE_VECTORCALL
+    offsetof(PyIUObject_Packed, vectorcall),            /* tp_vectorcall_offset */
+#else
     (printfunc)0,                                       /* tp_print */
+#endif
     (getattrfunc)0,                                     /* tp_getattr */
     (setattrfunc)0,                                     /* tp_setattr */
     0,                                                  /* tp_reserved */
@@ -228,13 +340,21 @@ PyTypeObject PyIUType_Packed = {
     (PySequenceMethods *)0,                             /* tp_as_sequence */
     (PyMappingMethods *)0,                              /* tp_as_mapping */
     (hashfunc)0,                                        /* tp_hash */
+#if PyIU_USE_VECTORCALL
+    (ternaryfunc)PyVectorcall_Call,                     /* tp_call */
+#else
     (ternaryfunc)packed_call,                           /* tp_call */
+#endif
     (reprfunc)0,                                        /* tp_str */
     (getattrofunc)PyObject_GenericGetAttr,              /* tp_getattro */
     (setattrofunc)0,                                    /* tp_setattro */
     (PyBufferProcs *)0,                                 /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
-        Py_TPFLAGS_BASETYPE,                            /* tp_flags */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC
+        | Py_TPFLAGS_BASETYPE
+#if PyIU_USE_VECTORCALL
+        | _Py_TPFLAGS_HAVE_VECTORCALL
+#endif
+        ,                                               /* tp_flags */
     (const char *)packed_doc,                           /* tp_doc */
     (traverseproc)packed_traverse,                      /* tp_traverse */
     (inquiry)packed_clear,                              /* tp_clear */

@@ -136,8 +136,8 @@ flip_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *k
     if (n_pos_args <= 1) {
         result = _PyObject_Vectorcall(self->func, args, n_pos_args, kwnames);
     } else {
-        if (n_args <= 5) {
-            PyObject *newargs[5];
+        if (n_args <= PyIU_SMALL_ARG_STACK_SIZE) {
+            PyObject *newargs[PyIU_SMALL_ARG_STACK_SIZE];
             Py_ssize_t i;
             Py_ssize_t j;
 
