@@ -70,6 +70,10 @@ class MyDict(dict):
     pass
 
 
+class MyStr(str):
+    pass
+
+
 def test_attributes_unwritable():
     p = partial(capture, T(1), T(2), a=T(10), b=T(20))
     with pytest.raises(AttributeUnwriteableException):
@@ -693,3 +697,40 @@ def test_partial_with_function_that_keeps_args():
     # it reused the arguments. chained is such a function (currently).
     chained = iteration_utilities.chained
     partial(chained, partial._, str)(complex)(10) == '(10+0j)'
+
+
+@_hf.skip_if_vectorcall_is_not_used
+def test_partial_with_str_subclasses_fails1():
+    p = partial(capture, **{MyStr('a'): 10})
+    with pytest.raises(TypeError):
+        p()
+
+
+@_hf.skip_if_vectorcall_is_not_used
+def test_partial_with_str_subclasses_fails2():
+    p = partial(capture, **{MyStr('a'): 10})
+    with pytest.raises(TypeError):
+        p(b=20)
+
+
+@_hf.skip_if_vectorcall_is_not_used
+def test_partial_with_str_subclasses_fails3():
+    p = partial(capture)
+    with pytest.raises(TypeError):
+        p(**{MyStr('a'): 10})
+
+
+def test_partial_with_lots_of_kwargs():
+    """The purpose of this test is to test the vectorcall implementation which
+    converts the kwargs passed to the call to a set to speed-up the lookup
+    behavior.
+    """
+    p = partial(capture, a=1, b=2, c=3, d=4, e=5, f=6, g=7, h=8, i=9, j=10, k=11)
+    r = p(l=12, m=13, n=14, o=15, p=16, q=17, r=18, s=19, t=20, u=21, v=22, w=23)
+    assert r == (tuple(), dict(zip('abcdefghijklmnopqrstuvw', range(1, 24))))
+
+
+def test_partial_with_lots_of_kwargs_with_duplicate():
+    p = partial(capture, a=1, b=2, c=3, d=4, e=5, f=6, g=7, h=8, i=9, j=10, k=11)
+    r = p(a=12, b=13, c=14, d=15, e=16, f=17, g=18, h=19, i=20, j=21, k=22, l=23)
+    assert r == (tuple(), dict(zip('abcdefghijkl', range(12, 24))))
