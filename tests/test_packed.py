@@ -2,6 +2,7 @@
 
 # Built-ins
 from __future__ import absolute_import, division, print_function
+import collections
 import operator
 import pickle
 
@@ -18,6 +19,14 @@ from helper_cls import T
 packed = iteration_utilities.packed
 
 
+def _t3(a, b, c):
+    return a, b, c
+
+
+def _t6(a, b, c, d, e, f):
+    return a, b, c, d, e, f
+
+
 def test_packed_repr1():
     x = packed(int)
     r = repr(x)
@@ -30,16 +39,32 @@ def test_packed_attributes1():
     assert x.func is int
 
 
-def test_packed_normal1():
+@pytest.mark.parametrize("kind", [tuple, list, collections.deque])
+def test_packed_normal(kind):
     eq = packed(operator.eq)
-    assert eq((T(1), T(1)))
-    assert not eq((T(1), T(2)))
+    assert eq(kind([T(1), T(1)]))
+    assert not eq(kind([T(1), T(2)]))
 
 
-def test_packed_normal2():
-    eq = packed(operator.eq)
-    assert eq([T(1), T(1)])
-    assert not eq([T(1), T(2)])
+@pytest.mark.parametrize("kind", [tuple, list, collections.deque])
+def test_packed_normal_with_kwargs(kind):
+    t3 = packed(_t3)
+    inp = kind([T(1), T(2)])
+    assert t3(inp, c=T(3)) == (T(1), T(2), T(3))
+
+
+@pytest.mark.parametrize("kind", [tuple, list, collections.deque])
+def test_packed_normal_more_than_6(kind):
+    t6 = packed(_t6)
+    inp = kind([T(1), T(2), T(3), T(4), T(5), T(6)])
+    assert t6(inp) == (T(1), T(2), T(3), T(4), T(5), T(6))
+
+
+@pytest.mark.parametrize("kind", [tuple, list, collections.deque])
+def test_packed_normal_more_than_6_with_kwargs(kind):
+    t6 = packed(_t6)
+    inp = kind([T(1), T(2), T(3), T(4)])
+    assert t6(inp, e=T(5), f=T(6)) == (T(1), T(2), T(3), T(4), T(5), T(6))
 
 
 def test_packed_failure1():

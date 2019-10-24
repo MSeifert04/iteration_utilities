@@ -8,6 +8,9 @@
 typedef struct {
     PyObject_HEAD
     PyObject *func;
+#if PyIU_USE_VECTORCALL
+    vectorcallfunc vectorcall;
+#endif
 } PyIUObject_Packed;
 
 extern PyTypeObject PyIUType_Packed;
