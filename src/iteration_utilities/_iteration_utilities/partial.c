@@ -112,15 +112,13 @@ static Py_ssize_t *
 PyIUPlaceholder_PosInTuple(PyObject *tup,
                            Py_ssize_t cnts)
 {
-    Py_ssize_t *pos = PyMem_Malloc((size_t)cnts * sizeof(Py_ssize_t));
     Py_ssize_t j = 0;
     Py_ssize_t i;
 
+    Py_ssize_t *pos = PyMem_Malloc((size_t)cnts * sizeof(Py_ssize_t));
     if (pos == NULL) {
-        PyErr_SetString(PyExc_MemoryError,
-                        "Memory Error when trying to allocate array for "
-                        "`partial`.");
-        goto Fail;
+        PyErr_SetNone(PyExc_MemoryError);
+        return NULL;
     }
 
     /* Find the placeholders (if any) in the tuple. */
