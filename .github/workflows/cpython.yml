@@ -91,7 +91,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        docker-image: [manylinux1_x86_64, manylinux1_i686, manylinux2010_x86_64]
+        docker-image: [manylinux1_i686, manylinux2010_x86_64]  # manylinux1_x86_64 is implicit in manylinux2010_x86_64
 
     steps:
       - name: Check out source
@@ -254,6 +254,7 @@ jobs:
         python ci/verify_checksum.py pythoninstaller.exe 412a649d36626d33b8ca5593cf18318c
     - name: Install Python 3.8 (x86)
       if: matrix.architecture == 'x86'
+      shell: cmd
       run: |
         pythoninstaller.exe /passive TargetDir=%LocalAppData%\Programs\Python38 AssociateFiles=0 CompileAll=0 PrependPath=1 Shortcuts=0 Include_doc=0 Include_debug=0 Include_dev=1 Include_exe=1 Include_launcher=0 Include_lib=1 Include_pip=1 Include_symbols=0 Include_tcltk=0 Include_test=0 Include_tools=0
     - name: Download Python 3.8 (x64)
@@ -263,27 +264,34 @@ jobs:
         python ci/verify_checksum.py pythoninstaller.exe 29ea87f24c32f5e924b7d63f8a08ee8d
     - name: Install Python 3.8 (x64)
       if: matrix.architecture == 'x64'
+      shell: cmd
       run: |
         pythoninstaller.exe /passive TargetDir=%LocalAppData%\Programs\Python38 AssociateFiles=0 CompileAll=0 PrependPath=1 Shortcuts=0 Include_doc=0 Include_debug=0 Include_dev=1 Include_exe=1 Include_launcher=0 Include_lib=1 Include_pip=1 Include_symbols=0 Include_tcltk=0 Include_test=0 Include_tools=0
     - name: Remove download
       run: |
         python -c "import os; os.remove('./pythoninstaller.exe')"
     - name: Install dependencies
+      shell: cmd
       run: |
         "%LocalAppData%\Programs\Python38\python.exe" -m pip install pip setuptools wheel --upgrade
     - name: Create wheel
+      shell: cmd
       run: |
         "%LocalAppData%\Programs\Python38\python.exe" -m pip wheel . --no-deps --wheel-dir=./wheelhouse/ -vv
     - name: Install package
+      shell: cmd
       run: |
         "%LocalAppData%\Programs\Python38\python.exe" -m pip install iteration_utilities --no-index --find-links=./wheelhouse/ -vv
     - name: Import package
+      shell: cmd
       run: |
         "%LocalAppData%\Programs\Python38\python.exe" -c "import iteration_utilities"
     - name: Install test dependencies
+      shell: cmd
       run: |
         "%LocalAppData%\Programs\Python38\python.exe" -m pip install pytest
     - name: Run tests
+      shell: cmd
       run: |
         "%LocalAppData%\Programs\Python38\python.exe" -m pytest tests/
     - name: Upload wheel
@@ -397,16 +405,10 @@ jobs:
       with:
         name: py_sdist
     - run: |
-        rename py_sdist sdist
+        Rename-Item py_sdist sdist
 
     - run: |
         mkdir wheels
-    - uses: actions/download-artifact@master
-      with:
-        name: pymanylinux1_x86_64
-    - run: |
-        move pymanylinux1_x86_64\* wheels
-        rmdir pymanylinux1_x86_64
     - uses: actions/download-artifact@master
       with:
         name: pymanylinux1_i686
