@@ -128,44 +128,34 @@ static PyObject *
 flip_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *kwnames)
 {
     PyObject *result;
+    PyObject *small_stack[PyIU_SMALL_ARG_STACK_SIZE];
+    PyObject **stack = small_stack;
+    Py_ssize_t i;
+    Py_ssize_t j;
     PyIUObject_Flip *self = (PyIUObject_Flip *)obj;
 
     Py_ssize_t n_pos_args = PyVectorcall_NARGS(nargsf);
     Py_ssize_t n_args = n_pos_args + (kwnames == NULL ? 0 : PyTuple_GET_SIZE(kwnames));
 
     if (n_pos_args <= 1) {
-        result = _PyObject_Vectorcall(self->func, args, n_pos_args, kwnames);
-    } else {
-        if (n_args <= PyIU_SMALL_ARG_STACK_SIZE) {
-            PyObject *newargs[PyIU_SMALL_ARG_STACK_SIZE];
-            Py_ssize_t i;
-            Py_ssize_t j;
+        return _PyObject_Vectorcall(self->func, args, n_pos_args, kwnames);
+    }
 
-            for (i = 0, j = n_pos_args - 1; i < n_pos_args; i++, j--) {
-                newargs[i] = args[j];
-            }
-            for (i = n_pos_args; i < n_args; i++) {
-                newargs[i] = args[i];
-            }
-            result = _PyObject_Vectorcall(self->func, newargs, n_pos_args, kwnames);
-        } else {
-            PyObject ** newargs;
-            Py_ssize_t i;
-            Py_ssize_t j;
-
-            newargs = PyMem_Malloc(n_args * sizeof(PyObject *));
-
-            for (i = 0, j = n_pos_args - 1; i < n_pos_args; i++, j--) {
-                newargs[i] = args[j];
-            }
-            for (i = n_pos_args; i < n_args; i++) {
-                newargs[i] = args[i];
-            }
-            result = _PyObject_Vectorcall(self->func, newargs, n_pos_args, kwnames);
-            PyMem_Free(newargs);
+    if (n_args > PyIU_SMALL_ARG_STACK_SIZE) {
+        stack = PyMem_Malloc(n_args * sizeof(PyObject *));
+        if (stack == NULL) {
+            return PyErr_NoMemory();
         }
     }
 
+    for (i = 0, j = n_pos_args - 1; i < n_pos_args; i++, j--) {
+        stack[i] = args[j];
+    }
+    memcpy(stack + n_pos_args, args + n_pos_args, (n_args - n_pos_args) * sizeof(PyObject*));
+    result = _PyObject_Vectorcall(self->func, stack, n_pos_args, kwnames);
+    if (stack != small_stack) {
+        PyMem_Free(stack);
+    }
     return result;
 }
 

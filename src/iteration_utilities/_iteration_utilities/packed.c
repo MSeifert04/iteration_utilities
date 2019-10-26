@@ -138,8 +138,9 @@ packed_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject 
     PyIUObject_Packed *self;
     PyObject *packed;
     PyObject *result;
+    PyObject *small_stack[PyIU_SMALL_ARG_STACK_SIZE];
+    PyObject **stack = small_stack;
     int is_tuple;
-    int is_list;
     Py_ssize_t num_packed_args;
     Py_ssize_t num_new_args;
     Py_ssize_t num_keyword_args = kwnames == NULL ? 0 : PyTuple_Size(kwnames);
@@ -173,56 +174,27 @@ packed_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject 
 
     num_new_args = num_packed_args + num_keyword_args;
 
-    if (num_new_args <= PyIU_SMALL_ARG_STACK_SIZE) {
-        /* Fast path */
-        PyObject *new_args[PyIU_SMALL_ARG_STACK_SIZE];
-        Py_ssize_t i;
-        Py_ssize_t j;
-        // Positional arguments
-        if (is_tuple) {
-            for (i = 0; i < num_packed_args; i++) {
-                new_args[i] = PyTuple_GET_ITEM(packed, i);
-            }
-        } else  { // list
-            for (i = 0; i < num_packed_args; i++) {
-                new_args[i] = PyList_GET_ITEM(packed, i);
-            }
+    if (num_new_args > PyIU_SMALL_ARG_STACK_SIZE) {
+        stack = PyMem_Malloc(num_new_args * sizeof(PyObject *));
+        if (stack == NULL) {
+            Py_DECREF(packed);
+            return PyErr_NoMemory();
         }
-        // Keyword arguments
-        for (i = num_packed_args, j = 1; i < num_new_args; i++, j++) {
-            new_args[i] = args[j];
-        }
-        result = _PyObject_Vectorcall(self->func, new_args, num_packed_args, kwnames);
-        Py_DECREF(packed);
-        return result;
     }
-
-    /* Slow path */
-    PyObject **new_args = PyMem_Malloc(num_new_args * sizeof(PyObject *));
-    Py_ssize_t i;
-    Py_ssize_t j;
-    if (new_args == NULL) {
-        PyErr_Format(PyExc_MemoryError, "failed to allocate memory.");
-        Py_DECREF(packed);
-        return NULL;
-    }
-        // Positional arguments
+    // Positional arguments
     if (is_tuple) {
-        for (i = 0; i < num_packed_args; i++) {
-            new_args[i] = PyTuple_GET_ITEM(packed, i);
-        }
-    } else { // list
-        for (i = 0; i < num_packed_args; i++) {
-            new_args[i] = PyList_GET_ITEM(packed, i);
-        }
+        PyIU_CopyTupleToArray(packed, stack, num_packed_args);
+    } else  { // list
+        PyIU_CopyListToArray(packed, stack, num_packed_args);
     }
     // Keyword arguments
-    for (i = num_packed_args, j = 1; i < num_new_args; i++, j++) {
-        new_args[i] = args[j];
-    }
-    result = _PyObject_Vectorcall(self->func, new_args, num_packed_args, kwnames);
-    PyMem_Free(new_args);
+    memcpy(stack + num_packed_args, args + 1, (num_new_args - num_packed_args) * sizeof(PyObject *));
+
+    result = _PyObject_Vectorcall(self->func, stack, num_packed_args, kwnames);
     Py_DECREF(packed);
+    if (stack != small_stack) {
+        PyMem_Free(stack);
+    }
     return result;
 }
 

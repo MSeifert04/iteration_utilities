@@ -80,4 +80,32 @@ PyIU_CallWithTwoArguments(PyObject *callable, PyObject *arg1, PyObject *arg2) {
     #endif
 }
 
+#define PyIU_USE_CPYTHON_INTERNALS PYIU_CPYTHON
+
+static inline void
+PyIU_CopyTupleToArray(PyObject *tuple, PyObject **array, size_t n_objects) {
+    #if PyIU_USE_CPYTHON_INTERNALS
+        memcpy(array, ((PyTupleObject *)tuple)->ob_item, n_objects * sizeof(PyObject *));
+    #else
+        Py_ssize_t i;
+        for (i = 0; i < n_objects; i++) {
+            array[i] = PyTuple_GET_ITEM(tuple, i);
+        }
+    #endif
+}
+
+static inline void
+PyIU_CopyListToArray(PyObject *list, PyObject **array, size_t n_objects) {
+    #if PyIU_USE_CPYTHON_INTERNALS
+        memcpy(array, ((PyListObject *)list)->ob_item, n_objects * sizeof(PyObject *));
+    #else
+        Py_ssize_t i;
+        for (i = 0; i < n_objects; i++) {
+            array[i] = PyList_GET_ITEM(list, i);
+        }
+    #endif
+}
+
+#undef PyIU_USE_TUPLE_INTERNALS
+
 #endif
