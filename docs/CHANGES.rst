@@ -1,7 +1,7 @@
 Changelog for "iteration_utilities"
 -----------------------------------
 
-Version 0.8.0 (unreleased)
+Version 0.8.0 (2019-10-27)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Support for Python 3.3 and 3.4 was dropped. But it now supports Python 3.7 and
