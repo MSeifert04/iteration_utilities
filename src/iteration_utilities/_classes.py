@@ -21,7 +21,7 @@ from itertools import (chain, combinations, combinations_with_replacement,
 from math import fsum
 
 # This module
-from iteration_utilities import EQ_PY2, GE_PY34, _default
+from iteration_utilities._utils import EQ_PY2, GE_PY34, _default
 # - generators
 from iteration_utilities import (accumulate, applyfunc,
                                  clamp,

@@ -9,6 +9,7 @@ import pytest
 
 # This module
 import iteration_utilities
+from iteration_utilities._utils import _default
 
 # Test helper
 import helper_funcs as _hf
@@ -18,8 +19,8 @@ Iterable = iteration_utilities.Iterable
 
 
 def test_sentinelfactory():
-    as_str = str(iteration_utilities._default)
-    as_repr = repr(iteration_utilities._default)
+    as_str = str(_default)
+    as_repr = repr(_default)
     assert as_str == as_repr
     assert as_str == "<default>"
 

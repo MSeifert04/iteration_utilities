@@ -12,6 +12,7 @@ import pytest
 # This module
 import iteration_utilities
 from iteration_utilities._compat import filter
+from iteration_utilities._utils import EQ_PY2, GE_PY34, IS_PYPY, USES_VECTORCALL
 
 # helper
 from helper_cls import T
@@ -25,14 +26,14 @@ def skip_because_iterators_cannot_be_pickled_before_py3(func):
     """Most iterators like list-iterator, map, zip, ... can not be pickled in
     Python 2.x.
     """
-    return _skipif_wrapper(func, iteration_utilities.EQ_PY2,
+    return _skipif_wrapper(func, EQ_PY2,
                            reason='pickle does not work on Python 2')
 
 
 def skip_before_py34_because_length_hint_was_added_in_py34(func):
     """Support for __length_hint__ was added in Python 3.4.
     """
-    return _skipif_wrapper(func, not iteration_utilities.GE_PY34,
+    return _skipif_wrapper(func, not GE_PY34,
                            reason='length_hint does not work before Python 3.4')
 
 
@@ -41,7 +42,7 @@ def skip_before_py34_because_method_descriptors_cannot_be_pickled(func):
     Also ``operator.methodcaller`` loses it's method name when pickled for
     Python 3.4 and lower.
     """
-    return _skipif_wrapper(func, not iteration_utilities.GE_PY34,
+    return _skipif_wrapper(func, not GE_PY34,
                            reason='pickle does not work before Python 3.4'
                                   ' on method descriptors')
 
@@ -50,34 +51,32 @@ def skip_on_pypy_because_cache_next_works_differently(func):
     """Not sure what happens there but on PyPy CacheNext doesn't work like on
     CPython.
     """
-    return _skipif_wrapper(func, iteration_utilities.IS_PYPY,
+    return _skipif_wrapper(func, IS_PYPY,
                            reason='PyPy works differently with __next__ cache.')
 
 
 def skip_on_pypy_because_sizeof_makes_no_sense_there(func):
     """PyPy doesn't support sys.getsizeof().
     """
-    return _skipif_wrapper(func, iteration_utilities.IS_PYPY,
+    return _skipif_wrapper(func, IS_PYPY,
                            reason='PyPy doesn\'t support sys.getsizeof().')
 
 
 def skip_on_pypy_not_investigated_why(func):
     """PyPy failures - not sure why."""
-    return _skipif_wrapper(func, iteration_utilities.IS_PYPY,
-                           reason='PyPy fails here.')
+    return _skipif_wrapper(func, IS_PYPY, reason='PyPy fails here.')
 
 
 def skip_on_pypy_not_investigated_why_it_segfaults(func):
     """PyPy segfaults - not sure why."""
-    return _skipif_wrapper(func, iteration_utilities.IS_PYPY,
-                           reason='PyPy segfaults here.')
+    return _skipif_wrapper(func, IS_PYPY, reason='PyPy segfaults here.')
 
 
 def skip_if_vectorcall_is_not_used(func):
     """The vectorcall implementation imposes some additional restrictions that
     haven't been there before.
     """
-    return _skipif_wrapper(func, not iteration_utilities.USES_VECTORCALL,
+    return _skipif_wrapper(func, not USES_VECTORCALL,
                            reason='pickle does not work with vectorcall')
 
 
@@ -109,7 +108,7 @@ def iterator_setstate_empty_fail(thing):
 
 def CacheNext(item):
     """Iterator that modifies it "next" method when iterated over."""
-    if iteration_utilities.EQ_PY2:
+    if EQ_PY2:
         def subiter():
             def newnext(self):
                 raise CacheNext.EXC_TYP(CacheNext.EXC_MSG)
@@ -224,7 +223,7 @@ class OverflowLengthHint(object):
         return self.lh
 
 
-if iteration_utilities.EQ_PY2:
+if EQ_PY2:
     exec("""
 import abc
 

@@ -8,6 +8,7 @@ import pytest
 
 # This module
 import iteration_utilities
+from iteration_utilities._utils import EQ_PY2
 
 # Test helper
 import helper_funcs as _hf
@@ -202,7 +203,7 @@ def test_minmax_failure10():
         minmax(T(1), T(20), T('a'), T('c'))
 
 
-@pytest.mark.xfail(iteration_utilities.EQ_PY2, reason='cmp works on Python 2')
+@pytest.mark.xfail(EQ_PY2, reason='cmp works on Python 2')
 def test_minmax_failure11():
     # unable to compare second and fourth
 
