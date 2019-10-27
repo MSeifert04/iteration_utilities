@@ -4,9 +4,8 @@ Changelog for "iteration_utilities"
 Version 0.8.0 (unreleased)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Python 3.3 and 3.4 support was dropped. But: Existing workarounds and
-compatibility code won't be removed soon (unless there's a good reason for it,
-e.g. performance).
+Support for Python 3.3 and 3.4 was dropped. But it now supports Python 3.7 and
+3.8. This will be the last release supporting Python 2.
 
 - ``Iterable.islice`` will raise a more appropriate ``TypeError`` when called
   without arguments.
@@ -16,6 +15,15 @@ e.g. performance).
 - Some constants have been available in the module namespace that were intended
   to be private. These have been removed. This includes ``EQ_PY2``, ``GE_PY3``
   and similar constants.
+
+- Added support for PyPy (3.5 and 3.6).
+
+- Use experimental vectorcall protocol (PEP 590) in a few places.
+
+
+Contributors:
+
+- Solomon Ucko (@sollyucko)
 
 
 Version 0.7.0 (2018-01-28)
