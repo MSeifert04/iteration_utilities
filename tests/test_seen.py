@@ -8,6 +8,7 @@ import pytest
 
 # This module
 import iteration_utilities
+from iteration_utilities._utils import EQ_PY2
 
 # Test helper
 import helper_funcs as _hf
@@ -196,7 +197,7 @@ def test_seen_repr1():
     # representations are catched
     s = Seen()
     s.contains_add([s])
-    if iteration_utilities.EQ_PY2:
+    if EQ_PY2:
         assert repr(s) == 'iteration_utilities.Seen(set([]), seenlist=[[...]])'
     else:
         assert repr(s) == 'iteration_utilities.Seen(set(), seenlist=[[...]])'

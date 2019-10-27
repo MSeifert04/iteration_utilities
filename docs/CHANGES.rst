@@ -13,6 +13,10 @@ e.g. performance).
 
 - ``partial`` only allows plain ``str`` as keyword-names in CPython 3.8.
 
+- Some constants have been available in the module namespace that were intended
+  to be private. These have been removed. This includes ``EQ_PY2``, ``GE_PY3``
+  and similar constants.
+
 
 Version 0.7.0 (2018-01-28)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^

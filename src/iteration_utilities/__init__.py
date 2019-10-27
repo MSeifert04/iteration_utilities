@@ -4,7 +4,6 @@
 
 from ._iteration_utilities import *
 
-from ._utils import *
 from ._recipes import *
 from ._additional_recipes import *
 from ._classes import *

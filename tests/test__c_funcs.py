@@ -10,6 +10,7 @@ import pytest
 # This module
 import iteration_utilities
 from iteration_utilities import _iteration_utilities
+from iteration_utilities._utils import GE_PY35
 
 # Test helper
 import helper_funcs as _hf
@@ -131,8 +132,7 @@ def test_traverse():
 
 
 @_hf.skip_on_pypy_not_investigated_why
-@pytest.mark.skipif(not iteration_utilities.GE_PY35,
-                    reason="requires python3.5")
+@pytest.mark.skipif(not GE_PY35, reason="requires python3.5")
 def test_c_funcs_signatures():
     # Makes sure every user-facing C function has a valid signature.
     from iteration_utilities import Iterable, chained

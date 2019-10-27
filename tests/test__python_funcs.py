@@ -9,11 +9,12 @@ import pytest
 
 # This module
 import iteration_utilities
+from iteration_utilities._utils import EQ_PY2
 
 
 def test_exceptions():
     # old-style classes don't have the subclasses special member.
-    if iteration_utilities.EQ_PY2:
+    if EQ_PY2:
         class A:
             pass
         with pytest.raises(TypeError):
