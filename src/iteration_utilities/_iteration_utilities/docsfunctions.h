@@ -807,7 +807,7 @@ PyDoc_STRVAR(
 
 PyDoc_STRVAR(
     PyIU_Argmin_doc,
-    "argmin(iterable, /, key, default)\n"
+    "argmin(iterable, /, key=None, default=None)\n"
     "--\n\n"
     "Find index of the minimum.\n"
     "\n"
@@ -1057,7 +1057,7 @@ PyDoc_STRVAR(
 
 PyDoc_STRVAR(
     PyIU_MinMax_doc,
-    "minmax(iterable, /, key, default)\n"
+    "minmax(iterable, /, key=None, default=None)\n"
     "--\n\n"
     "Computes the minimum and maximum values in one-pass using only\n"
     "``1.5*len(iterable)`` comparisons. Recipe based on the snippet\n"

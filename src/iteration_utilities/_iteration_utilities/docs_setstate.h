@@ -10,7 +10,7 @@ extern "C" {
 
 PyDoc_STRVAR(
     PYIU_setstate_doc,
-    "__setstate__(state, /)\n"
+    "__setstate__($self, state, /)\n"
     "--\n\n"
     "Set state for unpickling. "
     "The `state` argument must be `tuple`-like.\n");

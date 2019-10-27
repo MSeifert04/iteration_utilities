@@ -76,7 +76,7 @@ PyDoc_STRVAR(
 
 PyDoc_STRVAR(
     seen_containsadd_doc,
-    "contains_add(o, /)\n"
+    "contains_add($self, o, /)\n"
     "--\n\n"
     "Check if `o` is already contained in `self` and return the result.\n"
     "But also adds `o` to `self` if it's not contained.\n"

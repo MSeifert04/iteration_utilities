@@ -1,7 +1,5 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-import pytest
-
 from iteration_utilities._iteration_utilities import _parse_args, _parse_kwargs
 from iteration_utilities._utils import _default as default
 

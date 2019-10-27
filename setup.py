@@ -76,4 +76,7 @@ setup(
     py_modules=[path.splitext(path.basename(p))[0] for p in glob('src/*.py')],
     version=version(),
     ext_modules=[_iteration_utilities_module],
+    package_data={
+        'iteration_utilities': ['*.pyi', 'py.typed'],
+    }
 )

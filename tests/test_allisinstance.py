@@ -25,6 +25,14 @@ def test_allisinstance_normal3():
     assert all_isinstance((i for i in toT([1, 2, 3])), T)
 
 
+def test_allisinstance_one_type():
+    assert all_isinstance([1, 2, 3], int)
+
+
+def test_allisinstance_multiple_types():
+    assert all_isinstance([1, 2, 3, 4.5], (int, float))
+
+
 def test_allisinstance_failure1():
     with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
         all_isinstance(_hf.FailIter(), T)

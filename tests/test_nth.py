@@ -35,15 +35,15 @@ def test_nth_normal2():
 
 
 def test_nth_nopred_retpred1():
-    assert nth(2)(toT(range(10)), retpred=1) == T(2)
+    assert nth(2)(toT(range(10)), retpred=True) == T(2)
 
 
 def test_nth_retidx1():
-    assert nth(2)(toT(range(10)), retidx=1) == 2
+    assert nth(2)(toT(range(10)), retidx=True) == 2
 
 
 def test_nth_retidx2():
-    assert nth(2)(toT(range(10)), pred=bool, retidx=1) == 3
+    assert nth(2)(toT(range(10)), pred=bool, retidx=True) == 3
 
 
 def test_nth_pred1():
@@ -170,7 +170,7 @@ def test_nth_failures8():
 def test_nth_failures9():
     # too few arguments for __call__
     with pytest.raises(ValueError, match='`retpred` or `retidx`'):
-        nth(1)([T(0), T(1), T(2)], retpred=1, retidx=1)
+        nth(1)([T(0), T(1), T(2)], retpred=True, retidx=True)
 
 
 def test_nth_failures10():
@@ -188,19 +188,19 @@ def test_nth_failures11():
 def test_nth_failures12():
     # evaluating as boolean fails
     with pytest.raises(_hf.FailBool.EXC_TYP, match=_hf.FailBool.EXC_MSG):
-        nth(1)([T(0)], pred=lambda x: _hf.FailBool(), retpred=1)
+        nth(1)([T(0)], pred=lambda x: _hf.FailBool(), retpred=True)
 
 
 def test_nth_failures13():
     # evaluating as boolean fails
     with pytest.raises(_hf.FailBool.EXC_TYP, match=_hf.FailBool.EXC_MSG):
-        nth(1)([T(0)], pred=lambda x: _hf.FailBool(), retidx=1)
+        nth(1)([T(0)], pred=lambda x: _hf.FailBool(), retidx=True)
 
 
 def test_nth_failures14():
     # evaluating as boolean fails
     with pytest.raises(_hf.FailBool.EXC_TYP, match=_hf.FailBool.EXC_MSG):
-        nth(1)([T(0)], pred=lambda x: _hf.FailBool(), truthy=0)
+        nth(1)([T(0)], pred=lambda x: _hf.FailBool(), truthy=False)
 
 
 @_hf.skip_on_pypy_because_cache_next_works_differently

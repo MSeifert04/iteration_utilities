@@ -10,7 +10,7 @@ extern "C" {
 
 PyDoc_STRVAR(
     PYIU_reduce_doc,
-    "__reduce__(/)\n"
+    "__reduce__($self, /)\n"
     "--\n\n"
     "Return a `tuple` containing the state information for pickling.\n");
 

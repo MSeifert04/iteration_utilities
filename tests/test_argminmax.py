@@ -98,7 +98,7 @@ def test_argmin_failure9():
 
 
 def test_argmin_failure10():
-    with pytest.raises(_hf.FailIter.EXC_TYP, match= _hf.FailIter.EXC_MSG):
+    with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
         argmin(_hf.FailIter())
 
 

@@ -34,7 +34,7 @@ def test_alldistinct_unhashable2():
 
 
 def test_alldistinct_failure1():
-    with pytest.raises(_hf.FailIter.EXC_TYP, match= _hf.FailIter.EXC_MSG):
+    with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
         all_distinct(_hf.FailIter())
 
 
