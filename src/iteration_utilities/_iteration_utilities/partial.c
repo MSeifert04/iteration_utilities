@@ -88,6 +88,10 @@ PyDoc_STRVAR(partial_doc,
     "    [1, 2, 6, 24, 120]\n"
 );
 
+#if PyIU_USE_VECTORCALL
+static PyObject * partial_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *kwnames);
+#endif
+
 /******************************************************************************
  * Helper to get the amount and positions of Placeholders in a tuple.
  *****************************************************************************/
@@ -343,6 +347,10 @@ partial_new(PyTypeObject *type,
         goto Fail;
     }
 
+#if PyIU_USE_VECTORCALL
+    self->vectorcall = partial_vectorcall;
+#endif
+
     return (PyObject *)self;
 
 Fail:
@@ -353,6 +361,226 @@ Fail:
     return NULL;
 }
 
+#if PyIU_USE_VECTORCALL
+/******************************************************************************
+ * Vectorcall
+ *****************************************************************************/
+
+static PyObject *
+partial_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *kwnames) {
+    PyObject *small_stack[PyIU_SMALL_ARG_STACK_SIZE];
+    PyObject **stack = small_stack;
+    PyIUObject_Partial *self = (PyIUObject_Partial *)obj;
+    Py_ssize_t n_args = PyVectorcall_NARGS(nargsf);
+    Py_ssize_t n_kwargs = kwnames == NULL ? 0 : PyTuple_GET_SIZE(kwnames);
+    Py_ssize_t n_self_args = PyTuple_GET_SIZE(self->args);
+    Py_ssize_t n_self_kwargs = PyDict_Size(self->kw);
+    Py_ssize_t n_duplicate_kwargs = 0;
+    PyObject *kwnames_lookup = kwnames;
+    PyObject *final_kwnames = NULL;
+    PyObject *result = NULL;
+
+    if (n_args < self->numph) {
+        PyErr_SetString(PyExc_TypeError,
+                        "not enough values to fill the placeholders in "
+                        "`partial`.");
+        return NULL;
+    }
+    Py_ssize_t n_final_args = n_self_args + n_args - self->numph;
+    Py_ssize_t n_final_kwargs = n_self_kwargs + n_kwargs;
+    Py_ssize_t n_final = n_final_args + n_final_kwargs;
+
+    /* Since n_final doesn't account for duplicate keyword arguments in
+       self->kw and kwnames this will be an overestimate. But I think an
+       overestimate is good enough in most cases. */
+    if (n_final > PyIU_SMALL_ARG_STACK_SIZE) {
+        stack = PyMem_Malloc(n_final * sizeof(PyObject *));
+        if (stack == NULL) {
+            return PyErr_NoMemory();
+        }
+    }
+
+    // Fill args
+    PyIU_CopyTupleToArray(self->args, stack, (size_t)n_self_args);
+    // Fill placeholders
+    Py_ssize_t idx;
+    for (idx = 0; idx < self->numph; idx++) {
+        stack[self->posph[idx]] = args[idx];
+    }
+    // Fill remaining additional args
+    memcpy(stack + n_self_args, args + self->numph, (n_args - self->numph) * sizeof(PyObject *));
+
+    Py_ssize_t current_idx = n_final_args;
+
+    /* In the following we need to ensure that we don't let arbitrary Python code
+       run which might alter the instance.
+       Since we're potentially using the __hash__ and __eq__ of the keyword
+       names the keywords must be unicodes (not subclasses)!
+       The self->kw should always be a real dictionary, so there's (probably) no
+       way this could trigger Python code while iterating over it.
+       */
+    if (kwnames != NULL) {
+        Py_ssize_t kwname_idx;
+        for (kwname_idx = 0; kwname_idx < n_kwargs; kwname_idx++) {
+            PyObject *kwname = PyTuple_GET_ITEM(kwnames, kwname_idx);
+            if (!PyUnicode_CheckExact(kwname)) {
+                PyErr_SetString(PyExc_TypeError, "keyword names must be strings.");
+                goto CleanUp;
+            }
+        }
+    }
+    /* The check that all keyword names are strings is done in one of the following loops. */
+
+    /* In case we have both kwargs in the partial and in the partial call we
+       have to check for duplicates. To ensure that the call doesn't suffer from
+       the quadratic lookup behavior when checking if each kwarg in the instance
+       is also present in the kwnames-TUPLE this creates a set for the kwnames
+       in case we have more than X values in the instance kwargs and more than
+       Y values in the passed kwargs. The values chosen here aren't based on
+       any empirical testing they are just educated guesses. This is probably
+       unnecessary because there will likely be very rare that so many kwargs
+       are in the instance and in the actual call.
+       */
+    if (n_self_kwargs > 5 && n_kwargs >= 10) {
+        kwnames_lookup = PyFrozenSet_New(kwnames);
+        if (kwnames_lookup == NULL) {
+            goto CleanUp;
+        }
+    }
+    // Fill in the keywords stored in the instance.
+    if (n_self_kwargs != 0) {
+        PyObject *key, *value;
+        Py_ssize_t pos = 0;
+
+        if (kwnames == NULL) {
+            /* No keyword arguments when the partial is called, we can simply
+               use the values.*/
+            while (PyDict_Next(self->kw, &pos, &key, &value)) {
+                if (PyUnicode_CheckExact(key)) {
+                    stack[current_idx] = value;
+                    current_idx++;
+                } else {
+                    PyErr_SetString(PyExc_TypeError, "keyword names must be strings.");
+                    goto CleanUp;
+                }
+            }
+        } else {
+            while (PyDict_Next(self->kw, &pos, &key, &value)) {
+                if (PyUnicode_CheckExact(key)) {
+                    int ok;
+                    ok = PySequence_Contains(kwnames_lookup, key);
+                    if (ok == 1) {
+                        /* The keyword is also present in the call. Skip it. */
+                        n_duplicate_kwargs++;
+                    } else if (ok == 0) {
+                        /* The keyword is not present in the call. */
+                        stack[current_idx] = value;
+                        current_idx++;
+                    } else {
+                        /* It's very unlikely that there will be a lookup failure
+                        since the kwargs for the instance and the kwargs for the
+                        call are already validated by Pythons function call
+                        infrastructure. However better to have this in-place in
+                        case it really ever happens...
+                        */
+                        goto CleanUp;
+                    }
+                } else {
+                    PyErr_SetString(PyExc_TypeError, "keyword names must be strings.");
+                    goto CleanUp;
+                }
+            }
+        }
+    }
+    /* No special treatment for the keyword arguments passed to the call of the
+       partial. We can simply add them to the stack. */
+    if (n_kwargs != 0) {
+        Py_ssize_t arg_idx = n_args;
+        for (arg_idx = n_args; arg_idx < n_args + n_kwargs; arg_idx++) {
+            stack[current_idx] = args[arg_idx];
+            current_idx++;
+        }
+    }
+
+    /* 4 cases:
+       - self->kwargs && kwargs
+       - self->kwargs && not kwargs
+       - not self->kwargs && kwargs
+       - not self->kwargs && not kwargs
+
+       The last two cases are easily treated because we can simply use the
+       keyword names that are passed in this call.
+       The first two require more special treatment because the instance kwargs
+       are a dict and need to be converted to a tuple of kwnames.
+       In case the call also has kwargs we also need to account for the duplicate
+       keywords.
+       */
+    if (n_self_kwargs == 0) {
+        final_kwnames = kwnames;
+    } else {
+        PyObject *key, *value;
+        Py_ssize_t self_kwargs_pos = 0;
+        Py_ssize_t final_kwnames_idx = 0;
+        /* At this point we know the exact number of keyword arguments without
+           duplicates. So we can create the tuple holding the keyword names.
+           */
+        final_kwnames = PyTuple_New(n_final_kwargs - n_duplicate_kwargs);
+        if (final_kwnames == NULL) {
+            goto CleanUp;
+        }
+        /* Fill in the keywords stored in the instance. This relies on the fact
+           that the self->kw dictionary hasn't changed between the previous step
+           where we added the values and this step where we use the keys.
+           */
+        if (n_duplicate_kwargs == 0) {
+            while (PyDict_Next(self->kw, &self_kwargs_pos, &key, &value)) {
+                Py_INCREF(key);
+                PyTuple_SET_ITEM(final_kwnames, final_kwnames_idx, key);
+                final_kwnames_idx++;
+            }
+        } else {
+            while (PyDict_Next(self->kw, &self_kwargs_pos, &key, &value)) {
+                int ok;
+                ok = PySequence_Contains(kwnames_lookup, key);
+                if (ok == 0) {
+                    Py_INCREF(key);
+                    PyTuple_SET_ITEM(final_kwnames, final_kwnames_idx, key);
+                    final_kwnames_idx++;
+                } else if (ok == 1) {
+                    // Keyword is skipped.
+                } else {
+                    goto CleanUp;
+                }
+            }
+        }
+        /* Fill in the keyword argument names from the call. */
+        if (kwnames != NULL) {
+            Py_ssize_t kwnames_idx;
+            for (kwnames_idx = 0; kwnames_idx < n_kwargs; kwnames_idx++) {
+                PyObject *kwname = PyTuple_GET_ITEM(kwnames, kwnames_idx);
+                Py_INCREF(kwname);
+                PyTuple_SET_ITEM(final_kwnames, final_kwnames_idx, kwname);
+                final_kwnames_idx++;
+            }
+        }
+    }
+
+    result = _PyObject_Vectorcall(self->fn, stack, n_final_args, final_kwnames);
+
+CleanUp:
+    if (stack != small_stack) {
+        PyMem_Free(stack);
+    }
+    if (kwnames_lookup != kwnames) {
+        Py_DECREF(kwnames_lookup);
+    }
+    if (final_kwnames != kwnames) {
+        Py_XDECREF(final_kwnames);
+    }
+    return result;
+}
+
+#else
 /******************************************************************************
  * Call
  *****************************************************************************/
@@ -460,6 +688,7 @@ Fail:
     Py_XDECREF(finalkw);
     return ret;
 }
+#endif
 
 #if PYIU_PYPY || PY_MAJOR_VERSION == 2 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION < 3)
 
@@ -781,7 +1010,11 @@ PyTypeObject PyIUType_Partial = {
     (Py_ssize_t)0,                                      /* tp_itemsize */
     /* methods */
     (destructor)partial_dealloc,                        /* tp_dealloc */
+#if PyIU_USE_VECTORCALL
+    offsetof(PyIUObject_Partial, vectorcall),           /* tp_vectorcall_offset */
+#else
     (printfunc)0,                                       /* tp_print */
+#endif
     (getattrfunc)0,                                     /* tp_getattr */
     (setattrfunc)0,                                     /* tp_setattr */
     0,                                                  /* tp_reserved */
@@ -790,13 +1023,21 @@ PyTypeObject PyIUType_Partial = {
     (PySequenceMethods *)0,                             /* tp_as_sequence */
     (PyMappingMethods *)0,                              /* tp_as_mapping */
     (hashfunc)0,                                        /* tp_hash */
+#if PyIU_USE_VECTORCALL
+    (ternaryfunc)PyVectorcall_Call,                     /* tp_call */
+#else
     (ternaryfunc)partial_call,                          /* tp_call */
+#endif
     (reprfunc)0,                                        /* tp_str */
     (getattrofunc)PyObject_GenericGetAttr,              /* tp_getattro */
     (setattrofunc)PyObject_GenericSetAttr,              /* tp_setattro */
     (PyBufferProcs *)0,                                 /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
-        Py_TPFLAGS_BASETYPE,                            /* tp_flags */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC
+        | Py_TPFLAGS_BASETYPE
+#if PyIU_USE_VECTORCALL
+        | _Py_TPFLAGS_HAVE_VECTORCALL
+#endif
+        ,                                               /* tp_flags */
     (const char *)partial_doc,                          /* tp_doc */
     (traverseproc)partial_traverse,                     /* tp_traverse */
     (inquiry)partial_clear,                             /* tp_clear */

@@ -73,6 +73,14 @@ def skip_on_pypy_not_investigated_why_it_segfaults(func):
                            reason='PyPy segfaults here.')
 
 
+def skip_if_vectorcall_is_not_used(func):
+    """The vectorcall implementation imposes some additional restrictions that
+    haven't been there before.
+    """
+    return _skipif_wrapper(func, not iteration_utilities.USES_VECTORCALL,
+                           reason='pickle does not work with vectorcall')
+
+
 def iterator_copy(thing):
     """Normal copies are not officially supported but ``itertools.tee`` uses
     ``__copy__`` if implemented it is either forbid both or none. Given that

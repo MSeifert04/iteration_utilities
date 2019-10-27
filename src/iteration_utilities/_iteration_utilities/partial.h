@@ -14,6 +14,9 @@ typedef struct {
     PyObject *weakreflist; /* List of weak references */
     Py_ssize_t numph;
     Py_ssize_t *posph;
+#if PyIU_USE_VECTORCALL
+    vectorcallfunc vectorcall;
+#endif
 } PyIUObject_Partial;
 
 extern PyTypeObject PyIUType_Partial;
