@@ -1,22 +1,15 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
 import operator
 import pickle
 
-# 3rd party
 import pytest
 
-# This module
 import iteration_utilities
+from iteration_utilities import starfilter
 
-# Test helper
 import helper_funcs as _hf
 from helper_cls import T
-
-
-starfilter = iteration_utilities.starfilter
 
 
 def test_starfilter_empty1():
@@ -89,17 +82,8 @@ def test_starfilter_failure6():
 
 def test_starfilter_failure7():
     # result of function has no boolean interpretation
-    class NoBool(object):
-        def __bool__(self):
-            raise ValueError('no bool')
-
-        __nonzero__ = __bool__
-
-    def failingfunc(a, b):
-        return NoBool()
-
-    with pytest.raises(ValueError, match='no bool'):
-        next(starfilter(failingfunc, [(T(1), T(1))]))
+    with pytest.raises(_hf.FailBool.EXC_TYP, match=_hf.FailBool.EXC_MSG):
+        next(starfilter(lambda x, y: _hf.FailBool(), [(T(1), T(1))]))
 
 
 def test_starfilter_failure8():
@@ -127,14 +111,12 @@ def test_starfilter_copy1():
     _hf.iterator_copy(starfilter(operator.eq, [(T(1), T(1)), (T(2), T(2))]))
 
 
-@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_starfilter_pickle1(protocol):
     sf = starfilter(operator.eq, [(T(1), T(1)), (T(2), T(2))])
     x = pickle.dumps(sf, protocol=protocol)
     assert list(pickle.loads(x)) == [(T(1), T(1)), (T(2), T(2))]
 
 
-@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_starfilter_pickle2(protocol):
     sf = starfilter(operator.eq, [(T(1), T(1)), (T(2), T(2))])
     assert next(sf) == (T(1), T(1))

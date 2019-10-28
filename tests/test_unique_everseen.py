@@ -1,23 +1,15 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
 import operator
 import pickle
 
-# 3rd party
 import pytest
 
-# This module
 import iteration_utilities
+from iteration_utilities import unique_everseen, Seen
 
-# Test helper
 import helper_funcs as _hf
 from helper_cls import T, toT
-
-
-unique_everseen = iteration_utilities.unique_everseen
-Seen = iteration_utilities.Seen
 
 
 def test_uniqueeverseen_empty1():
@@ -113,25 +105,14 @@ def test_uniqueeverseen_failure4():
 
 def test_uniqueeverseen_failure5():
     # Failure when comparing the object to the objects in the list
-    class NoHashNoEq():
-        def __hash__(self):
-            raise TypeError('cannot be hashed')
-
-        def __eq__(self, other):
-            raise ValueError('bad class')
-
-    with pytest.raises(ValueError, match='bad class'):
-        list(unique_everseen([[T(1)], NoHashNoEq()]))
+    with pytest.raises(_hf.FailEqNoHash.EXC_TYP, match=_hf.FailEqNoHash.EXC_MSG):
+        list(unique_everseen([[T(1)], _hf.FailEqNoHash()]))
 
 
 def test_uniqueeverseen_failure6():
     # Failure (no TypeError) when trying to hash the value
-    class NoHash():
-        def __hash__(self):
-            raise ValueError('bad class')
-
-    with pytest.raises(ValueError, match='bad class'):
-        list(unique_everseen([T(1), NoHash()]))
+    with pytest.raises(_hf.FailHash.EXC_TYP, match=_hf.FailHash.EXC_MSG):
+        list(unique_everseen([T(1), _hf.FailHash()]))
 
 
 def test_uniqueeverseen_copy1():
@@ -153,7 +134,6 @@ def test_uniqueeverseen_failure_setstate3():
     _hf.iterator_setstate_empty_fail(unique_everseen(toT([1, 1])))
 
 
-@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_uniqueeverseen_pickle1(protocol):
     uqe = unique_everseen([T(1), T(2), T(1), T(2)])
     assert next(uqe) == T(1)

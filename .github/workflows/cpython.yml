@@ -18,7 +18,7 @@ jobs:
       max-parallel: 6
       matrix:
         os: [macOS-10.14]
-        python-version: [2.7, 3.7]
+        python-version: [3.5, 3.7]
 
     steps:
     - name: Check out source
@@ -131,7 +131,7 @@ jobs:
       max-parallel: 6
       matrix:
         os: [windows-2019, ubuntu-18.04, macOS-10.14]
-        python-version: [2.7, 3.6, 3.7]
+        python-version: [3.6, 3.7]
         architecture: [x64, x86]
         exclude:
           - architecture: x86
@@ -144,10 +144,6 @@ jobs:
       uses: actions/checkout@v1
       with:
         fetch-depth: 1
-    - name: Install VC
-      if: matrix.os == 'windows-2019' && matrix.python-version == 2.7
-      run: |
-        choco install vcpython27 --yes --no-progress
     - name: Set up Python
       uses: actions/setup-python@v1
       with:
@@ -166,10 +162,6 @@ jobs:
         python -m pip install delocate
         python -m pip wheel . --no-deps --wheel-dir=./wheelhouse-tmp/ -vv
         python -m delocate.cmd.delocate_listdeps ./wheelhouse-tmp/
-    - name: Fix wheel (macOS with Python 2.7)
-      if: matrix.os == 'macOS-10.14' && matrix.python-version == 2.7
-      run: |
-        python -m delocate.cmd.delocate_wheel -w ./wheelhouse/ ./wheelhouse-tmp/iteration_utilities-0.8.0-cp27-cp27m-macosx_10_14_x86_64.whl -v
     - name: Fix wheel (macOS with Python 3.6)
       if: matrix.os == 'macOS-10.14' && matrix.python-version == 3.6
       run: |
@@ -421,24 +413,6 @@ jobs:
     - run: |
         move pymanylinux2010_x86_64\* wheels
         rmdir pymanylinux2010_x86_64
-    - uses: actions/download-artifact@master
-      with:
-        name: py2.7-x64-windows-2019
-    - run: |
-        move py2.7-x64-windows-2019\* wheels
-        rmdir py2.7-x64-windows-2019
-    - uses: actions/download-artifact@master
-      with:
-        name: py2.7-x86-windows-2019
-    - run: |
-        move py2.7-x86-windows-2019\* wheels
-        rmdir py2.7-x86-windows-2019
-    - uses: actions/download-artifact@master
-      with:
-        name: py2.7-x64-macOS-10.14
-    - run: |
-        move py2.7-x64-macOS-10.14\* wheels
-        rmdir py2.7-x64-macOS-10.14
     - uses: actions/download-artifact@master
       with:
         name: py3.6-x64-windows-2019

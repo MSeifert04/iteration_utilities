@@ -1,22 +1,14 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
 import collections
 import operator
 import pickle
 
-# 3rd party
 import pytest
 
-# This module
-import iteration_utilities
+from iteration_utilities import packed
 
-# Test helper
 from helper_cls import T
-
-
-packed = iteration_utilities.packed
 
 
 def _t3(a, b, c):

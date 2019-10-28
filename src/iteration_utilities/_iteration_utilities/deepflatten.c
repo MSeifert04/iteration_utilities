@@ -99,10 +99,7 @@ PyDoc_STRVAR(deepflatten_doc,
     "\n"
     "See for example::\n"
     "\n"
-    "    >>> try:  # Python 2 \n"
-    "    ...     from collections import UserString\n"
-    "    ... except:\n"
-    "    ...     from UserString import UserString\n"
+    "    >>> from collections import UserString\n"
     "    >>> list(deepflatten([1, 2, [1,2], UserString('abc')], depth=1))\n"
     "    [1, 2, 1, 2, 'a', 'b', 'c']\n"
     "    >>> list(deepflatten([1, 2, [1,2], UserString('abc')], ignore=UserString))\n"
@@ -129,13 +126,11 @@ PyDoc_STRVAR(deepflatten_doc,
     "                    except TypeError:\n"
     "                        yield x\n"
     "                    else:\n"
-    "                        for item in deepflatten(x, depth - 1, types, ignore):\n"
-    "                            yield item\n"
+    "                        yield from deepflatten(x, depth - 1, types, ignore)\n"
     "                elif not isinstance(x, types):\n"
     "                    yield x\n"
     "                else:\n"
-    "                    for item in deepflatten(x, depth - 1, types, ignore):\n"
-    "                        yield item\n"
+    "                    yield from deepflatten(x, depth - 1, types, ignore)\n"
 );
 
 /******************************************************************************
@@ -329,11 +324,7 @@ deepflatten_next(PyIUObject_DeepFlatten *self)
                    "isstring". Check for the exact type because sub types might
                    have custom __iter__ methods, better not to interfere with
                    these. */
-#if PY_MAJOR_VERSION == 2
-                if (PyString_CheckExact(item) || PyUnicode_CheckExact(item)) {
-#else
                 if (PyBytes_CheckExact(item) || PyUnicode_CheckExact(item)) {
-#endif
                     self->isstring = 1;
                 }
                 self->currentdepth++;
@@ -363,11 +354,7 @@ deepflatten_next(PyIUObject_DeepFlatten *self)
             } else {
                 /* See comment above why the exact check is (probably)
                    better. */
-#if PY_MAJOR_VERSION == 2
-                if (PyString_CheckExact(item) || PyUnicode_CheckExact(item)) {
-#else
                 if (PyBytes_CheckExact(item) || PyUnicode_CheckExact(item)) {
-#endif
                     self->isstring = 1;
                 }
                 self->currentdepth++;
@@ -385,11 +372,7 @@ deepflatten_next(PyIUObject_DeepFlatten *self)
            Python as limit for the list length.
            */
         if ((Py_ssize_t)Py_GetRecursionLimit() < self->currentdepth) {
-#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 5)
             PyErr_SetString(PyExc_RecursionError,
-#else
-            PyErr_SetString(PyExc_RuntimeError,
-#endif
                             "`deepflatten` reached maximum recursion depth.");
             Py_DECREF(activeiterator);
             return NULL;

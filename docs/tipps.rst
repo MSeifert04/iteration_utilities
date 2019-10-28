@@ -85,8 +85,8 @@ function you'll see the performance increase:
 
 .. warning::
     Using the ``__lt__`` and equivalent methods is not always possible, for
-    example it's not possible in Python2 and this bypasses Pythons operator
-    evaluation. For example the following will fail: ``(5).__lt__(10.2)``
+    example this bypasses Pythons data model.
+    For example the following will fail: ``(5).__lt__(10.2)``
     because integer don't compare to floats. In that case you need to use:
     ``(5.0).__lt__(10.2)``.
 

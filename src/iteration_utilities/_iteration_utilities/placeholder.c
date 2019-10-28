@@ -3,9 +3,7 @@
  *****************************************************************************/
 
 #include "placeholder.h"
-#if PY_MAJOR_VERSION == 3
 #include "docs_reduce.h"
-#endif
 #include <structmember.h>
 
 PyDoc_STRVAR(placeholder_doc,
@@ -47,19 +45,16 @@ placeholder_repr(PyObject *self)
  * Reduce
  *****************************************************************************/
 
-#if PY_MAJOR_VERSION == 3
 static PyObject *
 placeholder_reduce(PyObject *self, PyObject *Py_UNUSED(args))
 {
     return PyUnicode_FromString("iteration_utilities.Placeholder");
 }
-#endif
 
 /******************************************************************************
  * Type
  *****************************************************************************/
 
-#if PY_MAJOR_VERSION == 3
 static PyMethodDef placeholder_methods[] = {
 
     {"__reduce__",                                      /* ml_name */
@@ -70,12 +65,6 @@ static PyMethodDef placeholder_methods[] = {
 
     {NULL, NULL}                                        /* sentinel */
 };
-#else
-static PyMethodDef placeholder_methods[] = {
-
-    {NULL, NULL}                                        /* sentinel */
-};
-#endif
 
 PyTypeObject Placeholder_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)

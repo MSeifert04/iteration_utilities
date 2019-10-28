@@ -281,30 +281,23 @@ static PyMethodDef PyIU_methods[] = {
     {NULL, NULL}
 };
 
-#if PY_MAJOR_VERSION >= 3
-  /* Module definition */
-  static struct PyModuleDef PyIU_module = {
-      PyModuleDef_HEAD_INIT,                            /* m_base */
-      PyIU_module_name,                                 /* m_name */
-      PyIU_module_doc,                                  /* m_doc */
-      (Py_ssize_t)-1,                                   /* m_size */
-      (PyMethodDef *)PyIU_methods,                      /* m_methods */
-      NULL,                                             /* m_slots or m_reload */
-      (traverseproc)NULL,                               /* m_traverse */
-      (inquiry)NULL,                                    /* m_clear */
-      (freefunc)NULL                                    /* m_free */
-  };
+/* Module definition */
+static struct PyModuleDef PyIU_module = {
+    PyModuleDef_HEAD_INIT,                            /* m_base */
+    PyIU_module_name,                                 /* m_name */
+    PyIU_module_doc,                                  /* m_doc */
+    (Py_ssize_t)-1,                                   /* m_size */
+    (PyMethodDef *)PyIU_methods,                      /* m_methods */
+    NULL,                                             /* m_slots or m_reload */
+    (traverseproc)NULL,                               /* m_traverse */
+    (inquiry)NULL,                                    /* m_clear */
+    (freefunc)NULL                                    /* m_free */
+};
 
-  /* Module initialization */
-  PyMODINIT_FUNC
-  PyInit__iteration_utilities(void)
-  {
-#else
-  void
-  init_iteration_utilities(void)
-  {
-#endif
-
+/* Module initialization */
+PyMODINIT_FUNC
+PyInit__iteration_utilities(void)
+{
     //Py_Initialize();
     int i;
     PyObject *m;
@@ -350,11 +343,8 @@ static PyMethodDef PyIU_methods[] = {
         NULL
     };
 
-#if PY_MAJOR_VERSION >= 3
     m = PyModule_Create(&PyIU_module);
-#else
-    m = Py_InitModule3(PyIU_module_name, PyIU_methods, PyIU_module_doc);
-#endif
+
 
     if (m != NULL) {
 
@@ -363,11 +353,7 @@ static PyMethodDef PyIU_methods[] = {
            */
         for (i=0 ; typelist[i] != NULL ; i++) {
             if (PyType_Ready(typelist[i]) < 0)
-#if PY_MAJOR_VERSION >= 3
                 return m;
-#else
-                return;
-#endif
             name = strchr(typelist[i]->tp_name, '.');
             assert (name != NULL);
             Py_INCREF(typelist[i]);
@@ -377,11 +363,7 @@ static PyMethodDef PyIU_methods[] = {
         PyModule_AddObject(m, PyIU_Placeholder_name, PYIU_Placeholder);
 
         if (PyDict_SetItemString(PyIUType_Partial.tp_dict, "_", PYIU_Placeholder) != 0) {
-#if PY_MAJOR_VERSION >= 3
             return m;
-#else
-            return;
-#endif
         }
 
         /* Add pre-defined instances. */
@@ -403,7 +385,5 @@ static PyMethodDef PyIU_methods[] = {
         PyModule_AddObject(m, PyIU_ReduceLast_name, PyIU_ReduceLast);
     }
 
-#if PY_MAJOR_VERSION >= 3
     return m;
-#endif
 }

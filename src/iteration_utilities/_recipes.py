@@ -8,15 +8,10 @@ API: Official recipes
 """
 
 # Built-ins
-from __future__ import absolute_import, division, print_function
 from collections import deque
 from copy import copy
-from itertools import islice, chain, repeat, starmap, tee, combinations
+from itertools import islice, chain, repeat, starmap, tee, combinations, filterfalse
 from random import choice, sample, randrange
-
-# This module
-from ._compat import filter, filterfalse, range
-from ._utils import EQ_PY2
 
 
 __all__ = ['consume',
@@ -137,7 +132,7 @@ def flatten(iterable):
     return chain.from_iterable(iterable)
 
 
-def repeatfunc(func, *args, **times):
+def repeatfunc(func, *args, times=None):
     """Repeat calls to `func` with specified arguments.
 
     Parameters
@@ -165,7 +160,7 @@ def repeatfunc(func, *args, **times):
 
     >>> random.seed(5)
     >>> list(getitem(repeatfunc(random.random), stop=5))
-    {0}
+    [0.6229016948897019, 0.7417869892607294, 0.7951935655656966, 0.9424502837770503, 0.7398985747399307]
 
     >>> random.seed(2)
     >>> list(repeatfunc(random.random, times=3))
@@ -176,7 +171,6 @@ def repeatfunc(func, *args, **times):
         This will return an infinitely long generator if you don't specify
         ``times``.
     """
-    times = times.get('times', None)
     if times is None:
         return starmap(func, repeat(args))
     return starmap(func, repeat(args, times))
@@ -237,7 +231,7 @@ def powerset(iterable):
     return chain.from_iterable(combinations(s, r) for r in range(len(s)+1))
 
 
-def random_product(*iterables, **repeat):
+def random_product(*iterables, repeat=1):
     """Random selection from :py:func:`itertools.product`.
 
     Parameters
@@ -269,16 +263,16 @@ def random_product(*iterables, **repeat):
         >>> random.seed(70)
 
         >>> random_product(['a', 'b'], [1, 2], [0.5, 0.25])
-        {0}
+        ('a', 2, 0.25)
 
     Or take multiple samples::
 
         >>> random.seed(10)
         >>> random_product(['a', 'b'], [1, 2], [0.5, 0.25], repeat=5)
-        {1}
+        ('a', 2, 0.25, 'a', 1, 0.25, 'b', 2, 0.5, 'a', 2, 0.25, 'a', 1, 0.25)
         >>> random.seed(None)
     """
-    pools = [tuple(pool) for pool in iterables] * repeat.get('repeat', 1)
+    pools = [tuple(pool) for pool in iterables] * repeat
     return tuple(choice(pool) for pool in pools)
 
 
@@ -308,13 +302,13 @@ def random_permutation(iterable, r=None):
         >>> import random
         >>> random.seed(20)
         >>> random_permutation([1,2,3,4,5,6])
-        {0}
+        (6, 2, 3, 4, 1, 5)
 
     One random permutation using a subset of the `iterable` (here 3 elements)::
 
         >>> random.seed(5)
         >>> random_permutation([1,2,3,4,5,6], r=3)
-        {1}
+        (5, 3, 6)
         >>> random.seed(None)
     """
     pool = tuple(iterable)
@@ -355,7 +349,7 @@ def random_combination(iterable, r, replacement=False):
     >>> random.seed(100)
 
     >>> random_combination([1,2,3,4,5,6], r=4, replacement=True)
-    {0}
+    (2, 2, 4, 4)
 
     >>> random.seed(None)
     """
@@ -406,33 +400,3 @@ def tee_lookahead(tee, i):
     for value in islice(copy(tee), i, None):
         return value
     raise IndexError(i)
-
-
-# Due to a change in random.choice the results are not reproducible between
-# python < 3.2 and afterwards.
-
-
-def _replace_docs(func, *args, **kwargs):
-    func.__doc__ = func.__doc__.format(*args, **kwargs)
-
-if EQ_PY2:
-    _replace_repeatfunc = ('[0.6229016948897019, 0.7417869892607294, '
-                           '0.7951935655656966, 0.9424502837770503, '
-                           '0.7398985747399307]')
-    _replace_docs(repeatfunc, _replace_repeatfunc)
-    _replace_docs(random_combination, '(1, 3, 5, 5)')
-    _replace_docs(random_permutation, '(6, 4, 5, 3, 1, 2)', '(4, 6, 5)')
-    _replace_docs(random_product, "('b', 1, 0.5)",
-                  "('b', 1, 0.25, 'a', 2, 0.25, 'b', 1, 0.25, "
-                  "'a', 1, 0.25, 'b', 1, 0.25)")
-
-else:
-    _replace_repeatfunc = ('[0.6229016948897019, 0.7417869892607294, '
-                           '0.7951935655656966, 0.9424502837770503, '
-                           '0.7398985747399307]')
-    _replace_docs(repeatfunc, _replace_repeatfunc)
-    _replace_docs(random_combination, '(2, 2, 4, 4)')
-    _replace_docs(random_permutation, '(6, 2, 3, 4, 1, 5)', '(5, 3, 6)')
-    _replace_docs(random_product, "('a', 2, 0.25)",
-                  "('a', 2, 0.25, 'a', 1, 0.25, 'b', 2, 0.5, "
-                  "'a', 2, 0.25, 'a', 1, 0.25)")

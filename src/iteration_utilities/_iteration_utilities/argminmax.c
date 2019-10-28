@@ -113,11 +113,7 @@ argminmax(PyObject *args,
             return NULL;
         }
     }
-#if PY_MAJOR_VERSION == 2
-    return PyInt_FromSsize_t(maxidx);
-#else
     return PyLong_FromSsize_t(maxidx);
-#endif
 
 Fail:
     Py_XDECREF(keyfunc);

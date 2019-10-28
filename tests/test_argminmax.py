@@ -1,21 +1,11 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
-
-# 3rd party
 import pytest
 
-# This module
-import iteration_utilities
+from iteration_utilities import argmin, argmax
 
-# Test helper
 import helper_funcs as _hf
 from helper_cls import T
-
-
-argmin = iteration_utilities.argmin
-argmax = iteration_utilities.argmax
 
 
 def test_argmax_normal1():

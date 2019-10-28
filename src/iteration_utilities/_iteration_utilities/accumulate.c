@@ -268,7 +268,6 @@ accumulate_reduce(PyIUObject_Accumulate *self, PyObject *Py_UNUSED(args))
  * LengthHint
  *****************************************************************************/
 
-#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
 static PyObject *
 accumulate_lengthhint(PyIUObject_Accumulate *self, PyObject *Py_UNUSED(args))
 {
@@ -278,7 +277,6 @@ accumulate_lengthhint(PyIUObject_Accumulate *self, PyObject *Py_UNUSED(args))
     }
     return PyLong_FromSsize_t(len);
 }
-#endif
 
 /******************************************************************************
  * Type
@@ -286,13 +284,11 @@ accumulate_lengthhint(PyIUObject_Accumulate *self, PyObject *Py_UNUSED(args))
 
 static PyMethodDef accumulate_methods[] = {
 
-#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
     {"__length_hint__",                                 /* ml_name */
      (PyCFunction)accumulate_lengthhint,                /* ml_meth */
      METH_NOARGS,                                       /* ml_flags */
      PYIU_lenhint_doc                                   /* ml_doc */
      },
-#endif
 
     {"__reduce__",                                      /* ml_name */
      (PyCFunction)accumulate_reduce,                    /* ml_meth */

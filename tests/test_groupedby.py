@@ -1,22 +1,14 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
 import operator
 
-# 3rd party
 import pytest
 
-# This module
 import iteration_utilities
-from iteration_utilities._compat import range
+from iteration_utilities import groupedby
 
-# Test helper
 import helper_funcs as _hf
 from helper_cls import T, toT
-
-
-groupedby = iteration_utilities.groupedby
 
 
 def test_groupedby_empty1():

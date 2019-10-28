@@ -1,18 +1,12 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
 import gc
 
-# 3rd party
 import pytest
 
-# This module
 import iteration_utilities
 from iteration_utilities import _iteration_utilities
-from iteration_utilities._utils import GE_PY35
 
-# Test helper
 import helper_funcs as _hf
 
 
@@ -57,24 +51,16 @@ def test_other_c_funcs_failures():
     with pytest.raises(TypeError):
         iteration_utilities.is_odd(x)
 
-    class NoBool(object):
-        def __bool__(self):
-            raise ValueError('bad class')
-
+    class NoBoolWithMod(_hf.FailBool):
         def __mod__(self, other):
             return self
-        __nonzero__ = __bool__
 
-    with pytest.raises(ValueError, match='bad class'):
-        iteration_utilities.is_even(NoBool())
-    with pytest.raises(ValueError, match='bad class'):
-        iteration_utilities.is_odd(NoBool())
-
-    class NoIter(object):
-        def __iter__(self):
-            raise ValueError('bad class')
-    with pytest.raises(ValueError, match='bad class'):
-        iteration_utilities.is_iterable(NoIter())
+    with pytest.raises(_hf.FailBool.EXC_TYP, match=_hf.FailBool.EXC_MSG):
+        iteration_utilities.is_even(NoBoolWithMod())
+    with pytest.raises(_hf.FailBool.EXC_TYP, match=_hf.FailBool.EXC_MSG):
+        iteration_utilities.is_odd(NoBoolWithMod())
+    with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
+        iteration_utilities.is_iterable(_hf.FailIter())
 
 
 def test_reverse_math_ops():
@@ -132,7 +118,6 @@ def test_traverse():
 
 
 @_hf.skip_on_pypy_not_investigated_why
-@pytest.mark.skipif(not GE_PY35, reason="requires python3.5")
 def test_c_funcs_signatures():
     # Makes sure every user-facing C function has a valid signature.
     from iteration_utilities import Iterable, chained

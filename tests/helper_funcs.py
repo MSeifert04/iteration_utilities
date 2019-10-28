@@ -3,48 +3,19 @@
 """
 This module contains callable test cases.
 """
-# Built-ins
+import abc
 import copy
 
-# 3rd party
 import pytest
 
-# This module
 import iteration_utilities
-from iteration_utilities._compat import filter
-from iteration_utilities._utils import EQ_PY2, GE_PY34, IS_PYPY, USES_VECTORCALL
+from iteration_utilities._utils import IS_PYPY, USES_VECTORCALL
 
-# helper
 from helper_cls import T
 
 
 def _skipif_wrapper(func, condition, reason):
     return pytest.mark.skipif(condition, reason=reason)(func)
-
-
-def skip_because_iterators_cannot_be_pickled_before_py3(func):
-    """Most iterators like list-iterator, map, zip, ... can not be pickled in
-    Python 2.x.
-    """
-    return _skipif_wrapper(func, EQ_PY2,
-                           reason='pickle does not work on Python 2')
-
-
-def skip_before_py34_because_length_hint_was_added_in_py34(func):
-    """Support for __length_hint__ was added in Python 3.4.
-    """
-    return _skipif_wrapper(func, not GE_PY34,
-                           reason='length_hint does not work before Python 3.4')
-
-
-def skip_before_py34_because_method_descriptors_cannot_be_pickled(func):
-    """Pickling a method descriptor is not possible for Python 3.3 and before
-    Also ``operator.methodcaller`` loses it's method name when pickled for
-    Python 3.4 and lower.
-    """
-    return _skipif_wrapper(func, not GE_PY34,
-                           reason='pickle does not work before Python 3.4'
-                                  ' on method descriptors')
 
 
 def skip_on_pypy_because_cache_next_works_differently(func):
@@ -108,28 +79,16 @@ def iterator_setstate_empty_fail(thing):
 
 def CacheNext(item):
     """Iterator that modifies it "next" method when iterated over."""
-    if EQ_PY2:
-        def subiter():
-            def newnext(self):
-                raise CacheNext.EXC_TYP(CacheNext.EXC_MSG)
-            Iterator.next = newnext
-            yield item
+    def subiter():
+        def newnext(self):
+            raise CacheNext.EXC_TYP(CacheNext.EXC_MSG)
+        Iterator.__next__ = newnext
+        yield item
 
-        # Need to subclass a C iterator because only the "tp_iternext" slot is
-        # cached, the "__next__" method itself always behaves as expected.
-        class Iterator(filter):
-            pass
-    else:
-        def subiter():
-            def newnext(self):
-                raise CacheNext.EXC_TYP(CacheNext.EXC_MSG)
-            Iterator.__next__ = newnext
-            yield item
-
-        # Need to subclass a C iterator because only the "tp_iternext" slot is
-        # cached, the "__next__" method itself always behaves as expected.
-        class Iterator(filter):
-            pass
+    # Need to subclass a C iterator because only the "tp_iternext" slot is
+    # cached, the "__next__" method itself always behaves as expected.
+    class Iterator(filter):
+        pass
 
     return Iterator(iteration_utilities.return_True, subiter())
 
@@ -138,7 +97,7 @@ CacheNext.EXC_MSG = 'next call failed, because it was modified'
 CacheNext.EXC_TYP = ValueError
 
 
-class FailIter(object):
+class FailIter:
     """A class that fails when "iter" is called on it.
 
     This class is currently not interchangable with a real "iter(x)" failure
@@ -152,7 +111,42 @@ class FailIter(object):
         raise self.EXC_TYP(self.EXC_MSG)
 
 
-class FailNext(object):
+class FailEqNoHash:
+    """A class that fails when "==" is called on it."""
+    EXC_MSG = 'eq call failed'
+    EXC_TYP = ValueError
+    __hash__ = None
+
+    def __eq__(self, other):
+        raise self.EXC_TYP(self.EXC_MSG)
+
+
+class FailEqWithHash(FailEqNoHash):
+    """A class that fails when "==" is called on it."""
+
+    def __hash__(self):
+        return 1
+
+
+class FailHash:
+    """A class that fails when "hash" is called on it."""
+    EXC_MSG = 'hash call failed'
+    EXC_TYP = ValueError
+
+    def __hash__(self):
+        raise self.EXC_TYP(self.EXC_MSG)
+
+
+class FailBool:
+    """A class that fails when "bool" is called on it."""
+    EXC_MSG = 'bool call failed'
+    EXC_TYP = ValueError
+
+    def __bool__(self):
+        raise self.EXC_TYP(self.EXC_MSG)
+
+
+class FailNext:
     """An iterator that fails when calling "next" on it.
 
     The parameter "offset" can be used to set the number of times "next" works
@@ -176,10 +170,8 @@ class FailNext(object):
         else:
             raise self.EXC_TYP(self.EXC_MSG)
 
-    next = __next__  # python 2.x compatibility
 
-
-class FailLengthHint(object):
+class FailLengthHint:
     """Simple iterator that fails when length_hint is called on it."""
 
     EXC_MSG = "length_hint call failed"
@@ -194,13 +186,11 @@ class FailLengthHint(object):
     def __next__(self):
         return next(self.it)
 
-    next = __next__  # python 2.x compatibility
-
     def __length_hint__(self):
         raise self.EXC_TYP(self.EXC_MSG)
 
 
-class OverflowLengthHint(object):
+class OverflowLengthHint:
     """Simple iterator that allows to set a length_hint so that one can test
     overflow in PyObject_LengthHint.
 
@@ -217,29 +207,9 @@ class OverflowLengthHint(object):
     def __next__(self):
         return next(self.it)
 
-    next = __next__  # python 2.x compatibility
-
     def __length_hint__(self):
         return self.lh
 
-
-if EQ_PY2:
-    exec("""
-import abc
-
-class FailingIsinstanceClass:
-    __metaclass__ = abc.ABCMeta
-
-    EXC_MSG = 'isinstance call failed'
-    EXC_TYP = TypeError
-
-    @classmethod
-    def __subclasshook__(cls, C):
-        raise cls.EXC_TYP(cls.EXC_MSG)
-""")
-else:
-    exec("""
-import abc
 
 class FailingIsinstanceClass(metaclass=abc.ABCMeta):
 
@@ -249,4 +219,3 @@ class FailingIsinstanceClass(metaclass=abc.ABCMeta):
     @classmethod
     def __subclasshook__(cls, C):
         raise cls.EXC_TYP(cls.EXC_MSG)
-""")

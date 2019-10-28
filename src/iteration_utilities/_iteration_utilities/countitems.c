@@ -100,11 +100,7 @@ PyIU_Count(PyObject *Py_UNUSED(m),
         }
     }
 
-#if PY_MAJOR_VERSION == 2
-    return PyInt_FromSsize_t(sum_int);
-#else
     return PyLong_FromSsize_t(sum_int);
-#endif
 
 Fail:
     Py_XDECREF(iterator);

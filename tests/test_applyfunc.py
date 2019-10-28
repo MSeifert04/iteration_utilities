@@ -1,22 +1,14 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
 import pickle
 
-# 3rd party
 import pytest
 
-# This module
 import iteration_utilities
+from iteration_utilities import applyfunc, getitem
 
-# Test helper
-from helper_cls import T  # , toT, FailNext
+from helper_cls import T
 from helper_funcs import iterator_copy
-
-
-applyfunc = iteration_utilities.applyfunc
-getitem = iteration_utilities.getitem
 
 
 def test_applyfunc_normal1():

@@ -1,22 +1,15 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
 import operator
 import pickle
 
-# 3rd party
 import pytest
 
-# This module
 import iteration_utilities
+from iteration_utilities import duplicates
 
-# Test helper
 import helper_funcs as _hf
 from helper_cls import T, toT
-
-
-duplicates = iteration_utilities.duplicates
 
 
 def test_duplicates_empty1():
@@ -91,25 +84,14 @@ def test_duplicates_failure4():
 
 def test_duplicates_failure5():
     # Failure when comparing the object to the objects in the list
-    class NoHashNoEq():
-        def __hash__(self):
-            raise TypeError('cannot be hashed')
-
-        def __eq__(self, other):
-            raise ValueError('bad class')
-
-    with pytest.raises(ValueError, match='bad class'):
-        list(duplicates([[T(1)], NoHashNoEq()]))
+    with pytest.raises(_hf.FailEqNoHash.EXC_TYP, match=_hf.FailEqNoHash.EXC_MSG):
+        list(duplicates([[T(1)], _hf.FailEqNoHash()]))
 
 
 def test_duplicates_failure6():
     # Failure (no TypeError) when trying to hash the value
-    class NoHash():
-        def __hash__(self):
-            raise ValueError('bad class')
-
-    with pytest.raises(ValueError, match='bad class'):
-        list(duplicates([T(1), NoHash()]))
+    with pytest.raises(_hf.FailHash.EXC_TYP, match=_hf.FailHash.EXC_MSG):
+        list(duplicates([T(1), _hf.FailHash()]))
 
 
 @_hf.skip_on_pypy_because_cache_next_works_differently
@@ -138,7 +120,6 @@ def test_duplicates_copy1():
     _hf.iterator_copy(duplicates(toT([1, 1])))
 
 
-@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_duplicates_pickle1(protocol):
     dpl = duplicates([T(1), T(2), T(1), T(2)])
     assert next(dpl) == T(1)

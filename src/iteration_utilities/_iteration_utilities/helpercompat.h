@@ -19,17 +19,6 @@
   #endif
 #endif
 
-#if PYIU_CPYTHON && PY_MAJOR_VERSION == 2
-    #define Py_RETURN_NOTIMPLEMENTED \
-        return PyErr_SetString(PyExc_TypeError, "not implemented."), NULL
-
-    #define Py_UNUSED(name) _unused_ ## name
-
-    #if defined(_MSC_VER)
-        #define inline __inline
-    #endif
-#endif
-
 #define PyIU_USE_FASTCALL PYIU_CPYTHON && PY_MAJOR_VERSION == 3 && (PY_MINOR_VERSION == 6 || PY_MINOR_VERSION == 7)
 #define PyIU_USE_VECTORCALL PYIU_CPYTHON && PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
 

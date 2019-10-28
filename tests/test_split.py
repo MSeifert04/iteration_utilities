@@ -1,23 +1,16 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
 from functools import partial
 import operator
 import pickle
 
-# 3rd party
 import pytest
 
-# This module
 import iteration_utilities
+from iteration_utilities import split
 
-# Test helper
 import helper_funcs as _hf
 from helper_cls import T, toT
-
-
-split = iteration_utilities.split
 
 
 equalsthreeT = partial(operator.eq, T(3))
@@ -210,7 +203,6 @@ def test_split_failure_setstate2():
             split(toT(range(1, 9)), equalsthreeT))
 
 
-@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_split_pickle1(protocol):
     l = [T(1), T(2), T(3), T(4), T(5), T(3), T(7), T(8)]
     spl = split(l, equalsthreeT)
@@ -218,7 +210,6 @@ def test_split_pickle1(protocol):
     assert list(pickle.loads(x)) == [[T(1), T(2)], [T(4), T(5)], [T(7), T(8)]]
 
 
-@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_split_pickle2(protocol):
     l = [T(1), T(2), T(3), T(4), T(5), T(3), T(7), T(8)]
     spl = split(l, equalsthreeT)
@@ -227,7 +218,6 @@ def test_split_pickle2(protocol):
     assert list(pickle.loads(x)) == [toT([4, 5]), toT([7, 8])]
 
 
-@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_split_pickle3(protocol):
     l = [T(1), T(2), T(3), T(4), T(5), T(3), T(7), T(8)]
     spl = split(l, equalsthreeT, keep=True)
@@ -237,7 +227,6 @@ def test_split_pickle3(protocol):
                                      for i in [[3], [4, 5], [3], [7, 8]]]
 
 
-@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_split_pickle4(protocol):
     l = [T(1), T(2), T(3), T(4), T(5), T(3), T(7), T(8)]
     spl = split(l, equalsthreeT, maxsplit=1)
@@ -246,7 +235,6 @@ def test_split_pickle4(protocol):
     assert list(pickle.loads(x)) == [toT([4, 5, 3, 7, 8])]
 
 
-@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_split_pickle5(protocol):
     l = [T(1), T(2), T(3), T(4), T(5), T(3), T(7), T(8)]
     spl = split(l, T(3), eq=True)

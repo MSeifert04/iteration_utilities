@@ -1,12 +1,7 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
 
-# This module
-from iteration_utilities._compat import map
-
-
-class T(object):
+class T:
     def __init__(self, value):
         self.value = value
 
@@ -20,9 +15,6 @@ class T(object):
         return hash(self.value)
 
     def __bool__(self):
-        return bool(self.value)
-
-    def __nonzero__(self):
         return bool(self.value)
 
     def __len__(self):

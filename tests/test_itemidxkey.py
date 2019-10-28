@@ -1,20 +1,13 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
 import pickle
 
-# 3rd party
 import pytest
 
-# This module
 import iteration_utilities
+from iteration_utilities import ItemIdxKey
 
-# Test helper
 from helper_cls import T
-
-
-ItemIdxKey = iteration_utilities.ItemIdxKey
 
 
 def test_itemidxkey_repr1():
@@ -44,7 +37,7 @@ def test_itemidxkey_repr4():
     # the item deletes the "key"...
     iik = ItemIdxKey([10, 11], 2, [50, 100])
 
-    class DeleteKey(object):
+    class DeleteKey:
         def __repr__(self):
             del iik.key
             return 'DeleteKey()'

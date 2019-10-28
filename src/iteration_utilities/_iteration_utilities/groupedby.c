@@ -5,7 +5,7 @@
 #include "groupedby.h"
 #include "helper.h"
 
-#define PyIU_USE_DICT_INTERNALS PYIU_CPYTHON && (PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 5))
+#define PyIU_USE_DICT_INTERNALS PYIU_CPYTHON
 
 PyObject *
 PyIU_Groupby(PyObject *Py_UNUSED(m),

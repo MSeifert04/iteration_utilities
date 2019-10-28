@@ -1,21 +1,11 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
-
-# 3rd party
 import pytest
 
-# This module
-import iteration_utilities
-from iteration_utilities._utils import EQ_PY2
+from iteration_utilities import minmax
 
-# Test helper
 import helper_funcs as _hf
 from helper_cls import T
-
-
-minmax = iteration_utilities.minmax
 
 
 def test_minmax_normal1():
@@ -203,7 +193,6 @@ def test_minmax_failure10():
         minmax(T(1), T(20), T('a'), T('c'))
 
 
-@pytest.mark.xfail(EQ_PY2, reason='cmp works on Python 2')
 def test_minmax_failure11():
     # unable to compare second and fourth
 
@@ -232,7 +221,7 @@ def test_minmax_failure13():
 
 def test_minmax_failure14():
     # Test a weird class that has lt but no gt method
-    class ltbutnogt(object):
+    class ltbutnogt:
         def __init__(self, val):
             self.val = val
 

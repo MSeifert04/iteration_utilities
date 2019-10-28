@@ -1,20 +1,11 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
-
-# 3rd party
 import pytest
 
-# This module
-import iteration_utilities
+from iteration_utilities import any_isinstance
 
-# Test helper
 import helper_funcs as _hf
 from helper_cls import T, toT
-
-
-any_isinstance = iteration_utilities.any_isinstance
 
 
 def test_anyisinstance_empty1():
