@@ -157,14 +157,24 @@ static PyMethodDef PyIU_methods[] = {
     /* Helper */
 
     {"_parse_args",                                     /* ml_name */
+#if PyIU_USE_VECTORCALL
+     (PyCFunction)(void(*)(void))PyIU_TupleToList_and_InsertItemAtIndex, /* ml_meth */
+     METH_FASTCALL,                                     /* ml_flags */
+#else
      (PyCFunction)PyIU_TupleToList_and_InsertItemAtIndex, /* ml_meth */
      METH_VARARGS,                                      /* ml_flags */
+#endif
      PyIU_TupleToList_and_InsertItemAtIndex_doc         /* ml_doc */
      },
 
     {"_parse_kwargs",                                   /* ml_name */
+#if PyIU_USE_VECTORCALL
+     (PyCFunction)(void(*)(void))PyIU_RemoveFromDictWhereValueIs, /* ml_meth */
+     METH_FASTCALL,                                     /* ml_flags */
+#else
      (PyCFunction)PyIU_RemoveFromDictWhereValueIs,      /* ml_meth */
      METH_VARARGS,                                      /* ml_flags */
+#endif
      PyIU_RemoveFromDictWhereValueIs_doc                /* ml_doc */
      },
 

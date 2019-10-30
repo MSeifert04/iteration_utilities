@@ -5,7 +5,12 @@
 #include <Python.h>
 #include "helpercompat.h"
 
+#if PyIU_USE_VECTORCALL
+PyObject * PyIU_TupleToList_and_InsertItemAtIndex(PyObject *Py_UNUSED(m), PyObject *const *args, size_t nargs);
+PyObject * PyIU_RemoveFromDictWhereValueIs(PyObject *Py_UNUSED(m), PyObject *const *args, size_t nargs);
+#else
 PyObject * PyIU_TupleToList_and_InsertItemAtIndex(PyObject *Py_UNUSED(m), PyObject *args);
 PyObject * PyIU_RemoveFromDictWhereValueIs(PyObject *Py_UNUSED(m), PyObject *args);
+#endif
 
 #endif
