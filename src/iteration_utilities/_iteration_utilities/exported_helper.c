@@ -10,54 +10,39 @@
  * safe to use elsewhere.
  *****************************************************************************/
 
-PyObject *
-PyIU_TupleToList_and_InsertItemAtIndex(PyObject *Py_UNUSED(m), PyObject *args)
-{
-    PyObject *tup;
-    PyObject *item;
-    Py_ssize_t index;
-
-    Py_ssize_t tupsize;
+static PyObject *
+PyIU_parse_args(PyObject *tuple, PyObject *item, Py_ssize_t index) {
+    PyObject *new_tuple;
     Py_ssize_t i;
-    PyObject *newtup;
+    Py_ssize_t tuple_size = PyTuple_GET_SIZE(tuple);
 
-    if (!PyArg_ParseTuple(args, "OOn:_parse_args", &tup, &item, &index)) {
-        return NULL;
-    }
-
-    tupsize = PyTuple_GET_SIZE(tup);
-
-    newtup = PyTuple_New(tupsize + 1);
-    if (newtup == NULL) {
+    new_tuple = PyTuple_New(tuple_size + 1);
+    if (new_tuple == NULL) {
         return NULL;
     }
 
     Py_INCREF(item);
-    PyTuple_SET_ITEM(newtup, index, item);
+    PyTuple_SET_ITEM(new_tuple, index, item);
 
-    for (i = 0 ; i < tupsize + 1 ; i++ ) {
+    for (i = 0 ; i < tuple_size + 1 ; i++ ) {
         PyObject *tmp;
         if (i < index) {
-            tmp = PyTuple_GET_ITEM(tup, i);
+            tmp = PyTuple_GET_ITEM(tuple, i);
             Py_INCREF(tmp);
-            PyTuple_SET_ITEM(newtup, i, tmp);
+            PyTuple_SET_ITEM(new_tuple, i, tmp);
         } else if (i == index) {
             continue;
         } else {
-            tmp = PyTuple_GET_ITEM(tup, i - 1);
+            tmp = PyTuple_GET_ITEM(tuple, i - 1);
             Py_INCREF(tmp);
-            PyTuple_SET_ITEM(newtup, i, tmp);
+            PyTuple_SET_ITEM(new_tuple, i, tmp);
         }
     }
-    return newtup;
+    return new_tuple;
 }
 
-
-PyObject *
-PyIU_RemoveFromDictWhereValueIs(PyObject *Py_UNUSED(m), PyObject *args)
-{
-    PyObject *dct;
-    PyObject *remvalue;
+static PyObject *
+PyIU_parse_kwargs(PyObject *dct, PyObject *remvalue) {
     PyObject *key;
     PyObject *value;
 
@@ -68,9 +53,6 @@ PyIU_RemoveFromDictWhereValueIs(PyObject *Py_UNUSED(m), PyObject *args)
     Py_ssize_t i;
     Py_ssize_t j;
 
-    if (!PyArg_ParseTuple(args, "OO:_parse_kwargs", &dct, &remvalue)) {
-        return NULL;
-    }
     dctsize = PyDict_Size(dct);
     if (dctsize == 0) {
         Py_RETURN_NONE;
@@ -102,3 +84,48 @@ PyIU_RemoveFromDictWhereValueIs(PyObject *Py_UNUSED(m), PyObject *args)
     PyMem_Free(toberemoved);
     Py_RETURN_NONE;
 }
+
+#if PyIU_USE_VECTORCALL
+PyObject *
+PyIU_TupleToList_and_InsertItemAtIndex(PyObject *Py_UNUSED(m), PyObject *const *args, size_t nargs) {
+    PyObject *tup;
+    PyObject *item;
+    Py_ssize_t index;
+    if (!_PyArg_ParseStack(args, nargs, "OOn:_parse_args", &tup, &item, &index)) {
+        return NULL;
+    }
+    return PyIU_parse_args(tup, item, index);
+}
+
+PyObject *
+PyIU_RemoveFromDictWhereValueIs(PyObject *Py_UNUSED(m), PyObject *const *args, size_t nargs) {
+    PyObject *dct;
+    PyObject *remvalue;
+    if (!_PyArg_ParseStack(args, nargs, "OO:_parse_args", &dct, &remvalue)) {
+        return NULL;
+    }
+    return PyIU_parse_kwargs(dct, remvalue);
+}
+
+#else
+PyObject *
+PyIU_TupleToList_and_InsertItemAtIndex(PyObject *Py_UNUSED(m), PyObject *args) {
+    PyObject *tup;
+    PyObject *item;
+    Py_ssize_t index;
+    if (!PyArg_ParseTuple(args, "OOn:_parse_args", &tup, &item, &index)) {
+        return NULL;
+    }
+    return PyIU_parse_args(tup, item, index);
+}
+
+PyObject *
+PyIU_RemoveFromDictWhereValueIs(PyObject *Py_UNUSED(m), PyObject *args) {
+    PyObject *dct;
+    PyObject *remvalue;
+    if (!PyArg_ParseTuple(args, "OO:_parse_kwargs", &dct, &remvalue)) {
+        return NULL;
+    }
+    return PyIU_parse_kwargs(dct, remvalue);
+}
+#endif
