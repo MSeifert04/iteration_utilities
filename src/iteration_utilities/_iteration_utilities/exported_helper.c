@@ -3,6 +3,7 @@
  *****************************************************************************/
 
 #include "exported_helper.h"
+#include "helper.h"
 
 /******************************************************************************
  * This file contains functions that are meant as helpers, they are especially
@@ -46,21 +47,24 @@ PyIU_parse_kwargs(PyObject *dct, PyObject *remvalue) {
     PyObject *key;
     PyObject *value;
 
-    PyObject **toberemoved = NULL;
+    PyObject *small_stack[PyIU_SMALL_ARG_STACK_SIZE];
+    PyObject **stack = small_stack;
 
     Py_ssize_t pos;
-    Py_ssize_t dctsize;
+    Py_ssize_t dict_size;
     Py_ssize_t i;
     Py_ssize_t j;
 
-    dctsize = PyDict_Size(dct);
-    if (dctsize == 0) {
+    dict_size = PyDict_Size(dct);
+    if (dict_size == 0) {
         Py_RETURN_NONE;
     }
 
-    toberemoved = PyMem_Malloc((size_t)dctsize * sizeof(PyObject*));
-    if (toberemoved == NULL) {
-        return PyErr_NoMemory();
+    if (dict_size > PyIU_SMALL_ARG_STACK_SIZE) {
+        stack = PyMem_Malloc((size_t)dict_size * sizeof(PyObject *));
+        if (stack == NULL) {
+            return PyErr_NoMemory();
+        }
     }
 
     pos = 0;
@@ -69,19 +73,22 @@ PyIU_parse_kwargs(PyObject *dct, PyObject *remvalue) {
         /* Compare the "value is remvalue" (this is not "value == remvalue"
            at least in the python-sense). */
         if (value == remvalue) {
-            toberemoved[i] = key;
+            stack[i] = key;
             i++;
         }
     }
 
-    if (i == dctsize) {
+    if (i == dict_size) {
         PyDict_Clear(dct);
     } else {
         for (j = 0 ; j < i ; j++) {
-            PyDict_DelItem(dct, toberemoved[j]);
+            PyDict_DelItem(dct, stack[j]);
         }
     }
-    PyMem_Free(toberemoved);
+
+    if (stack != small_stack) {
+        PyMem_Free(stack);
+    }
     Py_RETURN_NONE;
 }
 
@@ -101,7 +108,7 @@ PyObject *
 PyIU_RemoveFromDictWhereValueIs(PyObject *Py_UNUSED(m), PyObject *const *args, size_t nargs) {
     PyObject *dct;
     PyObject *remvalue;
-    if (!_PyArg_ParseStack(args, nargs, "OO:_parse_args", &dct, &remvalue)) {
+    if (!_PyArg_ParseStack(args, nargs, "OO:_parse_kwargs", &dct, &remvalue)) {
         return NULL;
     }
     return PyIU_parse_kwargs(dct, remvalue);

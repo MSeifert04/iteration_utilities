@@ -64,3 +64,15 @@ def test_parsekwargs_normal3():
     dct = {'a': default, 'b': default}
     parse_kwargs(dct, default)
     assert dct == {}
+
+
+def test_parsekwargs_normal4():
+    # Tests an implementation detail: For more than 5 elements it allocates an
+    # array on the heap (for less elements in the dict it uses an array on the
+    # stack).
+    dct = {
+        'a': default, 'b': default, 'c': default,
+        'd': default, 'e': 1, 'f': 2
+        }
+    parse_kwargs(dct, default)
+    assert dct == {'e': 1, 'f': 2}
