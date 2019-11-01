@@ -250,7 +250,6 @@ clamp_reduce(PyIUObject_Clamp *self, PyObject *Py_UNUSED(args))
  * LengthHint
  *****************************************************************************/
 
-#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
 static PyObject *
 clamp_lengthhint(PyIUObject_Clamp *self, PyObject *Py_UNUSED(args))
 {
@@ -265,7 +264,6 @@ clamp_lengthhint(PyIUObject_Clamp *self, PyObject *Py_UNUSED(args))
     }
     return PyLong_FromSsize_t(len);
 }
-#endif
 
 /******************************************************************************
  * Type
@@ -273,13 +271,11 @@ clamp_lengthhint(PyIUObject_Clamp *self, PyObject *Py_UNUSED(args))
 
 static PyMethodDef clamp_methods[] = {
 
-#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
     {"__length_hint__",                                 /* ml_name */
      (PyCFunction)clamp_lengthhint,                     /* ml_meth */
      METH_NOARGS,                                       /* ml_flags */
      PYIU_lenhint_doc                                   /* ml_doc */
      },
-#endif
 
     {"__reduce__",                                      /* ml_name */
      (PyCFunction)clamp_reduce,                         /* ml_meth */

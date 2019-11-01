@@ -1,23 +1,14 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
+import collections
 import pickle
 
-# 3rd party
 import pytest
 
-# This module
-import iteration_utilities
-from iteration_utilities._compat import (
-    map, UserString, RecursionError, string_types)
+from iteration_utilities import deepflatten
 
-# Test helper
 import helper_funcs as _hf
 from helper_cls import T, toT
-
-
-deepflatten = iteration_utilities.deepflatten
 
 
 def test_deepflatten_empty1():
@@ -104,12 +95,12 @@ def test_deepflatten_types3():
 
 def test_deepflatten_ignore1():
     assert list(deepflatten([[T(1)], T(2), [[T(3), 'abc']]],
-                            ignore=string_types)) == [T(1), T(2), T(3), 'abc']
+                            ignore=str)) == [T(1), T(2), T(3), 'abc']
 
 
 def test_deepflatten_ignore2():
     assert list(deepflatten([[T(1)], T(2), ([T(3), 'abc'], )],
-                            ignore=(tuple, string_types))
+                            ignore=(tuple, str))
                 ) == [T(1), T(2), ([T(3), 'abc'], )]
 
 
@@ -122,7 +113,7 @@ def test_deepflatten_failure2():
     # recursivly iterable data structures like strings that return another
     # string in their iter.
     with pytest.raises(RecursionError):
-        list(deepflatten([UserString('abc')]))
+        list(deepflatten([collections.UserString('abc')]))
 
 
 def test_deepflatten_failure3():
@@ -150,12 +141,8 @@ def test_deepflatten_failure6():
 
 def test_deepflatten_failure7():
     # object that raises something else than TypeError when not iterable
-    class NotIterable(object):
-        def __iter__(self):
-            raise ValueError('bad class')
-
-    with pytest.raises(ValueError, match='bad class'):
-        list(deepflatten([T(1), NotIterable(), T(3), T(4)]))
+    with pytest.raises(_hf.FailIter.EXC_TYP, match=_hf.FailIter.EXC_MSG):
+        list(deepflatten([T(1), _hf.FailIter(), T(3), T(4)]))
 
 
 def test_deepflatten_failure8():
@@ -244,7 +231,6 @@ def test_deepflatten_setstate1():
     next(df)
 
 
-@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_deepflatten_pickle1(protocol):
     dpflt = deepflatten([[T(1)], [T(2)], [T(3)], [T(4)]])
     assert next(dpflt) == T(1)
@@ -252,7 +238,6 @@ def test_deepflatten_pickle1(protocol):
     assert list(pickle.loads(x)) == toT([2, 3, 4])
 
 
-@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_deepflatten_pickle2(protocol):
     dpflt = deepflatten([['abc', T(1)], [T(2)], [T(3)], [T(4)]])
     assert next(dpflt) == 'a'

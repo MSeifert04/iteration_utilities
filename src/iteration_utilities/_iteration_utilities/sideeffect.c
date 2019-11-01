@@ -53,15 +53,13 @@ PyDoc_STRVAR(sideeffects_doc,
     "A simple example::\n"
     "\n"
     "    >>> from iteration_utilities import sideeffects\n"
-    "    >>> def printit(val):\n"
-    "    ...     print(val)\n"
-    "    >>> list(sideeffects([1,2,3,4], printit))  # in python3 one could use print directly\n"
+    "    >>> list(sideeffects([1,2,3,4], print))\n"
     "    1\n"
     "    2\n"
     "    3\n"
     "    4\n"
     "    [1, 2, 3, 4]\n"
-    "    >>> list(sideeffects([1,2,3,4,5], printit, 2))\n"
+    "    >>> list(sideeffects([1,2,3,4,5], print, 2))\n"
     "    (1, 2)\n"
     "    (3, 4)\n"
     "    (5,)\n"
@@ -440,7 +438,6 @@ sideeffects_setstate(PyIUObject_Sideeffects *self,
  * LengthHint
  *****************************************************************************/
 
-#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
 static PyObject *
 sideeffects_lengthhint(PyIUObject_Sideeffects *self, PyObject *Py_UNUSED(args))
 {
@@ -450,7 +447,6 @@ sideeffects_lengthhint(PyIUObject_Sideeffects *self, PyObject *Py_UNUSED(args))
     }
     return PyLong_FromSsize_t(len);
 }
-#endif
 
 /******************************************************************************
  * Type
@@ -458,13 +454,11 @@ sideeffects_lengthhint(PyIUObject_Sideeffects *self, PyObject *Py_UNUSED(args))
 
 static PyMethodDef sideeffects_methods[] = {
 
-#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
     {"__length_hint__",                                 /* ml_name */
      (PyCFunction)sideeffects_lengthhint,               /* ml_meth */
      METH_NOARGS,                                       /* ml_flags */
      PYIU_lenhint_doc                                   /* ml_doc */
      },
-#endif
 
     {"__reduce__",                                      /* ml_name */
      (PyCFunction)sideeffects_reduce,                   /* ml_meth */

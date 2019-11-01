@@ -6,7 +6,6 @@ API: Additional recipes
 """
 
 # Built-ins
-from __future__ import absolute_import, division, print_function
 from collections import OrderedDict
 from itertools import chain, islice, repeat, product, combinations
 from operator import itemgetter
@@ -147,8 +146,7 @@ def combinations_from_relations(dictionary, r):
         dictionary = OrderedDict(dictionary)
 
     for keycomb in combinations(dictionary, r):
-        for valuecomb in product(*itemgetter(*keycomb)(dictionary)):
-            yield valuecomb
+        yield from product(*itemgetter(*keycomb)(dictionary))
 
 
 def itersubclasses(cls, seen=None):
@@ -174,7 +172,7 @@ def itersubclasses(cls, seen=None):
     --------
     It works with any class and also handles diamond inheritance structures::
 
-        >>> class A(object): pass
+        >>> class A: pass
         >>> class B(A): pass
         >>> class C(B): pass
         >>> class D(C): pass
@@ -214,9 +212,6 @@ def itersubclasses(cls, seen=None):
     except TypeError:
         # fails if cls is "type"
         subs = cls.__subclasses__(cls)
-    except AttributeError:
-        # old-style class has no __subclasses__ attribute
-        raise TypeError('old-style "cls" ({0}) is not supported.'.format(cls))
 
     # This part is some combination of unique_everseen and flatten, however
     # I did not found a way to use these here.
@@ -224,10 +219,7 @@ def itersubclasses(cls, seen=None):
         if sub not in seen:
             seen.add(sub)
             yield sub
-            # Could also use "yield from itersubclasses(sub, seen)" in
-            # Python3.3+
-            for sub in itersubclasses(sub, seen):
-                yield sub
+            yield from itersubclasses(sub, seen)
 
 
 def pad(iterable, fillvalue=None, nlead=0, ntail=0):

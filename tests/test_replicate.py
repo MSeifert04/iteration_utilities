@@ -1,23 +1,15 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
 import operator
 import pickle
 import sys
 
-# 3rd party
 import pytest
 
-# This module
-import iteration_utilities
+from iteration_utilities import replicate
 
-# Test helper
 import helper_funcs as _hf
 from helper_cls import T, toT
-
-
-replicate = iteration_utilities.replicate
 
 
 def test_replicate_empty1():
@@ -95,7 +87,6 @@ def test_replicate_failure_setstate2():
         mg.__setstate__((None, -1))
 
 
-@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_replicate_pickle1(protocol):
     # normal
     rpl = replicate([T(1), T(2)], 3)
@@ -103,7 +94,6 @@ def test_replicate_pickle1(protocol):
     assert list(pickle.loads(x)) == toT([1, 1, 1, 2, 2, 2])
 
 
-@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_replicate_pickle2(protocol):
     # normal
     rpl = replicate([T(1), T(2)], 3)
@@ -112,7 +102,6 @@ def test_replicate_pickle2(protocol):
     assert list(pickle.loads(x)) == toT([1, 1, 2, 2, 2])
 
 
-@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_replicate_lengthhint1():
     it = replicate([T(1), T(2)], 3)
     assert operator.length_hint(it) == 6
@@ -130,7 +119,6 @@ def test_replicate_lengthhint1():
     assert operator.length_hint(it) == 0
 
 
-@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_replicate_failure_lengthhint1():
     f_it = _hf.FailLengthHint(toT([1, 2, 3]))
     it = replicate(f_it, 3)
@@ -141,7 +129,6 @@ def test_replicate_failure_lengthhint1():
         list(it)
 
 
-@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_replicate_failure_lengthhint2():
     # This only checks for overflow if the length_hint is above PY_SSIZE_T_MAX
     of_it = _hf.OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
@@ -153,7 +140,6 @@ def test_replicate_failure_lengthhint2():
         list(it)
 
 
-@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_replicate_failure_lengthhint3():
     # It is also possible that the length_hint overflows when the length is
     # below maxsize but "times * length" is above maxsize.
@@ -167,7 +153,6 @@ def test_replicate_failure_lengthhint3():
         list(it)
 
 
-@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_replicate_failure_lengthhint4():
     # There is also the possibility that "length * times" does not overflow
     # but adding the "times - timescurrent" afterwards will overflow.

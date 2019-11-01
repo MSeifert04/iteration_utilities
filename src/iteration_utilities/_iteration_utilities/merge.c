@@ -675,7 +675,6 @@ merge_setstate(PyIUObject_Merge *self,
  * LengthHint
  *****************************************************************************/
 
-#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
 static PyObject *
 merge_lengthhint(PyIUObject_Merge *self, PyObject *Py_UNUSED(args))
 {
@@ -742,7 +741,6 @@ merge_lengthhint(PyIUObject_Merge *self, PyObject *Py_UNUSED(args))
 
     return PyLong_FromSize_t(len);
 }
-#endif
 
 /******************************************************************************
  * Type
@@ -750,14 +748,12 @@ merge_lengthhint(PyIUObject_Merge *self, PyObject *Py_UNUSED(args))
 
 static PyMethodDef merge_methods[] = {
 
-#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
     {"__length_hint__",                                 /* ml_name */
      (PyCFunction)merge_lengthhint,                     /* ml_meth */
      METH_NOARGS,                                       /* ml_flags */
      PYIU_lenhint_doc                                   /* ml_doc */
      },
 
-#endif
     {"__reduce__",                                      /* ml_name */
      (PyCFunction)merge_reduce,                         /* ml_meth */
      METH_NOARGS,                                       /* ml_flags */

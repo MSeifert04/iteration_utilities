@@ -251,7 +251,6 @@ intersperse_setstate(PyIUObject_Intersperse *self,
  * LengthHint
  *****************************************************************************/
 
-#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
 static PyObject *
 intersperse_lengthhint(PyIUObject_Intersperse *self, PyObject *Py_UNUSED(args))
 {
@@ -278,7 +277,6 @@ intersperse_lengthhint(PyIUObject_Intersperse *self, PyObject *Py_UNUSED(args))
         return PyLong_FromSize_t((size_t)len * 2 + 1);
     }
 }
-#endif
 
 /******************************************************************************
  * Type
@@ -286,13 +284,11 @@ intersperse_lengthhint(PyIUObject_Intersperse *self, PyObject *Py_UNUSED(args))
 
 static PyMethodDef intersperse_methods[] = {
 
-#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
     {"__length_hint__",                                 /* ml_name */
      (PyCFunction)intersperse_lengthhint,               /* ml_meth */
      METH_NOARGS,                                       /* ml_flags */
      PYIU_lenhint_doc                                   /* ml_doc */
      },
-#endif
 
     {"__reduce__",                                      /* ml_name */
      (PyCFunction)intersperse_reduce,                   /* ml_meth */

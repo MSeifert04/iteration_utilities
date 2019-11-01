@@ -16,15 +16,9 @@ PyObject *PyIU_global_two = NULL;
 PyObject *PyIU_global_0tuple = NULL;
 
 void PyIU_InitializeConstants(void) {
-    #if PY_MAJOR_VERSION == 2
-        PyIU_global_zero = PyInt_FromLong((long)0);
-        PyIU_global_one = PyInt_FromLong((long)1);
-        PyIU_global_two = PyInt_FromLong((long)2);
-    #else
-        PyIU_global_zero = PyLong_FromLong((long)0);
-        PyIU_global_one = PyLong_FromLong((long)1);
-        PyIU_global_two = PyLong_FromLong((long)2);
-    #endif
+    PyIU_global_zero = PyLong_FromLong((long)0);
+    PyIU_global_one = PyLong_FromLong((long)1);
+    PyIU_global_two = PyLong_FromLong((long)2);
     PyIU_global_0tuple = PyTuple_New(0);
 }
 

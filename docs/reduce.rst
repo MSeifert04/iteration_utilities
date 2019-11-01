@@ -28,8 +28,8 @@ and also several fold operators:
 Builtin Library functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- :py:func:`functools.reduce` (in Python 2 part of the builtins), reduces the
-  iterable by successivly applying a binary function.
+- :py:func:`functools.reduce`, reduces the iterable by successivly applying a
+  binary function.
 
 :py:func:`functools.reduce` is probably the most general function that could be
 used to recreate all the builtin functions. For example:

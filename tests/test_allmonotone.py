@@ -1,20 +1,11 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
-
-# 3rd party
 import pytest
 
-# This module
-import iteration_utilities
+from iteration_utilities import all_monotone
 
-# Test helper
 import helper_funcs as _hf
 from helper_cls import T
-
-
-all_monotone = iteration_utilities.all_monotone
 
 
 def test_all_monotone_empty1():

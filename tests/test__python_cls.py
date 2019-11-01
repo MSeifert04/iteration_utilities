@@ -1,21 +1,11 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
 import operator
 
-# 3rd party
 import pytest
 
-# This module
-import iteration_utilities
+from iteration_utilities import Iterable
 from iteration_utilities._utils import _default
-
-# Test helper
-import helper_funcs as _hf
-
-
-Iterable = iteration_utilities.Iterable
 
 
 def test_sentinelfactory():
@@ -25,7 +15,6 @@ def test_sentinelfactory():
     assert as_str == "<default>"
 
 
-@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_cls_length_hint():
     assert operator.length_hint(Iterable([1, 2, 3])) == 3
     assert operator.length_hint(Iterable([1, 2, 3]).accumulate()) == 3

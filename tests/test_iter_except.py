@@ -1,22 +1,14 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
 from functools import partial
 import pickle
 
-# 3rd party
 import pytest
 
-# This module
-import iteration_utilities
+from iteration_utilities import iter_except
 
-# Test helper
 from helper_cls import T
 import helper_funcs as _hf
-
-
-iter_except = iteration_utilities.iter_except
 
 
 def test_iterexcept_normal1():
@@ -72,7 +64,6 @@ def test_iterexcept_copy1():
     _hf.iterator_copy(iter_except(dct.popitem, KeyError))
 
 
-@_hf.skip_before_py34_because_method_descriptors_cannot_be_pickled
 def test_iterexcept_pickle1(protocol):
     dct = {T('a'): T(10)}
     ie = iter_except(dct.popitem, KeyError)
@@ -80,7 +71,6 @@ def test_iterexcept_pickle1(protocol):
     assert list(pickle.loads(x)) == [(T('a'), T(10))]
 
 
-@_hf.skip_before_py34_because_method_descriptors_cannot_be_pickled
 def test_iterexcept_pickle2(protocol):
     dct = {T('a'): T(10)}
     ie = iter_except(dct.popitem, KeyError, None)
@@ -88,7 +78,6 @@ def test_iterexcept_pickle2(protocol):
     assert list(pickle.loads(x)) == [(T('a'), T(10))]
 
 
-@_hf.skip_before_py34_because_method_descriptors_cannot_be_pickled
 def test_iterexcept_pickle3(protocol):
     dct = {}
     first = partial(dct.setdefault, T('a'), T(10))
@@ -97,7 +86,6 @@ def test_iterexcept_pickle3(protocol):
     assert list(pickle.loads(x)) == [T(10), (T('a'), T(10))]
 
 
-@_hf.skip_before_py34_because_method_descriptors_cannot_be_pickled
 def test_iterexcept_pickle4(protocol):
     dct = {}
     first = partial(dct.setdefault, T('a'), T(10))

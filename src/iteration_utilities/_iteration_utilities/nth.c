@@ -350,11 +350,7 @@ nth_call(PyIUObject_Nth *self,
     if (last != NULL) {
         if (retidx) {
             Py_DECREF(last);
-#if PY_MAJOR_VERSION == 2
-            return PyInt_FromSsize_t(nfound);
-#else
             return PyLong_FromSsize_t(nfound);
-#endif
         }
         return last;
 

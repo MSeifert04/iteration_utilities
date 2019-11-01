@@ -1,27 +1,19 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
 import collections
 import copy
 import pickle
 import sys
 import weakref
 
-# 3rd party
 import pytest
 
-# This module
 import iteration_utilities
-from iteration_utilities._compat import (
-    RecursionError, AttributeUnwriteableException)
+from iteration_utilities import partial
+from iteration_utilities._utils import IS_PYPY
 
-# Test helper
 import helper_funcs as _hf
 from helper_cls import T, toT
-
-
-partial = iteration_utilities.partial
 
 
 # =============================================================================
@@ -68,11 +60,11 @@ class MyStr(str):
 
 def test_attributes_unwritable():
     p = partial(capture, T(1), T(2), a=T(10), b=T(20))
-    with pytest.raises(AttributeUnwriteableException):
+    with pytest.raises(AttributeError):
         p.func = map
-    with pytest.raises(AttributeUnwriteableException):
+    with pytest.raises(AttributeError):
         p.args = (T(1), T(2))
-    with pytest.raises(AttributeUnwriteableException):
+    with pytest.raises(AttributeError):
         p.keywords = {'a': T(1), 'b': T(2)}
 
     p = partial(hex)

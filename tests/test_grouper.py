@@ -1,23 +1,15 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
 import operator
 import pickle
 import sys
 
-# 3rd party
 import pytest
 
-# This module
-import iteration_utilities
+from iteration_utilities import grouper
 
-# Test helper
 import helper_funcs as _hf
 from helper_cls import T, toT
-
-
-grouper = iteration_utilities.grouper
 
 
 def test_grouper_empty1():
@@ -196,7 +188,6 @@ def test_grouper_failure_setstate2():
     _hf.iterator_setstate_empty_fail(grouper(toT(range(10)), 3))
 
 
-@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_grouper_pickle1(protocol):
     grp = grouper(toT(range(10)), 3)
     assert next(grp) == (T(0), T(1), T(2))
@@ -205,7 +196,6 @@ def test_grouper_pickle1(protocol):
                                      (T(9), )]
 
 
-@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_grouper_pickle2(protocol):
     grp = grouper(toT(range(10)), 3, fillvalue=T(0))
     assert next(grp) == (T(0), T(1), T(2))
@@ -214,7 +204,6 @@ def test_grouper_pickle2(protocol):
                                      (T(9), T(0), T(0))]
 
 
-@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_grouper_pickle3(protocol):
     grp = grouper(toT(range(10)), 3, truncate=True)
     assert next(grp) == (T(0), T(1), T(2))
@@ -222,7 +211,6 @@ def test_grouper_pickle3(protocol):
     assert list(pickle.loads(x)) == [(T(3), T(4), T(5)), (T(6), T(7), T(8))]
 
 
-@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_grouper_lengthhint1():
     assert operator.length_hint(grouper([1, 2, 3, 4, 5],
                                         2, truncate=True)) == 2
@@ -237,7 +225,6 @@ def test_grouper_lengthhint1():
                                         2, fillvalue=None)) == 3
 
 
-@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_grouper_lengthhint_failure1():
     f_it = _hf.FailLengthHint(toT([1, 2, 3]))
     it = grouper(f_it, 2)
@@ -248,7 +235,6 @@ def test_grouper_lengthhint_failure1():
         list(it)
 
 
-@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_grouper_lengthhint_failure2():
     of_it = _hf.OverflowLengthHint(toT([1, 2, 3]), sys.maxsize + 1)
     it = grouper(of_it, 2)

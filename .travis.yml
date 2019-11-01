@@ -4,7 +4,6 @@ os:
   - linux
 
 python:
-  - "2.7"
   - "3.5"
   - "3.6"
   - "3.7"
@@ -14,9 +13,9 @@ python:
 
 matrix:
   include:
-    - python: "2.7"
+    - python: "3.5"
       install: CC=clang python -m pip install . --no-deps -vv
-    - python: "3.7"
+    - python: "3.8"
       install: CC=clang python -m pip install . --no-deps -vv
 
 before_install:

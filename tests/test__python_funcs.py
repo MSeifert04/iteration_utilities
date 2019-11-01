@@ -1,25 +1,13 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
 from itertools import tee
 
-# 3rd party
 import pytest
 
-# This module
 import iteration_utilities
-from iteration_utilities._utils import EQ_PY2
 
 
 def test_exceptions():
-    # old-style classes don't have the subclasses special member.
-    if EQ_PY2:
-        class A:
-            pass
-        with pytest.raises(TypeError):
-            list(iteration_utilities.itersubclasses(A))
-
     # Random product doesn't work with empty iterables
     with pytest.raises(IndexError):
         iteration_utilities.random_product([])

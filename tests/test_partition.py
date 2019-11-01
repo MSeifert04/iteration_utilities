@@ -1,20 +1,11 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
-
-# 3rd party
 import pytest
 
-# This module
-import iteration_utilities
+from iteration_utilities import partition
 
-# Test helper
 import helper_funcs as _hf
 from helper_cls import T, toT
-
-
-partition = iteration_utilities.partition
 
 
 def test_partition_empty1():
@@ -91,13 +82,11 @@ def test_partition_failure6():
 
 def test_partition_failure7():
     # object has no boolean interpretation
-    class NoBool(T):
-        def __bool__(self):
-            raise ValueError('bad class')
-        __nonzero__ = __bool__
+    class NoBoolWithT(_hf.FailBool, T):
+        ...
 
-    with pytest.raises(ValueError, match='bad class'):
-        partition([NoBool(10)])
+    with pytest.raises(_hf.FailBool.EXC_TYP, match=_hf.FailBool.EXC_MSG):
+        partition([NoBoolWithT(10)])
 
 
 @_hf.skip_on_pypy_because_cache_next_works_differently

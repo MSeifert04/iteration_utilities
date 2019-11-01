@@ -248,7 +248,6 @@ replicate_setstate(PyIUObject_Replicate *self,
  * LengthHint
  *****************************************************************************/
 
-#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
 static PyObject *
 replicate_lengthhint(PyIUObject_Replicate *self, PyObject *Py_UNUSED(args))
 {
@@ -281,7 +280,6 @@ replicate_lengthhint(PyIUObject_Replicate *self, PyObject *Py_UNUSED(args))
     }
     return PyLong_FromSsize_t(len);
 }
-#endif
 
 /******************************************************************************
  * Type
@@ -289,13 +287,11 @@ replicate_lengthhint(PyIUObject_Replicate *self, PyObject *Py_UNUSED(args))
 
 static PyMethodDef replicate_methods[] = {
 
-#if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 4)
     {"__length_hint__",                                 /* ml_name */
      (PyCFunction)replicate_lengthhint,                 /* ml_meth */
      METH_NOARGS,                                       /* ml_flags */
      PYIU_lenhint_doc                                   /* ml_doc */
      },
-#endif
 
     {"__reduce__",                                      /* ml_name */
      (PyCFunction)replicate_reduce,                     /* ml_meth */

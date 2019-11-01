@@ -1,24 +1,16 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
 import pickle
 
-# 3rd party
 import pytest
 
-# This module
-import iteration_utilities
+from iteration_utilities import unique_justseen
 
-# Test helper
 import helper_funcs as _hf
 from helper_cls import T, toT
 
 
-unique_justseen = iteration_utilities.unique_justseen
-
-
-class T2(object):
+class T2:
     def __init__(self, value):
         self.value = value
 
@@ -102,14 +94,12 @@ def test_unique_justseen_failure_setstate2():
     _hf.iterator_setstate_empty_fail(unique_justseen(toT([1, 2, 3])))
 
 
-@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_unique_justseen_pickle1(protocol):
     ujs = unique_justseen([T(1), T(2), T(3)])
     x = pickle.dumps(ujs, protocol=protocol)
     assert list(pickle.loads(x)) == toT([1, 2, 3])
 
 
-@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_unique_justseen_pickle2(protocol):
     ujs = unique_justseen([T(1), T(2), T(3)])
     assert next(ujs) == T(1)
@@ -117,14 +107,12 @@ def test_unique_justseen_pickle2(protocol):
     assert list(pickle.loads(x)) == toT([2, 3])
 
 
-@_hf.skip_before_py34_because_method_descriptors_cannot_be_pickled
 def test_unique_justseen_pickle3(protocol):
     ujs = unique_justseen(['a', 'A', 'a'], key=str.lower)
     x = pickle.dumps(ujs, protocol=protocol)
     assert list(pickle.loads(x)) == ['a']
 
 
-@_hf.skip_before_py34_because_method_descriptors_cannot_be_pickled
 def test_unique_justseen_pickle4(protocol):
     ujs = unique_justseen(['a', 'A', 'a'], key=str.lower)
     assert next(ujs) == 'a'

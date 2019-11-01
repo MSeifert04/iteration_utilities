@@ -1,23 +1,15 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
 import operator
 import pickle
 import sys
 
-# 3rd party
 import pytest
 
-# This module
-import iteration_utilities
+from iteration_utilities import successive
 
-# Test helper
 import helper_funcs as _hf
 from helper_cls import T, toT
-
-
-successive = iteration_utilities.successive
 
 
 def test_successive_empty1():
@@ -120,7 +112,6 @@ def test_successive_failure_setstate5():
             successive([T(1), T(2), T(3), T(4)], 2))
 
 
-@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_successive_pickle1(protocol):
     suc = successive([T(1), T(2), T(3), T(4)])
     assert next(suc) == (T(1), T(2))
@@ -128,7 +119,6 @@ def test_successive_pickle1(protocol):
     assert list(pickle.loads(x)) == [(T(2), T(3)), (T(3), T(4))]
 
 
-@_hf.skip_because_iterators_cannot_be_pickled_before_py3
 def test_successive_pickle2(protocol):
     suc = successive([T(1), T(2), T(3), T(4)])
     x = pickle.dumps(suc, protocol=protocol)
@@ -136,7 +126,6 @@ def test_successive_pickle2(protocol):
                                      (T(3), T(4))]
 
 
-@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_successive_lengthhint1():
     it = successive([0]*6, 4)
     assert operator.length_hint(it) == 3
@@ -148,12 +137,10 @@ def test_successive_lengthhint1():
     assert operator.length_hint(it) == 0
 
 
-@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_successive_lengthhint2():
     assert operator.length_hint(successive([0]*6, 11)) == 0
 
 
-@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_successive_failure_lengthhint1():
     f_it = _hf.FailLengthHint(toT([1, 2, 3]))
     it = successive(f_it)
@@ -164,7 +151,6 @@ def test_successive_failure_lengthhint1():
         list(it)
 
 
-@_hf.skip_before_py34_because_length_hint_was_added_in_py34
 def test_successive_failure_lengthhint2():
     # This only checks for overflow if the length_hint is above PY_SSIZE_T_MAX.
     # In theory that would be possible because with times the length would be

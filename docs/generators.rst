@@ -13,12 +13,7 @@ efficient.
 
 Generators can be created in very different contexts, in this section these are
 grouped into three categories: processing an iterable, processing a value and
-from a function
-
-.. note::
-   Several of the functions mentioned later do not return a generator in
-   **Python2**. But there are equivalents in the :py:mod:`itertools` module.
-   For example ``itertools.imap`` instead of :py:func:`map`.
+from a function.
 
 Processing an iterable
 ^^^^^^^^^^^^^^^^^^^^^^

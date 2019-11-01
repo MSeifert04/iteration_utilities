@@ -1,20 +1,12 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
-
-# 3rd party
 import pytest
 
-# This module
 import iteration_utilities
+from iteration_utilities import count_items
 
-# Test helper
 import helper_funcs as _hf
 from helper_cls import T
-
-
-count_items = iteration_utilities.count_items
 
 
 def test_count_empty1():
@@ -88,14 +80,8 @@ def test_count_failure6():
 
 def test_count_failure7():
     # function returns item without boolean interpretation
-
-    class NoBool(object):
-        def __bool__(self):
-            raise ValueError('bad class')
-        __nonzero__ = __bool__
-
-    with pytest.raises(ValueError, match='bad class'):
-        count_items([T(0)], lambda x: NoBool())
+    with pytest.raises(_hf.FailBool.EXC_TYP, match=_hf.FailBool.EXC_MSG):
+        count_items([T(0)], lambda x: _hf.FailBool())
 
 
 @_hf.skip_on_pypy_because_cache_next_works_differently

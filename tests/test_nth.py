@@ -1,21 +1,14 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
 import pickle
 
-# 3rd party
 import pytest
 
-# This module
 import iteration_utilities
+from iteration_utilities import nth
 
-# Test helper
 import helper_funcs as _hf
 from helper_cls import T, toT
-
-
-nth = iteration_utilities.nth
 
 
 def test_nth_repr1():
@@ -188,46 +181,26 @@ def test_nth_failures10():
 
 def test_nth_failures11():
     # evaluating as boolean fails
-    class NoBool(object):
-        def __bool__(self):
-            raise ValueError('bad class')
-        __nonzero__ = __bool__
-
-    with pytest.raises(ValueError, match='bad class'):
-        nth(1)([T(0)], pred=lambda x: NoBool())
+    with pytest.raises(_hf.FailBool.EXC_TYP, match=_hf.FailBool.EXC_MSG):
+        nth(1)([T(0)], pred=lambda x: _hf.FailBool())
 
 
 def test_nth_failures12():
     # evaluating as boolean fails
-    class NoBool(object):
-        def __bool__(self):
-            raise ValueError('bad class')
-        __nonzero__ = __bool__
-
-    with pytest.raises(ValueError, match='bad class'):
-        nth(1)([T(0)], pred=lambda x: NoBool(), retpred=1)
+    with pytest.raises(_hf.FailBool.EXC_TYP, match=_hf.FailBool.EXC_MSG):
+        nth(1)([T(0)], pred=lambda x: _hf.FailBool(), retpred=1)
 
 
 def test_nth_failures13():
     # evaluating as boolean fails
-    class NoBool(object):
-        def __bool__(self):
-            raise ValueError('bad class')
-        __nonzero__ = __bool__
-
-    with pytest.raises(ValueError, match='bad class'):
-        nth(1)([T(0)], pred=lambda x: NoBool(), retidx=1)
+    with pytest.raises(_hf.FailBool.EXC_TYP, match=_hf.FailBool.EXC_MSG):
+        nth(1)([T(0)], pred=lambda x: _hf.FailBool(), retidx=1)
 
 
 def test_nth_failures14():
     # evaluating as boolean fails
-    class NoBool(object):
-        def __bool__(self):
-            raise ValueError('bad class')
-        __nonzero__ = __bool__
-
-    with pytest.raises(ValueError, match='bad class'):
-        nth(1)([T(0)], pred=lambda x: NoBool(), truthy=0)
+    with pytest.raises(_hf.FailBool.EXC_TYP, match=_hf.FailBool.EXC_MSG):
+        nth(1)([T(0)], pred=lambda x: _hf.FailBool(), truthy=0)
 
 
 @_hf.skip_on_pypy_because_cache_next_works_differently

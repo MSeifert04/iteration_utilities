@@ -1,7 +1,5 @@
-# Built-ins
 import pickle
 
-# 3rd party
 import pytest
 
 

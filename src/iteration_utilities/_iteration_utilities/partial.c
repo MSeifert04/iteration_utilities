@@ -690,7 +690,7 @@ Fail:
 }
 #endif
 
-#if PYIU_PYPY || PY_MAJOR_VERSION == 2 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION < 3)
+#if PYIU_PYPY
 
 /******************************************************************************
  * __dict__ getter and setter
@@ -904,11 +904,7 @@ partial_sizeof(PyIUObject_Partial *self,
     res = sizeof(PyIUObject_Partial);
     /* Include the size of the posph array. */
     res += self->numph * sizeof(Py_ssize_t);
-#if PY_MAJOR_VERSION == 2
-    return PyInt_FromSsize_t(res);
-#else
     return PyLong_FromSsize_t(res);
-#endif
 }
 
 /******************************************************************************
@@ -938,7 +934,7 @@ static PyMethodDef partial_methods[] = {
     {NULL, NULL}                                        /* sentinel */
 };
 
-#if PYIU_PYPY || PY_MAJOR_VERSION == 2 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION < 3)
+#if PYIU_PYPY
 
 static PyGetSetDef partial_getsetlist[] = {
 

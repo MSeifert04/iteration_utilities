@@ -48,7 +48,7 @@ PyDoc_STRVAR(itemidxkey_doc,
     "\n"
     "   _notgiven = object()\n"
     "   \n"
-    "   class ItemIdxKey(object):\n"
+    "   class ItemIdxKey:\n"
     "       def __init__(self, item, idx, key=_notgiven):\n"
     "           self.item = item\n"
     "           self.idx = idx\n"
@@ -488,11 +488,7 @@ static PyObject *
 itemidxkey_getidx(PyIUObject_ItemIdxKey *self,
                   void *Py_UNUSED(closure))
 {
-    #if PY_MAJOR_VERSION == 2
-        return PyInt_FromSsize_t(self->idx);
-    #else
-        return PyLong_FromSsize_t(self->idx);
-    #endif
+    return PyLong_FromSsize_t(self->idx);
 }
 
 static int
@@ -506,11 +502,6 @@ itemidxkey_setidx(PyIUObject_ItemIdxKey *self,
                         "cannot delete `idx` attribute of `ItemIdxKey`.");
         return -1;
     }
-    #if PY_MAJOR_VERSION == 2
-    if (PyInt_Check(o)) {
-        idx = PyInt_AsSsize_t(o);
-    } else
-    #endif
     if (PyLong_Check(o)) {
         idx = PyLong_AsSsize_t(o);
     } else {

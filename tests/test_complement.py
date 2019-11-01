@@ -1,17 +1,13 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
 import pickle
 
-# 3rd party
 import pytest
 
-# This module
 import iteration_utilities
+from iteration_utilities import complement
 
-
-complement = iteration_utilities.complement
+import helper_funcs as _hf
 
 
 def test_complement_repr1():
@@ -65,16 +61,8 @@ def test_complement_failure1():
 
 def test_complement_failure2():
     # Function raturns an object that cannot be interpreted as boolean
-    class NoBool(object):
-        def __bool__(self):
-            raise ValueError('bad class')
-        __nonzero__ = __bool__
-
-    def failingfunction(x):
-        return NoBool()
-
-    with pytest.raises(ValueError, match='bad class'):
-        complement(failingfunction)(1)
+    with pytest.raises(_hf.FailBool.EXC_TYP, match=_hf.FailBool.EXC_MSG):
+        complement(lambda x: _hf.FailBool())(1)
 
 
 def test_complement_failure3():

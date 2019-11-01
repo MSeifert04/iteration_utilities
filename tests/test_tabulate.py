@@ -1,22 +1,14 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-# Built-ins
-from __future__ import absolute_import, division, print_function
 import pickle
 
-# 3rd party
 import pytest
 
-# This module
 import iteration_utilities
+from iteration_utilities import tabulate, getitem
 
-# Test helper
 import helper_funcs as _hf
 from helper_cls import T
-
-
-tabulate = iteration_utilities.tabulate
-getitem = iteration_utilities.getitem
 
 
 class T2(T):
@@ -52,7 +44,7 @@ def test_tabulate_attributes1():
 
 def test_tabulate_failure1():
 
-    class T(object):
+    class T:
         def __init__(self, val):
             self.val = val
 

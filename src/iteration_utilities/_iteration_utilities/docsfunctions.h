@@ -315,7 +315,7 @@ PyDoc_STRVAR(PyIU_MathReciprocal_doc,
     "\n"
     "Examples\n"
     "--------\n"
-    "This is equivalent to ``lambda x: 1 / x`` (or ``lambda x: 1. / x`` Python2)\n"
+    "This is equivalent to ``lambda x: 1 / x``\n"
     "or ``functools.partial(operator.truediv, 1)`` but faster::\n"
     "\n"
     "    >>> from iteration_utilities import reciprocal \n"
