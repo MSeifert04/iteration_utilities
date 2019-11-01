@@ -17,8 +17,8 @@ For Bugfixes:
 
 For new functions/classes:
 
-- [ ] Did you include the file and function/class in the c module setup or
-      include it in the ``__init__`` of the python module?
+- [ ] Did you include the file and function/class in the c module setup
+- [ ] Did you include it in the ``__all__`` of the python module?
 - [ ] Did you include a meaningful docstring with Parameters, Returns and
       Examples?
 - [ ] Does the docstring contain a ``.. versionadded:: {version}`` directive?

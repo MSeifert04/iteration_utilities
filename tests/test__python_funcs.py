@@ -34,6 +34,15 @@ def test_exceptions():
     with pytest.raises(ValueError):
         iteration_utilities.getitem(range(10), (4, 2, -3, 9))
 
+    with pytest.raises(ValueError):
+        iteration_utilities.nth_combination([1], r=-1, index=0)
+    with pytest.raises(ValueError):
+        iteration_utilities.nth_combination([1], r=2, index=0)
+    with pytest.raises(IndexError):
+        iteration_utilities.nth_combination([1, 2, 3, 4], r=2, index=-20)
+    with pytest.raises(IndexError):
+        iteration_utilities.nth_combination([1, 2, 3, 4], r=2, index=20)
+
 
 def test_empty_input():
     empty = []

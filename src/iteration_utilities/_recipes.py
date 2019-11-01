@@ -17,7 +17,7 @@ from random import choice, sample, randrange
 __all__ = ['consume',
            'flatten',
            'ipartition',
-           'ncycles',
+           'ncycles', 'nth_combination',
            'powerset',
            'random_combination', 'random_product', 'random_permutation',
            'repeatfunc',
@@ -206,6 +206,55 @@ def ipartition(iterable, pred):
     """
     t1, t2 = tee(iterable)
     return filterfalse(pred, t1), filter(pred, t2)
+
+
+def nth_combination(iterable, r, index):
+    """Equivalent to ``list(itertools.combinations(iterable, r))[index]``.
+
+    .. versionadded:: 0.9.0
+
+    Parameters
+    ----------
+    iterable : iterable
+        The `iterable` to combine with :py:func:`itertools.combinations`.
+
+    r : :py:class:`int`
+        The number of elements to combine.
+
+    index : :py:class:`int`
+        The index of the combination.
+
+    Returns
+    -------
+    random_combination : tuple
+        The nth combination.
+
+    Examples
+    --------
+    >>> from iteration_utilities import nth_combination
+    >>> nth_combination([1,2,3,4,5,6], r=4, index=2)
+    (1, 2, 3, 6)
+    """
+    pool = tuple(iterable)
+    n = len(pool)
+    if r < 0 or r > n:
+        raise ValueError
+    c = 1
+    k = min(r, n - r)
+    for i in range(1, k + 1):
+        c = c * (n - k + i) // i
+    if index < 0:
+        index += c
+    if index < 0 or index >= c:
+        raise IndexError
+    result = []
+    while r:
+        c, n, r = c * r // n, n - 1, r - 1
+        while index >= c:
+            index -= c
+            c, n = c * (n - r) // n, n - 1
+        result.append(pool[-1 - n])
+    return tuple(result)
 
 
 def powerset(iterable):
