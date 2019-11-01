@@ -265,7 +265,7 @@ jobs:
     - name: Install dependencies
       shell: cmd
       run: |
-        "%LocalAppData%\Programs\Python38\python.exe" -m pip install pip setuptools wheel --upgrade
+        "%LocalAppData%\Programs\Python38\python.exe" -m pip install pip setuptools wheel --upgrade --no-warn-script-location
     - name: Create wheel
       shell: cmd
       run: |
@@ -281,7 +281,7 @@ jobs:
     - name: Install test dependencies
       shell: cmd
       run: |
-        "%LocalAppData%\Programs\Python38\python.exe" -m pip install pytest
+        "%LocalAppData%\Programs\Python38\python.exe" -m pip install pytest --no-warn-script-location
     - name: Run tests
       shell: cmd
       run: |
@@ -317,7 +317,7 @@ jobs:
         sudo python3.8 -c "import os; os.remove('./Python-3.8.0.tgz'); import shutil; shutil.rmtree('./Python-3.8.0/')"
     - name: Install dependencies
       run: |
-        python3.8 -m pip install pip setuptools wheel --upgrade --user
+        python3.8 -m pip install pip setuptools wheel --upgrade --user --no-warn-script-location
     - name: Create wheel
       run: |
         python3.8 -m pip wheel . --no-deps --wheel-dir=./wheelhouse/ -vv
@@ -329,7 +329,7 @@ jobs:
         python3.8 -c "import iteration_utilities"
     - name: Install test dependencies
       run: |
-        python3.8 -m pip install pytest --user
+        python3.8 -m pip install pytest --user --no-warn-script-location
     - name: Run tests
       run: |
         python3.8 -m pytest tests/
@@ -356,7 +356,7 @@ jobs:
         python3 -c "import os; os.remove('./pythoninstaller.pkg')"
     - name: Install dependencies
       run: |
-        python3.8 -m pip install pip setuptools wheel delocate --upgrade --user
+        python3.8 -m pip install pip setuptools wheel delocate --upgrade --user --no-warn-script-location
     - name: Create temporary wheel
       run: |
         python3.8 -m pip wheel . --no-deps --wheel-dir=./wheelhouse-tmp/ -vv
@@ -372,7 +372,7 @@ jobs:
         python3.8 -c "import iteration_utilities"
     - name: Install test dependencies
       run: |
-        python3.8 -m pip install pytest --user
+        python3.8 -m pip install pytest --user --no-warn-script-location
     - name: Run tests
       run: |
         python3.8 -m pytest tests/
