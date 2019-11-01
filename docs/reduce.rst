@@ -86,6 +86,9 @@ The :py:mod:`iteration_utilities` package includes some additional fold function
 - :py:func:`~iteration_utilities.last`, reduces the iterable to it's last
   value. See also :py:func:`~iteration_utilities.nth`.
 
+- :py:func:`~iteration_utilities.nth_combination`, creates the *nth* combination
+  from the elements in the iterable without having to create the previous
+  combinations.
 
 
 Helper functions
