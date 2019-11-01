@@ -43,7 +43,7 @@ with the clone from ``git`` one can also run the tests after the installation::
 
 Or build the documentation::
 
-    python setup.py build_sphinx  # local documentation build
+    sphinx-build -b html -W -a -n docs/ build/sphinx/html/  # local documentation build
 
 
 Dependencies

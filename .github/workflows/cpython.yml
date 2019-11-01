@@ -219,7 +219,7 @@ jobs:
         python -m pip install sphinx numpydoc
     - name: Build doc
       run: |
-        python setup.py build_sphinx
+        sphinx-build -b html -W -a -n docs/ build/sphinx/html/
     - name: Upload documentation
       uses: actions/upload-artifact@master
       with:
