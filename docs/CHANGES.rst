@@ -7,6 +7,15 @@ Version 0.9.0 (unreleased)
 This library does not support Python 2.7 anymore. Attempting to install
 ``iteration_utilities`` on Python <= 3.4 should not work anymore.
 
+- Add the statistics functions introduced in Python 3.6 and 3.8 as methods
+  on the ``Iterable`` class. This includes:
+
+  - ``fmean`` (Python >= 3.8)
+  - ``geometric_mean`` (Python >= 3.8)
+  - ``harmonic_mean`` (Python >= 3.6)
+  - ``multimode`` (Python >= 3.8)
+  - ``quantiles`` (Python >= 3.8)
+
 Version 0.8.0 (2019-10-27)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 

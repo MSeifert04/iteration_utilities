@@ -24,7 +24,7 @@ from operator import length_hint
 import statistics
 
 # This module
-from iteration_utilities._utils import _default
+from iteration_utilities._utils import _default, GE_PY38, GE_PY36
 # - generators
 from iteration_utilities import (accumulate, applyfunc,
                                  clamp,
@@ -1062,8 +1062,11 @@ class Iterable(_Base):
     :py:meth:`~.Iterable.get_argsorted`                 See :py:func:`~iteration_utilities.argsorted`.
     :py:meth:`~.Iterable.get_count_items`               See :py:func:`~iteration_utilities.count_items`.
     :py:meth:`~.Iterable.get_first`                     See :py:func:`~iteration_utilities.nth`.
+    :py:meth:`~.Iterable.get_fmean`                     See :py:func:`statistics.fmean`. (Python >= 3.8)
     :py:meth:`~.Iterable.get_fsum`                      See :py:func:`math.fsum`.
+    :py:meth:`~.Iterable.get_geometric_mean`            See :py:func:`statistics.geometric_mean`. (Python >= 3.8)
     :py:meth:`~.Iterable.get_groupedby`                 See :py:func:`~iteration_utilities.groupedby`.
+    :py:meth:`~.Iterable.get_harmonic_mean`             See :py:func:`statistics.harmonic_mean`. (Python >= 3.6)
     :py:meth:`~.Iterable.get_last`                      See :py:func:`~iteration_utilities.nth`.
     :py:meth:`~.Iterable.get_max`                       See :py:func:`python:max`.
     :py:meth:`~.Iterable.get_mean`                      See :py:func:`statistics.mean`.
@@ -1074,6 +1077,7 @@ class Iterable(_Base):
     :py:meth:`~.Iterable.get_min`                       See :py:func:`python:min`.
     :py:meth:`~.Iterable.get_minmax`                    See :py:func:`~iteration_utilities.minmax`.
     :py:meth:`~.Iterable.get_mode`                      See :py:func:`statistics.mode`.
+    :py:meth:`~.Iterable.get_multimode`                 See :py:func:`statistics.multimode`. (Python >= 3.8)
     :py:meth:`~.Iterable.get_nlargest`                  See :py:func:`heapq.nlargest`.
     :py:meth:`~.Iterable.get_nsmallest`                 See :py:func:`heapq.nsmallest`.
     :py:meth:`~.Iterable.get_nth`                       See :py:func:`~iteration_utilities.nth`.
@@ -1081,6 +1085,7 @@ class Iterable(_Base):
     :py:meth:`~.Iterable.get_partition`                 See :py:func:`~iteration_utilities.partition`.
     :py:meth:`~.Iterable.get_pstdev`                    See :py:func:`statistics.pstdev`.
     :py:meth:`~.Iterable.get_pvariance`                 See :py:func:`statistics.pvariance`.
+    :py:meth:`~.Iterable.get_quantiles`                 See :py:func:`statistics.quantiles`. (Python >= 3.8)
     :py:meth:`~.Iterable.get_reduce`                    See :py:func:`functools.reduce`.
     :py:meth:`~.Iterable.get_second`                    See :py:func:`~iteration_utilities.nth`.
     :py:meth:`~.Iterable.get_sorted`                    See :py:func:`python:sorted`.
@@ -1868,6 +1873,80 @@ strict=False)
         7.5256410256410255
         """
         return self._get_iter(statistics.variance, 0, mu=mu)
+
+    def get_harmonic_mean(self):
+        """See :py:func:`statistics.harmonic_mean`.
+
+        .. note::
+            Python >= 3.6 is required for this function.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable([1,1,1,2,2,3,4,5,6,7,7,8,8]).get_harmonic_mean()  # doctest: +ELLIPSIS
+        2.369791...
+        """
+        return self._get_iter(statistics.harmonic_mean, 0)
+
+    def get_fmean(self):
+        """See :py:func:`statistics.fmean`.
+
+        .. note::
+            Python >= 3.8 is required for this function.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable([1,1,1,2,2,3,4,5,6,7,7,8,8]).get_fmean()  # doctest: +ELLIPSIS
+        4.230769...
+        """
+        return self._get_iter(statistics.fmean, 0)
+
+    def get_geometric_mean(self):
+        """See :py:func:`statistics.geometric_mean`.
+
+        .. note::
+            Python >= 3.8 is required for this function.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable([1,1,1,2,2,3,4,5,6,7,7,8,8]).get_geometric_mean()  # doctest: +ELLIPSIS
+        3.250146...
+        """
+        return self._get_iter(statistics.geometric_mean, 0)
+
+    def get_multimode(self):
+        """See :py:func:`statistics.multimode`.
+
+        .. note::
+            Python >= 3.8 is required for this function.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable([1,1,1,2,2,2,3,4,5,6,7,7,8,8]).get_multimode()
+        [1, 2]
+        """
+        return self._get_iter(statistics.multimode, 0)
+
+    def get_quantiles(self, n=_default, method=_default):
+        """See :py:func:`statistics.quantiles`.
+
+        .. note::
+            Python >= 3.8 is required for this function.
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable([1,1,1,2,2,3,4,5,6,7,7,8,8]).get_quantiles()
+        [1.5, 4.0, 7.0]
+        >>> Iterable([1,1,1,2,2,3,4,5,6,7,7,8,8]).get_quantiles(n=10)
+        [1.0, 1.0, 2.0, 2.6, 4.0, 5.4, 6.8, 7.2, 8.0]
+        >>> Iterable([1,1,1,2,2,3,4,5,6,7,7,8,8]).get_quantiles(n=10, method='inclusive')
+        [1.0, 1.4, 2.0, 2.8, 4.0, 5.2, 6.4, 7.0, 7.8]
+        """
+        return self._get_iter(statistics.quantiles, 0, n=n, method=method)
 
 
 class InfiniteIterable(_Base):
