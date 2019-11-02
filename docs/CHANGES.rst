@@ -1,7 +1,7 @@
 Changelog for "iteration_utilities"
 -----------------------------------
 
-Version 0.9.0 (unreleased)
+Version 0.9.0 (2019-11-02)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This library does not support Python 2.7 anymore. Attempting to install
