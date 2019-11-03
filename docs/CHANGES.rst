@@ -132,7 +132,7 @@ Version 0.5.0 (2017-03-30)
   can't used to cause segmentation faults, ``SystemError`` or blatantly wrong
   behaviour. However, serializing or copying such an instance can significantly
   slower as a result of this change. Unpickling these instances from previous
-  versions could be impossible and ``copy.copy`` is **not** suported (and
+  versions could be impossible and ``copy.copy`` is **not** supported (and
   probably won't be ever because ``itertools.tee`` interacts with ``__copy__``
   methods). Affected iterators: ``chained``, ``deepflatten``, ``duplicates``,
   ``grouper``, ``intersperse``, ``merge``, ``roundrobin``, ``sideeffects``,
@@ -211,7 +211,7 @@ Version 0.2.0 (2017-02-27)
 
 - added ``remove`` parameter to ``clamp``.
 
-- made ``deepflatten`` string-aware. For other recusive-iterable classes a
+- made ``deepflatten`` string-aware. For other recursive-iterable classes a
   ``RecursionException`` (or ``RuntimeException`` on python < 3.5) is raised
   instead of freezing.
 

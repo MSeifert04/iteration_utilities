@@ -110,7 +110,7 @@ def test_deepflatten_failure1():
 
 
 def test_deepflatten_failure2():
-    # recursivly iterable data structures like strings that return another
+    # recursively iterable data structures like strings that return another
     # string in their iter.
     with pytest.raises(RecursionError):
         list(deepflatten([collections.UserString('abc')]))
@@ -220,7 +220,7 @@ def test_deepflatten_reduce1():
 
 def test_deepflatten_setstate1():
     # We could keep a reference to the iteratorlist passed to setstate and
-    # mutate it (leading to incorrect behaviour and segfaults).
+    # mutate it (leading to incorrect behavior and segfaults).
     df = deepflatten(toT([1, 2, 3, 4, 5, 6]))
     next(df)
     # Easiest way is to roundtrip the state but keep the state as variable so

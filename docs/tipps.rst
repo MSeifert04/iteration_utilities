@@ -16,7 +16,7 @@ Map
 expressions *if and only if* the `function` is implemented in C without
 Python attribute lookup.
 
-All Python builtins are written in C and some (there are exceptions like
+All Python built-ins are written in C and some (there are exceptions like
 :py:func:`abs`) that perform really fast with :py:func:`map`:
 
 .. code:: python

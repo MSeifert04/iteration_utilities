@@ -1951,7 +1951,7 @@ strict=False)
 
 class InfiniteIterable(_Base):
     """Like :py:class:`.Iterable` but indicates that the wrapped iterable is
-    infinitly long.
+    infinitely long.
 
     .. warning::
        The ``Iterable.as_*`` methods are not available for

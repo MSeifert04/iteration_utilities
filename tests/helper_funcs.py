@@ -56,7 +56,7 @@ def iterator_copy(thing):
     """Normal copies are not officially supported but ``itertools.tee`` uses
     ``__copy__`` if implemented it is either forbid both or none. Given that
     ``itertools.tee`` is a very useful function ``copy.copy`` is allowed but
-    no garantuees are made. This function just makes sure they can be copied
+    no guarantees are made. This function just makes sure they can be copied
     and the result has at least one item in it (call ``next`` on it)"""
     # Even though normal copies are discouraged they should be possible.
     # Cannot do "list" because it may be infinite :-)

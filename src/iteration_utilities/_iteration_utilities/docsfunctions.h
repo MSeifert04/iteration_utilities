@@ -1146,7 +1146,7 @@ PyDoc_STRVAR(PyIU_Partition_doc,
     "\n"
     ".. warning::\n"
     "    In case the `pred` is expensive then \n"
-    "    :py:func:`~iteration_utilities.partition` can be noticable\n"
+    "    :py:func:`~iteration_utilities.partition` can be noticeable\n"
     "    faster than :py:func:`~iteration_utilities.ipartition`.\n"
 );
 

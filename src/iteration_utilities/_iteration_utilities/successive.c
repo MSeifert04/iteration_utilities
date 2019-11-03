@@ -216,10 +216,10 @@ successive_next(PyIUObject_Successive *self)
 static PyObject *
 successive_reduce(PyIUObject_Successive *self, PyObject *Py_UNUSED(args))
 {
-    /* Seperate cases depending on the status of "result". We use and modify
+    /* Separate cases depending on the status of "result". We use and modify
        it in next. It is copied in next when the refcount isn't 1, so we
        don't need to copy it for reduce. However using "reduce" a lot will
-       definetly slow the function down. But it does not matter if the slowdown
+       definitely slow the function down. But it does not matter if the slowdown
        is in "next" or "reduce". :)
        */
     if (self->result == NULL) {

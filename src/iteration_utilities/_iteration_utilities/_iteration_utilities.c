@@ -349,7 +349,7 @@ PyInit__iteration_utilities(void)
     if (m != NULL) {
 
         /* Add classes to the module but only use the name starting after the first
-           occurence of ".".
+           occurrence of ".".
            */
         for (i=0 ; typelist[i] != NULL ; i++) {
             if (PyType_Ready(typelist[i]) < 0)

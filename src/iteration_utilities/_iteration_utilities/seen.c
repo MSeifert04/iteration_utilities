@@ -112,7 +112,7 @@ PyDoc_STRVAR(seen_containsadd_doc,
  * so "contains and add if not contained"-operations are seperated from the
  * logic of "uniques_everseen", "all_distinct" doesn't need to contain it.
  *
- * TODO: This refactoring slowed down the code a bit (not-negligable in my
+ * TODO: This refactoring slowed down the code a bit (not-negligible in my
  *       opinion) but it makes it much more concise. Need to check for
  *       possibilities to improve performance.
  *

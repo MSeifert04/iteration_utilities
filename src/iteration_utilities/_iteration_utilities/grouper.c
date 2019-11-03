@@ -286,7 +286,7 @@ grouper_next(PyIUObject_Grouper *self)
 static PyObject *
 grouper_reduce(PyIUObject_Grouper *self, PyObject *Py_UNUSED(args))
 {
-    /* Seperate cases depending on fillvalue == NULL because otherwise "None"
+    /* Separate cases depending on fillvalue == NULL because otherwise "None"
        would be ambiguous. It could mean that we did not had a fillvalue or
        that the next item was None.
        Better to make an "if" than to introduce another variable depending on
