@@ -33,10 +33,11 @@ PyIU_One(PyObject *Py_UNUSED(m),
     item2 = Py_TYPE(iterator)->tp_iternext(iterator);
     if (item2 != NULL) {
         Py_DECREF(iterator);
+        PyErr_Format(PyExc_ValueError,
+            "too many values to unpack in `one` (expected 1, got '%R, %R[, ...]').",
+            item1, item2);
         Py_DECREF(item1);
         Py_DECREF(item2);
-        PyErr_SetString(PyExc_ValueError,
-                        "too many values to unpack in `one` (expected 1).");
         return NULL;
     }
 

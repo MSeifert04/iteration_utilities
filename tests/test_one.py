@@ -38,8 +38,9 @@ def test_one_failure2():
 
 def test_one_failure3():
     # more than 1 element
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError) as exc:
         one([T(1), T(2)])
+    assert "'T(1), T(2)[, ...]'" in str(exc.value)
 
 
 def test_one_failure4():
