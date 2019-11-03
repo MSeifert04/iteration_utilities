@@ -196,7 +196,7 @@ Fail:
 static PyObject *
 uniquejust_reduce(PyIUObject_UniqueJust *self, PyObject *Py_UNUSED(args))
 {
-    /* Seperate cases depending on lastitem == NULL because otherwise "None"
+    /* Separate cases depending on lastitem == NULL because otherwise "None"
        would be ambiguous. It could mean that we did not had a last item or
        that the last item was None.
        Better to make an "if" than to introduce another variable depending on

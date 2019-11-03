@@ -27,7 +27,7 @@ def test_merge_empty3():
 
 
 def test_merge_empty4():
-    # generator, one ends immediatly the other only after two items
+    # generator, one ends immediately the other only after two items
     assert list(merge((i for i in []),
                       (i for i in (T(1), T(2))),
                       {})) == [T(1), T(2)]

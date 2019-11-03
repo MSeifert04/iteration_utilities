@@ -9,7 +9,7 @@ Iterable, InfiniteIterable and ManyIterables
 
 :py:mod:`iteration_utilities` introduces these three classes that can be used
 as wrapper for Python iterables. These classes implement the generators present
-in the Python builtins, the :py:mod:`itertools`-module and
+in the Python built-ins, the :py:mod:`itertools`-module and
 :py:mod:`iteration_utilities` as methods.
 
 These can be broadly classified in 4 categories:
@@ -30,7 +30,7 @@ Modifying and chaining operations
 
 As soon as the :py:class:`~iteration_utilities.Iterable` is created one can
 process it. Each of the normal (not prefixed methods) returns the result of
-the operation (as generator!) so these can be arbitarly chained. This allows to
+the operation (as generator!) so these can be arbitrarily chained. This allows to
 chain several operations sequentially.
 
 This can be demonstrated best with an actual example. Suppose we have a
@@ -61,7 +61,7 @@ convenience (and to prevent some problems with infinite iterables) finite
 :py:class:`~iteration_utilities.Iterable` also have methods to
 convert them to the desired class. These are prefixed with ``as_``.
 :py:class:`~iteration_utilities.InfiniteIterable` **don't** have these to avoid
-creating an infinitly long :py:class:`list`.
+creating an infinitely long :py:class:`list`.
 
 .. warning::
    However :py:class:`~iteration_utilities.InfiniteIterable` also implement the

@@ -157,7 +157,7 @@ PyIU_TupleBisectRight_LastFirst(PyObject *tuple,
         return -1;
     }
 
-    /* Start the normal bisection algorithm from biscet.c */
+    /* Start the normal bisection algorithm from bisect.c */
     while (lo < hi) {
         mid = ((size_t)lo + hi) / 2;
         litem = PyTuple_GET_ITEM(tuple, mid);
@@ -566,7 +566,7 @@ merge_setstate(PyIUObject_Merge *self,
             return NULL;
         }
 
-        /* Unfortunatly we have to check each item in the "current" tuple
+        /* Unfortunately we have to check each item in the "current" tuple
            to make sure the "next" function doesn't segfault.
            - Each item must be an "ItemIdxKey" item.
            - Each ItemIdxKey must have a key attribute if we have a keyfunction

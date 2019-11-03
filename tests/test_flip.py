@@ -50,7 +50,7 @@ def test_flip_double_flip1():
 
 
 def test_flip_double_flip2():
-    # A subclass should prevent the behaviour that it simply returns the
+    # A subclass should prevent the behavior that it simply returns the
     # original function when flipped.
     assert FlipSubclass(flip(int)) is not int
     assert flip(FlipSubclass(int)) is not int

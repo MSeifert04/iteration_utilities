@@ -21,7 +21,7 @@ PyIU_AllDistinct(PyObject *Py_UNUSED(m),
         goto Fail;
     }
 
-    /* Almost identical to unique_everseen so no inline commments. */
+    /* Almost identical to unique_everseen so no inline comments. */
     while ( (item = Py_TYPE(iterator)->tp_iternext(iterator)) ) {
 
         /* Check if the item is in seen. */

@@ -185,7 +185,7 @@ replicate_next(PyIUObject_Replicate *self)
 static PyObject *
 replicate_reduce(PyIUObject_Replicate *self, PyObject *Py_UNUSED(args))
 {
-    /* Seperate cases depending on current == NULL because otherwise "None"
+    /* Separate cases depending on current == NULL because otherwise "None"
        would be ambiguous. It could mean that we did not had a current item or
        that the current item was None.
        Better to make an "if" than to introduce another variable depending on

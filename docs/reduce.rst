@@ -3,8 +3,8 @@ Fold functions
 
 Fold functions [0]_ reduce an iterable to a single value.
 
-Builtins
-^^^^^^^^
+Built-ins
+^^^^^^^^^
 
 There are several instances of fold functions Python library:
 
@@ -28,7 +28,7 @@ and also several fold operators:
 Builtin Library functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- :py:func:`functools.reduce`, reduces the iterable by successivly applying a
+- :py:func:`functools.reduce`, reduces the iterable by successively applying a
   binary function.
 
 :py:func:`functools.reduce` is probably the most general function that could be
@@ -43,7 +43,7 @@ used to recreate all the builtin functions. For example:
 
 .. warning::
    These :py:func:`functools.reduce` functions are much slower than the
-   builtins!
+   built-ins!
 
 There are several other fold functions in the standard library and in third-party
 packages, most notably:
@@ -74,7 +74,7 @@ The :py:mod:`iteration_utilities` package includes some additional fold function
 - :py:func:`~iteration_utilities.count_items`, reduces the iterable to the
   number of (matching) items.
 - :py:func:`~iteration_utilities.minmax`, reduces the iterable to a tuple
-  containing the mimumum and maximum value.
+  containing the minimum and maximum value.
 
 - :py:func:`~iteration_utilities.nth`, reduces the iterable to it's nth value.
 - :py:func:`~iteration_utilities.first`, reduces the iterable to it's first

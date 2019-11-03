@@ -231,7 +231,7 @@ sideeffects_next(PyIUObject_Sideeffects *self)
                and the class own a reference to collected so we can only
                reuse the collected tuple IF nobody except the instance owns
                the "funcargs". This can be up to 40-50% faster for small
-               "times" values. Even for relativly bigger ones this is still
+               "times" values. Even for relatively bigger ones this is still
                10% faster.
                To avoid needing to decrement the values in the tuple while
                iterating these are simply set to NULL.

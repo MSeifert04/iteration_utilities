@@ -25,7 +25,7 @@ Functools for several functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - :py:func:`~iteration_utilities.chained`, apply several functions
-  (successivly).
+  (successively).
 
 
 References

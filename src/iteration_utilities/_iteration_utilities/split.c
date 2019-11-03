@@ -55,7 +55,7 @@ PyDoc_STRVAR(split_doc,
     "    Default is ``-1``.\n"
     "\n"
     "keep : :py:class:`bool`\n"
-    "    If ``True`` also include the items where ``key(item)=True`` as seperate list.\n"
+    "    If ``True`` also include the items where ``key(item)=True`` as separate list.\n"
     "    Default is ``False``.\n"
     "\n"
     "keep_before : :py:class:`bool`\n"
@@ -335,7 +335,7 @@ Fail:
 static PyObject *
 split_reduce(PyIUObject_Split *self, PyObject *Py_UNUSED(args))
 {
-    /* Seperate cases depending on next == NULL because otherwise "None"
+    /* Separate cases depending on next == NULL because otherwise "None"
        would be ambiguous. It could mean that we did not had a next item or
        that the next item was None.
        Better to make an "if" than to introduce another variable depending on

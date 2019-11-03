@@ -125,7 +125,7 @@ def test_c_funcs_signatures():
     from operator import itemgetter
     from inspect import Signature
 
-    # Gett all C functions
+    # Get all C functions
     it = (Iterable(chain(_iteration_utilities.__dict__.items()))
           # only include those that do not start with an underscore,
           # we only need user-facing functions/classes
