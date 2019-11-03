@@ -179,33 +179,13 @@ def test_clamp_pickle8(protocol):
 def test_clamp_lengthhint1():
     # When remove=False we can determine the length-hint.
     it = clamp(toT(range(5)), low=T(2), high=T(5), remove=False)
-    assert operator.length_hint(it) == 5
-    next(it)
-    assert operator.length_hint(it) == 4
-    next(it)
-    assert operator.length_hint(it) == 3
-    next(it)
-    assert operator.length_hint(it) == 2
-    next(it)
-    assert operator.length_hint(it) == 1
-    next(it)
-    assert operator.length_hint(it) == 0
+    _hf.check_lengthhint_iteration(it, 5)
 
 
 def test_clamp_lengthhint2():
     # When low and high are not given we can determine the length-hint
     it = clamp(toT(range(5)))
-    assert operator.length_hint(it) == 5
-    next(it)
-    assert operator.length_hint(it) == 4
-    next(it)
-    assert operator.length_hint(it) == 3
-    next(it)
-    assert operator.length_hint(it) == 2
-    next(it)
-    assert operator.length_hint(it) == 1
-    next(it)
-    assert operator.length_hint(it) == 0
+    _hf.check_lengthhint_iteration(it, 5)
 
 
 def test_clamp_lengthhint3():

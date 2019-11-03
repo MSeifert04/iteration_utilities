@@ -97,17 +97,7 @@ def test_intersperse_pickle4(protocol):
 
 def test_intersperse_lengthhint1():
     it = intersperse([1, 2, 3], 2)
-    assert operator.length_hint(it) == 5
-    next(it)
-    assert operator.length_hint(it) == 4
-    next(it)
-    assert operator.length_hint(it) == 3
-    next(it)
-    assert operator.length_hint(it) == 2
-    next(it)
-    assert operator.length_hint(it) == 1
-    next(it)
-    assert operator.length_hint(it) == 0
+    _hf.check_lengthhint_iteration(it, 5)
 
 
 def test_intersperse_lengthhint_failure1():

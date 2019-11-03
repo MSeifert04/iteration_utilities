@@ -128,13 +128,7 @@ def test_successive_pickle2(protocol):
 
 def test_successive_lengthhint1():
     it = successive([0]*6, 4)
-    assert operator.length_hint(it) == 3
-    next(it)
-    assert operator.length_hint(it) == 2
-    next(it)
-    assert operator.length_hint(it) == 1
-    next(it)
-    assert operator.length_hint(it) == 0
+    _hf.check_lengthhint_iteration(it, 3)
 
 
 def test_successive_lengthhint2():

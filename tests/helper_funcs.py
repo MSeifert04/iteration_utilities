@@ -5,6 +5,7 @@ This module contains callable test cases.
 """
 import abc
 import copy
+import operator
 
 import pytest
 
@@ -71,6 +72,15 @@ def iterator_setstate_list_fail(thing):
 def iterator_setstate_empty_fail(thing):
     with pytest.raises(TypeError, match='0 given'):
         thing.__setstate__(())
+
+
+def check_lengthhint_iteration(iterator, expected_start_lengthhint):
+    for length in range(expected_start_lengthhint, 0, -1):
+        assert operator.length_hint(iterator) == length
+        next(iterator)
+    assert operator.length_hint(iterator) == 0
+    with pytest.raises(StopIteration):
+        next(iterator)
 
 
 # Helper classes for certain fail conditions. Bundled here so the tests don't

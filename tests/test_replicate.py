@@ -104,19 +104,7 @@ def test_replicate_pickle2(protocol):
 
 def test_replicate_lengthhint1():
     it = replicate([T(1), T(2)], 3)
-    assert operator.length_hint(it) == 6
-    next(it)
-    assert operator.length_hint(it) == 5
-    next(it)
-    assert operator.length_hint(it) == 4
-    next(it)
-    assert operator.length_hint(it) == 3
-    next(it)
-    assert operator.length_hint(it) == 2
-    next(it)
-    assert operator.length_hint(it) == 1
-    next(it)
-    assert operator.length_hint(it) == 0
+    _hf.check_lengthhint_iteration(it, 6)
 
 
 def test_replicate_failure_lengthhint1():
