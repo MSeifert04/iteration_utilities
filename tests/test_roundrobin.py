@@ -155,17 +155,7 @@ def test_roundrobin_pickle2(protocol):
 
 def test_roundrobin_lengthhint1():
     it = roundrobin([0], [1, 2, 3], [1])
-    assert operator.length_hint(it) == 5
-    next(it)
-    assert operator.length_hint(it) == 4
-    next(it)
-    assert operator.length_hint(it) == 3
-    next(it)
-    assert operator.length_hint(it) == 2
-    next(it)
-    assert operator.length_hint(it) == 1
-    next(it)
-    assert operator.length_hint(it) == 0
+    _hf.check_lengthhint_iteration(it, 5)
 
 
 def test_roundrobin_failure_lengthhint1():

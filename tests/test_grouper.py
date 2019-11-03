@@ -211,18 +211,19 @@ def test_grouper_pickle3(protocol):
     assert list(pickle.loads(x)) == [(T(3), T(4), T(5)), (T(6), T(7), T(8))]
 
 
-def test_grouper_lengthhint1():
-    assert operator.length_hint(grouper([1, 2, 3, 4, 5],
-                                        2, truncate=True)) == 2
-    assert operator.length_hint(grouper([1, 2, 3, 4, 5, 6],
-                                        2, truncate=True)) == 3
-    assert operator.length_hint(grouper([1, 2, 3, 4, 5], 2)) == 3
-    assert operator.length_hint(grouper([1, 2, 3, 4, 5, 6],
-                                        2)) == 3
-    assert operator.length_hint(grouper([1, 2, 3, 4, 5],
-                                        2, fillvalue=None)) == 3
-    assert operator.length_hint(grouper([1, 2, 3, 4, 5, 6],
-                                        2, fillvalue=None)) == 3
+@pytest.mark.parametrize(
+    'length, it',
+    [
+        (2, grouper([1, 2, 3, 4, 5], 2, truncate=True)),
+        (3, grouper([1, 2, 3, 4, 5, 6], 2, truncate=True)),
+        (3, grouper([1, 2, 3, 4, 5], 2)),
+        (3, grouper([1, 2, 3, 4, 5, 6], 2)),
+        (3, grouper([1, 2, 3, 4, 5], 2, fillvalue=None)),
+        (3, grouper([1, 2, 3, 4, 5, 6], 2, fillvalue=None))
+    ]
+)
+def test_grouper_lengthhint1(length, it):
+    _hf.check_lengthhint_iteration(it, length)
 
 
 def test_grouper_lengthhint_failure1():

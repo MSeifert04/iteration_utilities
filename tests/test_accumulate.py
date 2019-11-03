@@ -127,15 +127,7 @@ def test_accumulate_attributes2():
 
 def test_accumulate_lengthhint1():
     it = accumulate([1, 2, 3, 4])
-    assert operator.length_hint(it) == 4
-    next(it)
-    assert operator.length_hint(it) == 3
-    next(it)
-    assert operator.length_hint(it) == 2
-    next(it)
-    assert operator.length_hint(it) == 1
-    next(it)
-    assert operator.length_hint(it) == 0
+    _hf.check_lengthhint_iteration(it, 4)
 
 
 def test_accumulate_lengthhint_failure1():
