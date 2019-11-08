@@ -12,13 +12,12 @@ on:
 jobs:
 
   build-clang:
-    runs-on: ${{ matrix.os }}
+    runs-on: macos-latest
     timeout-minutes: 10
     strategy:
       max-parallel: 6
       matrix:
-        os: [macOS-10.14]
-        python-version: [3.5, 3.7]
+        python-version: [3.5, 3.8]
 
     steps:
     - name: Check out source
@@ -46,11 +45,11 @@ jobs:
         python -m pytest tests/
 
   build-sdist:
-    runs-on: windows-2019
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
       matrix:
-        python-version: [3.7]
+        python-version: [3.8]
 
     steps:
     - name: Check out source
@@ -87,7 +86,7 @@ jobs:
 
 
   build-manylinux:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
       matrix:
@@ -130,14 +129,14 @@ jobs:
     strategy:
       max-parallel: 6
       matrix:
-        os: [windows-2019, ubuntu-18.04, macOS-10.14]
-        python-version: [3.6, 3.7]
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        python-version: [3.6, 3.7, 3.8]
         architecture: [x64, x86]
         exclude:
           - architecture: x86
-            os: macOS-10.14
+            os: macos-latest
           - architecture: x86
-            os: ubuntu-18.04
+            os: ubuntu-latest
 
     steps:
     - name: Check out source
@@ -153,23 +152,27 @@ jobs:
       run: |
         python -m pip install pip setuptools wheel --upgrade
     - name: Create wheel
-      if: matrix.os != 'macOS-10.14'
+      if: matrix.os != 'macos-latest'
       run: |
         python -m pip wheel . --no-deps --wheel-dir=./wheelhouse/ -vv
     - name: Create wheel (macOS)
-      if: matrix.os == 'macOS-10.14'
+      if: matrix.os == 'macos-latest'
       run: |
         python -m pip install delocate
         python -m pip wheel . --no-deps --wheel-dir=./wheelhouse-tmp/ -vv
         python -m delocate.cmd.delocate_listdeps ./wheelhouse-tmp/
     - name: Fix wheel (macOS with Python 3.6)
-      if: matrix.os == 'macOS-10.14' && matrix.python-version == 3.6
+      if: matrix.os == 'macos-latest' && matrix.python-version == 3.6
       run: |
-        python -m delocate.cmd.delocate_wheel -w ./wheelhouse/ ./wheelhouse-tmp/iteration_utilities-0.9.0-cp36-cp36m-macosx_10_14_x86_64.whl -v
+        python -m delocate.cmd.delocate_wheel -w ./wheelhouse/ ./wheelhouse-tmp/iteration_utilities-0.9.0-cp36-cp36m-macosx_10_13_x86_64.whl -v
     - name: Fix wheel (macOS with Python 3.7)
-      if: matrix.os == 'macOS-10.14' && matrix.python-version == 3.7
+      if: matrix.os == 'macos-latest' && matrix.python-version == 3.7
       run: |
-        python -m delocate.cmd.delocate_wheel -w ./wheelhouse/ ./wheelhouse-tmp/iteration_utilities-0.9.0-cp37-cp37m-macosx_10_14_x86_64.whl -v
+        python -m delocate.cmd.delocate_wheel -w ./wheelhouse/ ./wheelhouse-tmp/iteration_utilities-0.9.0-cp37-cp37m-macosx_10_13_x86_64.whl -v
+    - name: Fix wheel (macOS with Python 3.8)
+      if: matrix.os == 'macos-latest' && matrix.python-version == 3.8
+      run: |
+        python -m delocate.cmd.delocate_wheel -w ./wheelhouse/ ./wheelhouse-tmp/iteration_utilities-0.9.0-cp38-cp38-macosx_10_13_x86_64.whl -v
     - name: Install package
       run: |
         python -m pip install iteration_utilities --no-index --find-links=./wheelhouse/ -vv
@@ -184,19 +187,18 @@ jobs:
         python -m pytest tests/
     - name: Upload wheel
       uses: actions/upload-artifact@master
-      if: matrix.os != 'ubuntu-18.04'
+      if: matrix.os != 'ubuntu-latest'
       with:
         name: py${{ matrix.python-version }}-${{ matrix.architecture }}-${{ matrix.os }}
         path: ./wheelhouse/
 
 
   build-docs:
-    runs-on: windows-2019
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
       matrix:
-        python-version: [3.7]
-        architecture: [x86]
+        python-version: [3.8]
 
     steps:
     - name: Check out source
@@ -207,7 +209,6 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
-        architecture: ${{ matrix.architecture }}
     - name: Install dependencies
       run: |
         python -m pip install pip setuptools --upgrade
@@ -226,141 +227,10 @@ jobs:
         name: docs
         path: ./build/sphinx/html/
 
-
-  build-py38-windows:
-    runs-on: windows-2019
-    timeout-minutes: 10
-    strategy:
-      matrix:
-        architecture: [x86, x64]
-
-    steps:
-    - name: Check out source
-      uses: actions/checkout@v1
-      with:
-        fetch-depth: 1
-    - name: Download Python 3.8 (x86)
-      if: matrix.architecture == 'x86'
-      run: |
-        curl https://www.python.org/ftp/python/3.8.0/python-3.8.0.exe --output pythoninstaller.exe
-        python ci/verify_checksum.py pythoninstaller.exe 412a649d36626d33b8ca5593cf18318c
-    - name: Install Python 3.8 (x86)
-      if: matrix.architecture == 'x86'
-      shell: cmd
-      run: |
-        pythoninstaller.exe /passive TargetDir=%LocalAppData%\Programs\Python38 AssociateFiles=0 CompileAll=0 PrependPath=1 Shortcuts=0 Include_doc=0 Include_debug=0 Include_dev=1 Include_exe=1 Include_launcher=0 Include_lib=1 Include_pip=1 Include_symbols=0 Include_tcltk=0 Include_test=0 Include_tools=0
-    - name: Download Python 3.8 (x64)
-      if: matrix.architecture == 'x64'
-      run: |
-        curl https://www.python.org/ftp/python/3.8.0/python-3.8.0-amd64.exe --output pythoninstaller.exe
-        python ci/verify_checksum.py pythoninstaller.exe 29ea87f24c32f5e924b7d63f8a08ee8d
-    - name: Install Python 3.8 (x64)
-      if: matrix.architecture == 'x64'
-      shell: cmd
-      run: |
-        pythoninstaller.exe /passive TargetDir=%LocalAppData%\Programs\Python38 AssociateFiles=0 CompileAll=0 PrependPath=1 Shortcuts=0 Include_doc=0 Include_debug=0 Include_dev=1 Include_exe=1 Include_launcher=0 Include_lib=1 Include_pip=1 Include_symbols=0 Include_tcltk=0 Include_test=0 Include_tools=0
-    - name: Remove download
-      run: |
-        python -c "import os; os.remove('./pythoninstaller.exe')"
-    - name: Install dependencies
-      shell: cmd
-      run: |
-        "%LocalAppData%\Programs\Python38\python.exe" -m pip install pip setuptools wheel --upgrade --no-warn-script-location
-    - name: Create wheel
-      shell: cmd
-      run: |
-        "%LocalAppData%\Programs\Python38\python.exe" -m pip wheel . --no-deps --wheel-dir=./wheelhouse/ -vv
-    - name: Install package
-      shell: cmd
-      run: |
-        "%LocalAppData%\Programs\Python38\python.exe" -m pip install iteration_utilities --no-index --find-links=./wheelhouse/ -vv
-    - name: Import package
-      shell: cmd
-      run: |
-        "%LocalAppData%\Programs\Python38\python.exe" -c "import iteration_utilities"
-    - name: Install test dependencies
-      shell: cmd
-      run: |
-        "%LocalAppData%\Programs\Python38\python.exe" -m pip install pytest --no-warn-script-location
-    - name: Run tests
-      shell: cmd
-      run: |
-        "%LocalAppData%\Programs\Python38\python.exe" -m pytest tests/
-    - name: Upload wheel
-      uses: actions/upload-artifact@master
-      with:
-        name: py3.8-${{ matrix.architecture }}-windows-2019
-        path: ./wheelhouse/
-
-
-  build-py38-linux-docker-buster:
-    runs-on: ubuntu-18.04
-    timeout-minutes: 10
-    steps:
-    - name: Check out source
-      uses: actions/checkout@v1
-      with:
-        fetch-depth: 1
-    - name: Download Docker Image
-      run: |
-        docker pull python:3.8.0-buster
-    - name: Run Docker Image
-      run: |
-        docker run --rm -v $(pwd):/io python:3.8.0-buster /bin/bash -c "$(cat ./ci/run-py38.sh)"
-
-
-  build-py38-macOS:
-    runs-on: macOS-10.14
-    timeout-minutes: 10
-
-    steps:
-    - name: Check out source
-      uses: actions/checkout@v1
-      with:
-        fetch-depth: 1
-    - name: Download Python 3.8
-      run: |
-        curl https://www.python.org/ftp/python/3.8.0/python-3.8.0-macosx10.9.pkg --output pythoninstaller.pkg
-        python3 ci/verify_checksum.py pythoninstaller.pkg f5f9ae9f416170c6355cab7256bb75b5
-    - name: Install Python 3.8
-      run: |
-        sudo installer -pkg pythoninstaller.pkg -target /
-    - name: Remove download
-      run: |
-        python3 -c "import os; os.remove('./pythoninstaller.pkg')"
-    - name: Install dependencies
-      run: |
-        python3.8 -m pip install pip setuptools wheel delocate --upgrade --user --no-warn-script-location
-    - name: Create temporary wheel
-      run: |
-        python3.8 -m pip wheel . --no-deps --wheel-dir=./wheelhouse-tmp/ -vv
-    - name: Create wheel
-      run: |
-        python3.8 -m delocate.cmd.delocate_listdeps ./wheelhouse-tmp/iteration_utilities-0.9.0-cp38-cp38-macosx_10_9_x86_64.whl
-        python3.8 -m delocate.cmd.delocate_wheel -w ./wheelhouse/ ./wheelhouse-tmp/iteration_utilities-0.9.0-cp38-cp38-macosx_10_9_x86_64.whl -v
-    - name: Install package
-      run: |
-        python3.8 -m pip install iteration_utilities --no-index --find-links=./wheelhouse/ --user -vv
-    - name: Import package
-      run: |
-        python3.8 -c "import iteration_utilities"
-    - name: Install test dependencies
-      run: |
-        python3.8 -m pip install pytest --user --no-warn-script-location
-    - name: Run tests
-      run: |
-        python3.8 -m pytest tests/
-    - name: Upload wheel
-      uses: actions/upload-artifact@master
-      with:
-        name: py3.8-x64-macOS-10.14
-        path: ./wheelhouse/
-
-
   bundle-artifacts:
-    runs-on: windows-2019
+    runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [build-py38-macOS, build-py38-windows, build-docs, build, build-manylinux, build-sdist]
+    needs: [build-docs, build, build-manylinux, build-sdist]
 
     steps:
     - uses: actions/download-artifact@master
@@ -371,7 +241,7 @@ jobs:
       with:
         name: py_sdist
     - run: |
-        Rename-Item py_sdist sdist
+        mv py_sdist sdist
 
     - run: |
         mkdir wheels
@@ -379,68 +249,68 @@ jobs:
       with:
         name: pymanylinux1_i686
     - run: |
-        move pymanylinux1_i686\* wheels
-        rmdir pymanylinux1_i686
+        mv ./pymanylinux1_i686/* ./wheels
+        rmdir ./pymanylinux1_i686
     - uses: actions/download-artifact@master
       with:
         name: pymanylinux2010_x86_64
     - run: |
-        move pymanylinux2010_x86_64\* wheels
-        rmdir pymanylinux2010_x86_64
+        mv ./pymanylinux2010_x86_64/* ./wheels
+        rmdir ./pymanylinux2010_x86_64
     - uses: actions/download-artifact@master
       with:
-        name: py3.6-x64-windows-2019
+        name: py3.6-x64-windows-latest
     - run: |
-        move py3.6-x64-windows-2019\* wheels
-        rmdir py3.6-x64-windows-2019
+        mv ./py3.6-x64-windows-latest/* ./wheels
+        rmdir ./py3.6-x64-windows-latest
     - uses: actions/download-artifact@master
       with:
-        name: py3.6-x86-windows-2019
+        name: py3.6-x86-windows-latest
     - run: |
-        move py3.6-x86-windows-2019\* wheels
-        rmdir py3.6-x86-windows-2019
+        mv ./py3.6-x86-windows-latest/* ./wheels
+        rmdir ./py3.6-x86-windows-latest
     - uses: actions/download-artifact@master
       with:
-        name: py3.6-x64-macOS-10.14
+        name: py3.6-x64-macos-latest
     - run: |
-        move py3.6-x64-macOS-10.14\* wheels
-        rmdir py3.6-x64-macOS-10.14
+        mv ./py3.6-x64-macos-latest/* ./wheels
+        rmdir ./py3.6-x64-macos-latest
     - uses: actions/download-artifact@master
       with:
-        name: py3.7-x64-windows-2019
+        name: py3.7-x64-windows-latest
     - run: |
-        move py3.7-x64-windows-2019\* wheels
-        rmdir py3.7-x64-windows-2019
+        mv ./py3.7-x64-windows-latest/* ./wheels
+        rmdir ./py3.7-x64-windows-latest
     - uses: actions/download-artifact@master
       with:
-        name: py3.7-x86-windows-2019
+        name: py3.7-x86-windows-latest
     - run: |
-        move py3.7-x86-windows-2019\* wheels
-        rmdir py3.7-x86-windows-2019
+        mv ./py3.7-x86-windows-latest/* ./wheels
+        rmdir ./py3.7-x86-windows-latest
     - uses: actions/download-artifact@master
       with:
-        name: py3.7-x64-macOS-10.14
+        name: py3.7-x64-macos-latest
     - run: |
-        move py3.7-x64-macOS-10.14\* wheels
-        rmdir py3.7-x64-macOS-10.14
+        mv ./py3.7-x64-macos-latest/* ./wheels
+        rmdir ./py3.7-x64-macos-latest
     - uses: actions/download-artifact@master
       with:
-        name: py3.8-x64-windows-2019
+        name: py3.8-x64-windows-latest
     - run: |
-        move py3.8-x64-windows-2019\* wheels
-        rmdir py3.8-x64-windows-2019
+        mv ./py3.8-x64-windows-latest/* ./wheels
+        rmdir ./py3.8-x64-windows-latest
     - uses: actions/download-artifact@master
       with:
-        name: py3.8-x86-windows-2019
+        name: py3.8-x86-windows-latest
     - run: |
-        move py3.8-x86-windows-2019\* wheels
-        rmdir py3.8-x86-windows-2019
+        mv ./py3.8-x86-windows-latest/* ./wheels
+        rmdir ./py3.8-x86-windows-latest
     - uses: actions/download-artifact@master
       with:
-        name: py3.8-x64-macOS-10.14
+        name: py3.8-x64-macos-latest
     - run: |
-        move py3.8-x64-macOS-10.14\* wheels
-        rmdir py3.8-x64-macOS-10.14
+        mv ./py3.8-x64-macos-latest/* ./wheels
+        rmdir ./py3.8-x64-macos-latest
     - name: Upload all
       uses: actions/upload-artifact@master
       with:

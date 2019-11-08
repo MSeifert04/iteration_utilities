@@ -12,13 +12,12 @@ on:
 jobs:
 
   coverage:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
       max-parallel: 6
       matrix:
-        os: [ubuntu-18.04]
-        python-version: [3.5, 3.6, 3.7]
+        python-version: [3.5, 3.6, 3.7, 3.8]
 
     steps:
     - name: Check out source
@@ -47,45 +46,4 @@ jobs:
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       run: |
-        curl -s https://codecov.io/bash | bash -s -- -t $CODECOV_TOKEN -F unittests -n ${{ matrix.os }}-${{ matrix.python-version }}
-
-
-  build-py38-ubuntu-coverage:
-    runs-on: ubuntu-18.04
-    timeout-minutes: 10
-
-    steps:
-    - name: Check out source
-      uses: actions/checkout@v1
-      with:
-        fetch-depth: 1
-    - name: Download Python 3.8
-      run: |
-        wget https://www.python.org/ftp/python/3.8.0/Python-3.8.0.tgz -q
-        python3 ci/verify_checksum.py Python-3.8.0.tgz e18a9d1a0a6d858b9787e03fc6fdaa20
-    - name: Install Python 3.8
-      run: |
-        tar xzf Python-3.8.0.tgz
-        cd Python-3.8.0
-        ./configure --enable-optimizations
-        sudo make altinstall
-    - name: Remove download
-      run: |
-        sudo python3.8 -c "import os; os.remove('./Python-3.8.0.tgz'); import shutil; shutil.rmtree('./Python-3.8.0/')"
-    - name: Install dependencies
-      run: |
-        python3.8 -m pip install pip setuptools wheel --upgrade --user --no-warn-script-location
-    - name: Install package
-      run: |
-        CFLAGS="-coverage" python3.8 setup.py install --user
-    - name: Install test dependencies
-      run: |
-        python3.8 -m pip install pytest pytest-cov --user --no-warn-script-location
-    - name: Run tests
-      run: |
-        python3.8 -m pytest tests/ --cov=iteration_utilities --cov-report=xml --cov-config=./setup.cfg
-    - name: Upload Coverage report
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      run: |
-        curl -s https://codecov.io/bash | bash -s -- -t $CODECOV_TOKEN -F unittests -n ubuntu-18.04-3.8
+        curl -s https://codecov.io/bash | bash -s -- -t $CODECOV_TOKEN -F unittests -n ubuntu-${{ matrix.python-version }}
