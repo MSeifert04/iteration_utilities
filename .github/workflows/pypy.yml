@@ -17,7 +17,7 @@ jobs:
     strategy:
       max-parallel: 6
       matrix:
-        os: [ubuntu-18.04, macOS-10.14]  # Windows disabled because it's not finding the C compiler ... :/
+        os: [ubuntu-latest, macos-latest]  # Windows disabled because it's not finding the C compiler ... :/
 
     steps:
     - name: Check out source
@@ -41,7 +41,7 @@ jobs:
       run: |
         pypy3 -m pip install pytest
     - name: Run tests (only MacOS)
-      if: matrix.os == 'macOS-10.14'  # unfortunately runs into a segfault on Linux
+      if: matrix.os == 'macOS-latest'  # unfortunately runs into a segfault on Linux
       run: |
         pypy3 -m pytest tests/ -v
 
@@ -52,7 +52,7 @@ jobs:
     strategy:
       max-parallel: 6
       matrix:
-        os: [ubuntu-16.04, macOS-10.14]  # Windows disabled because it's not finding the C compiler ... :/
+        os: [ubuntu-16.04, macos-latest]  # Windows disabled because it's not finding the C compiler ... :/
 
     steps:
     - name: Check out source
@@ -60,7 +60,7 @@ jobs:
       with:
         fetch-depth: 1
     - name: Install dependencies
-      if: matrix.os == 'windows-2019'
+      if: matrix.os == 'windows-latest'
       run: |
         python3 -c "import urllib.request; urllib.request.urlretrieve ('https://bitbucket.org/pypy/pypy/downloads/pypy3.6-v7.2.0-win32.zip', './pypy.zip')"
         python3 -c "import zipfile; zip_ref = zipfile.ZipFile('./pypy.zip', 'r'); zip_ref.extractall('./pypy/'); zip_ref.close()"
@@ -77,7 +77,7 @@ jobs:
         ./pypy3.6-v7.2.0-linux64/bin/pypy3 -m pip install pytest
         # ./pypy3.6-v7.2.0-linux64/bin/pypy3 -m pytest tests -v  # unfortunately runs into a segfault
     - name: Test installation and test (MacOS)
-      if: matrix.os == 'macOS-10.14'
+      if: matrix.os == 'macOS-latest'
       run: |
         python3 -c "import urllib.request; urllib.request.urlretrieve ('https://bitbucket.org/pypy/pypy/downloads/pypy3.6-v7.2.0-osx64.tar.bz2', './pypy.tar.bz2')"
         python3 -c "import tarfile; tar = tarfile.open('./pypy.tar.bz2', 'r:bz2'); tar.extractall('.'); tar.close()"
