@@ -15,7 +15,6 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 10
     strategy:
-      max-parallel: 6
       matrix:
         python-version: [3.5, 3.8]
 
@@ -127,7 +126,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     strategy:
-      max-parallel: 6
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
         python-version: [3.6, 3.7, 3.8]
