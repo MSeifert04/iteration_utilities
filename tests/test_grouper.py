@@ -45,6 +45,13 @@ def test_grouper_normal6():
                                                          (T(4), T(5), T(6))]
 
 
+def test_grouper_normal10():
+    inp = toT(range(1, 10))
+    exp = [(T(1), T(2), T(3)), (T(4), T(5), T(6)), (T(7), T(8), T(9))]
+    for i, e in zip(grouper(inp, 3), exp):
+        assert i == e
+
+
 def test_grouper_normal7():
     # generator
     assert list(grouper((i for i in toT([1, 2, 3, 4, 5, 6])), 3)
