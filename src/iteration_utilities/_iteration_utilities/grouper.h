@@ -9,7 +9,6 @@ typedef struct {
     PyObject_HEAD
     PyObject *iterator;
     PyObject *fillvalue;
-    PyObject *result;
     Py_ssize_t times;
     int truncate;
 } PyIUObject_Grouper;
