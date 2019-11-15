@@ -5,6 +5,12 @@
 #include <Python.h>
 #include "helpercompat.h"
 
+#ifdef PyIU_DEBUG
+  #define PyIU_ASSERT(e) if (!(e)) { fprintf(stderr, "Assertion failed: %s\nFile: %s\nLine: %d\n", #e, __FILE__, __LINE__); abort(); }
+#else
+  #define PyIU_ASSERT(e)
+#endif
+
 #define PyIU_Set_CheckExact(ob) (Py_TYPE(ob) == &PySet_Type)
 
 #define PyIU_SMALL_ARG_STACK_SIZE 5

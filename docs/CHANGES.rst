@@ -7,6 +7,8 @@ Version 0.10.0 (unreleased)
 - Exception message for ``one`` if the *iterable* contains more than one element
   does show the first two elements.
 
+- Fixed a bug in ``grouper`` that lead to a fatal exception.
+
 
 Version 0.9.0 (2019-11-02)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^

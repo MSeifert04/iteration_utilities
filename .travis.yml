@@ -17,6 +17,12 @@ matrix:
       install: CC=clang python -m pip install . --no-deps -vv
     - python: "3.8"
       install: CC=clang python -m pip install . --no-deps -vv
+    - python: "3.5"
+      install: python -m pip install . -vv --global-option=build_ext --global-option="--define=PyIU_DEBUG"
+      script: python -m pytest tests/ -s
+    - python: "3.8"
+      install: python -m pip install . -vv --global-option=build_ext --global-option="--define=PyIU_DEBUG"
+      script: python -m pytest tests/ -s
 
 before_install:
   - python -m pip install pip setuptools --upgrade

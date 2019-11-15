@@ -191,6 +191,48 @@ jobs:
         path: ./wheelhouse/
 
 
+  build-debug:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        architecture: [x64]
+        include:
+          - python-version: 3.5
+            os: macos-latest
+          - python-version: 3.6
+            os: ubuntu-latest
+          - python-version: 3.8
+            os: windows-latest
+
+    steps:
+    - name: Check out source
+      uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+        architecture: ${{ matrix.architecture }}
+    - name: Install dependencies
+      run: |
+        python -m pip install pip setuptools wheel --upgrade
+    - name: Install with PyIU_DEBUG macro
+      run: |
+        python -m pip install . -vv --global-option=build_ext --global-option="--define=PyIU_DEBUG"
+    - name: Import package
+      run: |
+        python -c "import iteration_utilities"
+    - name: Install test dependencies
+      run: |
+        python -m pip install pytest
+    - name: Run tests
+      run: |
+        python -m pytest tests/ -s
+
+
   build-docs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
