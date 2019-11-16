@@ -29,6 +29,8 @@ void PyIU_InitializeConstants(void) {
 PyObject *
 PyIU_CreateIteratorTuple(PyObject *tuple)
 {
+    PyIU_ASSERT(tuple != NULL && PyTuple_CheckExact(tuple));
+
     PyObject *newtuple;
     Py_ssize_t i;
     Py_ssize_t tuplesize = PyTuple_GET_SIZE(tuple);
@@ -57,6 +59,8 @@ PyIU_CreateIteratorTuple(PyObject *tuple)
 PyObject *
 PyIU_TupleReverse(PyObject *tuple)
 {
+    PyIU_ASSERT(tuple != NULL && PyTuple_CheckExact(tuple));
+
     PyObject *newtuple;
     Py_ssize_t i, j;
     Py_ssize_t tuplesize = PyTuple_GET_SIZE(tuple);
@@ -85,6 +89,8 @@ PyIU_TupleReverse(PyObject *tuple)
 PyObject *
 PyIU_TupleCopy(PyObject *tuple)
 {
+    PyIU_ASSERT(tuple != NULL && PyTuple_CheckExact(tuple));
+
     PyObject *newtuple;
     Py_ssize_t i;
     Py_ssize_t tuplesize = PyTuple_GET_SIZE(tuple);
@@ -124,7 +130,11 @@ PyIU_TupleInsert(PyObject *tuple,
                  PyObject *v,
                  Py_ssize_t num)
 {
-    /* Temporary variables */
+    PyIU_ASSERT(tuple != NULL && PyTuple_CheckExact(tuple));
+    PyIU_ASSERT(where >= 0 && where < PyTuple_GET_SIZE(tuple));
+    PyIU_ASSERT(v != NULL);
+    PyIU_ASSERT(num >= 0 && num <= PyTuple_GET_SIZE(tuple));
+
     Py_ssize_t i;
 
     /* Move each of them to the next place, starting by the next-to-last
@@ -158,7 +168,10 @@ PyIU_TupleRemove(PyObject *tuple,
                  Py_ssize_t where,
                  Py_ssize_t num)
 {
-    /* Temporary variables */
+    PyIU_ASSERT(tuple != NULL && PyTuple_CheckExact(tuple));
+    PyIU_ASSERT(where >= 0 && where < PyTuple_GET_SIZE(tuple));
+    PyIU_ASSERT(num >= 0 && num <= PyTuple_GET_SIZE(tuple));
+
     Py_ssize_t i;
 
     /* Move each item to the left from the after-where index until the end of
@@ -184,6 +197,9 @@ PyIU_TupleRemove(PyObject *tuple,
 
 PyObject *
 PyIU_TupleGetSlice(PyObject *tuple, Py_ssize_t num) {
+    PyIU_ASSERT(tuple != NULL && PyTuple_CheckExact(tuple));
+    PyIU_ASSERT(num >= 0 && num < PyTuple_GET_SIZE(tuple));
+
     Py_ssize_t i;
     PyObject *result = PyTuple_New(num);
     if (result == NULL) {

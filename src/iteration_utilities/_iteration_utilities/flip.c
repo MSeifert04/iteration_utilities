@@ -142,7 +142,7 @@ flip_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *k
     }
 
     if (n_args > PyIU_SMALL_ARG_STACK_SIZE) {
-        stack = PyMem_Malloc(n_args * sizeof(PyObject *));
+        stack = PyIU_AllocatePyObjectArray(n_args);
         if (stack == NULL) {
             return PyErr_NoMemory();
         }

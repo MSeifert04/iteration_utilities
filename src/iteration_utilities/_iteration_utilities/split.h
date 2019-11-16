@@ -5,7 +5,7 @@
 #include <Python.h>
 #include "helpercompat.h"
 
-enum {
+enum PyIU_SplitKeepOption {
     PyIU_Split_KeepNone,
     PyIU_Split_Keep,
     PyIU_Split_KeepAfter,
@@ -17,7 +17,7 @@ typedef struct {
     PyObject *iterator;
     PyObject *delimiter;
     Py_ssize_t maxsplit;
-    int keep;
+    enum PyIU_SplitKeepOption keep;
     int cmp;
     PyObject *next;
 } PyIUObject_Split;

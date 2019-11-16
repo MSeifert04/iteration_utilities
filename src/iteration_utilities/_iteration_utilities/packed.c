@@ -175,7 +175,7 @@ packed_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject 
     num_new_args = num_packed_args + num_keyword_args;
 
     if (num_new_args > PyIU_SMALL_ARG_STACK_SIZE) {
-        stack = PyMem_Malloc(num_new_args * sizeof(PyObject *));
+        stack = PyIU_AllocatePyObjectArray(num_new_args);
         if (stack == NULL) {
             Py_DECREF(packed);
             return PyErr_NoMemory();
