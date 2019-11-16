@@ -1,7 +1,7 @@
 Changelog for "iteration_utilities"
 -----------------------------------
 
-Version 0.10.0 (unreleased)
+Version 0.10.0 (2019-11-16)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Exception message for ``one`` if the *iterable* contains more than one element
