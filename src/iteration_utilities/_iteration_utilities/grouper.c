@@ -3,6 +3,7 @@
  *****************************************************************************/
 
 #include "grouper.h"
+#include "helper.h"
 #include "docs_reduce.h"
 #include "docs_setstate.h"
 #include "docs_lengthhint.h"
@@ -137,6 +138,8 @@ Fail:
 static void
 grouper_dealloc(PyIUObject_Grouper *self)
 {
+    PyIU_ASSERT(self->result == NULL || Py_REFCNT(self->result) > 0);
+
     PyObject_GC_UnTrack(self);
     Py_XDECREF(self->iterator);
     Py_XDECREF(self->fillvalue);
@@ -197,6 +200,7 @@ grouper_next(PyIUObject_Grouper *self)
     recycle = PYIU_CPYTHON && (Py_REFCNT(result) == 1);
     if (recycle) {
         newresult = result;
+        Py_INCREF(newresult);
     } else {
         newresult = PyTuple_New(self->times);
         if (newresult == NULL) {
@@ -213,6 +217,7 @@ grouper_next(PyIUObject_Grouper *self)
                 if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
                     PyErr_Clear();
                 } else {
+                    Py_DECREF(newresult);
                     return NULL;
                 }
             }
@@ -272,9 +277,6 @@ grouper_next(PyIUObject_Grouper *self)
         } else {
             PyTuple_SET_ITEM(newresult, idx1, item);
         }
-    }
-    if (recycle) {
-        Py_INCREF(newresult);
     }
     return newresult;
 }

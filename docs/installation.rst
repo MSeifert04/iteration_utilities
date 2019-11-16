@@ -46,6 +46,23 @@ Or build the documentation::
     sphinx-build -b html -W -a -n docs/ build/sphinx/html/  # local documentation build
 
 
+Testing debug installation
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To run the tests using the internal assertions one has to define the ``PyIU_DEBUG``
+macro while building the library::
+
+   python -m pip install . --global-option=build_ext --global-option="--define=PyIU_DEBUG"
+
+Then run the tests without capturing ``stderr``::
+
+   python -m pytest tests/ -s
+
+.. note::
+   This should not be confused with **real** debug builds. The ``PyIU_DEBUG``
+   macro only enables the library specific assertions.
+
+
 Dependencies
 ^^^^^^^^^^^^
 
