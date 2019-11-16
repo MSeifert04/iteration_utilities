@@ -8,16 +8,13 @@ on:
     branches:
       - master
 
-
 jobs:
-
   coverage:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
       matrix:
         python-version: [3.5, 3.6, 3.7, 3.8]
-
     steps:
     - name: Check out source
       uses: actions/checkout@v1

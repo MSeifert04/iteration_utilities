@@ -8,16 +8,13 @@ on:
     branches:
       - master
 
-
 jobs:
-
   build-pypy:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]  # Windows disabled because it's not finding the C compiler ... :/
-
     steps:
     - name: Check out source
       uses: actions/checkout@v1
@@ -43,15 +40,12 @@ jobs:
       if: matrix.os == 'macOS-latest'  # unfortunately runs into a segfault on Linux
       run: |
         pypy3 -m pytest tests/ -v
-
-
   build-pypy-7-2-0:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     strategy:
       matrix:
         os: [ubuntu-16.04, macos-latest]  # Windows disabled because it's not finding the C compiler ... :/
-
     steps:
     - name: Check out source
       uses: actions/checkout@v1
