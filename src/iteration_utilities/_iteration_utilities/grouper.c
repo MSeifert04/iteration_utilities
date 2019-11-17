@@ -180,105 +180,108 @@ grouper_clear(PyIUObject_Grouper *self)
  *****************************************************************************/
 
 static PyObject *
-grouper_next(PyIUObject_Grouper *self)
+grouper_next_last(PyIUObject_Grouper *self, PyObject *result, Py_ssize_t idx, int recycle)
 {
-    PyObject *result = self->result;
+    PyIU_ASSERT(self != NULL);
+    PyIU_ASSERT(result != NULL && PyTuple_CheckExact(result));
+    PyIU_ASSERT(idx >= 0 && idx < PyTuple_GET_SIZE(result));
 
-    PyObject *newresult, *lastresult, *item, *olditem;
-    Py_ssize_t idx1, idx2;
-    int recycle;
-
-    /* First call needs to create a tuple for the result. */
-    if (result == NULL) {
-        result = PyTuple_New(self->times);
-        self->result = result;
-    }
-
-    /* Recycle old result if the instance is the only one holding a reference,
-       otherwise create a new tuple.
-       */
-    recycle = PYIU_CPYTHON && (Py_REFCNT(result) == 1);
-    if (recycle) {
-        newresult = result;
-        Py_INCREF(newresult);
-    } else {
-        newresult = PyTuple_New(self->times);
-        if (newresult == NULL) {
+    /* No need to keep the result in the instance anymore. */
+    Py_CLEAR(self->result);
+    if (PyErr_Occurred()) {
+        if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
+            PyErr_Clear();
+        } else {
+            Py_DECREF(result);
             return NULL;
         }
     }
 
-    /* Take the next self->times elements from the iterator.  */
-    for (idx1=0 ; idx1<self->times ; idx1++) {
-        item = Py_TYPE(self->iterator)->tp_iternext(self->iterator);
-
-        if (item == NULL) {
-            if (PyErr_Occurred()) {
-                if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
-                    PyErr_Clear();
-                } else {
-                    Py_DECREF(newresult);
-                    return NULL;
-                }
-            }
-            /* In case it would be the first element of a new tuple or we
-               truncate the iterator we stop here.
-               */
-            if (idx1 == 0 || self->truncate != 0) {
-                Py_DECREF(newresult);
-                return NULL;
-
-            /* If we want to fill the last group just proceed but use the
-               fillvalue as item.
-               */
-            } else if (self->fillvalue != NULL) {
-                Py_INCREF(self->fillvalue);
-                item = self->fillvalue;
-
-            /* Otherwise we need a return just the last idx1 items. Because
-               idx1 is by definition smaller than self->times we need a new
-               tuple to hold the result.
-               */
+    if (idx == 0 || self->truncate != 0) {
+        /* In case it would be the first element of a new tuple or we
+            truncate the iterator we stop here. */
+        Py_DECREF(result);
+        return NULL;
+    } else if (self->fillvalue != NULL) {
+        /* If we want to fill the last group just proceed but use the
+            fillvalue as item. */
+        while (idx < self->times) {
+            Py_INCREF(self->fillvalue);
+            if (recycle) {
+                PyObject *tmp = PyTuple_GET_ITEM(result, idx);
+                PyTuple_SET_ITEM(result, idx, self->fillvalue);
+                PyIU_ASSERT(tmp != NULL);
+                Py_DECREF(tmp);
             } else {
-                lastresult = PyTuple_New(idx1);
-                if (lastresult == NULL) {
-                    Py_DECREF(newresult);
-                    return NULL;
-                }
-                /* Fill in already found values. The Incref them is save
-                   because the old references will be destroyed when the old
-                   tuple is destroyed.
-                   -> Maybe use _PyTuple_Resize but the warning in the docs
-                   that one shouldn't assume that the tuple is the same made
-                   me hesitate.
-                   */
-                for (idx2=0 ; idx2<idx1 ; idx2++) {
-                    olditem = PyTuple_GET_ITEM(newresult, idx2);
-                    Py_INCREF(olditem);
-                    PyTuple_SET_ITEM(lastresult, idx2, olditem);
-                }
-                Py_DECREF(newresult);
-                return lastresult;
+                PyTuple_SET_ITEM(result, idx, self->fillvalue);
             }
+            idx++;
         }
+        return result;
+    } else {
+        /* Otherwise we need a return just the last idx1 items. Because
+            idx1 is by definition smaller than self->times we need a new
+            tuple to hold the result. */
+        PyObject *last_result = PyIU_TupleGetSlice(result, idx);
+        Py_DECREF(result);
+        return last_result;
+    }
+}
 
-        /* If we recycle we need to decref the old results before replacing
-           them.
-           */
+static PyObject *
+grouper_next(PyIUObject_Grouper *self)
+{
+    PyObject *result;
+    Py_ssize_t idx;
+    int recycle = 0;
+
+    /* First call needs to create a tuple for the result. */
+    if (self->result == NULL) {
+        result = PyTuple_New(self->times);
+        if (result == NULL) {
+            return NULL;
+        }
+        Py_INCREF(result);
+        self->result = result;
+    } else {
+        /* Recycle old result if the instance is the only one holding a reference,
+           otherwise create a new tuple. */
+        recycle = PYIU_CPYTHON && (Py_REFCNT(self->result) == 1);
         if (recycle) {
-            olditem = PyTuple_GET_ITEM(newresult, idx1);
-            PyTuple_SET_ITEM(newresult, idx1, item);
-            /* May be insecure because deleting elements might have
-               consequences for the sequence. A better way would be to keep
-               all of them until the tuple elements are replaced and then to
-               delete them.
-               */
-            Py_XDECREF(olditem);
+            result = self->result;
+            Py_INCREF(result);
         } else {
-            PyTuple_SET_ITEM(newresult, idx1, item);
+            result = PyTuple_New(self->times);
+            if (result == NULL) {
+                return NULL;
+            }
         }
     }
-    return newresult;
+
+    /* Take the next self->times elements from the iterator.  */
+    for (idx = 0; idx < self->times; idx++) {
+        PyObject *item = Py_TYPE(self->iterator)->tp_iternext(self->iterator);
+
+        if (item != NULL) {
+            if (recycle) {
+                /* If we recycle we need to decref the old results before
+                   replacing them.
+                   May be insecure because deleting elements might have
+                   consequences for the sequence. A better way would be to keep
+                   all of them until the tuple elements are replaced and then to
+                   delete them. */
+                PyObject *tmp = PyTuple_GET_ITEM(result, idx);
+                PyTuple_SET_ITEM(result, idx, item);
+                PyIU_ASSERT(tmp != NULL);
+                Py_DECREF(tmp);
+            } else {
+                PyTuple_SET_ITEM(result, idx, item);
+            }
+        } else {
+            return grouper_next_last(self, result, idx, recycle);
+        }
+    }
+    return result;
 }
 
 /******************************************************************************
