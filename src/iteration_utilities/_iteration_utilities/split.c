@@ -125,7 +125,7 @@ split_new(PyTypeObject *type,
     PyObject *iterator=NULL;
     Py_ssize_t maxsplit = -1;  /* -1 means no maxsplit! */
     int keep_delimiter = 0, keep_before = 0, keep_after = 0, cmp = 0;
-    int keep = PyIU_Split_KeepNone;
+    enum PyIU_SplitKeepOption keep = PyIU_Split_KeepNone;
 
     /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|niiii:split", kwlist,

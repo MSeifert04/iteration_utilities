@@ -367,6 +367,8 @@ seen_reduce(PyIUObject_Seen *self, PyObject *Py_UNUSED(args))
 Py_ssize_t
 PyIUSeen_Size(PyIUObject_Seen *self)
 {
+    PyIU_ASSERT(self != NULL);
+
     if (self->seenlist != NULL) {
         return PySet_Size(self->seenset) + PyList_GET_SIZE(self->seenlist);
     } else {
@@ -461,15 +463,8 @@ int
 PyIUSeen_ContainsAdd(PyObject *self,
                      PyObject *o)
 {
-    /* In the interest of keeping it fast, no check if it's really a Seen
-       instance - SEGFAULT if not!
-       However the API is not exported so only crashes in-library stuff.
+    PyIU_ASSERT(self != NULL && PyIUSeen_CheckExact(self));
 
-    if (!PyIUSeen_CheckExact(self)) {
-        PyErr_SetString(PyExc_TypeError, "only works for `Seen` instances.");
-        return NULL;
-    }
-    */
     return seen_containsadd_direct((PyIUObject_Seen *)self, o);
 }
 

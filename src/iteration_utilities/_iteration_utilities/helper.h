@@ -6,7 +6,13 @@
 #include "helpercompat.h"
 
 #ifdef PyIU_DEBUG
-  #define PyIU_ASSERT(e) if (!(e)) { fprintf(stderr, "Assertion failed: %s\nFile: %s\nLine: %d\n", #e, __FILE__, __LINE__); abort(); }
+  #define PyIU_ASSERT(e) \
+    do { \
+        if (!(e)) { \
+            fprintf(stderr, "Assertion failed: %s\nFile: %s\nLine: %d\n", #e, __FILE__, __LINE__); \
+            abort(); \
+        } \
+    } while(0)
 #else
   #define PyIU_ASSERT(e)
 #endif
@@ -28,6 +34,12 @@ void PyIU_TupleRemove(PyObject *tuple, Py_ssize_t where, Py_ssize_t num);
 PyObject *PyIU_TupleGetSlice(PyObject *tuple, Py_ssize_t num);
 void PyIU_InitializeConstants(void);
 
+static inline PyObject**
+PyIU_AllocatePyObjectArray(Py_ssize_t num) {
+    PyIU_ASSERT(num >= 0);
+    return PyMem_Malloc((size_t)num * sizeof(PyObject *));
+}
+
 /******************************************************************************
  * Function call abstractions
  *
@@ -36,6 +48,9 @@ void PyIU_InitializeConstants(void);
 
 static inline PyObject*
 PyIU_CallWithOneArgument(PyObject *callable, PyObject *arg1) {
+    PyIU_ASSERT(callable != NULL);
+    PyIU_ASSERT(arg1 != NULL);
+
     #if PyIU_USE_VECTORCALL
         PyObject *args[1];
         args[0] = arg1;
@@ -60,6 +75,10 @@ PyIU_CallWithOneArgument(PyObject *callable, PyObject *arg1) {
 
 static inline PyObject*
 PyIU_CallWithTwoArguments(PyObject *callable, PyObject *arg1, PyObject *arg2) {
+    PyIU_ASSERT(callable != NULL);
+    PyIU_ASSERT(arg1 != NULL);
+    PyIU_ASSERT(arg2 != NULL);
+
     #if PyIU_USE_VECTORCALL
         PyObject *args[2];
         args[0] = arg1;
@@ -90,6 +109,10 @@ PyIU_CallWithTwoArguments(PyObject *callable, PyObject *arg1, PyObject *arg2) {
 
 static inline void
 PyIU_CopyTupleToArray(PyObject *tuple, PyObject **array, size_t n_objects) {
+    PyIU_ASSERT(tuple != NULL && PyTuple_CheckExact(tuple));
+    PyIU_ASSERT(array != NULL);
+    PyIU_ASSERT(PyTuple_GET_SIZE(tuple) >= (Py_ssize_t)n_objects);
+
     #if PyIU_USE_CPYTHON_INTERNALS
         memcpy(array, ((PyTupleObject *)tuple)->ob_item, n_objects * sizeof(PyObject *));
     #else
@@ -102,6 +125,10 @@ PyIU_CopyTupleToArray(PyObject *tuple, PyObject **array, size_t n_objects) {
 
 static inline void
 PyIU_CopyListToArray(PyObject *list, PyObject **array, size_t n_objects) {
+    PyIU_ASSERT(list != NULL && PyList_CheckExact(list));
+    PyIU_ASSERT(array != NULL);
+    PyIU_ASSERT(PyList_GET_SIZE(list) >= (Py_ssize_t)n_objects);
+
     #if PyIU_USE_CPYTHON_INTERNALS
         memcpy(array, ((PyListObject *)list)->ob_item, n_objects * sizeof(PyObject *));
     #else

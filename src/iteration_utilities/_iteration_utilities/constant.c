@@ -3,6 +3,7 @@
  *****************************************************************************/
 
 #include "constant.h"
+#include "helper.h"
 #include "docs_reduce.h"
 #include <structmember.h>
 
@@ -60,13 +61,8 @@ static PyObject * constant_vectorcall(PyObject *obj, PyObject *const *args, size
 PyObject *
 PyIUConstant_New(PyObject *value)
 {
+    PyIU_ASSERT(value != NULL);
     PyIUObject_Constant *self;
-
-    if (value == NULL) {
-        PyErr_SetString(PyExc_TypeError,
-                        "Must not be null!");
-        return NULL;
-    }
 
     self = PyObject_GC_New(PyIUObject_Constant, &PyIUType_Constant);
     if (self == NULL) {

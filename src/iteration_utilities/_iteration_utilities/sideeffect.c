@@ -130,6 +130,8 @@ Fail:
 static void
 sideeffects_dealloc(PyIUObject_Sideeffects *self)
 {
+    PyIU_ASSERT(self->collected == NULL || Py_REFCNT(self->collected) > 0);
+
     PyObject_GC_UnTrack(self);
     Py_XDECREF(self->iterator);
     Py_XDECREF(self->func);

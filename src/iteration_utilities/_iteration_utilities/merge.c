@@ -125,7 +125,6 @@ PyIU_TupleBisectRight_LastFirst(PyObject *tuple,
                                 Py_ssize_t hi,
                                 int cmpop)
 {
-    /* Temporary variables */
     PyObject *litem;
     int res;
 

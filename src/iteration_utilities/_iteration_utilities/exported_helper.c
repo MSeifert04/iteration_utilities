@@ -13,6 +13,10 @@
 
 static PyObject *
 PyIU_parse_args(PyObject *tuple, PyObject *item, Py_ssize_t index) {
+    PyIU_ASSERT(tuple != NULL && PyTuple_CheckExact(tuple));
+    PyIU_ASSERT(item != NULL);
+    PyIU_ASSERT(index >= 0 && index <= PyTuple_GET_SIZE(tuple));
+
     PyObject *new_tuple;
     Py_ssize_t i;
     Py_ssize_t tuple_size = PyTuple_GET_SIZE(tuple);
@@ -44,6 +48,9 @@ PyIU_parse_args(PyObject *tuple, PyObject *item, Py_ssize_t index) {
 
 static PyObject *
 PyIU_parse_kwargs(PyObject *dct, PyObject *remvalue) {
+    PyIU_ASSERT(dct != NULL && PyDict_CheckExact(dct));
+    PyIU_ASSERT(remvalue != NULL);
+
     PyObject *key;
     PyObject *value;
 
@@ -61,7 +68,7 @@ PyIU_parse_kwargs(PyObject *dct, PyObject *remvalue) {
     }
 
     if (dict_size > PyIU_SMALL_ARG_STACK_SIZE) {
-        stack = PyMem_Malloc((size_t)dict_size * sizeof(PyObject *));
+        stack = PyIU_AllocatePyObjectArray(dict_size);
         if (stack == NULL) {
             return PyErr_NoMemory();
         }
@@ -82,6 +89,8 @@ PyIU_parse_kwargs(PyObject *dct, PyObject *remvalue) {
         PyDict_Clear(dct);
     } else {
         for (j = 0 ; j < i ; j++) {
+            /* Error checking is intentionally omitted since we know that the
+               items in the stack are not-NULL and hashable. */
             PyDict_DelItem(dct, stack[j]);
         }
     }

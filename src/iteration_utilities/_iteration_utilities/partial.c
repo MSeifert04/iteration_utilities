@@ -116,6 +116,7 @@ static Py_ssize_t *
 PyIUPlaceholder_PosInTuple(PyObject *tup,
                            Py_ssize_t cnts)
 {
+    PyIU_ASSERT(cnts >= 0);
     Py_ssize_t j = 0;
     Py_ssize_t i;
 
@@ -394,7 +395,7 @@ partial_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject
        self->kw and kwnames this will be an overestimate. But I think an
        overestimate is good enough in most cases. */
     if (n_final > PyIU_SMALL_ARG_STACK_SIZE) {
-        stack = PyMem_Malloc(n_final * sizeof(PyObject *));
+        stack = PyIU_AllocatePyObjectArray(n_final);
         if (stack == NULL) {
             return PyErr_NoMemory();
         }

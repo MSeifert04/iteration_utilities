@@ -3,6 +3,7 @@
  *****************************************************************************/
 
 #include "itemidxkey.h"
+#include "helper.h"
 #include "docs_reduce.h"
 #include <structmember.h>
 
@@ -192,15 +193,9 @@ PyIU_ItemIdxKey_FromC(PyObject *item,
                       PyObject *key)
 {
     /* STEALS REFERENCES!!! */
+    PyIU_ASSERT(item != NULL);
+
     PyIUObject_ItemIdxKey *self;
-    /* Verifing the inputs could be done but the API isn't exported and it
-       should never be NULL we can neglect this check for the sake of
-       performance:
-    if (item == NULL) {
-        PyErr_SetString(PyExc_TypeError, "`ItemIdxKey.item` must be given.");
-        return NULL;
-    }
-    */
     /* Create and fill new ItemIdxKey. */
     self = PyObject_GC_New(PyIUObject_ItemIdxKey, &PyIUType_ItemIdxKey);
     if (self == NULL) {
@@ -220,6 +215,8 @@ PyIU_ItemIdxKey_FromC(PyObject *item,
 PyObject *
 PyIU_ItemIdxKey_Copy(PyObject *iik)
 {
+    PyIU_ASSERT(iik != NULL && PyIU_ItemIdxKey_CheckExact(iik));
+
     PyIUObject_ItemIdxKey *n;
     PyIUObject_ItemIdxKey *o = (PyIUObject_ItemIdxKey *)iik;
 
@@ -319,10 +316,10 @@ PyIU_ItemIdxKey_Compare(PyObject *v,
                         PyObject *w,
                         int op)
 {
-    /* Several assumptions in here:
-       - That the objects are actually PyIUObject_ItemIdxKey objects.
-       - That no other operator than > or < is going here.
-       */
+    PyIU_ASSERT(v != NULL && PyIU_ItemIdxKey_Check(v));
+    PyIU_ASSERT(w != NULL && PyIU_ItemIdxKey_Check(w));
+    PyIU_ASSERT(op == Py_GT || op == Py_LT);
+
     PyObject *item1, *item2;
     PyIUObject_ItemIdxKey *l, *r;
 
