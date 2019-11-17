@@ -208,6 +208,7 @@ PyIU_TupleGetSlice(PyObject *tuple, Py_ssize_t num) {
     }
     for (i = 0; i < num; i++) {
         PyObject *tmp = PyTuple_GET_ITEM(tuple, i);
+        PyIU_ASSERT(tmp != NULL);
         Py_INCREF(tmp);
         PyTuple_SET_ITEM(result, i, tmp);
     }
