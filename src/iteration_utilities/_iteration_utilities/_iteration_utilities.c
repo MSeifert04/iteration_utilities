@@ -355,7 +355,7 @@ PyInit__iteration_utilities(void)
             if (PyType_Ready(typelist[i]) < 0)
                 return m;
             name = strchr(typelist[i]->tp_name, '.');
-            assert (name != NULL);
+            PyIU_ASSERT(name != NULL);
             Py_INCREF(typelist[i]);
             PyModule_AddObject(m, name+1, (PyObject *)typelist[i]);
         }
