@@ -299,12 +299,7 @@ PyMODINIT_FUNC
 PyInit__iteration_utilities(void)
 {
     //Py_Initialize();
-    int i;
     PyObject *m;
-    char *name;
-    PyObject *PyIU_returnTrue, *PyIU_returnFalse, *PyIU_returnNone;
-    PyObject *PyIU_ReduceFirst, *PyIU_ReduceSecond, *PyIU_ReduceThird, *PyIU_ReduceLast;
-    Py_ssize_t minus_one = -1;  /* no idea why this is needed but -1 in call doesn't work */
 
     /* Classes available in module. */
     PyTypeObject *typelist[] = {
@@ -344,14 +339,13 @@ PyInit__iteration_utilities(void)
     };
 
     m = PyModule_Create(&PyIU_module);
-
-
     if (m != NULL) {
-
+        int i;
         /* Add classes to the module but only use the name starting after the first
            occurrence of ".".
            */
         for (i=0 ; typelist[i] != NULL ; i++) {
+            char *name;
             if (PyType_Ready(typelist[i]) < 0)
                 return m;
             name = strchr(typelist[i]->tp_name, '.');
@@ -368,21 +362,6 @@ PyInit__iteration_utilities(void)
 
         /* Add pre-defined instances. */
         PyIU_InitializeConstants();
-        PyIU_returnTrue = PyIUConstant_New(Py_True);
-        PyModule_AddObject(m, PyIU_returnTrue_name, PyIU_returnTrue);
-        PyIU_returnFalse = PyIUConstant_New(Py_False);
-        PyModule_AddObject(m, PyIU_returnFalse_name, PyIU_returnFalse);
-        PyIU_returnNone = PyIUConstant_New(Py_None);
-        PyModule_AddObject(m, PyIU_returnNone_name, PyIU_returnNone);
-
-        PyIU_ReduceFirst = PyIUNth_New(0);
-        PyModule_AddObject(m, PyIU_ReduceFirst_name, PyIU_ReduceFirst);
-        PyIU_ReduceSecond = PyIUNth_New(1);
-        PyModule_AddObject(m, PyIU_ReduceSecond_name, PyIU_ReduceSecond);
-        PyIU_ReduceThird = PyIUNth_New(2);
-        PyModule_AddObject(m, PyIU_ReduceThird_name, PyIU_ReduceThird);
-        PyIU_ReduceLast = PyIUNth_New(minus_one);
-        PyModule_AddObject(m, PyIU_ReduceLast_name, PyIU_ReduceLast);
     }
 
     return m;

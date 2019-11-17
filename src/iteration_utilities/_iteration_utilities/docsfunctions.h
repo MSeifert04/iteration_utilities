@@ -9,13 +9,6 @@
 #include <Python.h>
 
 PyDoc_STRVAR(PyIU_Placeholder_name, "Placeholder");
-PyDoc_STRVAR(PyIU_returnTrue_name, "return_True");
-PyDoc_STRVAR(PyIU_returnFalse_name, "return_False");
-PyDoc_STRVAR(PyIU_returnNone_name, "return_None");
-PyDoc_STRVAR(PyIU_ReduceFirst_name, "first");
-PyDoc_STRVAR(PyIU_ReduceSecond_name, "second");
-PyDoc_STRVAR(PyIU_ReduceThird_name, "third");
-PyDoc_STRVAR(PyIU_ReduceLast_name, "last");
 PyDoc_STRVAR(PyIU_module_name, "iteration_utilities._iteration_utilities");
 PyDoc_STRVAR(PyIU_module_doc, "This is the C extension module used by iteration_utilities.");
 
