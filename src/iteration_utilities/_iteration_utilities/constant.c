@@ -61,7 +61,7 @@ static PyObject * constant_vectorcall(PyObject *obj, PyObject *const *args, size
 PyObject *
 PyIUConstant_New(PyObject *value)
 {
-    PyIU_ASSERT(value != NULL);
+    assert(value != NULL);
     PyIUObject_Constant *self;
 
     self = PyObject_GC_New(PyIUObject_Constant, &PyIUType_Constant);

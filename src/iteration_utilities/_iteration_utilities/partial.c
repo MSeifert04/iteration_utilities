@@ -116,7 +116,7 @@ static Py_ssize_t *
 PyIUPlaceholder_PosInTuple(PyObject *tup,
                            Py_ssize_t cnts)
 {
-    PyIU_ASSERT(cnts >= 0);
+    assert(cnts >= 0);
     Py_ssize_t j = 0;
     Py_ssize_t i;
 

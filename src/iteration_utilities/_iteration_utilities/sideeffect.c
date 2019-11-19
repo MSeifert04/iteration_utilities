@@ -130,8 +130,6 @@ Fail:
 static void
 sideeffects_dealloc(PyIUObject_Sideeffects *self)
 {
-    PyIU_ASSERT(self->collected == NULL || Py_REFCNT(self->collected) > 0);
-
     PyObject_GC_UnTrack(self);
     Py_XDECREF(self->iterator);
     Py_XDECREF(self->func);
@@ -299,7 +297,7 @@ sideeffects_reduce(PyIUObject_Sideeffects *self, PyObject *Py_UNUSED(args))
             if (tmp == NULL) {
                 tmp = Py_None;
             }
-            Py_INCREF(Py_None);
+            Py_INCREF(tmp);
             PyTuple_SET_ITEM(collected, i, tmp);
         }
     }
@@ -410,6 +408,7 @@ sideeffects_setstate(PyIUObject_Sideeffects *self,
        method assumes that it doesn't have to decrement items that it sets so
        this makes sure we don't create a memory leak there.
        */
+    newcollected = NULL;
     if (collected != Py_None) {
         Py_ssize_t i;
         newcollected = PyTuple_New(collected_size);
@@ -421,8 +420,6 @@ sideeffects_setstate(PyIUObject_Sideeffects *self,
             Py_INCREF(tmp);
             PyTuple_SET_ITEM(newcollected, i, tmp);
         }
-    } else {
-        newcollected = NULL;
     }
 
     self->count = count;
@@ -430,8 +427,7 @@ sideeffects_setstate(PyIUObject_Sideeffects *self,
     /* We already created a new tuple for "collected" or it's None so no need
        to increment the reference count here.
        */
-    Py_CLEAR(self->collected);
-    self->collected = newcollected;
+    Py_XSETREF(self->collected, newcollected);
 
     Py_RETURN_NONE;
 }

@@ -193,7 +193,7 @@ PyIU_ItemIdxKey_FromC(PyObject *item,
                       PyObject *key)
 {
     /* STEALS REFERENCES!!! */
-    PyIU_ASSERT(item != NULL);
+    assert(item != NULL);
 
     PyIUObject_ItemIdxKey *self;
     /* Create and fill new ItemIdxKey. */
@@ -215,7 +215,7 @@ PyIU_ItemIdxKey_FromC(PyObject *item,
 PyObject *
 PyIU_ItemIdxKey_Copy(PyObject *iik)
 {
-    PyIU_ASSERT(iik != NULL && PyIU_ItemIdxKey_CheckExact(iik));
+    assert(iik != NULL && PyIU_ItemIdxKey_CheckExact(iik));
 
     PyIUObject_ItemIdxKey *n;
     PyIUObject_ItemIdxKey *o = (PyIUObject_ItemIdxKey *)iik;
@@ -316,9 +316,9 @@ PyIU_ItemIdxKey_Compare(PyObject *v,
                         PyObject *w,
                         int op)
 {
-    PyIU_ASSERT(v != NULL && PyIU_ItemIdxKey_Check(v));
-    PyIU_ASSERT(w != NULL && PyIU_ItemIdxKey_Check(w));
-    PyIU_ASSERT(op == Py_GT || op == Py_LT);
+    assert(v != NULL && PyIU_ItemIdxKey_Check(v));
+    assert(w != NULL && PyIU_ItemIdxKey_Check(w));
+    assert(op == Py_GT || op == Py_LT);
 
     PyObject *item1, *item2;
     PyIUObject_ItemIdxKey *l, *r;

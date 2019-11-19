@@ -138,8 +138,6 @@ Fail:
 static void
 grouper_dealloc(PyIUObject_Grouper *self)
 {
-    PyIU_ASSERT(self->result == NULL || Py_REFCNT(self->result) > 0);
-
     PyObject_GC_UnTrack(self);
     Py_XDECREF(self->iterator);
     Py_XDECREF(self->fillvalue);
@@ -182,9 +180,9 @@ grouper_clear(PyIUObject_Grouper *self)
 static PyObject *
 grouper_next_last(PyIUObject_Grouper *self, PyObject *result, Py_ssize_t idx, int recycle)
 {
-    PyIU_ASSERT(self != NULL);
-    PyIU_ASSERT(result != NULL && PyTuple_CheckExact(result));
-    PyIU_ASSERT(idx >= 0 && idx < PyTuple_GET_SIZE(result));
+    assert(self != NULL);
+    assert(result != NULL && PyTuple_CheckExact(result));
+    assert(idx >= 0 && idx < PyTuple_GET_SIZE(result));
 
     /* No need to keep the result in the instance anymore. */
     Py_CLEAR(self->result);
@@ -210,7 +208,7 @@ grouper_next_last(PyIUObject_Grouper *self, PyObject *result, Py_ssize_t idx, in
             if (recycle) {
                 PyObject *tmp = PyTuple_GET_ITEM(result, idx);
                 PyTuple_SET_ITEM(result, idx, self->fillvalue);
-                PyIU_ASSERT(tmp != NULL);
+                assert(tmp != NULL);
                 Py_DECREF(tmp);
             } else {
                 PyTuple_SET_ITEM(result, idx, self->fillvalue);
@@ -272,7 +270,7 @@ grouper_next(PyIUObject_Grouper *self)
                    delete them. */
                 PyObject *tmp = PyTuple_GET_ITEM(result, idx);
                 PyTuple_SET_ITEM(result, idx, item);
-                PyIU_ASSERT(tmp != NULL);
+                assert(tmp != NULL);
                 Py_DECREF(tmp);
             } else {
                 PyTuple_SET_ITEM(result, idx, item);

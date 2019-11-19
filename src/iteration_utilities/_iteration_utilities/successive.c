@@ -105,8 +105,6 @@ Fail:
 static void
 successive_dealloc(PyIUObject_Successive *self)
 {
-    PyIU_ASSERT(self->result == NULL || Py_REFCNT(self->result) > 0);
-
     PyObject_GC_UnTrack(self);
     Py_XDECREF(self->iterator);
     Py_XDECREF(self->result);

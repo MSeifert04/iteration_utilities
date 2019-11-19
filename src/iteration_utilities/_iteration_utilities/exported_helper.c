@@ -13,9 +13,9 @@
 
 static PyObject *
 PyIU_parse_args(PyObject *tuple, PyObject *item, Py_ssize_t index) {
-    PyIU_ASSERT(tuple != NULL && PyTuple_CheckExact(tuple));
-    PyIU_ASSERT(item != NULL);
-    PyIU_ASSERT(index >= 0 && index <= PyTuple_GET_SIZE(tuple));
+    assert(tuple != NULL && PyTuple_CheckExact(tuple));
+    assert(item != NULL);
+    assert(index >= 0 && index <= PyTuple_GET_SIZE(tuple));
 
     PyObject *new_tuple;
     Py_ssize_t i;
@@ -48,8 +48,8 @@ PyIU_parse_args(PyObject *tuple, PyObject *item, Py_ssize_t index) {
 
 static PyObject *
 PyIU_parse_kwargs(PyObject *dct, PyObject *remvalue) {
-    PyIU_ASSERT(dct != NULL && PyDict_CheckExact(dct));
-    PyIU_ASSERT(remvalue != NULL);
+    assert(dct != NULL && PyDict_CheckExact(dct));
+    assert(remvalue != NULL);
 
     PyObject *key;
     PyObject *value;
