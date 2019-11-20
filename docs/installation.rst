@@ -49,18 +49,36 @@ Or build the documentation::
 Testing debug installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To run the tests using the internal assertions one has to define the ``PyIU_DEBUG``
-macro while building the library::
+The best way to test against a debug build is to use a Python installation that
+has been compiled in debug mode. One could use such a ``Dockerfile``.
 
-   python -m pip install . --global-option=build_ext --global-option="--define=PyIU_DEBUG"
+.. code-block:: docker
 
-Then run the tests without capturing ``stderr``::
+    FROM gcc:latest
 
-   python -m pytest tests/ -s
+    RUN \
+        wget https://www.python.org/ftp/python/3.8.0/Python-3.8.0.tgz -q && \
+        tar xzf Python-3.8.0.tgz && \
+        cd Python-3.8.0 && \
+        ./configure --with-pydebug && \
+        make altinstall -s -j4 && \
+        cd .. && \
+        python3.8 -c "import os; os.remove('./Python-3.8.0.tgz'); import shutil; shutil.rmtree('./Python-3.8.0/')" && \
+        python3.8 -m pip install pip --upgrade --user && \
+        python3.8 -m pip install setuptools wheel --upgrade --user && \
+        python3.8 -m pip install pytest --user
 
-.. note::
-   This should not be confused with **real** debug builds. The ``PyIU_DEBUG``
-   macro only enables the library specific assertions.
+This uses Python 3.8.0, you can obviously sdapt this for the actual Python
+version you want to build.
+
+Building the image, the library, and the tests.
+
+.. code-block:: none
+
+   docker build -t pythondebug .
+   docker run -it --rm -v INSERTDIRECTORYHERE:/io pythondebug
+   python3.8 -m pip install /io
+   python3.8 -m pytest /io/tests -s -v
 
 
 Dependencies

@@ -16,7 +16,7 @@ PyObject *PyIU_global_two = NULL;
 PyObject *PyIU_global_0tuple = NULL;
 
 void PyIU_InitializeConstants(void) {
-    PyIU_ASSERT(PyIU_global_zero == NULL);
+    assert(PyIU_global_zero == NULL);
     PyIU_global_zero = PyLong_FromLong(0L);
     PyIU_global_one = PyLong_FromLong(1L);
     PyIU_global_two = PyLong_FromLong(2L);
@@ -30,7 +30,7 @@ void PyIU_InitializeConstants(void) {
 PyObject *
 PyIU_CreateIteratorTuple(PyObject *tuple)
 {
-    PyIU_ASSERT(tuple != NULL && PyTuple_CheckExact(tuple));
+    assert(tuple != NULL && PyTuple_CheckExact(tuple));
 
     PyObject *newtuple;
     Py_ssize_t i;
@@ -60,7 +60,7 @@ PyIU_CreateIteratorTuple(PyObject *tuple)
 PyObject *
 PyIU_TupleReverse(PyObject *tuple)
 {
-    PyIU_ASSERT(tuple != NULL && PyTuple_CheckExact(tuple));
+    assert(tuple != NULL && PyTuple_CheckExact(tuple));
 
     PyObject *newtuple;
     Py_ssize_t i, j;
@@ -90,7 +90,7 @@ PyIU_TupleReverse(PyObject *tuple)
 PyObject *
 PyIU_TupleCopy(PyObject *tuple)
 {
-    PyIU_ASSERT(tuple != NULL && PyTuple_CheckExact(tuple));
+    assert(tuple != NULL && PyTuple_CheckExact(tuple));
 
     PyObject *newtuple;
     Py_ssize_t i;
@@ -131,10 +131,10 @@ PyIU_TupleInsert(PyObject *tuple,
                  PyObject *v,
                  Py_ssize_t num)
 {
-    PyIU_ASSERT(tuple != NULL && PyTuple_CheckExact(tuple));
-    PyIU_ASSERT(where >= 0 && where < PyTuple_GET_SIZE(tuple));
-    PyIU_ASSERT(v != NULL);
-    PyIU_ASSERT(num >= 0 && num <= PyTuple_GET_SIZE(tuple));
+    assert(tuple != NULL && PyTuple_CheckExact(tuple));
+    assert(where >= 0 && where < PyTuple_GET_SIZE(tuple));
+    assert(v != NULL);
+    assert(num >= 0 && num <= PyTuple_GET_SIZE(tuple));
 
     Py_ssize_t i;
 
@@ -169,9 +169,9 @@ PyIU_TupleRemove(PyObject *tuple,
                  Py_ssize_t where,
                  Py_ssize_t num)
 {
-    PyIU_ASSERT(tuple != NULL && PyTuple_CheckExact(tuple));
-    PyIU_ASSERT(where >= 0 && where < PyTuple_GET_SIZE(tuple));
-    PyIU_ASSERT(num >= 0 && num <= PyTuple_GET_SIZE(tuple));
+    assert(tuple != NULL && PyTuple_CheckExact(tuple));
+    assert(where >= 0 && where < PyTuple_GET_SIZE(tuple));
+    assert(num >= 0 && num <= PyTuple_GET_SIZE(tuple));
 
     Py_ssize_t i;
 
@@ -198,8 +198,8 @@ PyIU_TupleRemove(PyObject *tuple,
 
 PyObject *
 PyIU_TupleGetSlice(PyObject *tuple, Py_ssize_t num) {
-    PyIU_ASSERT(tuple != NULL && PyTuple_CheckExact(tuple));
-    PyIU_ASSERT(num >= 0 && num < PyTuple_GET_SIZE(tuple));
+    assert(tuple != NULL && PyTuple_CheckExact(tuple));
+    assert(num >= 0 && num < PyTuple_GET_SIZE(tuple));
 
     Py_ssize_t i;
     PyObject *result = PyTuple_New(num);
@@ -208,7 +208,7 @@ PyIU_TupleGetSlice(PyObject *tuple, Py_ssize_t num) {
     }
     for (i = 0; i < num; i++) {
         PyObject *tmp = PyTuple_GET_ITEM(tuple, i);
-        PyIU_ASSERT(tmp != NULL);
+        assert(tmp != NULL);
         Py_INCREF(tmp);
         PyTuple_SET_ITEM(result, i, tmp);
     }

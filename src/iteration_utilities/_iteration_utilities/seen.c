@@ -367,7 +367,7 @@ seen_reduce(PyIUObject_Seen *self, PyObject *Py_UNUSED(args))
 Py_ssize_t
 PyIUSeen_Size(PyIUObject_Seen *self)
 {
-    PyIU_ASSERT(self != NULL);
+    assert(self != NULL);
 
     if (self->seenlist != NULL) {
         return PySet_Size(self->seenset) + PyList_GET_SIZE(self->seenlist);
@@ -463,7 +463,7 @@ int
 PyIUSeen_ContainsAdd(PyObject *self,
                      PyObject *o)
 {
-    PyIU_ASSERT(self != NULL && PyIUSeen_CheckExact(self));
+    assert(self != NULL && PyIUSeen_CheckExact(self));
 
     return seen_containsadd_direct((PyIUObject_Seen *)self, o);
 }

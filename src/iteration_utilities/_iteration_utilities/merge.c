@@ -275,8 +275,8 @@ merge_clear(PyIUObject_Merge *self)
 static int
 merge_init_current(PyIUObject_Merge *self)
 {
-    PyObject *current, *iterator, *item, *newitem=NULL, *keyval=NULL;
-    Py_ssize_t i, insert, tuplelength;
+    PyObject *current, *item;
+    Py_ssize_t i, tuplelength;
 
     current = PyTuple_New(self->numactive);
     if (current == NULL) {
@@ -284,10 +284,13 @@ merge_init_current(PyIUObject_Merge *self)
     }
     tuplelength = 0;
 
-    for (i=0 ; i<self->numactive ; i++) {
-        iterator = PyTuple_GET_ITEM(self->iteratortuple, i);
+    for (i = 0; i < self->numactive; i++) {
+        PyObject *item;
+        PyObject *iterator = PyTuple_GET_ITEM(self->iteratortuple, i);
         item = Py_TYPE(iterator)->tp_iternext(iterator);
         if (item != NULL) {
+            PyObject *newitem;
+            PyObject *keyval = NULL;
             /* The idea here is that we can keep stability by also remembering
                the index of the iterable (which is also useful to remember
                from which iterable to get the next item if it is yielded).
@@ -296,7 +299,8 @@ merge_init_current(PyIUObject_Merge *self)
                 keyval = PyIU_CallWithOneArgument(self->keyfunc, item);
                 if (keyval == NULL) {
                     Py_DECREF(item);
-                    goto Fail;
+                    Py_DECREF(current);
+                    return -1;
                 }
             }
             newitem = PyIU_ItemIdxKey_FromC(item, i, keyval);
@@ -305,13 +309,14 @@ merge_init_current(PyIUObject_Merge *self)
             if (tuplelength == 0) {
                 PyTuple_SET_ITEM(current, 0, newitem);
             } else {
-                insert = PyIU_TupleBisectRight_LastFirst(current, newitem,
-                                                         tuplelength,
-                                                         self->reverse);
+                int insert = PyIU_TupleBisectRight_LastFirst(
+                        current, newitem, tuplelength, self->reverse);
                 if (insert < 0) {
-                    goto Fail;
+                    Py_DECREF(newitem);
+                    Py_DECREF(current);
+                    return -1;
                 }
-                PyIU_TupleInsert(current, insert, newitem, tuplelength+1);
+                PyIU_TupleInsert(current, insert, newitem, tuplelength + 1);
             }
             tuplelength++;
         } else {
@@ -319,7 +324,8 @@ merge_init_current(PyIUObject_Merge *self)
                 if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
                     PyErr_Clear();
                 } else {
-                    goto Fail;
+                    Py_DECREF(current);
+                    return -1;
                 }
             }
         }
@@ -327,11 +333,6 @@ merge_init_current(PyIUObject_Merge *self)
     self->numactive = tuplelength;
     self->current = current;
     return 0;
-
-Fail:
-    Py_DECREF(current);
-    Py_XDECREF(newitem);
-    return -1;
 }
 
 /******************************************************************************
@@ -341,7 +342,7 @@ Fail:
 static PyObject *
 merge_next(PyIUObject_Merge *self)
 {
-    PyObject *iterator, *item, *val, *keyval, *oldkeyval;
+    PyObject *iterator, *item, *val;
     Py_ssize_t insert = 0;
     Py_ssize_t active;
     PyIUObject_ItemIdxKey *next;
@@ -378,8 +379,9 @@ merge_next(PyIUObject_Merge *self)
            with NULL.
            */
         PyTuple_SET_ITEM(self->current, active, NULL);
+        Py_DECREF(next);  // This really deletes the reference in self->current.
         Py_DECREF(next);
-        Py_DECREF(next);
+        next = NULL;
         if (PyErr_Occurred()) {
             if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
                 PyErr_Clear();
@@ -388,11 +390,10 @@ merge_next(PyIUObject_Merge *self)
                 return NULL;
             }
         }
-        Py_INCREF(val);
         self->numactive = active;
     } else {
         if (self->keyfunc != NULL) {
-            oldkeyval = next->key;
+            PyObject *keyval, *oldkeyval;
             keyval = PyIU_CallWithOneArgument(self->keyfunc, item);
             if (keyval == NULL) {
                 Py_DECREF(item);
@@ -400,27 +401,24 @@ merge_next(PyIUObject_Merge *self)
                 Py_DECREF(next);
                 return NULL;
             }
-            next->key = keyval;
-            next->item = item;
-            Py_DECREF(oldkeyval);
-        } else {
-            next->item = item;
+            Py_SETREF(next->key, keyval);
+            keyval = NULL;
         }
+        Py_SETREF(next->item, item);
+        item = NULL;
 
         /* Insert the new value into the sorted current tuple. */
-        insert = PyIU_TupleBisectRight_LastFirst(self->current, (PyObject *)next,
-                                                 active, self->reverse);
+        insert = PyIU_TupleBisectRight_LastFirst(
+            self->current, (PyObject *)next, active, self->reverse);
         if (insert == -1) {
-            Py_DECREF(next);
-            Py_DECREF(next);
             Py_DECREF(val);
-            Py_DECREF(val);
+            Py_DECREF(next);
             return NULL;
         }
         PyIU_TupleInsert(self->current, insert, (PyObject *)next, self->numactive);
         Py_DECREF(next);
+        next = NULL;
     }
-    Py_DECREF(val);
     return val;
 }
 
