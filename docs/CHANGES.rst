@@ -1,8 +1,10 @@
 Changelog for "iteration_utilities"
 -----------------------------------
 
-Version 0.11.0 (unreleased)
+Version 0.10.1 (2019-11-20)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Fixed reference counting bugs in ``merge``, ``minmax``, and ``sideeffects``.
 
 
 Version 0.10.0 (2019-11-16)
