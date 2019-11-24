@@ -1,6 +1,10 @@
 #ifndef PYIU_PARTIAL_H
 #define PYIU_PARTIAL_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include "helpercompat.h"
@@ -20,5 +24,9 @@ typedef struct {
 } PyIUObject_Partial;
 
 extern PyTypeObject PyIUType_Partial;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

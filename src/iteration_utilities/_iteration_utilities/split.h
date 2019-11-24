@@ -1,6 +1,10 @@
 #ifndef PYIU_SPLIT_H
 #define PYIU_SPLIT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include "helpercompat.h"
@@ -23,5 +27,9 @@ typedef struct {
 } PyIUObject_Split;
 
 extern PyTypeObject PyIUType_Split;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

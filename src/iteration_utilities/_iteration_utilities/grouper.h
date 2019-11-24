@@ -1,6 +1,10 @@
 #ifndef PYIU_GROUPER_H
 #define PYIU_GROUPER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include "helpercompat.h"
@@ -15,5 +19,9 @@ typedef struct {
 } PyIUObject_Grouper;
 
 extern PyTypeObject PyIUType_Grouper;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -1,6 +1,10 @@
 #ifndef PYIU_HELPERCOMPAT_H
 #define PYIU_HELPERCOMPAT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef PYPY_VERSION
   #define PYIU_PYPY 1
   #define PYIU_CPYTHON 0
@@ -21,5 +25,9 @@
 
 #define PyIU_USE_FASTCALL PYIU_CPYTHON && PY_MAJOR_VERSION == 3 && (PY_MINOR_VERSION == 6 || PY_MINOR_VERSION == 7)
 #define PyIU_USE_VECTORCALL PYIU_CPYTHON && PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

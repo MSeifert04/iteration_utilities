@@ -1,6 +1,10 @@
 #ifndef PYIU_DEEPFLATTEN_H
 #define PYIU_DEEPFLATTEN_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include "helpercompat.h"
@@ -16,5 +20,9 @@ typedef struct {
 } PyIUObject_DeepFlatten;
 
 extern PyTypeObject PyIUType_DeepFlatten;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

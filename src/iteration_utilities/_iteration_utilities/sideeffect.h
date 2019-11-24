@@ -1,6 +1,10 @@
 #ifndef PYIU_SIDEEFFECT_H
 #define PYIU_SIDEEFFECT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include "helpercompat.h"
@@ -15,5 +19,9 @@ typedef struct {
 } PyIUObject_Sideeffects;
 
 extern PyTypeObject PyIUType_Sideeffects;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
