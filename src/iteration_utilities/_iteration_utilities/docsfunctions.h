@@ -5,6 +5,10 @@
 #ifndef PYIU_DOCSFUNCTIONS_H
 #define PYIU_DOCSFUNCTIONS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
@@ -1142,5 +1146,9 @@ PyDoc_STRVAR(PyIU_Partition_doc,
     "    :py:func:`~iteration_utilities.partition` can be noticeable\n"
     "    faster than :py:func:`~iteration_utilities.ipartition`.\n"
 );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

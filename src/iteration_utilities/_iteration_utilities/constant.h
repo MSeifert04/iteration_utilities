@@ -1,6 +1,10 @@
 #ifndef PYIU_CONSTANT_H
 #define PYIU_CONSTANT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include "helpercompat.h"
@@ -16,5 +20,9 @@ typedef struct {
 extern PyTypeObject PyIUType_Constant;
 
 PyObject * PyIUConstant_New(PyObject *value);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

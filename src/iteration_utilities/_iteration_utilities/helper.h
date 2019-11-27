@@ -1,6 +1,10 @@
 #ifndef PYIU_HELPER_H
 #define PYIU_HELPER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include "helpercompat.h"
@@ -128,5 +132,9 @@ PyIU_CopyListToArray(PyObject *list, PyObject **array, size_t n_objects) {
 }
 
 #undef PyIU_USE_TUPLE_INTERNALS
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
