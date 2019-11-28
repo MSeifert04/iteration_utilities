@@ -275,7 +275,7 @@ merge_clear(PyIUObject_Merge *self)
 static int
 merge_init_current(PyIUObject_Merge *self)
 {
-    PyObject *current, *item;
+    PyObject *current;
     Py_ssize_t i, tuplelength;
 
     current = PyTuple_New(self->numactive);
@@ -393,7 +393,7 @@ merge_next(PyIUObject_Merge *self)
         self->numactive = active;
     } else {
         if (self->keyfunc != NULL) {
-            PyObject *keyval, *oldkeyval;
+            PyObject *keyval;
             keyval = PyIU_CallWithOneArgument(self->keyfunc, item);
             if (keyval == NULL) {
                 Py_DECREF(item);

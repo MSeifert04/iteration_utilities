@@ -22,7 +22,7 @@ PyIU_MinMax(PyObject *Py_UNUSED(m),
     PyObject *sequence, *iterator=NULL, *defaultitem = NULL, *keyfunc = NULL;
     PyObject *item1 = NULL;
     PyObject *maxitem = NULL, *maxval = NULL, *minitem = NULL, *minval = NULL;
-    PyObject *temp = NULL, *resulttuple = NULL;
+    PyObject *resulttuple = NULL;
     int positional = PyTuple_GET_SIZE(args) > 1;
 
     if (positional) {
