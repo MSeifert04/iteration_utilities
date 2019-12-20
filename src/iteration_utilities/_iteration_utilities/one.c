@@ -3,12 +3,13 @@
  *****************************************************************************/
 
 #include "one.h"
+#include "helper.h"
 
 PyObject *
-PyIU_One(PyObject *Py_UNUSED(m),
-         PyObject *iterable)
-{
-    PyObject *iterator, *item1, *item2;
+PyIU_One(PyObject *Py_UNUSED(m), PyObject *iterable) {
+    PyObject *iterator;
+    PyObject *item1;
+    PyObject *item2;
 
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
@@ -18,12 +19,8 @@ PyIU_One(PyObject *Py_UNUSED(m),
     item1 = Py_TYPE(iterator)->tp_iternext(iterator);
     if (item1 == NULL) {
         Py_DECREF(iterator);
-        if (PyErr_Occurred()) {
-            if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
-                PyErr_Clear();
-            } else {
-                return NULL;
-            }
+        if (PyIU_ErrorOccurredClearStopIteration()) {
+            return NULL;
         }
         PyErr_SetString(PyExc_ValueError,
                         "not enough values to unpack in `one` (expected 1, got 0)");
@@ -34,8 +31,8 @@ PyIU_One(PyObject *Py_UNUSED(m),
     if (item2 != NULL) {
         Py_DECREF(iterator);
         PyErr_Format(PyExc_ValueError,
-            "too many values to unpack in `one` (expected 1, got '%R, %R[, ...]').",
-            item1, item2);
+                     "too many values to unpack in `one` (expected 1, got '%R, %R[, ...]').",
+                     item1, item2);
         Py_DECREF(item1);
         Py_DECREF(item2);
         return NULL;
@@ -43,14 +40,9 @@ PyIU_One(PyObject *Py_UNUSED(m),
 
     Py_DECREF(iterator);
 
-    if (PyErr_Occurred()) {
-        if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
-            PyErr_Clear();
-        } else {
-            Py_DECREF(item1);
-            return NULL;
-        }
+    if (PyIU_ErrorOccurredClearStopIteration()) {
+        Py_DECREF(item1);
+        return NULL;
     }
-
     return item1;
 }

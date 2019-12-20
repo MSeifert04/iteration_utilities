@@ -14,23 +14,17 @@
  *****************************************************************************/
 
 PyObject *
-PyIU_MathSquare(PyObject *Py_UNUSED(m),
-                PyObject *o)
-{
+PyIU_MathSquare(PyObject *Py_UNUSED(m), PyObject *o) {
     return PyNumber_Power(o, PyIU_global_two, Py_None);
 }
 
 PyObject *
-PyIU_MathDouble(PyObject *Py_UNUSED(m),
-                PyObject *o)
-{
+PyIU_MathDouble(PyObject *Py_UNUSED(m), PyObject *o) {
     return PyNumber_Multiply(o, PyIU_global_two);
 }
 
 PyObject *
-PyIU_MathReciprocal(PyObject *Py_UNUSED(m),
-                    PyObject *o)
-{
+PyIU_MathReciprocal(PyObject *Py_UNUSED(m), PyObject *o) {
     return PyNumber_TrueDivide(PyIU_global_one, o);
 }
 
@@ -47,10 +41,9 @@ PyIU_MathReciprocal(PyObject *Py_UNUSED(m),
  *****************************************************************************/
 
 PyObject *
-PyIU_MathRadd(PyObject *Py_UNUSED(m),
-              PyObject *args)
-{
-    PyObject *op1, *op2;
+PyIU_MathRadd(PyObject *Py_UNUSED(m), PyObject *args) {
+    PyObject *op1;
+    PyObject *op2;
     if (PyArg_UnpackTuple(args, "radd", 2, 2, &op1, &op2)) {
         return PyNumber_Add(op2, op1);
     } else {
@@ -59,10 +52,9 @@ PyIU_MathRadd(PyObject *Py_UNUSED(m),
 }
 
 PyObject *
-PyIU_MathRsub(PyObject *Py_UNUSED(m),
-              PyObject *args)
-{
-    PyObject *op1, *op2;
+PyIU_MathRsub(PyObject *Py_UNUSED(m), PyObject *args) {
+    PyObject *op1;
+    PyObject *op2;
     if (PyArg_UnpackTuple(args, "rsub", 2, 2, &op1, &op2)) {
         return PyNumber_Subtract(op2, op1);
     } else {
@@ -71,10 +63,9 @@ PyIU_MathRsub(PyObject *Py_UNUSED(m),
 }
 
 PyObject *
-PyIU_MathRmul(PyObject *Py_UNUSED(m),
-              PyObject *args)
-{
-    PyObject *op1, *op2;
+PyIU_MathRmul(PyObject *Py_UNUSED(m), PyObject *args) {
+    PyObject *op1;
+    PyObject *op2;
     if (PyArg_UnpackTuple(args, "rmul", 2, 2, &op1, &op2)) {
         return PyNumber_Multiply(op2, op1);
     } else {
@@ -83,10 +74,9 @@ PyIU_MathRmul(PyObject *Py_UNUSED(m),
 }
 
 PyObject *
-PyIU_MathRdiv(PyObject *Py_UNUSED(m),
-              PyObject *args)
-{
-    PyObject *op1, *op2;
+PyIU_MathRdiv(PyObject *Py_UNUSED(m), PyObject *args) {
+    PyObject *op1;
+    PyObject *op2;
     if (PyArg_UnpackTuple(args, "rdiv", 2, 2, &op1, &op2)) {
         return PyNumber_TrueDivide(op2, op1);
     } else {
@@ -95,10 +85,9 @@ PyIU_MathRdiv(PyObject *Py_UNUSED(m),
 }
 
 PyObject *
-PyIU_MathRfdiv(PyObject *Py_UNUSED(m),
-               PyObject *args)
-{
-    PyObject *op1, *op2;
+PyIU_MathRfdiv(PyObject *Py_UNUSED(m), PyObject *args) {
+    PyObject *op1;
+    PyObject *op2;
     if (PyArg_UnpackTuple(args, "rfdiv", 2, 2, &op1, &op2)) {
         return PyNumber_FloorDivide(op2, op1);
     } else {
@@ -107,10 +96,9 @@ PyIU_MathRfdiv(PyObject *Py_UNUSED(m),
 }
 
 PyObject *
-PyIU_MathRpow(PyObject *Py_UNUSED(m),
-              PyObject *args)
-{
-    PyObject *op1, *op2;
+PyIU_MathRpow(PyObject *Py_UNUSED(m), PyObject *args) {
+    PyObject *op1;
+    PyObject *op2;
     if (PyArg_UnpackTuple(args, "rpow", 2, 2, &op1, &op2)) {
         return PyNumber_Power(op2, op1, Py_None);
     } else {
@@ -119,10 +107,9 @@ PyIU_MathRpow(PyObject *Py_UNUSED(m),
 }
 
 PyObject *
-PyIU_MathRmod(PyObject *Py_UNUSED(m),
-              PyObject *args)
-{
-    PyObject *op1, *op2;
+PyIU_MathRmod(PyObject *Py_UNUSED(m), PyObject *args) {
+    PyObject *op1;
+    PyObject *op2;
     if (PyArg_UnpackTuple(args, "rmod", 2, 2, &op1, &op2)) {
         return PyNumber_Remainder(op2, op1);
     } else {

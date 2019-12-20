@@ -8,11 +8,11 @@ extern "C" {
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
-PyDoc_STRVAR(PYIU_lenhint_doc,
+PyDoc_STRVAR(
+    PYIU_lenhint_doc,
     "__length_hint__(/)\n"
     "--\n\n"
-    "Return an *estimate* for the length of the iterator or zero.\n"
-);
+    "Return an *estimate* for the length of the iterator or zero.\n");
 
 #ifdef __cplusplus
 }

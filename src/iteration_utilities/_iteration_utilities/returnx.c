@@ -11,25 +11,18 @@
  *****************************************************************************/
 
 PyObject *
-PyIU_ReturnIdentity(PyObject *Py_UNUSED(m),
-                    PyObject *o)
-{
+PyIU_ReturnIdentity(PyObject *Py_UNUSED(m), PyObject *o) {
     Py_INCREF(o);
     return o;
 }
 
 PyObject *
-PyIU_ReturnCalled(PyObject *Py_UNUSED(m),
-                  PyObject *o)
-{
+PyIU_ReturnCalled(PyObject *Py_UNUSED(m), PyObject *o) {
     return PyObject_CallFunctionObjArgs(o, NULL);
 }
 
 PyObject *
-PyIU_ReturnFirstArg(PyObject *Py_UNUSED(m),
-                    PyObject *args,
-                    PyObject *Py_UNUSED(kwargs))
-{
+PyIU_ReturnFirstArg(PyObject *Py_UNUSED(m), PyObject *args, PyObject *Py_UNUSED(kwargs)) {
     PyObject *first;
 
     if (!PyTuple_CheckExact(args) || PyTuple_GET_SIZE(args) == 0) {

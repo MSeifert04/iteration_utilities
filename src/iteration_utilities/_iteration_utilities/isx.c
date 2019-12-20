@@ -14,9 +14,7 @@
  *****************************************************************************/
 
 PyObject *
-PyIU_IsNone(PyObject *Py_UNUSED(m),
-            PyObject *o)
-{
+PyIU_IsNone(PyObject *Py_UNUSED(m), PyObject *o) {
     if (o == Py_None) {
         Py_RETURN_TRUE;
     } else {
@@ -33,9 +31,7 @@ PyIU_IsNone(PyObject *Py_UNUSED(m),
  *****************************************************************************/
 
 PyObject *
-PyIU_IsNotNone(PyObject *Py_UNUSED(m),
-               PyObject *o)
-{
+PyIU_IsNotNone(PyObject *Py_UNUSED(m), PyObject *o) {
     if (o != Py_None) {
         Py_RETURN_TRUE;
     } else {
@@ -52,9 +48,7 @@ PyIU_IsNotNone(PyObject *Py_UNUSED(m),
  *****************************************************************************/
 
 PyObject *
-PyIU_IsEven(PyObject *Py_UNUSED(m),
-            PyObject *o)
-{
+PyIU_IsEven(PyObject *Py_UNUSED(m), PyObject *o) {
     PyObject *remainder;
     int res;
 
@@ -84,9 +78,7 @@ PyIU_IsEven(PyObject *Py_UNUSED(m),
  *****************************************************************************/
 
 PyObject *
-PyIU_IsOdd(PyObject *Py_UNUSED(m),
-           PyObject *o)
-{
+PyIU_IsOdd(PyObject *Py_UNUSED(m), PyObject *o) {
     PyObject *remainder;
     int res;
 
@@ -121,9 +113,7 @@ PyIU_IsOdd(PyObject *Py_UNUSED(m),
  *****************************************************************************/
 
 PyObject *
-PyIU_IsIterable(PyObject *Py_UNUSED(m),
-                PyObject *o)
-{
+PyIU_IsIterable(PyObject *Py_UNUSED(m), PyObject *o) {
     PyObject *it = PyObject_GetIter(o);
     if (it == NULL) {
         if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError)) {

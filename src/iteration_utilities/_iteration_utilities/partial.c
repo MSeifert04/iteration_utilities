@@ -3,25 +3,33 @@
  *****************************************************************************/
 
 #include "partial.h"
+#include <structmember.h>
 #include "docs_reduce.h"
 #include "docs_setstate.h"
 #include "docs_sizeof.h"
-#include "placeholder.h"
 #include "helper.h"
-#include <structmember.h>
+#include "placeholder.h"
 
-PyDoc_STRVAR(partial_prop_func_doc,
+PyDoc_STRVAR(
+    partial_prop_func_doc,
     "(callable) Function object to use in future partial calls (readonly).");
-PyDoc_STRVAR(partial_prop_args_doc,
-    "(:py:class:`tuple`) arguments for future partial calls (readonly).");
-PyDoc_STRVAR(partial_prop_keywords_doc,
-    "(:py:class:`dict`) keyword arguments for future partial calls (readonly).");
-PyDoc_STRVAR(partial_prop_nplaceholders_doc,
-    "(:py:class:`int`) Number of placeholders in the args (readonly).");
-PyDoc_STRVAR(partial_prop___dict___doc,
-    "");
 
-PyDoc_STRVAR(partial_doc,
+PyDoc_STRVAR(
+    partial_prop_args_doc,
+    "(:py:class:`tuple`) arguments for future partial calls (readonly).");
+
+PyDoc_STRVAR(
+    partial_prop_keywords_doc,
+    "(:py:class:`dict`) keyword arguments for future partial calls (readonly).");
+
+PyDoc_STRVAR(
+    partial_prop_nplaceholders_doc,
+    "(:py:class:`int`) Number of placeholders in the args (readonly).");
+
+PyDoc_STRVAR(partial_prop___dict___doc, "");
+
+PyDoc_STRVAR(
+    partial_doc,
     "partial(func, *args, **kwargs)\n"
     "--\n\n"
     "Like :py:func:`functools.partial` but supporting placeholders.\n"
@@ -85,11 +93,10 @@ PyDoc_STRVAR(partial_doc,
     "    >>> from operator import mul\n"
     "    >>> cumprod = partial(accumulate, Placeholder, mul)\n"
     "    >>> list(cumprod([1,2,3,4,5]))\n"
-    "    [1, 2, 6, 24, 120]\n"
-);
+    "    [1, 2, 6, 24, 120]\n");
 
 #if PyIU_USE_VECTORCALL
-static PyObject * partial_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *kwnames);
+static PyObject *partial_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *kwnames);
 #endif
 
 /******************************************************************************
@@ -97,13 +104,12 @@ static PyObject * partial_vectorcall(PyObject *obj, PyObject *const *args, size_
  *****************************************************************************/
 
 static Py_ssize_t
-PyIUPlaceholder_NumInTuple(PyObject *tup)
-{
+PyIUPlaceholder_NumInTuple(PyObject *tup) {
     Py_ssize_t cnts = 0;
     Py_ssize_t i;
 
     /* Find the placeholders (if any) in the tuple. */
-    for ( i=0 ; i < PyTuple_GET_SIZE(tup) ; i++ ) {
+    for (i = 0; i < PyTuple_GET_SIZE(tup); i++) {
         if (PyTuple_GET_ITEM(tup, i) == PYIU_Placeholder) {
             cnts++;
         }
@@ -113,9 +119,7 @@ PyIUPlaceholder_NumInTuple(PyObject *tup)
 }
 
 static Py_ssize_t *
-PyIUPlaceholder_PosInTuple(PyObject *tup,
-                           Py_ssize_t cnts)
-{
+PyIUPlaceholder_PosInTuple(PyObject *tup, Py_ssize_t cnts) {
     assert(cnts >= 0);
     Py_ssize_t j = 0;
     Py_ssize_t i;
@@ -127,7 +131,7 @@ PyIUPlaceholder_PosInTuple(PyObject *tup,
     }
 
     /* Find the placeholders (if any) in the tuple. */
-    for ( i=0 ; i < PyTuple_GET_SIZE(tup) ; i++ ) {
+    for (i = 0; i < PyTuple_GET_SIZE(tup); i++) {
         if (PyTuple_GET_ITEM(tup, i) == PYIU_Placeholder) {
             pos[j] = i;
             j++;
@@ -137,31 +141,22 @@ PyIUPlaceholder_PosInTuple(PyObject *tup,
     if (j != cnts) {
         PyErr_SetString(PyExc_TypeError,
                         "Something went wrong... totally wrong!");
-        goto Fail;
+        PyMem_Free(pos);
+        return NULL;
     }
 
     return pos;
-
-Fail:
-    PyMem_Free(pos);
-    return NULL;
-
 }
 
 /******************************************************************************
  * Parts are taken from the CPython package (PSF licensed).
  *****************************************************************************/
 
-/******************************************************************************
- * Dealloc
- *****************************************************************************/
-
 static void
-partial_dealloc(PyIUObject_Partial *self)
-{
+partial_dealloc(PyIUObject_Partial *self) {
     PyObject_GC_UnTrack(self);
     if (self->weakreflist != NULL) {
-        PyObject_ClearWeakRefs((PyObject *) self);
+        PyObject_ClearWeakRefs((PyObject *)self);
     }
     Py_XDECREF(self->fn);
     Py_XDECREF(self->args);
@@ -173,15 +168,8 @@ partial_dealloc(PyIUObject_Partial *self)
     Py_TYPE(self)->tp_free(self);
 }
 
-/******************************************************************************
- * Traverse
- *****************************************************************************/
-
 static int
-partial_traverse(PyIUObject_Partial *self,
-                 visitproc visit,
-                 void *arg)
-{
+partial_traverse(PyIUObject_Partial *self, visitproc visit, void *arg) {
     Py_VISIT(self->fn);
     Py_VISIT(self->args);
     Py_VISIT(self->kw);
@@ -189,13 +177,8 @@ partial_traverse(PyIUObject_Partial *self,
     return 0;
 }
 
-/******************************************************************************
- * Clear
- *****************************************************************************/
-
 static int
-partial_clear(PyIUObject_Partial *self)
-{
+partial_clear(PyIUObject_Partial *self) {
     Py_CLEAR(self->fn);
     Py_CLEAR(self->args);
     Py_CLEAR(self->kw);
@@ -206,15 +189,8 @@ partial_clear(PyIUObject_Partial *self)
     return 0;
 }
 
-/******************************************************************************
- * New
- *****************************************************************************/
-
 static PyObject *
-partial_new(PyTypeObject *type,
-            PyObject *args,
-            PyObject *kw)
-{
+partial_new(PyTypeObject *type, PyObject *args, PyObject *kw) {
     PyObject *func;
     PyObject *nargs;
     PyObject *pargs = NULL;
@@ -241,9 +217,8 @@ partial_new(PyTypeObject *type,
        empty!
        */
     if (Py_TYPE(func) == &PyIUType_Partial &&
-            type == &PyIUType_Partial &&
-            ((PyIUObject_Partial *)func)->dict == NULL) {
-
+        type == &PyIUType_Partial &&
+        ((PyIUObject_Partial *)func)->dict == NULL) {
         Py_ssize_t tuplesize = PyTuple_GET_SIZE(args) - 1;
         PyIUObject_Partial *part = (PyIUObject_Partial *)func;
 
@@ -263,8 +238,8 @@ partial_new(PyTypeObject *type,
                something undefined).
                */
             stop = part->numph > tuplesize ? tuplesize : part->numph;
-            for ( i=0 ; i < stop ; i++ ) {
-                PyObject *tmp = PyTuple_GET_ITEM(args, i+1);
+            for (i = 0; i < stop; i++) {
+                PyObject *tmp = PyTuple_GET_ITEM(args, i + 1);
                 PyObject *ph = PyTuple_GET_ITEM(pargs, part->posph[i]);
                 Py_INCREF(tmp);
                 PyTuple_SET_ITEM(pargs, part->posph[i], tmp);
@@ -323,7 +298,7 @@ partial_new(PyTypeObject *type,
        pargs so we need to decrement them once. */
     if (startslice != 1) {
         Py_DECREF(pargs);
-        startslice = 1;  /* So the "Fail" won't decrement them again. */
+        startslice = 1; /* So the "Fail" won't decrement them again. */
     }
 
     if (pkw == NULL || PyDict_Size(pkw) == 0) {
@@ -363,9 +338,6 @@ Fail:
 }
 
 #if PyIU_USE_VECTORCALL
-/******************************************************************************
- * Vectorcall
- *****************************************************************************/
 
 static PyObject *
 partial_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *kwnames) {
@@ -450,7 +422,8 @@ partial_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject
     }
     // Fill in the keywords stored in the instance.
     if (n_self_kwargs != 0) {
-        PyObject *key, *value;
+        PyObject *key;
+        PyObject *value;
         Py_ssize_t pos = 0;
 
         if (kwnames == NULL) {
@@ -519,7 +492,8 @@ partial_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject
     if (n_self_kwargs == 0) {
         final_kwnames = kwnames;
     } else {
-        PyObject *key, *value;
+        PyObject *key;
+        PyObject *value;
         Py_ssize_t self_kwargs_pos = 0;
         Py_ssize_t final_kwnames_idx = 0;
         /* At this point we know the exact number of keyword arguments without
@@ -582,15 +556,9 @@ CleanUp:
 }
 
 #else
-/******************************************************************************
- * Call
- *****************************************************************************/
 
 static PyObject *
-partial_call(PyIUObject_Partial *self,
-             PyObject *args,
-             PyObject *kw)
-{
+partial_call(PyIUObject_Partial *self, PyObject *args, PyObject *kw) {
     PyObject *ret = NULL;
     PyObject *finalargs = NULL;
     PyObject *finalkw = NULL;
@@ -637,7 +605,7 @@ partial_call(PyIUObject_Partial *self,
             /* Copy the elements from the self->args into the new tuple
                including the placeholders.
                */
-            for (i=0 ; i<selfargsize ; i++) {
+            for (i = 0; i < selfargsize; i++) {
                 PyObject *tmp = PyTuple_GET_ITEM(self->args, i);
                 Py_INCREF(tmp);
                 PyTuple_SET_ITEM(finalargs, i, tmp);
@@ -646,19 +614,19 @@ partial_call(PyIUObject_Partial *self,
                arguments. This doesn't decrement the reference count for the
                placeholders yet.
                */
-            for (i=0 ; i<num_placeholders ; i++) {
+            for (i = 0; i < num_placeholders; i++) {
                 PyObject *tmp = PyTuple_GET_ITEM(args, i);
                 Py_INCREF(tmp);
                 PyTuple_SET_ITEM(finalargs, self->posph[i], tmp);
             }
             /* Now decrement the placeholders. */
-            for (i=0 ; i<num_placeholders ; i++) {
+            for (i = 0; i < num_placeholders; i++) {
                 Py_DECREF(PYIU_Placeholder);
             }
             /* Now insert the remaining items of the passed arguments into the
                final tuple.
                */
-            for (i=num_placeholders, j=selfargsize ; i<passargsize ; i++, j++) {
+            for (i = num_placeholders, j = selfargsize; i < passargsize; i++, j++) {
                 PyObject *tmp = PyTuple_GET_ITEM(args, i);
                 Py_INCREF(tmp);
                 PyTuple_SET_ITEM(finalargs, j, tmp);
@@ -701,8 +669,7 @@ Fail:
  *****************************************************************************/
 
 static PyObject *
-partial_get_dict(PyIUObject_Partial *self, void *Py_UNUSED(closure))
-{
+partial_get_dict(PyIUObject_Partial *self, void *Py_UNUSED(closure)) {
     if (self->dict == NULL) {
         self->dict = PyDict_New();
         if (self->dict == NULL) {
@@ -714,10 +681,7 @@ partial_get_dict(PyIUObject_Partial *self, void *Py_UNUSED(closure))
 }
 
 static int
-partial_set_dict(PyIUObject_Partial *self,
-                 PyObject *value,
-                 void *Py_UNUSED(closure))
-{
+partial_set_dict(PyIUObject_Partial *self, PyObject *value, void *Py_UNUSED(closure)) {
     PyObject *tmp;
 
     /* It is illegal to del p.__dict__ */
@@ -740,17 +704,14 @@ partial_set_dict(PyIUObject_Partial *self,
 }
 #endif
 
-/******************************************************************************
- * Repr
- *****************************************************************************/
-
 static PyObject *
-partial_repr(PyIUObject_Partial *self)
-{
+partial_repr(PyIUObject_Partial *self) {
     PyObject *result = NULL;
     PyObject *arglist;
-    Py_ssize_t i, n;
-    PyObject *key, *value;
+    PyObject *key;
+    PyObject *value;
+    Py_ssize_t n;
+    Py_ssize_t i;
     int ok;
 
     ok = Py_ReprEnter((PyObject *)self);
@@ -768,8 +729,7 @@ partial_repr(PyIUObject_Partial *self)
     for (i = 0; i < n; i++) {
         PyObject *tmp = PyUnicode_FromFormat("%U, %R", arglist,
                                              PyTuple_GET_ITEM(self->args, i));
-        Py_CLEAR(arglist);
-        arglist = tmp;
+        Py_XSETREF(arglist, tmp);
         if (arglist == NULL) {
             goto done;
         }
@@ -793,8 +753,7 @@ partial_repr(PyIUObject_Partial *self)
         tmp = PyUnicode_FromFormat("%U, %U=%R", arglist, othertmp, value);
         Py_DECREF(othertmp);
 
-        Py_CLEAR(arglist);
-        arglist = tmp;
+        Py_XSETREF(arglist, tmp);
         if (arglist == NULL) {
             goto done;
         }
@@ -804,44 +763,35 @@ partial_repr(PyIUObject_Partial *self)
                                   self->fn, arglist);
     Py_DECREF(arglist);
 
-
 done:
     Py_ReprLeave((PyObject *)self);
     return result;
 }
 
-/******************************************************************************
- * Reduce
- *****************************************************************************/
-
 static PyObject *
-partial_reduce(PyIUObject_Partial *self, PyObject *Py_UNUSED(args))
-{
+partial_reduce(PyIUObject_Partial *self, PyObject *Py_UNUSED(args)) {
     return Py_BuildValue("O(O)(OOOO)", Py_TYPE(self), self->fn, self->fn,
                          self->args, self->kw,
                          self->dict ? self->dict : Py_None);
 }
 
-/******************************************************************************
- * Setstate
- *****************************************************************************/
-
 static PyObject *
-partial_setstate(PyIUObject_Partial *self,
-                 PyObject *state)
-{
-    PyObject *fn, *fnargs, *kw, *dict;
+partial_setstate(PyIUObject_Partial *self, PyObject *state) {
+    PyObject *fn;
+    PyObject *fnargs;
+    PyObject *kw;
+    PyObject *dict;
 
     if (!PyTuple_Check(state) ||
-            !PyArg_ParseTuple(state, "OOOO", &fn, &fnargs, &kw, &dict) ||
-            !PyCallable_Check(fn) ||
-            !PyTuple_Check(fnargs) ||
-            (kw != Py_None && !PyDict_Check(kw))) {
+        !PyArg_ParseTuple(state, "OOOO", &fn, &fnargs, &kw, &dict) ||
+        !PyCallable_Check(fn) ||
+        !PyTuple_Check(fnargs) ||
+        (kw != Py_None && !PyDict_Check(kw))) {
         PyErr_SetString(PyExc_TypeError, "invalid `partial` state");
         return NULL;
     }
 
-    if(!PyTuple_CheckExact(fnargs)) {
+    if (!PyTuple_CheckExact(fnargs)) {
         fnargs = PySequence_Tuple(fnargs);
     } else {
         Py_INCREF(fnargs);
@@ -868,14 +818,10 @@ partial_setstate(PyIUObject_Partial *self,
     }
     Py_XINCREF(dict);
 
-    Py_CLEAR(self->fn);
-    Py_CLEAR(self->args);
-    Py_CLEAR(self->kw);
-    Py_CLEAR(self->dict);
-    self->fn = fn;
-    self->args = fnargs;
-    self->kw = kw;
-    self->dict = dict;
+    Py_XSETREF(self->fn, fn);
+    Py_XSETREF(self->args, fnargs);
+    Py_XSETREF(self->kw, kw);
+    Py_XSETREF(self->dict, dict);
 
     /* Free potentially existing array of positions and recreate it. */
     if (self->posph != NULL) {
@@ -893,14 +839,8 @@ partial_setstate(PyIUObject_Partial *self,
     Py_RETURN_NONE;
 }
 
-/******************************************************************************
- * Sizeof
- *****************************************************************************/
-
 static PyObject *
-partial_sizeof(PyIUObject_Partial *self,
-               PyObject *Py_UNUSED(args))
-{
+partial_sizeof(PyIUObject_Partial *self, PyObject *Py_UNUSED(args)) {
     Py_ssize_t res;
     res = sizeof(PyIUObject_Partial);
     /* Include the size of the posph array. */
@@ -908,150 +848,140 @@ partial_sizeof(PyIUObject_Partial *self,
     return PyLong_FromSsize_t(res);
 }
 
-/******************************************************************************
- * Type
- *****************************************************************************/
-
 static PyMethodDef partial_methods[] = {
-
-    {"__reduce__",                                      /* ml_name */
-     (PyCFunction)partial_reduce,                       /* ml_meth */
-     METH_NOARGS,                                       /* ml_flags */
-     PYIU_reduce_doc                                    /* ml_doc */
-     },
-
-    {"__setstate__",                                    /* ml_name */
-     (PyCFunction)partial_setstate,                     /* ml_meth */
-     METH_O,                                            /* ml_flags */
-     PYIU_setstate_doc                                  /* ml_doc */
-     },
-
-    {"__sizeof__",                                      /* ml_name */
-     (PyCFunction)partial_sizeof,                       /* ml_meth */
-     METH_NOARGS,                                       /* ml_flags */
-     PYIU_sizeof_doc                                    /* ml_doc */
-     },
-
-    {NULL, NULL}                                        /* sentinel */
+    {
+        "__reduce__",                /* ml_name */
+        (PyCFunction)partial_reduce, /* ml_meth */
+        METH_NOARGS,                 /* ml_flags */
+        PYIU_reduce_doc              /* ml_doc */
+    },
+    {
+        "__setstate__",                /* ml_name */
+        (PyCFunction)partial_setstate, /* ml_meth */
+        METH_O,                        /* ml_flags */
+        PYIU_setstate_doc              /* ml_doc */
+    },
+    {
+        "__sizeof__",                /* ml_name */
+        (PyCFunction)partial_sizeof, /* ml_meth */
+        METH_NOARGS,                 /* ml_flags */
+        PYIU_sizeof_doc              /* ml_doc */
+    },
+    {NULL, NULL} /* sentinel */
 };
 
 #if PYIU_PYPY
 
 static PyGetSetDef partial_getsetlist[] = {
-
-    {"__dict__",                                        /* name */
-     (getter)partial_get_dict,                          /* get */
-     (setter)partial_set_dict,                          /* set */
-     partial_prop___dict___doc,                         /* doc */
-     (void *)NULL                                       /* closure */
-     },
-
-    {NULL}                                              /* sentinel */
+    {
+        "__dict__",                /* name */
+        (getter)partial_get_dict,  /* get */
+        (setter)partial_set_dict,  /* set */
+        partial_prop___dict___doc, /* doc */
+        (void *)NULL               /* closure */
+    },
+    {NULL} /* sentinel */
 };
 
 #else
 
 static PyGetSetDef partial_getsetlist[] = {
-
-    {"__dict__",                                        /* name */
-     PyObject_GenericGetDict,                           /* get */
-     PyObject_GenericSetDict,                           /* set */
-     partial_prop___dict___doc,                         /* doc */
-     (void *)NULL                                       /* closure */
-     },
-
-    {NULL}                                              /* sentinel */
+    {
+        "__dict__",                /* name */
+        PyObject_GenericGetDict,   /* get */
+        PyObject_GenericSetDict,   /* set */
+        partial_prop___dict___doc, /* doc */
+        (void *)NULL               /* closure */
+    },
+    {NULL} /* sentinel */
 };
 
 #endif
 
 #define OFF(x) offsetof(PyIUObject_Partial, x)
 static PyMemberDef partial_memberlist[] = {
-
-    {"func",                                            /* name */
-     T_OBJECT,                                          /* type */
-     OFF(fn),                                           /* offset */
-     READONLY,                                          /* flags */
-     partial_prop_func_doc                              /* doc */
-     },
-
-    {"args",                                            /* name */
-     T_OBJECT,                                          /* type */
-     OFF(args),                                         /* offset */
-     READONLY,                                          /* flags */
-     partial_prop_args_doc                              /* doc */
-     },
-
-    {"keywords",                                        /* name */
-     T_OBJECT,                                          /* type */
-     OFF(kw),                                           /* offset */
-     READONLY,                                          /* flags */
-     partial_prop_keywords_doc                          /* doc */
-     },
-
-    {"num_placeholders",                                /* name */
-     T_PYSSIZET,                                        /* type */
-     OFF(numph),                                        /* offset */
-     READONLY,                                          /* flags */
-     partial_prop_nplaceholders_doc                     /* doc */
-     },
-
-    {NULL}                                              /* sentinel */
+    {
+        "func",               /* name */
+        T_OBJECT,             /* type */
+        OFF(fn),              /* offset */
+        READONLY,             /* flags */
+        partial_prop_func_doc /* doc */
+    },
+    {
+        "args",               /* name */
+        T_OBJECT,             /* type */
+        OFF(args),            /* offset */
+        READONLY,             /* flags */
+        partial_prop_args_doc /* doc */
+    },
+    {
+        "keywords",               /* name */
+        T_OBJECT,                 /* type */
+        OFF(kw),                  /* offset */
+        READONLY,                 /* flags */
+        partial_prop_keywords_doc /* doc */
+    },
+    {
+        "num_placeholders",            /* name */
+        T_PYSSIZET,                    /* type */
+        OFF(numph),                    /* offset */
+        READONLY,                      /* flags */
+        partial_prop_nplaceholders_doc /* doc */
+    },
+    {NULL} /* sentinel */
 };
 #undef OFF
 
 PyTypeObject PyIUType_Partial = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    (const char *)"iteration_utilities.partial",        /* tp_name */
-    (Py_ssize_t)sizeof(PyIUObject_Partial),             /* tp_basicsize */
-    (Py_ssize_t)0,                                      /* tp_itemsize */
+    PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.partial", /* tp_name */
+    (Py_ssize_t)sizeof(PyIUObject_Partial),                                     /* tp_basicsize */
+    (Py_ssize_t)0,                                                              /* tp_itemsize */
     /* methods */
-    (destructor)partial_dealloc,                        /* tp_dealloc */
+    (destructor)partial_dealloc, /* tp_dealloc */
 #if PyIU_USE_VECTORCALL
-    offsetof(PyIUObject_Partial, vectorcall),           /* tp_vectorcall_offset */
+    offsetof(PyIUObject_Partial, vectorcall), /* tp_vectorcall_offset */
 #else
-    (printfunc)0,                                       /* tp_print */
+    (printfunc)0,              /* tp_print */
 #endif
-    (getattrfunc)0,                                     /* tp_getattr */
-    (setattrfunc)0,                                     /* tp_setattr */
-    0,                                                  /* tp_reserved */
-    (reprfunc)partial_repr,                             /* tp_repr */
-    (PyNumberMethods *)0,                               /* tp_as_number */
-    (PySequenceMethods *)0,                             /* tp_as_sequence */
-    (PyMappingMethods *)0,                              /* tp_as_mapping */
-    (hashfunc)0,                                        /* tp_hash */
+    (getattrfunc)0,         /* tp_getattr */
+    (setattrfunc)0,         /* tp_setattr */
+    0,                      /* tp_reserved */
+    (reprfunc)partial_repr, /* tp_repr */
+    (PyNumberMethods *)0,   /* tp_as_number */
+    (PySequenceMethods *)0, /* tp_as_sequence */
+    (PyMappingMethods *)0,  /* tp_as_mapping */
+    (hashfunc)0,            /* tp_hash */
 #if PyIU_USE_VECTORCALL
-    (ternaryfunc)PyVectorcall_Call,                     /* tp_call */
+    (ternaryfunc)PyVectorcall_Call, /* tp_call */
 #else
-    (ternaryfunc)partial_call,                          /* tp_call */
+    (ternaryfunc)partial_call, /* tp_call */
 #endif
-    (reprfunc)0,                                        /* tp_str */
-    (getattrofunc)PyObject_GenericGetAttr,              /* tp_getattro */
-    (setattrofunc)PyObject_GenericSetAttr,              /* tp_setattro */
-    (PyBufferProcs *)0,                                 /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC
-        | Py_TPFLAGS_BASETYPE
+    (reprfunc)0,                           /* tp_str */
+    (getattrofunc)PyObject_GenericGetAttr, /* tp_getattro */
+    (setattrofunc)PyObject_GenericSetAttr, /* tp_setattro */
+    (PyBufferProcs *)0,                    /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE
 #if PyIU_USE_VECTORCALL
         | _Py_TPFLAGS_HAVE_VECTORCALL
 #endif
-        ,                                               /* tp_flags */
-    (const char *)partial_doc,                          /* tp_doc */
-    (traverseproc)partial_traverse,                     /* tp_traverse */
-    (inquiry)partial_clear,                             /* tp_clear */
-    (richcmpfunc)0,                                     /* tp_richcompare */
-    (Py_ssize_t)offsetof(PyIUObject_Partial, weakreflist),/* tp_weaklistoffset */
-    (getiterfunc)0,                                     /* tp_iter */
-    (iternextfunc)0,                                    /* tp_iternext */
-    partial_methods,                                    /* tp_methods */
-    partial_memberlist,                                 /* tp_members */
-    partial_getsetlist,                                 /* tp_getset */
-    0,                                                  /* tp_base */
-    0,                                                  /* tp_dict */
-    (descrgetfunc)0,                                    /* tp_descr_get */
-    (descrsetfunc)0,                                    /* tp_descr_set */
-    (Py_ssize_t)offsetof(PyIUObject_Partial, dict),     /* tp_dictoffset */
-    (initproc)0,                                        /* tp_init */
-    (allocfunc)0,                                       /* tp_alloc */
-    (newfunc)partial_new,                               /* tp_new */
-    (freefunc)PyObject_GC_Del,                          /* tp_free */
+    ,                                                      /* tp_flags */
+    (const char *)partial_doc,                             /* tp_doc */
+    (traverseproc)partial_traverse,                        /* tp_traverse */
+    (inquiry)partial_clear,                                /* tp_clear */
+    (richcmpfunc)0,                                        /* tp_richcompare */
+    (Py_ssize_t)offsetof(PyIUObject_Partial, weakreflist), /* tp_weaklistoffset */
+    (getiterfunc)0,                                        /* tp_iter */
+    (iternextfunc)0,                                       /* tp_iternext */
+    partial_methods,                                       /* tp_methods */
+    partial_memberlist,                                    /* tp_members */
+    partial_getsetlist,                                    /* tp_getset */
+    0,                                                     /* tp_base */
+    0,                                                     /* tp_dict */
+    (descrgetfunc)0,                                       /* tp_descr_get */
+    (descrsetfunc)0,                                       /* tp_descr_set */
+    (Py_ssize_t)offsetof(PyIUObject_Partial, dict),        /* tp_dictoffset */
+    (initproc)0,                                           /* tp_init */
+    (allocfunc)0,                                          /* tp_alloc */
+    (newfunc)partial_new,                                  /* tp_new */
+    (freefunc)PyObject_GC_Del,                             /* tp_free */
 };

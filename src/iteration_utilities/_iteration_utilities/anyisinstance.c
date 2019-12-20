@@ -3,16 +3,13 @@
  *****************************************************************************/
 
 #include "anyisinstance.h"
+#include "helper.h"
 
 PyObject *
-PyIU_AnyIsinstance(PyObject *Py_UNUSED(m),
-                   PyObject *args,
-                   PyObject *kwargs)
-{
+PyIU_AnyIsinstance(PyObject *Py_UNUSED(m), PyObject *args, PyObject *kwargs) {
     static char *kwlist[] = {"iterable", "types", NULL};
     PyObject *iterable;
     PyObject *types;
-
     PyObject *iterator;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO:any_isinstance", kwlist,
@@ -47,13 +44,8 @@ PyIU_AnyIsinstance(PyObject *Py_UNUSED(m),
 
     Py_DECREF(iterator);
 
-    if (PyErr_Occurred()) {
-        if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
-            PyErr_Clear();
-        } else {
-            return NULL;
-        }
+    if (PyIU_ErrorOccurredClearStopIteration()) {
+        return NULL;
     }
-
     Py_RETURN_FALSE;
 }

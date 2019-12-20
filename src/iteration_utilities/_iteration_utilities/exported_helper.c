@@ -29,7 +29,7 @@ PyIU_parse_args(PyObject *tuple, PyObject *item, Py_ssize_t index) {
     Py_INCREF(item);
     PyTuple_SET_ITEM(new_tuple, index, item);
 
-    for (i = 0 ; i < tuple_size + 1 ; i++ ) {
+    for (i = 0; i < tuple_size + 1; i++) {
         PyObject *tmp;
         if (i < index) {
             tmp = PyTuple_GET_ITEM(tuple, i);
@@ -88,7 +88,7 @@ PyIU_parse_kwargs(PyObject *dct, PyObject *remvalue) {
     if (i == dict_size) {
         PyDict_Clear(dct);
     } else {
-        for (j = 0 ; j < i ; j++) {
+        for (j = 0; j < i; j++) {
             /* Error checking is intentionally omitted since we know that the
                items in the stack are not-NULL and hashable. */
             PyDict_DelItem(dct, stack[j]);
