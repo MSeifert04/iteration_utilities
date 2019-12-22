@@ -51,17 +51,17 @@ jobs:
         fetch-depth: 1
     - name: Download Python 3.8
       run: |
-        wget https://www.python.org/ftp/python/3.8.0/Python-3.8.0.tgz -q
-        python3 ci/verify_checksum.py Python-3.8.0.tgz e18a9d1a0a6d858b9787e03fc6fdaa20
+        wget https://www.python.org/ftp/python/3.8.1/Python-3.8.1.tgz -q
+        python3 ci/verify_checksum.py Python-3.8.1.tgz f215fa2f55a78de739c1787ec56b2bcd
     - name: Install Python 3.8
       run: |
-        tar xzf Python-3.8.0.tgz
-        cd Python-3.8.0
+        tar xzf Python-3.8.1.tgz
+        cd Python-3.8.1
         ./configure --with-pydebug
         sudo make altinstall -s -j2
     - name: Remove download
       run: |
-        sudo python3.8 -c "import os; os.remove('./Python-3.8.0.tgz'); import shutil; shutil.rmtree('./Python-3.8.0/')"
+        sudo python3.8 -c "import os; os.remove('./Python-3.8.1.tgz'); import shutil; shutil.rmtree('./Python-3.8.1/')"
     - name: Install dependencies
       run: |
         python3.8 -m pip install pip setuptools wheel --upgrade --user --no-warn-script-location
