@@ -6,15 +6,17 @@
 #include "helper.h"
 
 static PyObject *
-argminmax(PyObject *args,
-          PyObject *kwargs,
-          int cmpop)
-{
+argminmax(PyObject *args, PyObject *kwargs, int cmpop) {
     static char *kwlist[] = {"key", "default", NULL};
-
-    PyObject *sequence, *keyfunc=NULL, *iterator=NULL;
-    PyObject *item=NULL, *val=NULL, *maxval=NULL;
-    Py_ssize_t defaultitem=0, idx=-1, maxidx=-1;
+    PyObject *sequence;
+    PyObject *keyfunc = NULL;
+    PyObject *iterator = NULL;
+    PyObject *item = NULL;
+    PyObject *val = NULL;
+    PyObject *maxval = NULL;
+    Py_ssize_t defaultitem = 0;
+    Py_ssize_t idx = -1;
+    Py_ssize_t maxidx = -1;
     int defaultisset = 0;
     const int positional = PyTuple_GET_SIZE(args) > 1;
 
@@ -34,8 +36,8 @@ argminmax(PyObject *args,
     }
 
     if (defaultitem != 0 ||
-            (kwargs != NULL && PyDict_CheckExact(kwargs) &&
-             PyDict_GetItemString(kwargs, "default"))) {
+        (kwargs != NULL && PyDict_CheckExact(kwargs) &&
+         PyDict_GetItemString(kwargs, "default"))) {
         defaultisset = 1;
     }
     if (keyfunc == Py_None) {
@@ -56,7 +58,7 @@ argminmax(PyObject *args,
         goto Fail;
     }
 
-    while ( (item=Py_TYPE(iterator)->tp_iternext(iterator)) ) {
+    while ((item = Py_TYPE(iterator)->tp_iternext(iterator))) {
         idx++;
 
         /* Use the item itself or keyfunc(item). */
@@ -70,13 +72,12 @@ argminmax(PyObject *args,
             Py_INCREF(val);
         }
 
-        /* maximum value and item are unset; set them. */
         if (maxval == NULL) {
+            /* maximum value and item are unset; set them. */
             maxval = val;
             maxidx = idx;
-
-        /* maximum value and item are set; update them as necessary. */
         } else {
+            /* maximum value and item are set; update them as necessary. */
             int cmpres = PyObject_RichCompareBool(val, maxval, cmpop);
             if (cmpres > 0) {
                 Py_DECREF(maxval);
@@ -95,12 +96,8 @@ argminmax(PyObject *args,
     Py_XDECREF(maxval);
     Py_XDECREF(keyfunc);
 
-    if (PyErr_Occurred()) {
-        if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
-            PyErr_Clear();
-        } else {
-            return NULL;
-        }
+    if (PyIU_ErrorOccurredClearStopIteration()) {
+        return NULL;
     }
 
     if (maxidx == -1) {
@@ -124,10 +121,10 @@ Fail:
     return NULL;
 }
 
-PyObject * PyIU_Argmin(PyObject *Py_UNUSED(m), PyObject *args, PyObject *kwargs) {
+PyObject *PyIU_Argmin(PyObject *Py_UNUSED(m), PyObject *args, PyObject *kwargs) {
     return argminmax(args, kwargs, Py_LT);
 }
 
-PyObject * PyIU_Argmax(PyObject *Py_UNUSED(m), PyObject *args, PyObject *kwargs) {
+PyObject *PyIU_Argmax(PyObject *Py_UNUSED(m), PyObject *args, PyObject *kwargs) {
     return argminmax(args, kwargs, Py_GT);
 }

@@ -3,16 +3,18 @@
  *****************************************************************************/
 
 #include "nth.h"
+#include <structmember.h>
 #include "docs_reduce.h"
 #include "helper.h"
-#include <structmember.h>
 
-PyDoc_STRVAR(nth_prop_n_doc,
+PyDoc_STRVAR(
+    nth_prop_n_doc,
     "(:py:class:`int`) The index to get (readonly).\n"
     "\n"
     ".. versionadded:: 0.6");
 
-PyDoc_STRVAR(nth_doc,
+PyDoc_STRVAR(
+    nth_doc,
     "nth(x)\n"
     "--\n\n"
     "Class that returns the `n`-th found value.\n"
@@ -114,12 +116,10 @@ PyDoc_STRVAR(nth_doc,
     "- :py:func:`~iteration_utilities.first`: equivalent to ``nth(0)``.\n"
     "- :py:func:`~iteration_utilities.second`: equivalent to ``nth(1)``.\n"
     "- :py:func:`~iteration_utilities.third`: equivalent to ``nth(2)``.\n"
-    "- :py:func:`~iteration_utilities.last`: equivalent to ``nth(-1)``.\n"
-);
+    "- :py:func:`~iteration_utilities.last`: equivalent to ``nth(-1)``.\n");
 
 PyObject *
-PyIUNth_New(Py_ssize_t index)
-{
+PyIUNth_New(Py_ssize_t index) {
     PyIUObject_Nth *self;
 
     self = PyObject_GC_New(PyIUObject_Nth, &PyIUType_Nth);
@@ -131,87 +131,58 @@ PyIUNth_New(Py_ssize_t index)
     return (PyObject *)self;
 }
 
-/******************************************************************************
- * New
- *****************************************************************************/
-
 static PyObject *
-nth_new(PyTypeObject *type,
-        PyObject *args,
-        PyObject *kwargs)
-{
+nth_new(PyTypeObject *type, PyObject *args, PyObject *kwargs) {
     PyIUObject_Nth *self;
 
     Py_ssize_t index;
 
-    /* Parse arguments */
     if (!PyArg_ParseTuple(args, "n:nth", &index)) {
-        goto Fail;
+        return NULL;
     }
-
-    /* Create struct */
     self = (PyIUObject_Nth *)type->tp_alloc(type, 0);
     if (self == NULL) {
-        goto Fail;
+        return NULL;
     }
     self->index = index;
     return (PyObject *)self;
-
-Fail:
-    return NULL;
 }
 
-/******************************************************************************
- * Destructor
- *****************************************************************************/
-
 static void
-nth_dealloc(PyIUObject_Nth *self)
-{
+nth_dealloc(PyIUObject_Nth *self) {
     PyObject_GC_UnTrack(self);
     Py_TYPE(self)->tp_free(self);
 }
 
-/******************************************************************************
- * Traverse
- *****************************************************************************/
-
 static int
 nth_traverse(PyIUObject_Nth *self,
              visitproc visit,
-             void *arg)
-{
+             void *arg) {
     return 0;
 }
-
-/******************************************************************************
- * Clear
- *****************************************************************************/
 
 static int
-nth_clear(PyIUObject_Nth *self)
-{
+nth_clear(PyIUObject_Nth *self) {
     return 0;
 }
 
-/******************************************************************************
- * Call
- *****************************************************************************/
-
 static PyObject *
-nth_call(PyIUObject_Nth *self,
-         PyObject *args,
-         PyObject *kwargs)
-{
-    static char *kwlist[] = {"iterable", "default", "pred", "truthy",
-                             "retpred", "retidx", NULL};
+nth_call(PyIUObject_Nth *self, PyObject *args, PyObject *kwargs) {
+    static char *kwlist[] = {"iterable", "default", "pred", "truthy", "retpred", "retidx", NULL};
+    PyObject *iterable;
+    PyObject *iterator;
+    PyObject *item;
+    PyObject *defaultitem = NULL;
+    PyObject *func = NULL;
+    PyObject *last = NULL;
+    PyObject *val = NULL;
+    int ok = 0;
+    int truthy = 1;
+    int retpred = 0;
+    int retidx = 0;
+    Py_ssize_t idx;
+    Py_ssize_t nfound = -1;
 
-    PyObject *iterable, *iterator, *item;
-    PyObject *defaultitem=NULL, *func=NULL, *last=NULL, *val=NULL;
-    int ok=0, truthy=1, retpred=0, retidx=0;
-    Py_ssize_t idx, nfound=-1;
-
-    /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OOiii:nth.__call__", kwlist,
                                      &iterable, &defaultitem, &func,
                                      &truthy, &retpred, &retidx)) {
@@ -237,7 +208,7 @@ nth_call(PyIUObject_Nth *self,
     /* The loop variable "idx" is only incremented if a suitable item was
        found.
        */
-    for (idx=0 ; idx<=self->index || self->index < 0; ) {
+    for (idx = 0; idx <= self->index || self->index < 0;) {
         item = Py_TYPE(iterator)->tp_iternext(iterator);
 
         /* If the iterator terminates also terminate the loop and remove the
@@ -259,25 +230,21 @@ nth_call(PyIUObject_Nth *self,
             nfound++;
         }
 
-        /* If no function is given we can skip the remainder of the loop and
-           just use the new item.
-           */
         if (func == NULL) {
+            /* If no function is given we can skip the remainder of the loop and
+               just use the new item.*/
             if (last != NULL) {
                 Py_DECREF(last);
             }
             last = item;
             idx++;
             continue;
-
-        /* If "None" (or "bool") is given as predicate we don't need to call
-           the function explicitly.
-           */
         } else if (func == Py_None) {
+            /* If "None" (or "bool") is given as predicate we don't need to call
+               the function explicitly. */
             ok = PyObject_IsTrue(item);
-
-        /* Otherwise call the function.  */
         } else {
+            /* Otherwise call the function.  */
             val = PyIU_CallWithOneArgument(func, item);
             if (val == NULL) {
                 Py_DECREF(iterator);
@@ -292,10 +259,9 @@ nth_call(PyIUObject_Nth *self,
            replace the last found item with the new found one.
            */
         if (ok == truthy) {
-            /* If the predicate should be returned we don't need the original
-               item but only keep the result of the function call.
-               */
             if (retpred) {
+                /* If the predicate should be returned we don't need the original
+                   item but only keep the result of the function call. */
                 Py_DECREF(item);
                 if (val == NULL) {
                     /* Predicate was None or bool and no "val" was created. */
@@ -307,10 +273,9 @@ nth_call(PyIUObject_Nth *self,
                    it inadvertently. */
                 val = NULL;
 
-            /* Otherwise discard the value from the function call and keep the
-               item from the iterator.
-               */
             } else {
+                /* Otherwise discard the value from the function call and keep the
+                   item from the iterator. */
                 Py_XDECREF(val);
                 if (last != NULL) {
                     Py_DECREF(last);
@@ -318,16 +283,14 @@ nth_call(PyIUObject_Nth *self,
                 last = item;
             }
             idx++;
-
-        /* Error happened when calling the function or when comparing to True. */
         } else if (ok < 0) {
+            /* Error happened when calling the function or when comparing to True. */
             Py_DECREF(iterator);
             Py_DECREF(item);
             Py_XDECREF(val);
             return NULL;
-
-        /* The object is not considered suitable and it will be discarded. */
         } else {
+            /* The object is not considered suitable and it will be discarded. */
             Py_DECREF(item);
             Py_XDECREF(val);
         }
@@ -335,130 +298,106 @@ nth_call(PyIUObject_Nth *self,
 
     Py_DECREF(iterator);
 
-    if (PyErr_Occurred()) {
-        if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
-            PyErr_Clear();
-        } else {
-            Py_XDECREF(last);
-            return NULL;
-        }
+    if (PyIU_ErrorOccurredClearStopIteration()) {
+        Py_XDECREF(last);
+        return NULL;
     }
 
-    /* We still have a last element (so the loop did not terminate without
-       finding the indexed element).
-       */
     if (last != NULL) {
+        /* We still have a last element (so the loop did not terminate without
+           finding the indexed element). */
         if (retidx) {
             Py_DECREF(last);
             return PyLong_FromSsize_t(nfound);
         }
         return last;
-
-    /* No last element but a default was given. */
     } else if (defaultitem != NULL) {
+        /* No last element but a default was given. */
         Py_INCREF(defaultitem);
         return defaultitem;
-
-    /* No item, no default raises an IndexError.  */
     } else {
+        /* No item, no default raises an IndexError.  */
         PyErr_SetString(PyExc_IndexError,
                         "`iterable` for `nth` does not contain enough values.");
         return NULL;
     }
 }
 
-/******************************************************************************
- * Repr
- *****************************************************************************/
-
 static PyObject *
-nth_repr(PyIUObject_Nth *self)
-{
+nth_repr(PyIUObject_Nth *self) {
     return PyUnicode_FromFormat("%s(%zd)",
                                 Py_TYPE(self)->tp_name,
                                 self->index);
 }
 
-/******************************************************************************
- * Reduce
- *****************************************************************************/
-
 static PyObject *
-nth_reduce(PyIUObject_Nth *self, PyObject *Py_UNUSED(args))
-{
+nth_reduce(PyIUObject_Nth *self, PyObject *Py_UNUSED(args)) {
     return Py_BuildValue("O(n)", Py_TYPE(self),
                          self->index);
 }
 
-/******************************************************************************
- * Type
- *****************************************************************************/
-
 static PyMethodDef nth_methods[] = {
-
-    {"__reduce__",                                      /* ml_name */
-     (PyCFunction)nth_reduce,                           /* ml_meth */
-     METH_NOARGS,                                       /* ml_flags */
-     PYIU_reduce_doc                                    /* ml_doc */
-     },
-
-    {NULL, NULL}                                        /* sentinel */
+    {
+        "__reduce__",            /* ml_name */
+        (PyCFunction)nth_reduce, /* ml_meth */
+        METH_NOARGS,             /* ml_flags */
+        PYIU_reduce_doc          /* ml_doc */
+    },
+    {NULL, NULL} /* sentinel */
 };
 
 #define OFF(x) offsetof(PyIUObject_Nth, x)
 static PyMemberDef nth_memberlist[] = {
-
-    {"n",                                               /* name */
-     T_PYSSIZET,                                        /* type */
-     OFF(index),                                        /* offset */
-     READONLY,                                          /* flags */
-     nth_prop_n_doc                                     /* doc */
-     },
-
-    {NULL}                                              /* sentinel */
+    {
+        "n",           /* name */
+        T_PYSSIZET,    /* type */
+        OFF(index),    /* offset */
+        READONLY,      /* flags */
+        nth_prop_n_doc /* doc */
+    },
+    {NULL} /* sentinel */
 };
 #undef OFF
 
 PyTypeObject PyIUType_Nth = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    (const char *)"iteration_utilities.nth",            /* tp_name */
-    (Py_ssize_t)sizeof(PyIUObject_Nth),                 /* tp_basicsize */
-    (Py_ssize_t)0,                                      /* tp_itemsize */
+    PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.nth", /* tp_name */
+    (Py_ssize_t)sizeof(PyIUObject_Nth),                                     /* tp_basicsize */
+    (Py_ssize_t)0,                                                          /* tp_itemsize */
     /* methods */
-    (destructor)nth_dealloc,                            /* tp_dealloc */
-    (printfunc)0,                                       /* tp_print */
-    (getattrfunc)0,                                     /* tp_getattr */
-    (setattrfunc)0,                                     /* tp_setattr */
-    0,                                                  /* tp_reserved */
-    (reprfunc)nth_repr,                                 /* tp_repr */
-    (PyNumberMethods *)0,                               /* tp_as_number */
-    (PySequenceMethods *)0,                             /* tp_as_sequence */
-    (PyMappingMethods *)0,                              /* tp_as_mapping */
-    (hashfunc)0,                                        /* tp_hash */
-    (ternaryfunc)nth_call,                              /* tp_call */
-    (reprfunc)0,                                        /* tp_str */
-    (getattrofunc)PyObject_GenericGetAttr,              /* tp_getattro */
-    (setattrofunc)0,                                    /* tp_setattro */
-    (PyBufferProcs *)0,                                 /* tp_as_buffer */
+    (destructor)nth_dealloc,               /* tp_dealloc */
+    (printfunc)0,                          /* tp_print */
+    (getattrfunc)0,                        /* tp_getattr */
+    (setattrfunc)0,                        /* tp_setattr */
+    0,                                     /* tp_reserved */
+    (reprfunc)nth_repr,                    /* tp_repr */
+    (PyNumberMethods *)0,                  /* tp_as_number */
+    (PySequenceMethods *)0,                /* tp_as_sequence */
+    (PyMappingMethods *)0,                 /* tp_as_mapping */
+    (hashfunc)0,                           /* tp_hash */
+    (ternaryfunc)nth_call,                 /* tp_call */
+    (reprfunc)0,                           /* tp_str */
+    (getattrofunc)PyObject_GenericGetAttr, /* tp_getattro */
+    (setattrofunc)0,                       /* tp_setattro */
+    (PyBufferProcs *)0,                    /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
-        Py_TPFLAGS_BASETYPE,                            /* tp_flags */
-    (const char *)nth_doc,                              /* tp_doc */
-    (traverseproc)nth_traverse,                         /* tp_traverse */
-    (inquiry)nth_clear,                                 /* tp_clear */
-    (richcmpfunc)0,                                     /* tp_richcompare */
-    (Py_ssize_t)0,                                      /* tp_weaklistoffset */
-    (getiterfunc)0,                                     /* tp_iter */
-    (iternextfunc)0,                                    /* tp_iternext */
-    nth_methods,                                        /* tp_methods */
-    nth_memberlist,                                     /* tp_members */
-    0,                                                  /* tp_getset */
-    0,                                                  /* tp_base */
-    0,                                                  /* tp_dict */
-    (descrgetfunc)0,                                    /* tp_descr_get */
-    (descrsetfunc)0,                                    /* tp_descr_set */
-    (Py_ssize_t)0,                                      /* tp_dictoffset */
-    (initproc)0,                                        /* tp_init */
-    (allocfunc)0,                                       /* tp_alloc */
-    (newfunc)nth_new,                                   /* tp_new */
-    (freefunc)PyObject_GC_Del,                          /* tp_free */
+        Py_TPFLAGS_BASETYPE,    /* tp_flags */
+    (const char *)nth_doc,      /* tp_doc */
+    (traverseproc)nth_traverse, /* tp_traverse */
+    (inquiry)nth_clear,         /* tp_clear */
+    (richcmpfunc)0,             /* tp_richcompare */
+    (Py_ssize_t)0,              /* tp_weaklistoffset */
+    (getiterfunc)0,             /* tp_iter */
+    (iternextfunc)0,            /* tp_iternext */
+    nth_methods,                /* tp_methods */
+    nth_memberlist,             /* tp_members */
+    0,                          /* tp_getset */
+    0,                          /* tp_base */
+    0,                          /* tp_dict */
+    (descrgetfunc)0,            /* tp_descr_get */
+    (descrsetfunc)0,            /* tp_descr_set */
+    (Py_ssize_t)0,              /* tp_dictoffset */
+    (initproc)0,                /* tp_init */
+    (allocfunc)0,               /* tp_alloc */
+    (newfunc)nth_new,           /* tp_new */
+    (freefunc)PyObject_GC_Del,  /* tp_free */
 };

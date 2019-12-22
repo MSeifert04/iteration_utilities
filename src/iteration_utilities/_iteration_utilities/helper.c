@@ -28,8 +28,7 @@ void PyIU_InitializeConstants(void) {
  *****************************************************************************/
 
 PyObject *
-PyIU_CreateIteratorTuple(PyObject *tuple)
-{
+PyIU_CreateIteratorTuple(PyObject *tuple) {
     assert(tuple != NULL && PyTuple_CheckExact(tuple));
 
     PyObject *newtuple;
@@ -41,7 +40,7 @@ PyIU_CreateIteratorTuple(PyObject *tuple)
         return NULL;
     }
 
-    for (i = 0 ; i < tuplesize ; i++) {
+    for (i = 0; i < tuplesize; i++) {
         PyObject *iterator = PyObject_GetIter(PyTuple_GET_ITEM(tuple, i));
         if (iterator == NULL) {
             Py_DECREF(newtuple);
@@ -58,8 +57,7 @@ PyIU_CreateIteratorTuple(PyObject *tuple)
  *****************************************************************************/
 
 PyObject *
-PyIU_TupleReverse(PyObject *tuple)
-{
+PyIU_TupleReverse(PyObject *tuple) {
     assert(tuple != NULL && PyTuple_CheckExact(tuple));
 
     PyObject *newtuple;
@@ -71,7 +69,7 @@ PyIU_TupleReverse(PyObject *tuple)
         return NULL;
     }
 
-    for (i = 0, j = tuplesize-1 ; i < tuplesize ; i++, j--) {
+    for (i = 0, j = tuplesize - 1; i < tuplesize; i++, j--) {
         PyObject *item = PyTuple_GET_ITEM(tuple, i);
         Py_INCREF(item);
         PyTuple_SET_ITEM(newtuple, j, item);
@@ -88,8 +86,7 @@ PyIU_TupleReverse(PyObject *tuple)
  *****************************************************************************/
 
 PyObject *
-PyIU_TupleCopy(PyObject *tuple)
-{
+PyIU_TupleCopy(PyObject *tuple) {
     assert(tuple != NULL && PyTuple_CheckExact(tuple));
 
     PyObject *newtuple;
@@ -101,7 +98,7 @@ PyIU_TupleCopy(PyObject *tuple)
         return NULL;
     }
 
-    for (i = 0 ; i < tuplesize ; i++) {
+    for (i = 0; i < tuplesize; i++) {
         PyObject *tmp = PyTuple_GET_ITEM(tuple, i);
         Py_INCREF(tmp);
         PyTuple_SET_ITEM(newtuple, i, tmp);
@@ -125,12 +122,7 @@ PyIU_TupleCopy(PyObject *tuple)
  *         PyObject, see Warning.)
  *****************************************************************************/
 
-void
-PyIU_TupleInsert(PyObject *tuple,
-                 Py_ssize_t where,
-                 PyObject *v,
-                 Py_ssize_t num)
-{
+void PyIU_TupleInsert(PyObject *tuple, Py_ssize_t where, PyObject *v, Py_ssize_t num) {
     assert(tuple != NULL && PyTuple_CheckExact(tuple));
     assert(where >= 0 && where < PyTuple_GET_SIZE(tuple));
     assert(v != NULL);
@@ -141,7 +133,7 @@ PyIU_TupleInsert(PyObject *tuple,
     /* Move each of them to the next place, starting by the next-to-last
        element going left until where.
        */
-    for (i = num-2 ; i >= where ; i--) {
+    for (i = num - 2; i >= where; i--) {
         PyObject *temp = PyTuple_GET_ITEM(tuple, i);
         PyTuple_SET_ITEM(tuple, i + 1, temp);
     }
@@ -164,11 +156,7 @@ PyIU_TupleInsert(PyObject *tuple,
  *         moved to "where".
  *****************************************************************************/
 
-void
-PyIU_TupleRemove(PyObject *tuple,
-                 Py_ssize_t where,
-                 Py_ssize_t num)
-{
+void PyIU_TupleRemove(PyObject *tuple, Py_ssize_t where, Py_ssize_t num) {
     assert(tuple != NULL && PyTuple_CheckExact(tuple));
     assert(where >= 0 && where < PyTuple_GET_SIZE(tuple));
     assert(num >= 0 && num <= PyTuple_GET_SIZE(tuple));
@@ -178,12 +166,12 @@ PyIU_TupleRemove(PyObject *tuple,
     /* Move each item to the left from the after-where index until the end of
        the array.
        */
-    for (i = where+1 ; i < num ; i++) {
+    for (i = where + 1; i < num; i++) {
         PyObject *temp = PyTuple_GET_ITEM(tuple, i);
-        PyTuple_SET_ITEM(tuple, i-1, temp);
+        PyTuple_SET_ITEM(tuple, i - 1, temp);
     }
     /* Insert NULL at the last position. */
-    PyTuple_SET_ITEM(tuple, num-1, NULL);
+    PyTuple_SET_ITEM(tuple, num - 1, NULL);
 }
 
 /******************************************************************************

@@ -8,12 +8,8 @@
 #define PyIU_USE_DICT_INTERNALS PYIU_CPYTHON
 
 PyObject *
-PyIU_Groupby(PyObject *Py_UNUSED(m),
-             PyObject *args,
-             PyObject *kwargs)
-{
+PyIU_Groupby(PyObject *Py_UNUSED(m), PyObject *args, PyObject *kwargs) {
     static char *kwlist[] = {"iterable", "key", "keep", "reduce", "reducestart", NULL};
-
     PyObject *iterable;
     PyObject *keyfunc;
     PyObject *valfunc = NULL;
@@ -90,7 +86,7 @@ PyIU_Groupby(PyObject *Py_UNUSED(m),
 #if PyIU_USE_DICT_INTERNALS
         /* Taken from dictobject.c CPython 3.5 */
         if (!PyUnicode_CheckExact(val) ||
-                (hash = ((PyASCIIObject *) val)->hash) == -1) {
+            (hash = ((PyASCIIObject *)val)->hash) == -1) {
             hash = PyObject_Hash(val);
             if (hash == -1) {
                 Py_DECREF(keep);
@@ -100,8 +96,8 @@ PyIU_Groupby(PyObject *Py_UNUSED(m),
         }
 #endif
 
-        /* Keep all values as list.  */
         if (reducefunc == NULL) {
+            /* Keep all values as list.  */
             PyObject *lst;
 
 #if PyIU_USE_DICT_INTERNALS
@@ -137,9 +133,8 @@ PyIU_Groupby(PyObject *Py_UNUSED(m),
                     goto Fail;
                 }
             }
-
-        /* Reduce the values with a binary operation. */
         } else {
+            /* Reduce the values with a binary operation. */
             PyObject *current;
 
 #if PyIU_USE_DICT_INTERNALS
@@ -149,8 +144,8 @@ PyIU_Groupby(PyObject *Py_UNUSED(m),
 #endif
             Py_XINCREF(current);
 
-            /* No item yet and no starting value given: Keep the "keep". */
             if (current == NULL && reducestart == NULL) {
+                /* No item yet and no starting value given: Keep the "keep". */
                 int ok;
 #if PyIU_USE_DICT_INTERNALS
                 ok = _PyDict_SetItem_KnownHash(resdict, val, keep, hash);
@@ -162,9 +157,8 @@ PyIU_Groupby(PyObject *Py_UNUSED(m),
                 if (ok == -1) {
                     goto Fail;
                 }
-
-            /* Already an item present so use the binary operation. */
             } else {
+                /* Already an item present so use the binary operation. */
                 PyObject *reducetmp;
                 int ok;
 
@@ -195,15 +189,10 @@ PyIU_Groupby(PyObject *Py_UNUSED(m),
 
     Py_DECREF(iterator);
 
-    if (PyErr_Occurred()) {
-        if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
-            PyErr_Clear();
-        } else {
-            Py_DECREF(resdict);
-            return NULL;
-        }
+    if (PyIU_ErrorOccurredClearStopIteration()) {
+        Py_DECREF(resdict);
+        return NULL;
     }
-
     return resdict;
 
 Fail:

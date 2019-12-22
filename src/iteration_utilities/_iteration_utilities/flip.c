@@ -3,16 +3,18 @@
  *****************************************************************************/
 
 #include "flip.h"
+#include <structmember.h>
 #include "docs_reduce.h"
 #include "helper.h"
-#include <structmember.h>
 
-PyDoc_STRVAR(flip_prop_func_doc,
+PyDoc_STRVAR(
+    flip_prop_func_doc,
     "(callable) The function with flipped arguments (readonly).\n"
     "\n"
     ".. versionadded:: 0.6");
 
-PyDoc_STRVAR(flip_doc,
+PyDoc_STRVAR(
+    flip_doc,
     "flip(x, /)\n"
     "--\n\n"
     "Class that reverses the positional arguments to a `func` when called.\n"
@@ -34,27 +36,16 @@ PyDoc_STRVAR(flip_doc,
     "    >>> isfloat(10)\n"
     "    False\n"
     "    >>> isfloat(11.25)\n"
-    "    True\n"
-);
+    "    True\n");
 
 #if PyIU_USE_VECTORCALL
-static PyObject * flip_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *kwnames);
+static PyObject *flip_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *kwnames);
 #endif
 
-/******************************************************************************
- * New
- *****************************************************************************/
-
 static PyObject *
-flip_new(PyTypeObject *type,
-         PyObject *args,
-         PyObject *kwargs)
-{
+flip_new(PyTypeObject *type, PyObject *args, PyObject *kwargs) {
     PyIUObject_Flip *self;
-
     PyObject *func;
-
-    /* Parse arguments */
     if (!PyArg_UnpackTuple(args, "flip", 1, 1, &func)) {
         return NULL;
     }
@@ -69,8 +60,6 @@ flip_new(PyTypeObject *type,
         Py_INCREF(ret);
         return ret;
     }
-
-    /* Create struct */
     self = (PyIUObject_Flip *)type->tp_alloc(type, 0);
     if (self == NULL) {
         return NULL;
@@ -83,50 +72,29 @@ flip_new(PyTypeObject *type,
     return (PyObject *)self;
 }
 
-/******************************************************************************
- * Destructor
- *****************************************************************************/
-
 static void
-flip_dealloc(PyIUObject_Flip *self)
-{
+flip_dealloc(PyIUObject_Flip *self) {
     PyObject_GC_UnTrack(self);
     Py_XDECREF(self->func);
     Py_TYPE(self)->tp_free(self);
 }
 
-/******************************************************************************
- * Traverse
- *****************************************************************************/
-
 static int
-flip_traverse(PyIUObject_Flip *self,
-              visitproc visit,
-              void *arg)
-{
+flip_traverse(PyIUObject_Flip *self, visitproc visit, void *arg) {
     Py_VISIT(self->func);
     return 0;
 }
 
-/******************************************************************************
- * Clear
- *****************************************************************************/
-
 static int
-flip_clear(PyIUObject_Flip *self)
-{
+flip_clear(PyIUObject_Flip *self) {
     Py_CLEAR(self->func);
     return 0;
 }
 
 #if PyIU_USE_VECTORCALL
-/******************************************************************************
- * Vectorcall
- *****************************************************************************/
 
 static PyObject *
-flip_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *kwnames)
-{
+flip_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *kwnames) {
     PyObject *result;
     PyObject *small_stack[PyIU_SMALL_ARG_STACK_SIZE];
     PyObject **stack = small_stack;
@@ -151,7 +119,7 @@ flip_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *k
     for (i = 0, j = n_pos_args - 1; i < n_pos_args; i++, j--) {
         stack[i] = args[j];
     }
-    memcpy(stack + n_pos_args, args + n_pos_args, (n_args - n_pos_args) * sizeof(PyObject*));
+    memcpy(stack + n_pos_args, args + n_pos_args, (n_args - n_pos_args) * sizeof(PyObject *));
     result = _PyObject_Vectorcall(self->func, stack, n_pos_args, kwnames);
     if (stack != small_stack) {
         PyMem_Free(stack);
@@ -160,16 +128,11 @@ flip_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *k
 }
 
 #else
-/******************************************************************************
- * Call
- *****************************************************************************/
 
 static PyObject *
-flip_call(PyIUObject_Flip *self,
-          PyObject *args,
-          PyObject *kwargs)
-{
-    PyObject *result, *tmpargs;
+flip_call(PyIUObject_Flip *self, PyObject *args, PyObject *kwargs) {
+    PyObject *result;
+    PyObject *tmpargs;
 
     if (PyTuple_GET_SIZE(args) >= 2) {
         tmpargs = PyIU_TupleReverse(args);
@@ -181,15 +144,11 @@ flip_call(PyIUObject_Flip *self,
 
     return result;
 }
+
 #endif
 
-/******************************************************************************
- * Repr
- *****************************************************************************/
-
 static PyObject *
-flip_repr(PyIUObject_Flip *self)
-{
+flip_repr(PyIUObject_Flip *self) {
     PyObject *result = NULL;
     int ok;
 
@@ -206,98 +165,85 @@ flip_repr(PyIUObject_Flip *self)
     return result;
 }
 
-/******************************************************************************
- * Reduce
- *****************************************************************************/
-
 static PyObject *
-flip_reduce(PyIUObject_Flip *self, PyObject *Py_UNUSED(args))
-{
+flip_reduce(PyIUObject_Flip *self, PyObject *Py_UNUSED(args)) {
     return Py_BuildValue("O(O)", Py_TYPE(self),
                          self->func);
 }
 
-/******************************************************************************
- * Type
- *****************************************************************************/
-
 static PyMethodDef flip_methods[] = {
-
-    {"__reduce__",                                      /* ml_name */
-     (PyCFunction)flip_reduce,                          /* ml_meth */
-     METH_NOARGS,                                       /* ml_flags */
-     PYIU_reduce_doc                                    /* ml_doc */
-     },
-
-    {NULL, NULL}                                        /* sentinel */
+    {
+        "__reduce__",             /* ml_name */
+        (PyCFunction)flip_reduce, /* ml_meth */
+        METH_NOARGS,              /* ml_flags */
+        PYIU_reduce_doc           /* ml_doc */
+    },
+    {NULL, NULL} /* sentinel */
 };
 
 #define OFF(x) offsetof(PyIUObject_Flip, x)
 static PyMemberDef flip_memberlist[] = {
-
-    {"func",                                            /* name */
-     T_OBJECT,                                          /* type */
-     OFF(func),                                         /* offset */
-     READONLY,                                          /* flags */
-     flip_prop_func_doc                                 /* doc */
-     },
-
-    {NULL}                                              /* sentinel */
+    {
+        "func",            /* name */
+        T_OBJECT,          /* type */
+        OFF(func),         /* offset */
+        READONLY,          /* flags */
+        flip_prop_func_doc /* doc */
+    },
+    {NULL} /* sentinel */
 };
 #undef OFF
 
 PyTypeObject PyIUType_Flip = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    (const char *)"iteration_utilities.flip",           /* tp_name */
-    (Py_ssize_t)sizeof(PyIUObject_Flip),                /* tp_basicsize */
-    (Py_ssize_t)0,                                      /* tp_itemsize */
+    PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.flip", /* tp_name */
+    (Py_ssize_t)sizeof(PyIUObject_Flip),                                     /* tp_basicsize */
+    (Py_ssize_t)0,                                                           /* tp_itemsize */
     /* methods */
-    (destructor)flip_dealloc,                           /* tp_dealloc */
+    (destructor)flip_dealloc, /* tp_dealloc */
 #if PyIU_USE_VECTORCALL
-    offsetof(PyIUObject_Flip, vectorcall),              /* tp_vectorcall_offset */
+    offsetof(PyIUObject_Flip, vectorcall), /* tp_vectorcall_offset */
 #else
-    (printfunc)0,                                       /* tp_print */
+    (printfunc)0,           /* tp_print */
 #endif
-    (getattrfunc)0,                                     /* tp_getattr */
-    (setattrfunc)0,                                     /* tp_setattr */
-    0,                                                  /* tp_reserved */
-    (reprfunc)flip_repr,                                /* tp_repr */
-    (PyNumberMethods *)0,                               /* tp_as_number */
-    (PySequenceMethods *)0,                             /* tp_as_sequence */
-    (PyMappingMethods *)0,                              /* tp_as_mapping */
-    (hashfunc)0,                                        /* tp_hash */
+    (getattrfunc)0,         /* tp_getattr */
+    (setattrfunc)0,         /* tp_setattr */
+    0,                      /* tp_reserved */
+    (reprfunc)flip_repr,    /* tp_repr */
+    (PyNumberMethods *)0,   /* tp_as_number */
+    (PySequenceMethods *)0, /* tp_as_sequence */
+    (PyMappingMethods *)0,  /* tp_as_mapping */
+    (hashfunc)0,            /* tp_hash */
 #if PyIU_USE_VECTORCALL
-    (ternaryfunc)PyVectorcall_Call,                     /* tp_call */
+    (ternaryfunc)PyVectorcall_Call, /* tp_call */
 #else
-    (ternaryfunc)flip_call,                             /* tp_call */
+    (ternaryfunc)flip_call, /* tp_call */
 #endif
-    (reprfunc)0,                                        /* tp_str */
-    (getattrofunc)PyObject_GenericGetAttr,              /* tp_getattro */
-    (setattrofunc)0,                                    /* tp_setattro */
-    (PyBufferProcs *)0,                                 /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC
-        | Py_TPFLAGS_BASETYPE
+    (reprfunc)0,                           /* tp_str */
+    (getattrofunc)PyObject_GenericGetAttr, /* tp_getattro */
+    (setattrofunc)0,                       /* tp_setattro */
+    (PyBufferProcs *)0,                    /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE
 #if PyIU_USE_VECTORCALL
         | _Py_TPFLAGS_HAVE_VECTORCALL
 #endif
-        ,                                               /* tp_flags */
-    (const char *)flip_doc,                             /* tp_doc */
-    (traverseproc)flip_traverse,                        /* tp_traverse */
-    (inquiry)flip_clear,                                /* tp_clear */
-    (richcmpfunc)0,                                     /* tp_richcompare */
-    (Py_ssize_t)0,                                      /* tp_weaklistoffset */
-    (getiterfunc)0,                                     /* tp_iter */
-    (iternextfunc)0,                                    /* tp_iternext */
-    flip_methods,                                       /* tp_methods */
-    flip_memberlist,                                    /* tp_members */
-    0,                                                  /* tp_getset */
-    0,                                                  /* tp_base */
-    0,                                                  /* tp_dict */
-    (descrgetfunc)0,                                    /* tp_descr_get */
-    (descrsetfunc)0,                                    /* tp_descr_set */
-    (Py_ssize_t)0,                                      /* tp_dictoffset */
-    (initproc)0,                                        /* tp_init */
-    (allocfunc)0,                                       /* tp_alloc */
-    (newfunc)flip_new,                                  /* tp_new */
-    (freefunc)PyObject_GC_Del,                          /* tp_free */
+    ,                            /* tp_flags */
+    (const char *)flip_doc,      /* tp_doc */
+    (traverseproc)flip_traverse, /* tp_traverse */
+    (inquiry)flip_clear,         /* tp_clear */
+    (richcmpfunc)0,              /* tp_richcompare */
+    (Py_ssize_t)0,               /* tp_weaklistoffset */
+    (getiterfunc)0,              /* tp_iter */
+    (iternextfunc)0,             /* tp_iternext */
+    flip_methods,                /* tp_methods */
+    flip_memberlist,             /* tp_members */
+    0,                           /* tp_getset */
+    0,                           /* tp_base */
+    0,                           /* tp_dict */
+    (descrgetfunc)0,             /* tp_descr_get */
+    (descrsetfunc)0,             /* tp_descr_set */
+    (Py_ssize_t)0,               /* tp_dictoffset */
+    (initproc)0,                 /* tp_init */
+    (allocfunc)0,                /* tp_alloc */
+    (newfunc)flip_new,           /* tp_new */
+    (freefunc)PyObject_GC_Del,   /* tp_free */
 };

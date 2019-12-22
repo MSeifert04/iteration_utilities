@@ -8,11 +8,11 @@ extern "C" {
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
-PyDoc_STRVAR(PYIU_sizeof_doc,
+PyDoc_STRVAR(
+    PYIU_sizeof_doc,
     "__sizeof__(/)\n"
     "--\n\n"
-    "Returns size in memory, in bytes.\n"
-);
+    "Returns size in memory, in bytes.\n");
 
 #ifdef __cplusplus
 }

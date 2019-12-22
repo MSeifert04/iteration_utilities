@@ -8,12 +8,12 @@ extern "C" {
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
-PyDoc_STRVAR(PYIU_setstate_doc,
+PyDoc_STRVAR(
+    PYIU_setstate_doc,
     "__setstate__(state, /)\n"
     "--\n\n"
     "Set state for unpickling. "
-    "The `state` argument must be `tuple`-like.\n"
-);
+    "The `state` argument must be `tuple`-like.\n");
 
 #ifdef __cplusplus
 }

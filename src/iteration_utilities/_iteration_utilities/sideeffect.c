@@ -3,27 +3,33 @@
  *****************************************************************************/
 
 #include "sideeffect.h"
+#include <structmember.h>
+#include "docs_lengthhint.h"
 #include "docs_reduce.h"
 #include "docs_setstate.h"
-#include "docs_lengthhint.h"
 #include "helper.h"
-#include <structmember.h>
 
-PyDoc_STRVAR(sideeffects_prop_func_doc,
+PyDoc_STRVAR(
+    sideeffects_prop_func_doc,
     "(callable) The function that is called by `sideeffects` (readonly).\n"
     "\n"
     ".. versionadded:: 0.6");
-PyDoc_STRVAR(sideeffects_prop_times_doc,
+
+PyDoc_STRVAR(
+    sideeffects_prop_times_doc,
     "(:py:class:`int`) A counter indicating after how many items the `func` "
-     "is called (readonly).\n"
+    "is called (readonly).\n"
     "\n"
     ".. versionadded:: 0.6");
-PyDoc_STRVAR(sideeffects_prop_count_doc,
+
+PyDoc_STRVAR(
+    sideeffects_prop_count_doc,
     "(:py:class:`int`) The current count for the next `func` call (readonly).\n"
     "\n"
     ".. versionadded:: 0.6");
 
-PyDoc_STRVAR(sideeffects_doc,
+PyDoc_STRVAR(
+    sideeffects_doc,
     "sideeffects(iterable, func, times=0)\n"
     "--\n\n"
     "Does a normal iteration over `iterable` and only uses `func` each `times` \n"
@@ -63,73 +69,46 @@ PyDoc_STRVAR(sideeffects_doc,
     "    (1, 2)\n"
     "    (3, 4)\n"
     "    (5,)\n"
-    "    [1, 2, 3, 4, 5]\n"
-);
-
-/******************************************************************************
- * New
- *****************************************************************************/
+    "    [1, 2, 3, 4, 5]\n");
 
 static PyObject *
-sideeffects_new(PyTypeObject *type,
-                PyObject *args,
-                PyObject *kwargs)
-{
+sideeffects_new(PyTypeObject *type, PyObject *args, PyObject *kwargs) {
     static char *kwlist[] = {"iterable", "func", "times", NULL};
     PyIUObject_Sideeffects *self;
-
     PyObject *iterable;
     PyObject *func;
-    PyObject *iterator=NULL;
-    PyObject *collected=NULL;
     Py_ssize_t times = 0;
-    Py_ssize_t count = 0;
 
-    /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|n:sideeffects", kwlist,
                                      &iterable, &func, &times)) {
         return NULL;
     }
-    if (times <= 0) {  /* negative values will be interpreted as zero... */
-        times = 0;
-        collected = NULL;
-    } else {
-        collected = PyTuple_New(times);
-        if (collected == NULL) {
-            goto Fail;
-        }
-    }
-
-    /* Create and fill struct */
-    iterator = PyObject_GetIter(iterable);
-    if (iterator == NULL) {
-        goto Fail;
-    }
     self = (PyIUObject_Sideeffects *)type->tp_alloc(type, 0);
     if (self == NULL) {
-        goto Fail;
+        return NULL;
+    }
+    self->times = times <= 0 ? 0 : times;
+    if (times <= 0) { /* negative values will be interpreted as zero... */
+        self->collected = NULL;
+    } else {
+        self->collected = PyTuple_New(self->times);
+        if (self->collected == NULL) {
+            Py_DECREF(self);
+        }
+    }
+    self->iterator = PyObject_GetIter(iterable);
+    if (self->iterator == NULL) {
+        Py_XDECREF(self);
+        return NULL;
     }
     Py_INCREF(func);
-    self->iterator = iterator;
     self->func = func;
-    self->times = times;
-    self->count = count;
-    self->collected = collected;
+    self->count = 0;
     return (PyObject *)self;
-
-Fail:
-    Py_XDECREF(collected);
-    Py_XDECREF(iterator);
-    return NULL;
 }
 
-/******************************************************************************
- * Destructor
- *****************************************************************************/
-
 static void
-sideeffects_dealloc(PyIUObject_Sideeffects *self)
-{
+sideeffects_dealloc(PyIUObject_Sideeffects *self) {
     PyObject_GC_UnTrack(self);
     Py_XDECREF(self->iterator);
     Py_XDECREF(self->func);
@@ -137,42 +116,27 @@ sideeffects_dealloc(PyIUObject_Sideeffects *self)
     Py_TYPE(self)->tp_free(self);
 }
 
-/******************************************************************************
- * Traverse
- *****************************************************************************/
-
 static int
-sideeffects_traverse(PyIUObject_Sideeffects *self,
-                     visitproc visit,
-                     void *arg)
-{
+sideeffects_traverse(PyIUObject_Sideeffects *self, visitproc visit, void *arg) {
     Py_VISIT(self->iterator);
     Py_VISIT(self->func);
     Py_VISIT(self->collected);
     return 0;
 }
 
-/******************************************************************************
- * Clear
- *****************************************************************************/
-
 static int
-sideeffects_clear(PyIUObject_Sideeffects *self)
-{
+sideeffects_clear(PyIUObject_Sideeffects *self) {
     Py_CLEAR(self->iterator);
     Py_CLEAR(self->func);
     Py_CLEAR(self->collected);
     return 0;
 }
 
-/******************************************************************************
- * Next
- *****************************************************************************/
-
 static PyObject *
-sideeffects_next(PyIUObject_Sideeffects *self)
-{
-    PyObject *item, *temp=NULL, *tmptuple=NULL;
+sideeffects_next(PyIUObject_Sideeffects *self) {
+    PyObject *item;
+    PyObject *temp = NULL;
+    PyObject *tmptuple = NULL;
     Py_ssize_t i;
 
     item = Py_TYPE(self->iterator)->tp_iternext(self->iterator);
@@ -180,12 +144,8 @@ sideeffects_next(PyIUObject_Sideeffects *self)
         /* We don't expect that the sideeffect function is called when
            an exception other than StopIteration is raised by the iterator so
            exit early in that case. */
-        if (PyErr_Occurred()) {
-            if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
-                PyErr_Clear();
-            } else {
-                return NULL;
-            }
+        if (PyIU_ErrorOccurredClearStopIteration()) {
+            return NULL;
         }
         if (self->count != 0) {
             /* Call function with the remaining items. */
@@ -237,7 +197,7 @@ sideeffects_next(PyIUObject_Sideeffects *self)
                iterating these are simply set to NULL.
                */
             if (PYIU_CPYTHON && (Py_REFCNT(self->collected) == 1)) {
-                for (i=0 ; i < self->times ; i++) {
+                for (i = 0; i < self->times; i++) {
                     temp = PyTuple_GET_ITEM(self->collected, i);
                     PyTuple_SET_ITEM(self->collected, i, NULL);
                     Py_DECREF(temp);
@@ -259,13 +219,8 @@ Fail:
     return NULL;
 }
 
-/******************************************************************************
- * Reduce
- *****************************************************************************/
-
 static PyObject *
-sideeffects_reduce(PyIUObject_Sideeffects *self, PyObject *Py_UNUSED(args))
-{
+sideeffects_reduce(PyIUObject_Sideeffects *self, PyObject *Py_UNUSED(args)) {
     PyObject *collected;
     PyObject *res;
 
@@ -292,7 +247,7 @@ sideeffects_reduce(PyIUObject_Sideeffects *self, PyObject *Py_UNUSED(args))
         if (collected == NULL) {
             return NULL;
         }
-        for (i = 0 ; i < collected_size ; i++) {
+        for (i = 0; i < collected_size; i++) {
             PyObject *tmp = PyTuple_GET_ITEM(self->collected, i);
             if (tmp == NULL) {
                 tmp = Py_None;
@@ -312,14 +267,8 @@ sideeffects_reduce(PyIUObject_Sideeffects *self, PyObject *Py_UNUSED(args))
     return res;
 }
 
-/******************************************************************************
- * Setstate
- *****************************************************************************/
-
 static PyObject *
-sideeffects_setstate(PyIUObject_Sideeffects *self,
-                     PyObject *state)
-{
+sideeffects_setstate(PyIUObject_Sideeffects *self, PyObject *state) {
     Py_ssize_t count;
     PyObject *collected;
     PyObject *newcollected = NULL;
@@ -415,7 +364,7 @@ sideeffects_setstate(PyIUObject_Sideeffects *self,
         if (newcollected == NULL) {
             return NULL;
         }
-        for (i=0 ; i < count ; i++) {
+        for (i = 0; i < count; i++) {
             PyObject *tmp = PyTuple_GET_ITEM(collected, i);
             Py_INCREF(tmp);
             PyTuple_SET_ITEM(newcollected, i, tmp);
@@ -432,13 +381,8 @@ sideeffects_setstate(PyIUObject_Sideeffects *self,
     Py_RETURN_NONE;
 }
 
-/******************************************************************************
- * LengthHint
- *****************************************************************************/
-
 static PyObject *
-sideeffects_lengthhint(PyIUObject_Sideeffects *self, PyObject *Py_UNUSED(args))
-{
+sideeffects_lengthhint(PyIUObject_Sideeffects *self, PyObject *Py_UNUSED(args)) {
     Py_ssize_t len = PyObject_LengthHint(self->iterator, 0);
     if (len == -1) {
         return NULL;
@@ -446,101 +390,94 @@ sideeffects_lengthhint(PyIUObject_Sideeffects *self, PyObject *Py_UNUSED(args))
     return PyLong_FromSsize_t(len);
 }
 
-/******************************************************************************
- * Type
- *****************************************************************************/
-
 static PyMethodDef sideeffects_methods[] = {
-
-    {"__length_hint__",                                 /* ml_name */
-     (PyCFunction)sideeffects_lengthhint,               /* ml_meth */
-     METH_NOARGS,                                       /* ml_flags */
-     PYIU_lenhint_doc                                   /* ml_doc */
-     },
-
-    {"__reduce__",                                      /* ml_name */
-     (PyCFunction)sideeffects_reduce,                   /* ml_meth */
-     METH_NOARGS,                                       /* ml_flags */
-     PYIU_reduce_doc                                    /* ml_doc */
-     },
-
-    {"__setstate__",                                    /* ml_name */
-     (PyCFunction)sideeffects_setstate,                 /* ml_meth */
-     METH_O,                                            /* ml_flags */
-     PYIU_setstate_doc                                  /* ml_doc */
-     },
-
-    {NULL, NULL}                                        /* sentinel */
+    {
+        "__length_hint__",                   /* ml_name */
+        (PyCFunction)sideeffects_lengthhint, /* ml_meth */
+        METH_NOARGS,                         /* ml_flags */
+        PYIU_lenhint_doc                     /* ml_doc */
+    },
+    {
+        "__reduce__",                    /* ml_name */
+        (PyCFunction)sideeffects_reduce, /* ml_meth */
+        METH_NOARGS,                     /* ml_flags */
+        PYIU_reduce_doc                  /* ml_doc */
+    },
+    {
+        "__setstate__",                    /* ml_name */
+        (PyCFunction)sideeffects_setstate, /* ml_meth */
+        METH_O,                            /* ml_flags */
+        PYIU_setstate_doc                  /* ml_doc */
+    },
+    {NULL, NULL} /* sentinel */
 };
 
 #define OFF(x) offsetof(PyIUObject_Sideeffects, x)
 static PyMemberDef sideeffects_memberlist[] = {
-
-    {"func",                                            /* name */
-     T_OBJECT,                                          /* type */
-     OFF(func),                                         /* offset */
-     READONLY,                                          /* flags */
-     sideeffects_prop_func_doc                          /* doc */
-     },
-
-    {"times",                                           /* name */
-     T_PYSSIZET,                                        /* type */
-     OFF(times),                                        /* offset */
-     READONLY,                                          /* flags */
-     sideeffects_prop_times_doc                         /* doc */
-     },
-
-    {"count",                                           /* name */
-     T_PYSSIZET,                                        /* type */
-     OFF(count),                                        /* offset */
-     READONLY,                                          /* flags */
-     sideeffects_prop_count_doc                         /* doc */
-     },
-
-    {NULL}                                              /* sentinel */
+    {
+        "func",                   /* name */
+        T_OBJECT,                 /* type */
+        OFF(func),                /* offset */
+        READONLY,                 /* flags */
+        sideeffects_prop_func_doc /* doc */
+    },
+    {
+        "times",                   /* name */
+        T_PYSSIZET,                /* type */
+        OFF(times),                /* offset */
+        READONLY,                  /* flags */
+        sideeffects_prop_times_doc /* doc */
+    },
+    {
+        "count",                   /* name */
+        T_PYSSIZET,                /* type */
+        OFF(count),                /* offset */
+        READONLY,                  /* flags */
+        sideeffects_prop_count_doc /* doc */
+    },
+    {NULL} /* sentinel */
 };
 #undef OFF
 
 PyTypeObject PyIUType_Sideeffects = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    (const char *)"iteration_utilities.sideeffects",    /* tp_name */
-    (Py_ssize_t)sizeof(PyIUObject_Sideeffects),         /* tp_basicsize */
-    (Py_ssize_t)0,                                      /* tp_itemsize */
+    PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.sideeffects", /* tp_name */
+    (Py_ssize_t)sizeof(PyIUObject_Sideeffects),                                     /* tp_basicsize */
+    (Py_ssize_t)0,                                                                  /* tp_itemsize */
     /* methods */
-    (destructor)sideeffects_dealloc,                    /* tp_dealloc */
-    (printfunc)0,                                       /* tp_print */
-    (getattrfunc)0,                                     /* tp_getattr */
-    (setattrfunc)0,                                     /* tp_setattr */
-    0,                                                  /* tp_reserved */
-    (reprfunc)0,                                        /* tp_repr */
-    (PyNumberMethods *)0,                               /* tp_as_number */
-    (PySequenceMethods *)0,                             /* tp_as_sequence */
-    (PyMappingMethods *)0,                              /* tp_as_mapping */
-    (hashfunc)0,                                        /* tp_hash */
-    (ternaryfunc)0,                                     /* tp_call */
-    (reprfunc)0,                                        /* tp_str */
-    (getattrofunc)PyObject_GenericGetAttr,              /* tp_getattro */
-    (setattrofunc)0,                                    /* tp_setattro */
-    (PyBufferProcs *)0,                                 /* tp_as_buffer */
+    (destructor)sideeffects_dealloc,       /* tp_dealloc */
+    (printfunc)0,                          /* tp_print */
+    (getattrfunc)0,                        /* tp_getattr */
+    (setattrfunc)0,                        /* tp_setattr */
+    0,                                     /* tp_reserved */
+    (reprfunc)0,                           /* tp_repr */
+    (PyNumberMethods *)0,                  /* tp_as_number */
+    (PySequenceMethods *)0,                /* tp_as_sequence */
+    (PyMappingMethods *)0,                 /* tp_as_mapping */
+    (hashfunc)0,                           /* tp_hash */
+    (ternaryfunc)0,                        /* tp_call */
+    (reprfunc)0,                           /* tp_str */
+    (getattrofunc)PyObject_GenericGetAttr, /* tp_getattro */
+    (setattrofunc)0,                       /* tp_setattro */
+    (PyBufferProcs *)0,                    /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
-        Py_TPFLAGS_BASETYPE,                            /* tp_flags */
-    (const char *)sideeffects_doc,                      /* tp_doc */
-    (traverseproc)sideeffects_traverse,                 /* tp_traverse */
-    (inquiry)sideeffects_clear,                         /* tp_clear */
-    (richcmpfunc)0,                                     /* tp_richcompare */
-    (Py_ssize_t)0,                                      /* tp_weaklistoffset */
-    (getiterfunc)PyObject_SelfIter,                     /* tp_iter */
-    (iternextfunc)sideeffects_next,                     /* tp_iternext */
-    sideeffects_methods,                                /* tp_methods */
-    sideeffects_memberlist,                             /* tp_members */
-    0,                                                  /* tp_getset */
-    0,                                                  /* tp_base */
-    0,                                                  /* tp_dict */
-    (descrgetfunc)0,                                    /* tp_descr_get */
-    (descrsetfunc)0,                                    /* tp_descr_set */
-    (Py_ssize_t)0,                                      /* tp_dictoffset */
-    (initproc)0,                                        /* tp_init */
-    (allocfunc)PyType_GenericAlloc,                     /* tp_alloc */
-    (newfunc)sideeffects_new,                           /* tp_new */
-    (freefunc)PyObject_GC_Del,                          /* tp_free */
+        Py_TPFLAGS_BASETYPE,            /* tp_flags */
+    (const char *)sideeffects_doc,      /* tp_doc */
+    (traverseproc)sideeffects_traverse, /* tp_traverse */
+    (inquiry)sideeffects_clear,         /* tp_clear */
+    (richcmpfunc)0,                     /* tp_richcompare */
+    (Py_ssize_t)0,                      /* tp_weaklistoffset */
+    (getiterfunc)PyObject_SelfIter,     /* tp_iter */
+    (iternextfunc)sideeffects_next,     /* tp_iternext */
+    sideeffects_methods,                /* tp_methods */
+    sideeffects_memberlist,             /* tp_members */
+    0,                                  /* tp_getset */
+    0,                                  /* tp_base */
+    0,                                  /* tp_dict */
+    (descrgetfunc)0,                    /* tp_descr_get */
+    (descrsetfunc)0,                    /* tp_descr_set */
+    (Py_ssize_t)0,                      /* tp_dictoffset */
+    (initproc)0,                        /* tp_init */
+    (allocfunc)PyType_GenericAlloc,     /* tp_alloc */
+    (newfunc)sideeffects_new,           /* tp_new */
+    (freefunc)PyObject_GC_Del,          /* tp_free */
 };

@@ -3,17 +3,15 @@
  *****************************************************************************/
 
 #include "allisinstance.h"
+#include "helper.h"
 
 PyObject *
-PyIU_AllIsinstance(PyObject *Py_UNUSED(m),
-                   PyObject *args,
-                   PyObject *kwargs)
-{
+PyIU_AllIsinstance(PyObject *Py_UNUSED(m), PyObject *args, PyObject *kwargs) {
     static char *kwlist[] = {"iterable", "types", NULL};
     PyObject *iterable;
     PyObject *types;
-
     PyObject *iterator;
+    PyObject *item;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO:all_isinstance", kwlist,
                                      &iterable, &types)) {
@@ -25,16 +23,9 @@ PyIU_AllIsinstance(PyObject *Py_UNUSED(m),
         return NULL;
     }
 
-    for (;;) {
-        int ok;
-        PyObject *item = Py_TYPE(iterator)->tp_iternext(iterator);
-        if (item == NULL) {
-            break;
-        }
-
-        ok = PyObject_IsInstance(item, types);
+    while ((item = Py_TYPE(iterator)->tp_iternext(iterator))) {
+        int ok = PyObject_IsInstance(item, types);
         Py_DECREF(item);
-
         if (ok != 1) {
             Py_DECREF(iterator);
             if (ok == 0) {
@@ -44,16 +35,10 @@ PyIU_AllIsinstance(PyObject *Py_UNUSED(m),
             }
         }
     }
-
     Py_DECREF(iterator);
 
-    if (PyErr_Occurred()) {
-        if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
-            PyErr_Clear();
-        } else {
-            return NULL;
-        }
+    if (PyIU_ErrorOccurredClearStopIteration()) {
+        return NULL;
     }
-
     Py_RETURN_TRUE;
 }

@@ -16,7 +16,8 @@ PyDoc_STRVAR(PyIU_Placeholder_name, "Placeholder");
 PyDoc_STRVAR(PyIU_module_name, "iteration_utilities._iteration_utilities");
 PyDoc_STRVAR(PyIU_module_doc, "This is the C extension module used by iteration_utilities.");
 
-PyDoc_STRVAR(PyIU_TupleToList_and_InsertItemAtIndex_doc,
+PyDoc_STRVAR(
+    PyIU_TupleToList_and_InsertItemAtIndex_doc,
     "_parse_args(tup, item, pos, /)\n"
     "--\n\n"
     "Converts the `tup` to a new `tuple` and inserts `item` at `pos`.\n"
@@ -56,10 +57,10 @@ PyDoc_STRVAR(PyIU_TupleToList_and_InsertItemAtIndex_doc,
     ".. code::\n"
     "\n"
     "    def _parse_args(args, item, pos):\n"
-    "        return tuple(args[:pos]) + (item, ) + tuple(args[pos:])\n"
-);
+    "        return tuple(args[:pos]) + (item, ) + tuple(args[pos:])\n");
 
-PyDoc_STRVAR(PyIU_RemoveFromDictWhereValueIs_doc,
+PyDoc_STRVAR(
+    PyIU_RemoveFromDictWhereValueIs_doc,
     "_parse_kwargs(dct, item, /)\n"
     "--\n\n"
     "Removes every key from the `dct` where the ``dct[key] is item``.\n"
@@ -89,10 +90,10 @@ PyDoc_STRVAR(PyIU_RemoveFromDictWhereValueIs_doc,
     "    def _parse_kwargs(dct, item):\n"
     "        keys_to_remove = [key for key in dct if dct[key] is item]\n"
     "        for key in keys_to_remove:\n"
-    "            del dct[key]\n"
-);
+    "            del dct[key]\n");
 
-PyDoc_STRVAR(PyIU_IsNone_doc,
+PyDoc_STRVAR(
+    PyIU_IsNone_doc,
     "is_None(value, /)\n"
     "--\n\n"
     "Returns ``True`` if `value` is ``None``, otherwise ``False``.\n"
@@ -124,10 +125,10 @@ PyDoc_STRVAR(PyIU_IsNone_doc,
     "    >>> import itertools\n"
     "    >>> filterfalse = itertools.ifilterfalse if sys.version_info.major == 2 else itertools.filterfalse\n"
     "    >>> list(filterfalse(is_None, [1, None, 3, 4, 5, None, 7]))\n"
-    "    [1, 3, 4, 5, 7]\n"
-);
+    "    [1, 3, 4, 5, 7]\n");
 
-PyDoc_STRVAR(PyIU_IsNotNone_doc,
+PyDoc_STRVAR(
+    PyIU_IsNotNone_doc,
     "is_not_None(value, /)\n"
     "--\n\n"
     "Returns ``False`` if `value` is ``None``, otherwise ``True``.\n"
@@ -151,10 +152,10 @@ PyDoc_STRVAR(PyIU_IsNotNone_doc,
     "    >>> is_not_None(None)\n"
     "    False\n"
     "    >>> is_not_None(False)\n"
-    "    True\n"
-);
+    "    True\n");
 
-PyDoc_STRVAR(PyIU_IsEven_doc,
+PyDoc_STRVAR(
+    PyIU_IsEven_doc,
     "is_even(value, /)\n"
     "--\n\n"
     "Returns ``True`` if `value` is even, otherwise ``False``.\n"
@@ -180,10 +181,10 @@ PyDoc_STRVAR(PyIU_IsEven_doc,
     "    >>> is_even(1)\n"
     "    False\n"
     "    >>> is_even(2)\n"
-    "    True\n"
-);
+    "    True\n");
 
-PyDoc_STRVAR(PyIU_IsOdd_doc,
+PyDoc_STRVAR(
+    PyIU_IsOdd_doc,
     "is_odd(value, /)\n"
     "--\n\n"
     "Returns ``True`` if `value` is odd, otherwise ``False``.\n"
@@ -209,10 +210,10 @@ PyDoc_STRVAR(PyIU_IsOdd_doc,
     "    >>> is_odd(1)\n"
     "    True\n"
     "    >>> is_odd(2)\n"
-    "    False\n"
-);
+    "    False\n");
 
-PyDoc_STRVAR(PyIU_IsIterable_doc,
+PyDoc_STRVAR(
+    PyIU_IsIterable_doc,
     "is_iterable(value, /)\n"
     "--\n\n"
     "Returns ``True`` if `value` is iterable, otherwise ``False``.\n"
@@ -237,10 +238,10 @@ PyDoc_STRVAR(PyIU_IsIterable_doc,
     "    >>> is_iterable('abc')\n"
     "    True\n"
     "    >>> is_iterable([1,2,3])\n"
-    "    True\n"
-);
+    "    True\n");
 
-PyDoc_STRVAR(PyIU_MathSquare_doc,
+PyDoc_STRVAR(
+    PyIU_MathSquare_doc,
     "square(value, /)\n"
     "--\n\n"
     "Returns the squared `value`.\n"
@@ -265,10 +266,10 @@ PyDoc_STRVAR(PyIU_MathSquare_doc,
     "    >>> square(1)\n"
     "    1\n"
     "    >>> square(2.0)\n"
-    "    4.0\n"
-);
+    "    4.0\n");
 
-PyDoc_STRVAR(PyIU_MathDouble_doc,
+PyDoc_STRVAR(
+    PyIU_MathDouble_doc,
     "double(value, /)\n"
     "--\n\n"
     "Returns the doubled `value`.\n"
@@ -292,10 +293,10 @@ PyDoc_STRVAR(PyIU_MathDouble_doc,
     "    >>> double(1)\n"
     "    2\n"
     "    >>> double(2.0)\n"
-    "    4.0\n"
-);
+    "    4.0\n");
 
-PyDoc_STRVAR(PyIU_MathReciprocal_doc,
+PyDoc_STRVAR(
+    PyIU_MathReciprocal_doc,
     "reciprocal(value, /)\n"
     "--\n\n"
     "Returns ``1 / value``.\n"
@@ -321,10 +322,10 @@ PyDoc_STRVAR(PyIU_MathReciprocal_doc,
     "    >>> reciprocal(2)\n"
     "    0.5\n"
     "    >>> reciprocal(4)\n"
-    "    0.25\n"
-);
+    "    0.25\n");
 
-PyDoc_STRVAR(PyIU_MathRadd_doc,
+PyDoc_STRVAR(
+    PyIU_MathRadd_doc,
     "radd(op1, op2, /)\n"
     "--\n\n"
     "Returns ``op2 + op1``.\n"
@@ -345,10 +346,10 @@ PyDoc_STRVAR(PyIU_MathRadd_doc,
     "\n"
     "    >>> from iteration_utilities import radd\n"
     "    >>> radd(2, 2)\n"
-    "    4\n"
-);
+    "    4\n");
 
-PyDoc_STRVAR(PyIU_MathRsub_doc,
+PyDoc_STRVAR(
+    PyIU_MathRsub_doc,
     "rsub(op1, op2, /)\n"
     "--\n\n"
     "Returns ``op2 - op1``.\n"
@@ -369,10 +370,10 @@ PyDoc_STRVAR(PyIU_MathRsub_doc,
     "\n"
     "    >>> from iteration_utilities import rsub\n"
     "    >>> rsub(2, 5)\n"
-    "    3\n"
-);
+    "    3\n");
 
-PyDoc_STRVAR(PyIU_MathRmul_doc,
+PyDoc_STRVAR(
+    PyIU_MathRmul_doc,
     "rmul(op1, op2, /)\n"
     "--\n\n"
     "Returns ``op2 * op1``.\n"
@@ -393,10 +394,10 @@ PyDoc_STRVAR(PyIU_MathRmul_doc,
     "\n"
     "    >>> from iteration_utilities import rmul\n"
     "    >>> rmul(2, 2)\n"
-    "    4\n"
-);
+    "    4\n");
 
-PyDoc_STRVAR(PyIU_MathRdiv_doc,
+PyDoc_STRVAR(
+    PyIU_MathRdiv_doc,
     "rdiv(op1, op2, /)\n"
     "--\n\n"
     "Returns ``op2 / op1``.\n"
@@ -417,10 +418,10 @@ PyDoc_STRVAR(PyIU_MathRdiv_doc,
     "\n"
     "    >>> from iteration_utilities import rdiv\n"
     "    >>> rdiv(10, 1)\n"
-    "    0.1\n"
-);
+    "    0.1\n");
 
-PyDoc_STRVAR(PyIU_MathRfdiv_doc,
+PyDoc_STRVAR(
+    PyIU_MathRfdiv_doc,
     "rfdiv(op1, op2, /)\n"
     "--\n\n"
     "Returns ``op2 // op1``.\n"
@@ -441,10 +442,10 @@ PyDoc_STRVAR(PyIU_MathRfdiv_doc,
     "\n"
     "    >>> from iteration_utilities import rfdiv\n"
     "    >>> rfdiv(10, 22)\n"
-    "    2\n"
-);
+    "    2\n");
 
-PyDoc_STRVAR(PyIU_MathRpow_doc,
+PyDoc_STRVAR(
+    PyIU_MathRpow_doc,
     "rpow(op1, op2, /)\n"
     "--\n\n"
     "Returns ``op2 ** op1``.\n"
@@ -465,10 +466,10 @@ PyDoc_STRVAR(PyIU_MathRpow_doc,
     "\n"
     "    >>> from iteration_utilities import rpow\n"
     "    >>> rpow(3, 2)\n"
-    "    8\n"
-);
+    "    8\n");
 
-PyDoc_STRVAR(PyIU_MathRmod_doc,
+PyDoc_STRVAR(
+    PyIU_MathRmod_doc,
     "rmod(op1, op2, /)\n"
     "--\n\n"
     "Returns ``op2 % op1``.\n"
@@ -489,10 +490,10 @@ PyDoc_STRVAR(PyIU_MathRmod_doc,
     "\n"
     "    >>> from iteration_utilities import rmod\n"
     "    >>> rmod(2, 5)\n"
-    "    1\n"
-);
+    "    1\n");
 
-PyDoc_STRVAR(PyIU_ReturnIdentity_doc,
+PyDoc_STRVAR(
+    PyIU_ReturnIdentity_doc,
     "return_identity(obj, /)\n"
     "--\n\n"
     "Always return the argument.\n"
@@ -515,10 +516,10 @@ PyDoc_STRVAR(PyIU_ReturnIdentity_doc,
     "    >>> return_identity(1)\n"
     "    1\n"
     "    >>> return_identity('abc')\n"
-    "    'abc'\n"
-);
+    "    'abc'\n");
 
-PyDoc_STRVAR(PyIU_ReturnCalled_doc,
+PyDoc_STRVAR(
+    PyIU_ReturnCalled_doc,
     "return_called(func, /)\n"
     "--\n\n"
     "Return the result of ``func()``.\n"
@@ -540,10 +541,10 @@ PyDoc_STRVAR(PyIU_ReturnCalled_doc,
     "\n"
     "    >>> from iteration_utilities import return_called\n"
     "    >>> return_called(int)\n"
-    "    0\n"
-);
+    "    0\n");
 
-PyDoc_STRVAR(PyIU_ReturnFirstArg_doc,
+PyDoc_STRVAR(
+    PyIU_ReturnFirstArg_doc,
     "return_first_arg(*args, **kwargs)\n"
     "--\n\n"
     "Always return the first positional argument given to the function.\n"
@@ -565,10 +566,10 @@ PyDoc_STRVAR(PyIU_ReturnFirstArg_doc,
     "\n"
     "    >>> from iteration_utilities import return_first_arg\n"
     "    >>> return_first_arg(1, 2, 3, 4, a=100)\n"
-    "    1\n"
-);
+    "    1\n");
 
-PyDoc_STRVAR(PyIU_AllDistinct_doc,
+PyDoc_STRVAR(
+    PyIU_AllDistinct_doc,
     "all_distinct(iterable, /)\n"
     "--\n\n"
     "Checks if all items in the `iterable` are distinct.\n"
@@ -597,10 +598,10 @@ PyDoc_STRVAR(PyIU_AllDistinct_doc,
     "False\n"
     "\n"
     ">>> all_distinct('abcd')\n"
-    "True\n"
-);
+    "True\n");
 
-PyDoc_STRVAR(PyIU_AllEqual_doc,
+PyDoc_STRVAR(
+    PyIU_AllEqual_doc,
     "all_equal(iterable, /)\n"
     "--\n\n"
     "Checks if all the elements are equal to each other.\n"
@@ -626,10 +627,10 @@ PyDoc_STRVAR(PyIU_AllEqual_doc,
     "True\n"
     "\n"
     ">>> all_equal([1,1,1,1,1,1,1,2,1])\n"
-    "False\n"
-);
+    "False\n");
 
-PyDoc_STRVAR(PyIU_AllIsinstance_doc,
+PyDoc_STRVAR(
+    PyIU_AllIsinstance_doc,
     "all_isinstance(iterable, types)\n"
     "--\n\n"
     "Like :py:func:`isinstance` but for `iterables`.\n"
@@ -664,10 +665,10 @@ PyDoc_STRVAR(PyIU_AllIsinstance_doc,
     "    True\n"
     "\n"
     ".. warning::\n"
-    "    This function returns ``True`` if the `iterable` is empty.\n"
-);
+    "    This function returns ``True`` if the `iterable` is empty.\n");
 
-PyDoc_STRVAR(PyIU_Monotone_doc,
+PyDoc_STRVAR(
+    PyIU_Monotone_doc,
     "all_monotone(iterable, decreasing=False, strict=False)\n"
     "--\n\n"
     "Checks if the elements in `iterable` are (strictly) monotonic \n"
@@ -710,10 +711,10 @@ PyDoc_STRVAR(PyIU_Monotone_doc,
     "    >>> all_monotone([2,1,1,1,1,1,1,1,0], decreasing=True)\n"
     "    True\n"
     "    >>> all_monotone([2,1,1,1,1,1,1,1,0], decreasing=True, strict=True)\n"
-    "    False\n"
-);
+    "    False\n");
 
-PyDoc_STRVAR(PyIU_AnyIsinstance_doc,
+PyDoc_STRVAR(
+    PyIU_AnyIsinstance_doc,
     "any_isinstance(iterable, types)\n"
     "--\n\n"
     "Like :py:func:`isinstance` but for `iterables`.\n"
@@ -745,10 +746,10 @@ PyDoc_STRVAR(PyIU_AnyIsinstance_doc,
     "    True\n"
     "\n"
     "    >>> any_isinstance([1, 2, 3.2], float)\n"
-    "    True\n"
-);
+    "    True\n");
 
-PyDoc_STRVAR(PyIU_Argmin_doc,
+PyDoc_STRVAR(
+    PyIU_Argmin_doc,
     "argmin(iterable, /, key, default)\n"
     "--\n\n"
     "Find index of the minimum.\n"
@@ -791,10 +792,10 @@ PyDoc_STRVAR(PyIU_Argmin_doc,
     "And a `default`::\n"
     "\n"
     "    >>> argmin([], default=10)\n"
-    "    10\n"
-);
+    "    10\n");
 
-PyDoc_STRVAR(PyIU_Argmax_doc,
+PyDoc_STRVAR(
+    PyIU_Argmax_doc,
     "argmax(iterable, /, key=None, default=None)\n"
     "--\n\n"
     "Find index of the maximum.\n"
@@ -837,10 +838,10 @@ PyDoc_STRVAR(PyIU_Argmax_doc,
     "And a `default`::\n"
     "\n"
     "    >>> argmax([], default=10)\n"
-    "    10\n"
-);
+    "    10\n");
 
-PyDoc_STRVAR(PyIU_Count_doc,
+PyDoc_STRVAR(
+    PyIU_Count_doc,
     "count_items(iterable, pred=None, eq=False)\n"
     "--\n\n"
     "Count how many times the predicate is true.\n"
@@ -895,10 +896,10 @@ PyDoc_STRVAR(PyIU_Count_doc,
     "To count the number of values equal to another value::\n"
     "\n"
     "    >>> count_items([1, 2, 3, 4, 5, 6, 6, 7], 6, True)\n"
-    "    2\n"
-);
+    "    2\n");
 
-PyDoc_STRVAR(PyIU_DotProduct_doc,
+PyDoc_STRVAR(
+    PyIU_DotProduct_doc,
     "dotproduct(vec1, vec2)\n"
     "--\n\n"
     "Dot product (matrix multiplication) of two vectors.\n"
@@ -917,10 +918,10 @@ PyDoc_STRVAR(PyIU_DotProduct_doc,
     "--------\n"
     ">>> from iteration_utilities import dotproduct\n"
     ">>> dotproduct([1,2,3,4], [1,2,3,4])\n"
-    "30\n"
-);
+    "30\n");
 
-PyDoc_STRVAR(PyIU_Groupby_doc,
+PyDoc_STRVAR(
+    PyIU_Groupby_doc,
     "groupedby(iterable, key, keep=None, reduce=None, reducestart=None)\n"
     "--\n\n"
     "Group values of `iterable` by a `key` function as dictionary.\n"
@@ -995,10 +996,10 @@ PyDoc_STRVAR(PyIU_Groupby_doc,
     "    >>> dct[True]  # 7 + 2 + 4\n"
     "    13\n"
     "    >>> dct[False]  # 7 + 1 + 3 + 5\n"
-    "    16\n"
-);
+    "    16\n");
 
-PyDoc_STRVAR(PyIU_MinMax_doc,
+PyDoc_STRVAR(
+    PyIU_MinMax_doc,
     "minmax(iterable, /, key, default)\n"
     "--\n\n"
     "Computes the minimum and maximum values in one-pass using only\n"
@@ -1068,10 +1069,10 @@ PyDoc_STRVAR(PyIU_MinMax_doc,
     "\n"
     "References\n"
     "----------\n"
-    ".. [0] http://code.activestate.com/recipes/577916/\n"
-);
+    ".. [0] http://code.activestate.com/recipes/577916/\n");
 
-PyDoc_STRVAR(PyIU_One_doc,
+PyDoc_STRVAR(
+    PyIU_One_doc,
     "one(iterable, /)\n"
     "--\n\n"
     "Return the first value in the `iterable` and expects it only contains one element.\n"
@@ -1104,10 +1105,10 @@ PyDoc_STRVAR(PyIU_One_doc,
     ".. warning::\n"
     "    :py:func:`~iteration_utilities.one` will access the first two values of \n"
     "    the `iterable` so it should only be used if the `iterable` must only \n"
-    "    contain one item!\n"
-);
+    "    contain one item!\n");
 
-PyDoc_STRVAR(PyIU_Partition_doc,
+PyDoc_STRVAR(
+    PyIU_Partition_doc,
     "partition(iterable, pred=None)\n"
     "--\n\n"
     "Use a predicate to partition entries into ``False`` entries and ``True``\n"
@@ -1144,8 +1145,7 @@ PyDoc_STRVAR(PyIU_Partition_doc,
     ".. warning::\n"
     "    In case the `pred` is expensive then \n"
     "    :py:func:`~iteration_utilities.partition` can be noticeable\n"
-    "    faster than :py:func:`~iteration_utilities.ipartition`.\n"
-);
+    "    faster than :py:func:`~iteration_utilities.ipartition`.\n");
 
 #ifdef __cplusplus
 }

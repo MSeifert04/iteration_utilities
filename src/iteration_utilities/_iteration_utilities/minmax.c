@@ -5,23 +5,25 @@
 #include "minmax.h"
 #include "helper.h"
 
-#define SWAP(x, y) \
-    do { \
+#define SWAP(x, y)         \
+    do {                   \
         PyObject *tmp = y; \
-        y = x; \
-        x = tmp; \
-    } while(0)
+        y = x;             \
+        x = tmp;           \
+    } while (0)
 
 PyObject *
-PyIU_MinMax(PyObject *Py_UNUSED(m),
-            PyObject *args,
-            PyObject *kwargs)
-{
+PyIU_MinMax(PyObject *Py_UNUSED(m), PyObject *args, PyObject *kwargs) {
     static char *kwlist[] = {"key", "default", NULL};
-
-    PyObject *sequence, *iterator=NULL, *defaultitem = NULL, *keyfunc = NULL;
+    PyObject *sequence;
+    PyObject *iterator = NULL;
+    PyObject *defaultitem = NULL;
+    PyObject *keyfunc = NULL;
     PyObject *item1 = NULL;
-    PyObject *maxitem = NULL, *maxval = NULL, *minitem = NULL, *minval = NULL;
+    PyObject *maxitem = NULL;
+    PyObject *maxval = NULL;
+    PyObject *minitem = NULL;
+    PyObject *minval = NULL;
     PyObject *resulttuple = NULL;
     int positional = PyTuple_GET_SIZE(args) > 1;
 
@@ -52,8 +54,10 @@ PyIU_MinMax(PyObject *Py_UNUSED(m),
         goto Fail;
     }
 
-    while ( (item1=Py_TYPE(iterator)->tp_iternext(iterator)) ) {
-        PyObject *val1, *val2, *item2;
+    while ((item1 = Py_TYPE(iterator)->tp_iternext(iterator))) {
+        PyObject *val1;
+        PyObject *val2;
+        PyObject *item2;
         int cmp;
 
         if (keyfunc != NULL) {
@@ -73,14 +77,10 @@ PyIU_MinMax(PyObject *Py_UNUSED(m),
            exceptions in the end (again) but make sure it does not process
            an iterable when the iterator threw an exception! */
         if (item2 == NULL) {
-            if (PyErr_Occurred()) {
-                if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
-                    PyErr_Clear();
-                } else {
-                    Py_DECREF(item1);
-                    Py_DECREF(val1);
-                    goto Fail;
-                }
+            if (PyIU_ErrorOccurredClearStopIteration()) {
+                Py_DECREF(item1);
+                Py_DECREF(val1);
+                goto Fail;
             }
             Py_INCREF(item1);
             item2 = item1;
@@ -166,12 +166,8 @@ PyIU_MinMax(PyObject *Py_UNUSED(m),
     Py_DECREF(iterator);
     iterator = NULL;
 
-    if (PyErr_Occurred()) {
-        if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
-            PyErr_Clear();
-        } else {
-            goto Fail;
-        }
+    if (PyIU_ErrorOccurredClearStopIteration()) {
+        goto Fail;
     }
 
     if (minval == NULL) {
@@ -193,7 +189,6 @@ PyIU_MinMax(PyObject *Py_UNUSED(m),
         Py_DECREF(minval);
         Py_DECREF(maxval);
     }
-
 
     resulttuple = PyTuple_Pack(2, minitem, maxitem);
     Py_DECREF(minitem);

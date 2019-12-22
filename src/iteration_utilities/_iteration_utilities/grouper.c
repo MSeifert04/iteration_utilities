@@ -3,28 +3,32 @@
  *****************************************************************************/
 
 #include "grouper.h"
-#include "helper.h"
+#include <structmember.h>
+#include "docs_lengthhint.h"
 #include "docs_reduce.h"
 #include "docs_setstate.h"
-#include "docs_lengthhint.h"
-#include <structmember.h>
+#include "helper.h"
 
-PyDoc_STRVAR(grouper_prop_fillvalue_doc,
+PyDoc_STRVAR(
+    grouper_prop_fillvalue_doc,
     "(any type) The fillvalue if the last group does not contain enough "
     "items (readonly).\n"
     "\n"
     ".. versionadded:: 0.6");
-PyDoc_STRVAR(grouper_prop_times_doc,
+PyDoc_STRVAR(
+    grouper_prop_times_doc,
     "(:py:class:`int`) The size of each group (readonly).\n"
     "\n"
     ".. versionadded:: 0.6");
-PyDoc_STRVAR(grouper_prop_truncate_doc,
+PyDoc_STRVAR(
+    grouper_prop_truncate_doc,
     "(:py:class:`int`) ``True`` if an incomplete last group is discarded "
-     "(readonly).\n"
+    "(readonly).\n"
     "\n"
     ".. versionadded:: 0.6");
 
-PyDoc_STRVAR(grouper_doc,
+PyDoc_STRVAR(
+    grouper_doc,
     "grouper(iterable, n, fillvalue=None, truncate=False)\n"
     "--\n\n"
     "Collect data into fixed-length chunks or blocks.\n"
@@ -69,75 +73,53 @@ PyDoc_STRVAR(grouper_doc,
     "[('A', 'B', 'C'), ('D', 'E', 'F'), ('G', 'x', 'x')]\n"
     "\n"
     ">>> list(grouper('ABCDEFG', 3, truncate=True))\n"
-    "[('A', 'B', 'C'), ('D', 'E', 'F')]\n"
-);
-
-/******************************************************************************
- * New
- *****************************************************************************/
+    "[('A', 'B', 'C'), ('D', 'E', 'F')]\n");
 
 static PyObject *
-grouper_new(PyTypeObject *type,
-            PyObject *args,
-            PyObject *kwargs)
-{
+grouper_new(PyTypeObject *type, PyObject *args, PyObject *kwargs) {
     static char *kwlist[] = {"iterable", "n", "fillvalue", "truncate", NULL};
     PyIUObject_Grouper *self;
-
     PyObject *iterable;
-    PyObject *iterator = NULL;
     PyObject *fillvalue = NULL;
     PyObject *result = NULL;
     Py_ssize_t times;
     int truncate = 0;
 
-    /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "On|Oi:grouper", kwlist,
                                      &iterable, &times,
                                      &fillvalue, &truncate)) {
-        goto Fail;
+        return NULL;
     }
     if (fillvalue != NULL && truncate != 0) {
         PyErr_SetString(PyExc_TypeError,
                         "cannot specify both the `truncate` and the "
                         "`fillvalue` argument for `grouper`.");
-        goto Fail;
+        return NULL;
     }
     if (times <= 0) {
         PyErr_SetString(PyExc_ValueError,
                         "`n` argument for `grouper` must be greater than 0.");
-        goto Fail;
-    }
-
-    /* Create and fill struct */
-    iterator = PyObject_GetIter(iterable);
-    if (iterator == NULL) {
-        goto Fail;
+        return NULL;
     }
     self = (PyIUObject_Grouper *)type->tp_alloc(type, 0);
     if (self == NULL) {
-        goto Fail;
+        return NULL;
     }
-    Py_XINCREF(fillvalue);
-    self->iterator = iterator;
+    self->iterator = PyObject_GetIter(iterable);
+    if (self->iterator == NULL) {
+        Py_DECREF(self);
+        return NULL;
+    }
     self->times = times;
+    Py_XINCREF(fillvalue);
     self->fillvalue = fillvalue;
     self->truncate = truncate;
     self->result = result;
     return (PyObject *)self;
-
-Fail:
-    Py_XDECREF(iterator);
-    return NULL;
 }
 
-/******************************************************************************
- * Destructor
- *****************************************************************************/
-
 static void
-grouper_dealloc(PyIUObject_Grouper *self)
-{
+grouper_dealloc(PyIUObject_Grouper *self) {
     PyObject_GC_UnTrack(self);
     Py_XDECREF(self->iterator);
     Py_XDECREF(self->fillvalue);
@@ -145,54 +127,33 @@ grouper_dealloc(PyIUObject_Grouper *self)
     Py_TYPE(self)->tp_free(self);
 }
 
-/******************************************************************************
- * Traverse
- *****************************************************************************/
-
 static int
-grouper_traverse(PyIUObject_Grouper *self,
-                 visitproc visit,
-                 void *arg)
-{
+grouper_traverse(PyIUObject_Grouper *self, visitproc visit, void *arg) {
     Py_VISIT(self->iterator);
     Py_VISIT(self->fillvalue);
     Py_VISIT(self->result);
     return 0;
 }
 
-/******************************************************************************
- * Clear
- *****************************************************************************/
-
 static int
-grouper_clear(PyIUObject_Grouper *self)
-{
+grouper_clear(PyIUObject_Grouper *self) {
     Py_CLEAR(self->iterator);
     Py_CLEAR(self->fillvalue);
     Py_CLEAR(self->result);
     return 0;
 }
 
-/******************************************************************************
- * Next
- *****************************************************************************/
-
 static PyObject *
-grouper_next_last(PyIUObject_Grouper *self, PyObject *result, Py_ssize_t idx, int recycle)
-{
+grouper_next_last(PyIUObject_Grouper *self, PyObject *result, Py_ssize_t idx, int recycle) {
     assert(self != NULL);
     assert(result != NULL && PyTuple_CheckExact(result));
     assert(idx >= 0 && idx < PyTuple_GET_SIZE(result));
 
     /* No need to keep the result in the instance anymore. */
     Py_CLEAR(self->result);
-    if (PyErr_Occurred()) {
-        if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
-            PyErr_Clear();
-        } else {
-            Py_DECREF(result);
-            return NULL;
-        }
+    if (PyIU_ErrorOccurredClearStopIteration()) {
+        Py_DECREF(result);
+        return NULL;
     }
 
     if (idx == 0 || self->truncate != 0) {
@@ -227,8 +188,7 @@ grouper_next_last(PyIUObject_Grouper *self, PyObject *result, Py_ssize_t idx, in
 }
 
 static PyObject *
-grouper_next(PyIUObject_Grouper *self)
-{
+grouper_next(PyIUObject_Grouper *self) {
     PyObject *result;
     Py_ssize_t idx;
     int recycle = 0;
@@ -282,13 +242,8 @@ grouper_next(PyIUObject_Grouper *self)
     return result;
 }
 
-/******************************************************************************
- * Reduce
- *****************************************************************************/
-
 static PyObject *
-grouper_reduce(PyIUObject_Grouper *self, PyObject *Py_UNUSED(args))
-{
+grouper_reduce(PyIUObject_Grouper *self, PyObject *Py_UNUSED(args)) {
     /* Separate cases depending on fillvalue == NULL because otherwise "None"
        would be ambiguous. It could mean that we did not had a fillvalue or
        that the next item was None.
@@ -309,14 +264,8 @@ grouper_reduce(PyIUObject_Grouper *self, PyObject *Py_UNUSED(args))
     }
 }
 
-/******************************************************************************
- * Setstate
- *****************************************************************************/
-
 static PyObject *
-grouper_setstate(PyIUObject_Grouper *self,
-                 PyObject *state)
-{
+grouper_setstate(PyIUObject_Grouper *self, PyObject *state) {
     int truncate;
 
     if (!PyTuple_Check(state)) {
@@ -334,18 +283,12 @@ grouper_setstate(PyIUObject_Grouper *self,
     /* truncate is just a boolean-like flag so there isn't anything that could
        checked here.
        */
-
     self->truncate = truncate;
     Py_RETURN_NONE;
 }
 
-/******************************************************************************
- * LengthHint
- *****************************************************************************/
-
 static PyObject *
-grouper_lengthhint(PyIUObject_Grouper *self, PyObject *Py_UNUSED(args))
-{
+grouper_lengthhint(PyIUObject_Grouper *self, PyObject *Py_UNUSED(args)) {
     Py_ssize_t groups, rem;
     Py_ssize_t len = PyObject_LengthHint(self->iterator, 0);
     if (len == -1) {
@@ -364,101 +307,94 @@ grouper_lengthhint(PyIUObject_Grouper *self, PyObject *Py_UNUSED(args))
     }
 }
 
-/******************************************************************************
- * Type
- *****************************************************************************/
-
 static PyMethodDef grouper_methods[] = {
-
-    {"__length_hint__",                                 /* ml_name */
-     (PyCFunction)grouper_lengthhint,                   /* ml_meth */
-     METH_NOARGS,                                       /* ml_flags */
-     PYIU_lenhint_doc                                   /* ml_doc */
-     },
-
-    {"__reduce__",                                      /* ml_name */
-     (PyCFunction)grouper_reduce,                       /* ml_meth */
-     METH_NOARGS,                                       /* ml_flags */
-     PYIU_reduce_doc                                    /* ml_doc */
-     },
-
-    {"__setstate__",                                    /* ml_name */
-     (PyCFunction)grouper_setstate,                     /* ml_meth */
-     METH_O,                                            /* ml_flags */
-     PYIU_setstate_doc                                  /* ml_doc */
-     },
-
-    {NULL, NULL}                                        /* sentinel */
+    {
+        "__length_hint__",               /* ml_name */
+        (PyCFunction)grouper_lengthhint, /* ml_meth */
+        METH_NOARGS,                     /* ml_flags */
+        PYIU_lenhint_doc                 /* ml_doc */
+    },
+    {
+        "__reduce__",                /* ml_name */
+        (PyCFunction)grouper_reduce, /* ml_meth */
+        METH_NOARGS,                 /* ml_flags */
+        PYIU_reduce_doc              /* ml_doc */
+    },
+    {
+        "__setstate__",                /* ml_name */
+        (PyCFunction)grouper_setstate, /* ml_meth */
+        METH_O,                        /* ml_flags */
+        PYIU_setstate_doc              /* ml_doc */
+    },
+    {NULL, NULL} /* sentinel */
 };
 
 #define OFF(x) offsetof(PyIUObject_Grouper, x)
 static PyMemberDef grouper_memberlist[] = {
-
-    {"fillvalue",                                       /* name */
-     T_OBJECT_EX,                                       /* type */
-     OFF(fillvalue),                                    /* offset */
-     READONLY,                                          /* flags */
-     grouper_prop_fillvalue_doc                         /* doc */
-     },
-
-    {"times",                                           /* name */
-     T_PYSSIZET,                                        /* type */
-     OFF(times),                                        /* offset */
-     READONLY,                                          /* flags */
-     grouper_prop_times_doc                             /* doc */
-     },
-
-    {"truncate",                                        /* name */
-     T_BOOL,                                            /* type */
-     OFF(truncate),                                     /* offset */
-     READONLY,                                          /* flags */
-     grouper_prop_truncate_doc                          /* doc */
-     },
-
-    {NULL}                                              /* sentinel */
+    {
+        "fillvalue",               /* name */
+        T_OBJECT_EX,               /* type */
+        OFF(fillvalue),            /* offset */
+        READONLY,                  /* flags */
+        grouper_prop_fillvalue_doc /* doc */
+    },
+    {
+        "times",               /* name */
+        T_PYSSIZET,            /* type */
+        OFF(times),            /* offset */
+        READONLY,              /* flags */
+        grouper_prop_times_doc /* doc */
+    },
+    {
+        "truncate",               /* name */
+        T_BOOL,                   /* type */
+        OFF(truncate),            /* offset */
+        READONLY,                 /* flags */
+        grouper_prop_truncate_doc /* doc */
+    },
+    {NULL} /* sentinel */
 };
 #undef OFF
 
 PyTypeObject PyIUType_Grouper = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    (const char *)"iteration_utilities.grouper",        /* tp_name */
-    (Py_ssize_t)sizeof(PyIUObject_Grouper),             /* tp_basicsize */
-    (Py_ssize_t)0,                                      /* tp_itemsize */
+    PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.grouper", /* tp_name */
+    (Py_ssize_t)sizeof(PyIUObject_Grouper),                                     /* tp_basicsize */
+    (Py_ssize_t)0,                                                              /* tp_itemsize */
     /* methods */
-    (destructor)grouper_dealloc,                        /* tp_dealloc */
-    (printfunc)0,                                       /* tp_print */
-    (getattrfunc)0,                                     /* tp_getattr */
-    (setattrfunc)0,                                     /* tp_setattr */
-    0,                                                  /* tp_reserved */
-    (reprfunc)0,                                        /* tp_repr */
-    (PyNumberMethods *)0,                               /* tp_as_number */
-    (PySequenceMethods *)0,                             /* tp_as_sequence */
-    (PyMappingMethods *)0,                              /* tp_as_mapping */
-    (hashfunc)0,                                        /* tp_hash */
-    (ternaryfunc)0,                                     /* tp_call */
-    (reprfunc)0,                                        /* tp_str */
-    (getattrofunc)PyObject_GenericGetAttr,              /* tp_getattro */
-    (setattrofunc)0,                                    /* tp_setattro */
-    (PyBufferProcs *)0,                                 /* tp_as_buffer */
+    (destructor)grouper_dealloc,           /* tp_dealloc */
+    (printfunc)0,                          /* tp_print */
+    (getattrfunc)0,                        /* tp_getattr */
+    (setattrfunc)0,                        /* tp_setattr */
+    0,                                     /* tp_reserved */
+    (reprfunc)0,                           /* tp_repr */
+    (PyNumberMethods *)0,                  /* tp_as_number */
+    (PySequenceMethods *)0,                /* tp_as_sequence */
+    (PyMappingMethods *)0,                 /* tp_as_mapping */
+    (hashfunc)0,                           /* tp_hash */
+    (ternaryfunc)0,                        /* tp_call */
+    (reprfunc)0,                           /* tp_str */
+    (getattrofunc)PyObject_GenericGetAttr, /* tp_getattro */
+    (setattrofunc)0,                       /* tp_setattro */
+    (PyBufferProcs *)0,                    /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
-        Py_TPFLAGS_BASETYPE,                            /* tp_flags */
-    (const char *)grouper_doc,                          /* tp_doc */
-    (traverseproc)grouper_traverse,                     /* tp_traverse */
-    (inquiry)grouper_clear,                             /* tp_clear */
-    (richcmpfunc)0,                                     /* tp_richcompare */
-    (Py_ssize_t)0,                                      /* tp_weaklistoffset */
-    (getiterfunc)PyObject_SelfIter,                     /* tp_iter */
-    (iternextfunc)grouper_next,                         /* tp_iternext */
-    grouper_methods,                                    /* tp_methods */
-    grouper_memberlist,                                 /* tp_members */
-    0,                                                  /* tp_getset */
-    0,                                                  /* tp_base */
-    0,                                                  /* tp_dict */
-    (descrgetfunc)0,                                    /* tp_descr_get */
-    (descrsetfunc)0,                                    /* tp_descr_set */
-    (Py_ssize_t)0,                                      /* tp_dictoffset */
-    (initproc)0,                                        /* tp_init */
-    (allocfunc)PyType_GenericAlloc,                     /* tp_alloc */
-    (newfunc)grouper_new,                               /* tp_new */
-    (freefunc)PyObject_GC_Del,                          /* tp_free */
+        Py_TPFLAGS_BASETYPE,        /* tp_flags */
+    (const char *)grouper_doc,      /* tp_doc */
+    (traverseproc)grouper_traverse, /* tp_traverse */
+    (inquiry)grouper_clear,         /* tp_clear */
+    (richcmpfunc)0,                 /* tp_richcompare */
+    (Py_ssize_t)0,                  /* tp_weaklistoffset */
+    (getiterfunc)PyObject_SelfIter, /* tp_iter */
+    (iternextfunc)grouper_next,     /* tp_iternext */
+    grouper_methods,                /* tp_methods */
+    grouper_memberlist,             /* tp_members */
+    0,                              /* tp_getset */
+    0,                              /* tp_base */
+    0,                              /* tp_dict */
+    (descrgetfunc)0,                /* tp_descr_get */
+    (descrsetfunc)0,                /* tp_descr_set */
+    (Py_ssize_t)0,                  /* tp_dictoffset */
+    (initproc)0,                    /* tp_init */
+    (allocfunc)PyType_GenericAlloc, /* tp_alloc */
+    (newfunc)grouper_new,           /* tp_new */
+    (freefunc)PyObject_GC_Del,      /* tp_free */
 };

@@ -6,10 +6,7 @@
 #include "helper.h"
 
 PyObject *
-PyIU_Partition(PyObject *Py_UNUSED(m),
-               PyObject *args,
-               PyObject *kwargs)
-{
+PyIU_Partition(PyObject *Py_UNUSED(m), PyObject *args, PyObject *kwargs) {
     static char *kwlist[] = {"iterable", "pred", NULL};
     PyObject *iterable = NULL;
     PyObject *func = NULL;
@@ -20,12 +17,12 @@ PyIU_Partition(PyObject *Py_UNUSED(m),
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:partition", kwlist,
                                      &iterable, &func)) {
-        goto Fail;
+        return NULL;
     }
 
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
-        goto Fail;
+        return NULL;
     }
 
     result1 = PyList_New(0);
@@ -92,14 +89,10 @@ PyIU_Partition(PyObject *Py_UNUSED(m),
 
     Py_DECREF(iterator);
 
-    if (PyErr_Occurred()) {
-        if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
-            PyErr_Clear();
-        } else {
-            Py_DECREF(result1);
-            Py_DECREF(result2);
-            return NULL;
-        }
+    if (PyIU_ErrorOccurredClearStopIteration()) {
+        Py_DECREF(result1);
+        Py_DECREF(result2);
+        return NULL;
     }
 
     result = PyTuple_Pack(2, result1, result2);

@@ -3,16 +3,18 @@
  *****************************************************************************/
 
 #include "allmonotone.h"
+#include "helper.h"
 
 PyObject *
-PyIU_Monotone(PyObject *Py_UNUSED(m),
-              PyObject *args,
-              PyObject *kwargs)
-{
+PyIU_Monotone(PyObject *Py_UNUSED(m), PyObject *args, PyObject *kwargs) {
     static char *kwlist[] = {"iterable", "decreasing", "strict", NULL};
-
-    PyObject *iterable, *iterator, *item, *last=NULL;
-    int decreasing=0, strict=0, op, ok;
+    PyObject *iterable;
+    PyObject *iterator;
+    PyObject *item;
+    PyObject *last = NULL;
+    int decreasing = 0;
+    int strict = 0;
+    int op;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|ii:all_monotone", kwlist,
                                      &iterable, &decreasing, &strict)) {
@@ -20,11 +22,12 @@ PyIU_Monotone(PyObject *Py_UNUSED(m),
     }
     iterator = PyObject_GetIter(iterable);
     if (iterator == NULL) {
-        goto Fail;
+        return NULL;
     }
     op = decreasing ? (strict ? Py_GT : Py_GE) : (strict ? Py_LT : Py_LE);
 
-    while ( (item = Py_TYPE(iterator)->tp_iternext(iterator)) ) {
+    while ((item = Py_TYPE(iterator)->tp_iternext(iterator))) {
+        int ok;
         if (last == NULL) {
             last = item;
             continue;
@@ -32,32 +35,22 @@ PyIU_Monotone(PyObject *Py_UNUSED(m),
         ok = PyObject_RichCompareBool(last, item, op);
         Py_DECREF(last);
         last = item;
-        if (ok == 0) {
-            goto Found;
-        } else if (ok == -1) {
-            goto Fail;
+        if (ok != 1) {
+            Py_DECREF(iterator);
+            Py_DECREF(last);
+            if (ok == 0) {
+                Py_RETURN_FALSE;
+            } else if (ok == -1) {
+                return NULL;
+            }
         }
     }
 
     Py_DECREF(iterator);
     Py_XDECREF(last);
 
-    if (PyErr_Occurred()) {
-        if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
-            PyErr_Clear();
-        } else {
-            return NULL;
-        }
+    if (PyIU_ErrorOccurredClearStopIteration()) {
+        return NULL;
     }
     Py_RETURN_TRUE;
-
-Fail:
-    Py_XDECREF(iterator);
-    Py_XDECREF(last);
-    return NULL;
-
-Found:
-    Py_DECREF(iterator);
-    Py_DECREF(last);
-    Py_RETURN_FALSE;
 }

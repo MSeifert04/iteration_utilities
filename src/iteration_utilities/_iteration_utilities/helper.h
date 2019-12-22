@@ -32,6 +32,18 @@ PyIU_AllocatePyObjectArray(Py_ssize_t num) {
     return PyMem_Malloc((size_t)num * sizeof(PyObject *));
 }
 
+static inline int
+PyIU_ErrorOccurredClearStopIteration() {
+    if (PyErr_Occurred()) {
+        if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
+            PyErr_Clear();
+        } else {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 /******************************************************************************
  * Function call abstractions
  *

@@ -3,18 +3,21 @@
  *****************************************************************************/
 
 #include "duplicates.h"
+#include <structmember.h>
 #include "docs_reduce.h"
 #include "docs_setstate.h"
 #include "helper.h"
 #include "seen.h"
-#include <structmember.h>
 
-PyDoc_STRVAR(duplicates_prop_seen_doc,
+PyDoc_STRVAR(
+    duplicates_prop_seen_doc,
     "(:py:class:`~iteration_utilities.Seen`) Already seen values (readonly).");
-PyDoc_STRVAR(duplicates_prop_key_doc,
+PyDoc_STRVAR(
+    duplicates_prop_key_doc,
     "(callable or `None`) The key function (readonly).");
 
-PyDoc_STRVAR(duplicates_doc,
+PyDoc_STRVAR(
+    duplicates_doc,
     "duplicates(iterable, key=None)\n"
     "--\n\n"
     "Return only duplicate entries, remembers all items ever seen.\n"
@@ -55,8 +58,7 @@ PyDoc_STRVAR(duplicates_doc,
     "\n"
     "    >>> from iteration_utilities import unique_everseen\n"
     "    >>> list(unique_everseen(duplicates('AABBCCDA')))\n"
-    "    ['A', 'B', 'C']\n"
-);
+    "    ['A', 'B', 'C']\n");
 
 /******************************************************************************
  *
@@ -67,64 +69,40 @@ PyDoc_STRVAR(duplicates_doc,
  *
  *****************************************************************************/
 
-/******************************************************************************
- * New
- *****************************************************************************/
-
 static PyObject *
-duplicates_new(PyTypeObject *type,
-               PyObject *args,
-               PyObject *kwargs)
-{
+duplicates_new(PyTypeObject *type, PyObject *args, PyObject *kwargs) {
     static char *kwlist[] = {"iterable", "key", NULL};
     PyIUObject_Duplicates *self;
-
     PyObject *iterable;
-    PyObject *iterator = NULL;
-    PyObject *seen = NULL;
     PyObject *key = NULL;
 
-    /* Parse arguments */
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:duplicates", kwlist,
                                      &iterable, &key)) {
-        goto Fail;
-    }
-    if (key == Py_None) {
-        key = NULL;
-    }
-
-    /* Create and fill struct */
-    iterator = PyObject_GetIter(iterable);
-    if (iterator == NULL) {
-        goto Fail;
-    }
-    seen = PyIUSeen_New();
-    if (seen == NULL) {
-        goto Fail;
+        return NULL;
     }
     self = (PyIUObject_Duplicates *)type->tp_alloc(type, 0);
     if (self == NULL) {
-        goto Fail;
+        return NULL;
     }
-    Py_XINCREF(key);
-    self->iterator = iterator;
-    self->key = key;
-    self->seen = seen;
-    return (PyObject *)self;
 
-Fail:
-    Py_XDECREF(iterator);
-    Py_XDECREF(seen);
-    return NULL;
+    self->iterator = PyObject_GetIter(iterable);
+    if (self->iterator == NULL) {
+        Py_DECREF(self);
+        return NULL;
+    }
+    self->seen = PyIUSeen_New();
+    if (self->seen == NULL) {
+        Py_DECREF(self);
+        return NULL;
+    }
+
+    self->key = key == Py_None ? NULL : key;
+    Py_XINCREF(self->key);
+    return (PyObject *)self;
 }
 
-/******************************************************************************
- * Destructor
- *****************************************************************************/
-
 static void
-duplicates_dealloc(PyIUObject_Duplicates *self)
-{
+duplicates_dealloc(PyIUObject_Duplicates *self) {
     PyObject_GC_UnTrack(self);
     Py_XDECREF(self->iterator);
     Py_XDECREF(self->key);
@@ -132,93 +110,57 @@ duplicates_dealloc(PyIUObject_Duplicates *self)
     Py_TYPE(self)->tp_free(self);
 }
 
-/******************************************************************************
- * Traverse
- *****************************************************************************/
-
 static int
-duplicates_traverse(PyIUObject_Duplicates *self,
-                    visitproc visit,
-                    void *arg)
-{
+duplicates_traverse(PyIUObject_Duplicates *self, visitproc visit, void *arg) {
     Py_VISIT(self->iterator);
     Py_VISIT(self->key);
     Py_VISIT(self->seen);
     return 0;
 }
 
-/******************************************************************************
- * Clear
- *****************************************************************************/
-
 static int
-duplicates_clear(PyIUObject_Duplicates *self)
-{
+duplicates_clear(PyIUObject_Duplicates *self) {
     Py_CLEAR(self->iterator);
     Py_CLEAR(self->key);
     Py_CLEAR(self->seen);
     return 0;
 }
 
-/******************************************************************************
- * Next
- *****************************************************************************/
-
 static PyObject *
-duplicates_next(PyIUObject_Duplicates *self)
-{
-    PyObject *item=NULL, *temp=NULL;
-    int ok;
+duplicates_next(PyIUObject_Duplicates *self) {
+    PyObject *item = NULL;
 
-    while ( (item = Py_TYPE(self->iterator)->tp_iternext(self->iterator)) ) {
-
+    while ((item = Py_TYPE(self->iterator)->tp_iternext(self->iterator))) {
+        PyObject *val;
+        int ok;
         /* Use the item if key is not given, otherwise apply the key. */
         if (self->key == NULL) {
-            temp = item;
+            Py_INCREF(item);
+            val = item;
         } else {
-            temp = PyIU_CallWithOneArgument(self->key, item);
-            if (temp == NULL) {
-                goto Fail;
+            val = PyIU_CallWithOneArgument(self->key, item);
+            if (val == NULL) {
+                Py_DECREF(item);
+                return NULL;
             }
         }
 
         /* Check if the item is in seen.  */
-        ok = PyIUSeen_ContainsAdd(self->seen, temp);
+        ok = PyIUSeen_ContainsAdd(self->seen, val);
+        Py_DECREF(val);
         if (ok == 1) {
-            goto Found;
-        /* Failure when looking. */
-        } else if (ok == -1) {
-            goto Fail;
-        }
-
-        /* We have found the item either in the set or list so continue. */
-        if (self->key != NULL) {
-            Py_DECREF(temp);
+            return item;
         }
         Py_DECREF(item);
+        if (ok == -1) {
+            return NULL;
+        }
     }
-    return NULL;
-
-Found:
-    if (self->key != NULL) {
-        Py_XDECREF(temp);
-    }
-    return item;
-Fail:
-    if (self->key != NULL) {
-        Py_XDECREF(temp);
-    }
-    Py_XDECREF(item);
     return NULL;
 }
 
-/******************************************************************************
- * Reduce
- *****************************************************************************/
-
 static PyObject *
-duplicates_reduce(PyIUObject_Duplicates *self, PyObject *Py_UNUSED(args))
-{
+duplicates_reduce(PyIUObject_Duplicates *self, PyObject *Py_UNUSED(args)) {
     PyObject *value;
     value = Py_BuildValue("O(OO)(O)", Py_TYPE(self),
                           self->iterator,
@@ -227,14 +169,8 @@ duplicates_reduce(PyIUObject_Duplicates *self, PyObject *Py_UNUSED(args))
     return value;
 }
 
-/******************************************************************************
- * Setstate
- *****************************************************************************/
-
 static PyObject *
-duplicates_setstate(PyIUObject_Duplicates *self,
-                    PyObject *state)
-{
+duplicates_setstate(PyIUObject_Duplicates *self, PyObject *state) {
     PyObject *seen;
 
     if (!PyTuple_Check(state)) {
@@ -260,95 +196,87 @@ duplicates_setstate(PyIUObject_Duplicates *self,
         return NULL;
     }
 
-    Py_CLEAR(self->seen);
-    self->seen = seen;
-    Py_INCREF(self->seen);
+    Py_INCREF(seen);
+    Py_XSETREF(self->seen, seen);
 
     Py_RETURN_NONE;
 }
 
-/******************************************************************************
- * Type
- *****************************************************************************/
-
 static PyMethodDef duplicates_methods[] = {
-
-    {"__reduce__",                                      /* ml_name */
-     (PyCFunction)duplicates_reduce,                    /* ml_meth */
-     METH_NOARGS,                                       /* ml_flags */
-     PYIU_reduce_doc                                    /* ml_doc */
-     },
-
-    {"__setstate__",                                    /* ml_name */
-     (PyCFunction)duplicates_setstate,                  /* ml_meth */
-     METH_O,                                            /* ml_flags */
-     PYIU_setstate_doc                                  /* ml_doc */
-     },
-
-    {NULL, NULL}                                        /* sentinel */
+    {
+        "__reduce__",                   /* ml_name */
+        (PyCFunction)duplicates_reduce, /* ml_meth */
+        METH_NOARGS,                    /* ml_flags */
+        PYIU_reduce_doc                 /* ml_doc */
+    },
+    {
+        "__setstate__",                   /* ml_name */
+        (PyCFunction)duplicates_setstate, /* ml_meth */
+        METH_O,                           /* ml_flags */
+        PYIU_setstate_doc                 /* ml_doc */
+    },
+    {NULL, NULL} /* sentinel */
 };
 
 #define OFF(x) offsetof(PyIUObject_Duplicates, x)
 static PyMemberDef duplicates_memberlist[] = {
-
-    {"seen",                                            /* name */
-     T_OBJECT,                                          /* type */
-     OFF(seen),                                         /* offset */
-     READONLY,                                          /* flags */
-     duplicates_prop_seen_doc                           /* doc */
-     },
-
-    {"key",                                             /* name */
-     T_OBJECT,                                          /* type */
-     OFF(key),                                          /* offset */
-     READONLY,                                          /* flags */
-     duplicates_prop_key_doc                            /* doc */
-     },
-
-    {NULL}                                              /* sentinel */
+    {
+        "seen",                  /* name */
+        T_OBJECT,                /* type */
+        OFF(seen),               /* offset */
+        READONLY,                /* flags */
+        duplicates_prop_seen_doc /* doc */
+    },
+    {
+        "key",                  /* name */
+        T_OBJECT,               /* type */
+        OFF(key),               /* offset */
+        READONLY,               /* flags */
+        duplicates_prop_key_doc /* doc */
+    },
+    {NULL} /* sentinel */
 };
 #undef OFF
 
 PyTypeObject PyIUType_Duplicates = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    (const char *)"iteration_utilities.duplicates",     /* tp_name */
-    (Py_ssize_t)sizeof(PyIUObject_Duplicates),          /* tp_basicsize */
-    (Py_ssize_t)0,                                      /* tp_itemsize */
+    PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.duplicates", /* tp_name */
+    (Py_ssize_t)sizeof(PyIUObject_Duplicates),                                     /* tp_basicsize */
+    (Py_ssize_t)0,                                                                 /* tp_itemsize */
     /* methods */
-    (destructor)duplicates_dealloc,                     /* tp_dealloc */
-    (printfunc)0,                                       /* tp_print */
-    (getattrfunc)0,                                     /* tp_getattr */
-    (setattrfunc)0,                                     /* tp_setattr */
-    0,                                                  /* tp_reserved */
-    (reprfunc)0,                                        /* tp_repr */
-    (PyNumberMethods *)0,                               /* tp_as_number */
-    (PySequenceMethods *)0,                             /* tp_as_sequence */
-    (PyMappingMethods *)0,                              /* tp_as_mapping */
-    (hashfunc)0,                                        /* tp_hash */
-    (ternaryfunc)0,                                     /* tp_call */
-    (reprfunc)0,                                        /* tp_str */
-    (getattrofunc)PyObject_GenericGetAttr,              /* tp_getattro */
-    (setattrofunc)0,                                    /* tp_setattro */
-    (PyBufferProcs *)0,                                 /* tp_as_buffer */
+    (destructor)duplicates_dealloc,        /* tp_dealloc */
+    (printfunc)0,                          /* tp_print */
+    (getattrfunc)0,                        /* tp_getattr */
+    (setattrfunc)0,                        /* tp_setattr */
+    0,                                     /* tp_reserved */
+    (reprfunc)0,                           /* tp_repr */
+    (PyNumberMethods *)0,                  /* tp_as_number */
+    (PySequenceMethods *)0,                /* tp_as_sequence */
+    (PyMappingMethods *)0,                 /* tp_as_mapping */
+    (hashfunc)0,                           /* tp_hash */
+    (ternaryfunc)0,                        /* tp_call */
+    (reprfunc)0,                           /* tp_str */
+    (getattrofunc)PyObject_GenericGetAttr, /* tp_getattro */
+    (setattrofunc)0,                       /* tp_setattro */
+    (PyBufferProcs *)0,                    /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
-        Py_TPFLAGS_BASETYPE,                            /* tp_flags */
-    (const char *)duplicates_doc,                       /* tp_doc */
-    (traverseproc)duplicates_traverse,                  /* tp_traverse */
-    (inquiry)duplicates_clear,                          /* tp_clear */
-    (richcmpfunc)0,                                     /* tp_richcompare */
-    (Py_ssize_t)0,                                      /* tp_weaklistoffset */
-    (getiterfunc)PyObject_SelfIter,                     /* tp_iter */
-    (iternextfunc)duplicates_next,                      /* tp_iternext */
-    duplicates_methods,                                 /* tp_methods */
-    duplicates_memberlist,                              /* tp_members */
-    0,                                                  /* tp_getset */
-    0,                                                  /* tp_base */
-    0,                                                  /* tp_dict */
-    (descrgetfunc)0,                                    /* tp_descr_get */
-    (descrsetfunc)0,                                    /* tp_descr_set */
-    (Py_ssize_t)0,                                      /* tp_dictoffset */
-    (initproc)0,                                        /* tp_init */
-    (allocfunc)0,                                       /* tp_alloc */
-    (newfunc)duplicates_new,                            /* tp_new */
-    (freefunc)PyObject_GC_Del,                          /* tp_free */
+        Py_TPFLAGS_BASETYPE,           /* tp_flags */
+    (const char *)duplicates_doc,      /* tp_doc */
+    (traverseproc)duplicates_traverse, /* tp_traverse */
+    (inquiry)duplicates_clear,         /* tp_clear */
+    (richcmpfunc)0,                    /* tp_richcompare */
+    (Py_ssize_t)0,                     /* tp_weaklistoffset */
+    (getiterfunc)PyObject_SelfIter,    /* tp_iter */
+    (iternextfunc)duplicates_next,     /* tp_iternext */
+    duplicates_methods,                /* tp_methods */
+    duplicates_memberlist,             /* tp_members */
+    0,                                 /* tp_getset */
+    0,                                 /* tp_base */
+    0,                                 /* tp_dict */
+    (descrgetfunc)0,                   /* tp_descr_get */
+    (descrsetfunc)0,                   /* tp_descr_set */
+    (Py_ssize_t)0,                     /* tp_dictoffset */
+    (initproc)0,                       /* tp_init */
+    (allocfunc)0,                      /* tp_alloc */
+    (newfunc)duplicates_new,           /* tp_new */
+    (freefunc)PyObject_GC_Del,         /* tp_free */
 };

@@ -3,22 +3,25 @@
  *****************************************************************************/
 
 #include "chained.h"
+#include <structmember.h>
 #include "docs_reduce.h"
 #include "docs_setstate.h"
 #include "helper.h"
-#include <structmember.h>
 
-PyDoc_STRVAR(chained_prop_funcs_doc,
+PyDoc_STRVAR(
+    chained_prop_funcs_doc,
     "(:py:class:`tuple`) The functions to be used (readonly).\n"
     "\n"
     ".. versionadded:: 0.6");
-PyDoc_STRVAR(chained_prop_all_doc,
+PyDoc_STRVAR(
+    chained_prop_all_doc,
     "(:py:class:`bool`) Apply functions on each other (``False``) or "
-     "separate (readonly).\n"
+    "separate (readonly).\n"
     "\n"
     ".. versionadded:: 0.6");
 
-PyDoc_STRVAR(chained_doc,
+PyDoc_STRVAR(
+    chained_doc,
     "chained(*funcs, /, reverse=False, all=False)\n"
     "--\n\n"
     "Chained function calls.\n"
@@ -62,34 +65,24 @@ PyDoc_STRVAR(chained_doc,
     "\n"
     "    >>> double_and_increment = chained(double, increment, all=True)\n"
     "    >>> double_and_increment(10)\n"
-    "    (20, 11)\n"
-);
+    "    (20, 11)\n");
 
 #if PyIU_USE_VECTORCALL
-static PyObject * chained_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *kwnames);
+static PyObject *chained_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *kwnames);
 #endif
 
-/******************************************************************************
- * New
- *****************************************************************************/
-
 static PyObject *
-chained_new(PyTypeObject *type,
-            PyObject *funcs,
-            PyObject *kwargs)
-{
+chained_new(PyTypeObject *type, PyObject *funcs, PyObject *kwargs) {
     static char *kwlist[] = {"reverse", "all", NULL};
     PyIUObject_Chained *self = NULL;
-
     int reverse = 0;
     int all = 0;
     Py_ssize_t num_funcs = PyTuple_GET_SIZE(funcs);
 
-    /* Parse arguments */
     if (num_funcs == 0) {
         PyErr_SetString(PyExc_TypeError,
                         "`chained` expected at least one function.");
-        goto Fail;
+        return NULL;
     }
 
     if (!PyArg_ParseTupleAndKeywords(PyIU_global_0tuple, kwargs,
@@ -97,11 +90,9 @@ chained_new(PyTypeObject *type,
                                      &reverse, &all)) {
         return NULL;
     }
-
-    /* Create struct */
     self = (PyIUObject_Chained *)type->tp_alloc(type, 0);
     if (self == NULL) {
-        goto Fail;
+        return NULL;
     }
 
     /* In case we want consecutive function calls (and not all) of them we can
@@ -109,16 +100,16 @@ chained_new(PyTypeObject *type,
        */
     if (all == 0 && type == &PyIUType_Chained) {
         Py_ssize_t finalsize = 0;
-        Py_ssize_t i;  /* Index for the input "funcs". */
-        Py_ssize_t j;  /* Index for the out "funcs". */
+        Py_ssize_t i; /* Index for the input "funcs". */
+        Py_ssize_t j; /* Index for the out "funcs". */
         /* First pass over the data to get the number of functions. This is
            mostly unnecessary except when there are other "chained" instances
            inside the functions. These can be unwrapped.
            */
-        for (i=0 ; i<num_funcs ; i++) {
+        for (i = 0; i < num_funcs; i++) {
             PyObject *function = PyTuple_GET_ITEM(funcs, i);
             if (Py_TYPE(function) == &PyIUType_Chained &&
-                    ((PyIUObject_Chained *)function)->all == 0) {
+                ((PyIUObject_Chained *)function)->all == 0) {
                 finalsize += PyTuple_GET_SIZE(((PyIUObject_Chained *)function)->funcs);
             } else {
                 finalsize++;
@@ -141,13 +132,14 @@ chained_new(PyTypeObject *type,
            */
         self->funcs = PyTuple_New(finalsize);
         if (self->funcs == NULL) {
-            goto Fail;
+            Py_DECREF(self);
+            return NULL;
         }
         j = reverse ? (finalsize - 1) : 0;
-        for (i=0 ; i<num_funcs ; i++) {
+        for (i = 0; i < num_funcs; i++) {
             PyObject *function = PyTuple_GET_ITEM(funcs, i);
             if (Py_TYPE(function) == &PyIUType_Chained &&
-                    ((PyIUObject_Chained *)function)->all == 0) {
+                ((PyIUObject_Chained *)function)->all == 0) {
                 Py_ssize_t k;
                 PyIUObject_Chained *sub = (PyIUObject_Chained *)function;
                 Py_ssize_t sub_size = PyTuple_GET_SIZE(sub->funcs);
@@ -155,7 +147,7 @@ chained_new(PyTypeObject *type,
                    even when "reversed" is given.
                    */
                 j = reverse ? (j - sub_size + 1) : j;
-                for (k=0 ; k<sub_size ; k++) {
+                for (k = 0; k < sub_size; k++) {
                     PyObject *subfunc = PyTuple_GET_ITEM(sub->funcs, k);
                     Py_INCREF(subfunc);
                     PyTuple_SET_ITEM(self->funcs, j, subfunc);
@@ -185,7 +177,8 @@ chained_new(PyTypeObject *type,
     }
 
     if (self->funcs == NULL) {
-        goto Fail;
+        Py_DECREF(self);
+        return NULL;
     }
 
     self->all = all;
@@ -193,56 +186,31 @@ chained_new(PyTypeObject *type,
     self->vectorcall = chained_vectorcall;
 #endif
     return (PyObject *)self;
-
-Fail:
-    Py_XDECREF(self);
-    return NULL;
 }
 
-/******************************************************************************
- * Destructor
- *****************************************************************************/
-
 static void
-chained_dealloc(PyIUObject_Chained *self)
-{
+chained_dealloc(PyIUObject_Chained *self) {
     PyObject_GC_UnTrack(self);
     Py_XDECREF(self->funcs);
     Py_TYPE(self)->tp_free(self);
 }
 
-/******************************************************************************
- * Traverse
- *****************************************************************************/
-
 static int
-chained_traverse(PyIUObject_Chained *self,
-                 visitproc visit,
-                 void *arg)
-{
+chained_traverse(PyIUObject_Chained *self, visitproc visit, void *arg) {
     Py_VISIT(self->funcs);
     return 0;
 }
 
-/******************************************************************************
- * Clear
- *****************************************************************************/
-
 static int
-chained_clear(PyIUObject_Chained *self)
-{
+chained_clear(PyIUObject_Chained *self) {
     Py_CLEAR(self->funcs);
     return 0;
 }
 
 #if PyIU_USE_VECTORCALL
-/******************************************************************************
- * Vectorcall
- *****************************************************************************/
 
 static PyObject *
-chained_vectorcall_normal(PyIUObject_Chained *self, PyObject *const *args, size_t nargsf, PyObject *kwnames)
-{
+chained_vectorcall_normal(PyIUObject_Chained *self, PyObject *const *args, size_t nargsf, PyObject *kwnames) {
     Py_ssize_t idx;
 
     PyObject *temp = _PyObject_Vectorcall(PyTuple_GET_ITEM(self->funcs, 0), args, nargsf, kwnames);
@@ -250,7 +218,7 @@ chained_vectorcall_normal(PyIUObject_Chained *self, PyObject *const *args, size_
         return NULL;
     }
 
-    for (idx=1 ; idx < PyTuple_GET_SIZE(self->funcs) ; idx++) {
+    for (idx = 1; idx < PyTuple_GET_SIZE(self->funcs); idx++) {
         PyObject *func = PyTuple_GET_ITEM(self->funcs, idx);
         PyObject *oldtemp = temp;
         temp = PyIU_CallWithOneArgument(func, temp);
@@ -265,8 +233,7 @@ chained_vectorcall_normal(PyIUObject_Chained *self, PyObject *const *args, size_
 }
 
 static PyObject *
-chained_vectorcall_all(PyIUObject_Chained *self, PyObject *const *args, size_t nargsf, PyObject *kwnames)
-{
+chained_vectorcall_all(PyIUObject_Chained *self, PyObject *const *args, size_t nargsf, PyObject *kwnames) {
     PyObject *result;
     Py_ssize_t idx;
     Py_ssize_t num_funcs = PyTuple_GET_SIZE(self->funcs);
@@ -277,7 +244,7 @@ chained_vectorcall_all(PyIUObject_Chained *self, PyObject *const *args, size_t n
         return NULL;
     }
 
-    for (idx=0 ; idx<num_funcs ; idx++) {
+    for (idx = 0; idx < num_funcs; idx++) {
         PyObject *func = PyTuple_GET_ITEM(self->funcs, idx);
         PyObject *temp = _PyObject_Vectorcall(func, args, nargsf, kwnames);
         PyTuple_SET_ITEM(result, idx, temp);
@@ -291,10 +258,8 @@ chained_vectorcall_all(PyIUObject_Chained *self, PyObject *const *args, size_t n
     return result;
 }
 
-
 static PyObject *
-chained_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *kwnames)
-{
+chained_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *kwnames) {
     PyIUObject_Chained *self = ((PyIUObject_Chained *)obj);
     if (self->all) {
         return chained_vectorcall_all(self, args, nargsf, kwnames);
@@ -304,15 +269,9 @@ chained_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject
 }
 
 #else
-/******************************************************************************
- * Call
- *****************************************************************************/
 
 static PyObject *
-chained_call_normal(PyIUObject_Chained *self,
-                    PyObject *args,
-                    PyObject *kwargs)
-{
+chained_call_normal(PyIUObject_Chained *self, PyObject *args, PyObject *kwargs) {
     Py_ssize_t idx;
 
     PyObject *temp = PyObject_Call(PyTuple_GET_ITEM(self->funcs, 0),
@@ -321,7 +280,7 @@ chained_call_normal(PyIUObject_Chained *self,
         return NULL;
     }
 
-    for (idx=1 ; idx < PyTuple_GET_SIZE(self->funcs) ; idx++) {
+    for (idx = 1; idx < PyTuple_GET_SIZE(self->funcs); idx++) {
         PyObject *func = PyTuple_GET_ITEM(self->funcs, idx);
         PyObject *oldtemp = temp;
         temp = PyIU_CallWithOneArgument(func, temp);
@@ -336,10 +295,7 @@ chained_call_normal(PyIUObject_Chained *self,
 }
 
 static PyObject *
-chained_call_all(PyIUObject_Chained *self,
-                 PyObject *args,
-                 PyObject *kwargs)
-{
+chained_call_all(PyIUObject_Chained *self, PyObject *args, PyObject *kwargs) {
     PyObject *result;
     Py_ssize_t idx;
     Py_ssize_t num_funcs = PyTuple_GET_SIZE(self->funcs);
@@ -350,7 +306,7 @@ chained_call_all(PyIUObject_Chained *self,
         return NULL;
     }
 
-    for (idx=0 ; idx<num_funcs ; idx++) {
+    for (idx = 0; idx < num_funcs; idx++) {
         PyObject *func = PyTuple_GET_ITEM(self->funcs, idx);
         PyObject *temp = PyObject_Call(func, args, kwargs);
         PyTuple_SET_ITEM(result, idx, temp);
@@ -364,30 +320,23 @@ chained_call_all(PyIUObject_Chained *self,
     return result;
 }
 
-
 static PyObject *
-chained_call(PyIUObject_Chained *self,
-             PyObject *args,
-             PyObject *kwargs)
-{
+chained_call(PyIUObject_Chained *self, PyObject *args, PyObject *kwargs) {
     if (self->all) {
         return chained_call_all(self, args, kwargs);
     } else {
         return chained_call_normal(self, args, kwargs);
     }
 }
+
 #endif
 
-/******************************************************************************
- * Repr
- *****************************************************************************/
-
 static PyObject *
-chained_repr(PyIUObject_Chained *self)
-{
+chained_repr(PyIUObject_Chained *self) {
     PyObject *result = NULL;
     PyObject *arglist;
-    Py_ssize_t i, n;
+    Py_ssize_t i;
+    Py_ssize_t n;
     int ok;
 
     ok = Py_ReprEnter((PyObject *)self);
@@ -419,32 +368,20 @@ chained_repr(PyIUObject_Chained *self)
                                   self->all ? Py_True : Py_False);
     Py_DECREF(arglist);
 
-
 done:
     Py_ReprLeave((PyObject *)self);
     return result;
 }
 
-/******************************************************************************
- * Reduce
- *****************************************************************************/
-
 static PyObject *
-chained_reduce(PyIUObject_Chained *self, PyObject *Py_UNUSED(args))
-{
+chained_reduce(PyIUObject_Chained *self, PyObject *Py_UNUSED(args)) {
     return Py_BuildValue("OO(i)", Py_TYPE(self),
                          self->funcs,
                          self->all);
 }
 
-/******************************************************************************
- * Setstate
- *****************************************************************************/
-
 static PyObject *
-chained_setstate(PyIUObject_Chained *self,
-                 PyObject *state)
-{
+chained_setstate(PyIUObject_Chained *self, PyObject *state) {
     int all;
 
     if (!PyTuple_Check(state)) {
@@ -463,100 +400,92 @@ chained_setstate(PyIUObject_Chained *self,
     Py_RETURN_NONE;
 }
 
-/******************************************************************************
- * Type
- *****************************************************************************/
-
 static PyMethodDef chained_methods[] = {
-
-    {"__reduce__",                                      /* ml_name */
-     (PyCFunction)chained_reduce,                       /* ml_meth */
-     METH_NOARGS,                                       /* ml_flags */
-     PYIU_reduce_doc                                    /* ml_doc */
-     },
-
-    {"__setstate__",                                    /* ml_name */
-     (PyCFunction)chained_setstate,                     /* ml_meth */
-     METH_O,                                            /* ml_flags */
-     PYIU_setstate_doc                                  /* ml_doc */
-     },
-
-    {NULL, NULL}                                        /* sentinel */
+    {
+        "__reduce__",                /* ml_name */
+        (PyCFunction)chained_reduce, /* ml_meth */
+        METH_NOARGS,                 /* ml_flags */
+        PYIU_reduce_doc              /* ml_doc */
+    },
+    {
+        "__setstate__",                /* ml_name */
+        (PyCFunction)chained_setstate, /* ml_meth */
+        METH_O,                        /* ml_flags */
+        PYIU_setstate_doc              /* ml_doc */
+    },
+    {NULL, NULL} /* sentinel */
 };
 
 #define OFF(x) offsetof(PyIUObject_Chained, x)
 static PyMemberDef chained_memberlist[] = {
-
-    {"funcs",                                           /* name */
-     T_OBJECT,                                          /* type */
-     OFF(funcs),                                        /* offset */
-     READONLY,                                          /* flags */
-     chained_prop_funcs_doc                             /* doc */
-     },
-
-    {"all",                                             /* name */
-     T_BOOL,                                            /* type */
-     OFF(all),                                          /* offset */
-     READONLY,                                          /* flags */
-     chained_prop_all_doc                               /* doc */
-     },
-
-    {NULL}                                              /* sentinel */
+    {
+        "funcs",               /* name */
+        T_OBJECT,              /* type */
+        OFF(funcs),            /* offset */
+        READONLY,              /* flags */
+        chained_prop_funcs_doc /* doc */
+    },
+    {
+        "all",               /* name */
+        T_BOOL,              /* type */
+        OFF(all),            /* offset */
+        READONLY,            /* flags */
+        chained_prop_all_doc /* doc */
+    },
+    {NULL} /* sentinel */
 };
 #undef OFF
 
 PyTypeObject PyIUType_Chained = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    (const char *)"iteration_utilities.chained",        /* tp_name */
-    (Py_ssize_t)sizeof(PyIUObject_Chained),             /* tp_basicsize */
-    (Py_ssize_t)0,                                      /* tp_itemsize */
+    PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.chained", /* tp_name */
+    (Py_ssize_t)sizeof(PyIUObject_Chained),                                     /* tp_basicsize */
+    (Py_ssize_t)0,                                                              /* tp_itemsize */
     /* methods */
-    (destructor)chained_dealloc,                        /* tp_dealloc */
+    (destructor)chained_dealloc, /* tp_dealloc */
 #if PyIU_USE_VECTORCALL
-    offsetof(PyIUObject_Chained, vectorcall),           /* tp_vectorcall_offset */
+    offsetof(PyIUObject_Chained, vectorcall), /* tp_vectorcall_offset */
 #else
-    (printfunc)0,                                       /* tp_print */
+    (printfunc)0,              /* tp_print */
 #endif
-    (getattrfunc)0,                                     /* tp_getattr */
-    (setattrfunc)0,                                     /* tp_setattr */
-    0,                                                  /* tp_reserved */
-    (reprfunc)chained_repr,                             /* tp_repr */
-    (PyNumberMethods *)0,                               /* tp_as_number */
-    (PySequenceMethods *)0,                             /* tp_as_sequence */
-    (PyMappingMethods *)0,                              /* tp_as_mapping */
-    (hashfunc)0,                                        /* tp_hash */
+    (getattrfunc)0,         /* tp_getattr */
+    (setattrfunc)0,         /* tp_setattr */
+    0,                      /* tp_reserved */
+    (reprfunc)chained_repr, /* tp_repr */
+    (PyNumberMethods *)0,   /* tp_as_number */
+    (PySequenceMethods *)0, /* tp_as_sequence */
+    (PyMappingMethods *)0,  /* tp_as_mapping */
+    (hashfunc)0,            /* tp_hash */
 #if PyIU_USE_VECTORCALL
-    (ternaryfunc)PyVectorcall_Call,                     /* tp_call */
+    (ternaryfunc)PyVectorcall_Call, /* tp_call */
 #else
-    (ternaryfunc)chained_call,                          /* tp_call */
+    (ternaryfunc)chained_call, /* tp_call */
 #endif
-    (reprfunc)0,                                        /* tp_str */
-    (getattrofunc)PyObject_GenericGetAttr,              /* tp_getattro */
-    (setattrofunc)0,                                    /* tp_setattro */
-    (PyBufferProcs *)0,                                 /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC
-        | Py_TPFLAGS_BASETYPE
+    (reprfunc)0,                           /* tp_str */
+    (getattrofunc)PyObject_GenericGetAttr, /* tp_getattro */
+    (setattrofunc)0,                       /* tp_setattro */
+    (PyBufferProcs *)0,                    /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE
 #if PyIU_USE_VECTORCALL
         | _Py_TPFLAGS_HAVE_VECTORCALL
 #endif
-        ,                                               /* tp_flags */
-    (const char *)chained_doc,                          /* tp_doc */
-    (traverseproc)chained_traverse,                     /* tp_traverse */
-    (inquiry)chained_clear,                             /* tp_clear */
-    (richcmpfunc)0,                                     /* tp_richcompare */
-    (Py_ssize_t)0,                                      /* tp_weaklistoffset */
-    (getiterfunc)0,                                     /* tp_iter */
-    (iternextfunc)0,                                    /* tp_iternext */
-    chained_methods,                                    /* tp_methods */
-    chained_memberlist,                                 /* tp_members */
-    0,                                                  /* tp_getset */
-    0,                                                  /* tp_base */
-    0,                                                  /* tp_dict */
-    (descrgetfunc)0,                                    /* tp_descr_get */
-    (descrsetfunc)0,                                    /* tp_descr_set */
-    (Py_ssize_t)0,                                      /* tp_dictoffset */
-    (initproc)0,                                        /* tp_init */
-    (allocfunc)0,                                       /* tp_alloc */
-    (newfunc)chained_new,                               /* tp_new */
-    (freefunc)PyObject_GC_Del,                          /* tp_free */
+    ,                               /* tp_flags */
+    (const char *)chained_doc,      /* tp_doc */
+    (traverseproc)chained_traverse, /* tp_traverse */
+    (inquiry)chained_clear,         /* tp_clear */
+    (richcmpfunc)0,                 /* tp_richcompare */
+    (Py_ssize_t)0,                  /* tp_weaklistoffset */
+    (getiterfunc)0,                 /* tp_iter */
+    (iternextfunc)0,                /* tp_iternext */
+    chained_methods,                /* tp_methods */
+    chained_memberlist,             /* tp_members */
+    0,                              /* tp_getset */
+    0,                              /* tp_base */
+    0,                              /* tp_dict */
+    (descrgetfunc)0,                /* tp_descr_get */
+    (descrsetfunc)0,                /* tp_descr_set */
+    (Py_ssize_t)0,                  /* tp_dictoffset */
+    (initproc)0,                    /* tp_init */
+    (allocfunc)0,                   /* tp_alloc */
+    (newfunc)chained_new,           /* tp_new */
+    (freefunc)PyObject_GC_Del,      /* tp_free */
 };
