@@ -161,12 +161,10 @@ duplicates_next(PyIUObject_Duplicates *self) {
 
 static PyObject *
 duplicates_reduce(PyIUObject_Duplicates *self, PyObject *Py_UNUSED(args)) {
-    PyObject *value;
-    value = Py_BuildValue("O(OO)(O)", Py_TYPE(self),
-                          self->iterator,
-                          self->key ? self->key : Py_None,
-                          self->seen);
-    return value;
+    return Py_BuildValue("O(OO)(O)", Py_TYPE(self),
+                         self->iterator,
+                         self->key ? self->key : Py_None,
+                         self->seen);
 }
 
 static PyObject *
@@ -198,7 +196,6 @@ duplicates_setstate(PyIUObject_Duplicates *self, PyObject *state) {
 
     Py_INCREF(seen);
     Py_XSETREF(self->seen, seen);
-
     Py_RETURN_NONE;
 }
 

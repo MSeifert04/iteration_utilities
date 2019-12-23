@@ -61,7 +61,8 @@ PyIU_TupleReverse(PyObject *tuple) {
     assert(tuple != NULL && PyTuple_CheckExact(tuple));
 
     PyObject *newtuple;
-    Py_ssize_t i, j;
+    Py_ssize_t i;
+    Py_ssize_t j;
     Py_ssize_t tuplesize = PyTuple_GET_SIZE(tuple);
 
     newtuple = PyTuple_New(tuplesize);

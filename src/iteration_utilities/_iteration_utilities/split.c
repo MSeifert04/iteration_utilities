@@ -260,7 +260,6 @@ split_next(PyIUObject_Split *self) {
             }
         } else if (should_split == 1) {
             /* Split here. */
-            /* Decrement maxsplit */
             if (self->maxsplit != -1) {
                 self->maxsplit--;
             }
@@ -286,7 +285,7 @@ split_next(PyIUObject_Split *self) {
         }
     }
 
-    if (PyIU_ErrorOccurredClearStopIteration() == 1) {
+    if (PyIU_ErrorOccurredClearStopIteration()) {
         Py_DECREF(result);
         return NULL;
     }
@@ -423,7 +422,6 @@ static PyGetSetDef split_getsetlist[] = {
 
 #define OFF(x) offsetof(PyIUObject_Split, x)
 static PyMemberDef split_memberlist[] = {
-
     {
         "key",             /* name */
         T_OBJECT,          /* type */
@@ -431,7 +429,6 @@ static PyMemberDef split_memberlist[] = {
         READONLY,          /* flags */
         split_prop_key_doc /* doc */
     },
-
     {
         "maxsplit",             /* name */
         T_PYSSIZET,             /* type */
@@ -439,7 +436,6 @@ static PyMemberDef split_memberlist[] = {
         READONLY,               /* flags */
         split_prop_maxsplit_doc /* doc */
     },
-
     {
         "eq",             /* name */
         T_BOOL,           /* type */
@@ -447,7 +443,6 @@ static PyMemberDef split_memberlist[] = {
         READONLY,         /* flags */
         split_prop_eq_doc /* doc */
     },
-
     {NULL} /* sentinel */
 };
 #undef OFF

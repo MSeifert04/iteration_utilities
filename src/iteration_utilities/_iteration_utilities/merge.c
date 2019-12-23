@@ -228,7 +228,8 @@ merge_clear(PyIUObject_Merge *self) {
 static int
 merge_init_current(PyIUObject_Merge *self) {
     PyObject *current;
-    Py_ssize_t i, tuplelength;
+    Py_ssize_t i;
+    Py_ssize_t tuplelength;
 
     current = PyTuple_New(self->numactive);
     if (current == NULL) {
@@ -256,6 +257,10 @@ merge_init_current(PyIUObject_Merge *self) {
                 }
             }
             newitem = PyIU_ItemIdxKey_FromC(item, i, keyval);
+            if (newitem == NULL) {
+                Py_DECREF(current);
+                return -1;
+            }
 
             /* Insert the tuple into the current tuple. */
             if (tuplelength == 0) {

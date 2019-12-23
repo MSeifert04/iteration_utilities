@@ -89,7 +89,6 @@ static PyMethodDef PyIU_methods[] = {
         METH_O,                       /* ml_flags */
         PyIU_IsIterable_doc           /* ml_doc */
     },
-
     /* Math */
     {
         "square",                     /* ml_name */
@@ -151,7 +150,6 @@ static PyMethodDef PyIU_methods[] = {
         METH_VARARGS,               /* ml_flags */
         PyIU_MathRmod_doc           /* ml_doc */
     },
-
     /* Helper */
     {
         "_parse_args", /* ml_name */
@@ -175,7 +173,6 @@ static PyMethodDef PyIU_methods[] = {
 #endif
         PyIU_RemoveFromDictWhereValueIs_doc /* ml_doc */
     },
-
     /* returnx */
     {
         "return_identity",                /* ml_name */
@@ -195,7 +192,6 @@ static PyMethodDef PyIU_methods[] = {
         METH_O,                         /* ml_flags */
         PyIU_ReturnCalled_doc           /* ml_doc */
     },
-
     /* Fold functions */
     {
         "argmin",                     /* ml_name */
