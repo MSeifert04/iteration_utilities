@@ -313,7 +313,6 @@ itemidxkey_richcompare(PyObject *v, PyObject *w, int op) {
     /* Only allow < and > for now */
     switch (op) {
         case Py_LT:
-            break;
         case Py_GT:
             break;
         default:

@@ -6,7 +6,7 @@
 #include "helper.h"
 
 static PyObject *
-dotproduct_loop(PyObject *iterator1, PyObject *iterator2) {
+dot_product(PyObject *iterator1, PyObject *iterator2) {
     PyObject *item1;
     PyObject *result = NULL;
 
@@ -52,27 +52,25 @@ dotproduct_loop(PyObject *iterator1, PyObject *iterator2) {
 
 PyObject *
 PyIU_DotProduct(PyObject *Py_UNUSED(m), PyObject *args) {
-    PyObject *vec1 = NULL;
-    PyObject *vec2 = NULL;
-    PyObject *iterator1 = NULL;
-    PyObject *iterator2 = NULL;
+    PyObject *vec1;
+    PyObject *vec2;
+    PyObject *iterator1;
+    PyObject *iterator2;
     PyObject *result;
 
     if (!PyArg_ParseTuple(args, "OO", &vec1, &vec2)) {
         return NULL;
     }
-
     iterator1 = PyObject_GetIter(vec1);
     if (iterator1 == NULL) {
         return NULL;
     }
-
     iterator2 = PyObject_GetIter(vec2);
     if (iterator2 == NULL) {
         Py_DECREF(iterator1);
         return NULL;
     }
-    result = dotproduct_loop(iterator1, iterator2);
+    result = dot_product(iterator1, iterator2);
     Py_DECREF(iterator1);
     Py_DECREF(iterator2);
     return result;
