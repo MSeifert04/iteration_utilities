@@ -3,6 +3,9 @@ language: python
 os:
   - linux
 
+arch:
+  - amd64
+
 python:
   - "3.5"
   - "3.6"
@@ -17,6 +20,8 @@ matrix:
       install: CC=clang python -m pip install . --no-deps -vv
     - python: "3.8"
       install: CC=clang python -m pip install . --no-deps -vv
+    - python: "3.8"
+      arch: arm64
 
 before_install:
   - python -m pip install pip setuptools --upgrade
