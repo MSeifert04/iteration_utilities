@@ -4,6 +4,11 @@ Changelog for "iteration_utilities"
 Version 0.11.0 (unreleased)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+- Added ``empty`` as singleton representing an empty iterable.
+
+- The type of ``Placeholder`` which was previously accessible as
+  ``PlaceholderType`` private.
+
 
 Version 0.10.1 (2019-11-20)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^

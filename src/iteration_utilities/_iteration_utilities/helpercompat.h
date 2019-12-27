@@ -23,6 +23,13 @@ extern "C" {
   #endif
 #endif
 
+#if PYIU_PYPY
+  // Taken from PyObject_HEAD_INIT implementation (it's a bit hacky...)
+  #define PYIU_CREATE_SINGLETON_INSTANCE(type) { 1, 0, &type }
+#else
+  #define PYIU_CREATE_SINGLETON_INSTANCE(type) { _PyObject_EXTRA_INIT 1, &type }
+#endif
+
 #define PyIU_USE_FASTCALL PYIU_CPYTHON && PY_MAJOR_VERSION == 3 && (PY_MINOR_VERSION == 6 || PY_MINOR_VERSION == 7)
 #define PyIU_USE_VECTORCALL PYIU_CPYTHON && PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
 

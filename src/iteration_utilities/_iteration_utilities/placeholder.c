@@ -8,16 +8,20 @@
 
 PyDoc_STRVAR(
     placeholder_doc,
-    "PlaceholderType(/)\n"
+    "_PlaceholderType(/)\n"
     "--\n\n"
     "A placeholder for :py:func:`iteration_utilities.partial`. It defines the\n"
     "class for :attr:`iteration_utilities.partial._` and \n"
-    ":py:const:`iteration_utilities.Placeholder`.\n");
+    ":py:const:`iteration_utilities.Placeholder`."
+    "\n"
+    "Notes\n"
+    "-------\n"
+    "There is only one instance of this class. And this class cannot be subclassed.\n");
 
 static PyObject *
 placeholder_new(PyTypeObject *type, PyObject *args, PyObject *kwargs) {
     if (PyTuple_GET_SIZE(args) || (kwargs != NULL && PyDict_Size(kwargs))) {
-        PyErr_SetString(PyExc_TypeError, "`PlaceholderType` takes no arguments.");
+        PyErr_Format(PyExc_TypeError, "`%.200s.__new__` takes no arguments.", Placeholder_Type.tp_name);
         return NULL;
     }
     Py_INCREF(PYIU_Placeholder);
@@ -31,7 +35,7 @@ placeholder_repr(PyObject *self) {
 
 static PyObject *
 placeholder_reduce(PyObject *self, PyObject *Py_UNUSED(args)) {
-    return PyUnicode_FromString("iteration_utilities.Placeholder");
+    return Py_BuildValue("O()", Py_TYPE(self));
 }
 
 static PyMethodDef placeholder_methods[] = {
@@ -45,9 +49,9 @@ static PyMethodDef placeholder_methods[] = {
 };
 
 PyTypeObject Placeholder_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.PlaceholderType", /* tp_name */
-    (Py_ssize_t)0,                                                                      /* tp_basicsize */
-    (Py_ssize_t)0,                                                                      /* tp_itemsize */
+    PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities._iteration_utilities._PlaceholderType", /* tp_name */
+    (Py_ssize_t)0,                                                                                            /* tp_basicsize */
+    (Py_ssize_t)0,                                                                                            /* tp_itemsize */
     /* methods */
     (destructor)0,                 /* tp_dealloc */
     (printfunc)0,                  /* tp_print */
@@ -85,11 +89,4 @@ PyTypeObject Placeholder_Type = {
     (newfunc)placeholder_new,      /* tp_new */
 };
 
-PyObject PlaceholderStruct = {
-#if PYIU_CPYTHON
-    _PyObject_EXTRA_INIT 1, &Placeholder_Type
-#else
-    // Taken from PyObject_HEAD_INIT implementation...
-    1, 0, &Placeholder_Type
-#endif
-};
+PyObject PlaceholderStruct = PYIU_CREATE_SINGLETON_INSTANCE(Placeholder_Type);

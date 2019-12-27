@@ -485,22 +485,6 @@ def test_partial_has_placeholder():
     assert hasattr(partial, '_')
 
 
-def test_placeholder():
-    assert partial._ is partial._
-    assert copy.copy(partial._) is partial._
-    assert copy.deepcopy(partial._) is partial._
-    # PlaceholderType.__new__()
-    assert type(partial._)() is partial._
-    assert repr(partial._) == '_'
-
-
-def test_placeholder_new():
-    with pytest.raises(TypeError, match="`PlaceholderType` takes no arguments"):
-        type(partial._)(1)
-    with pytest.raises(TypeError, match="`PlaceholderType` takes no arguments"):
-        type(partial._)(a=1)
-
-
 def test_partial_placeholder_basic():
     p = partial(isinstance, partial._, int)
     assert p.num_placeholders == 1

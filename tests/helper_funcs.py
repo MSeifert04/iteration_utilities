@@ -6,6 +6,7 @@ This module contains callable test cases.
 import abc
 import copy
 import operator
+import pickle
 
 import pytest
 
@@ -81,6 +82,11 @@ def check_lengthhint_iteration(iterator, expected_start_lengthhint):
     assert operator.length_hint(iterator) == 0
     with pytest.raises(StopIteration):
         next(iterator)
+
+
+def round_trip_pickle(obj, protocol):
+    tmp = pickle.dumps(obj, protocol=protocol)
+    return pickle.loads(tmp)
 
 
 # Helper classes for certain fail conditions. Bundled here so the tests don't

@@ -29,6 +29,7 @@ from iteration_utilities._utils import _default, GE_PY38, GE_PY36
 from iteration_utilities import (accumulate, applyfunc,
                                  clamp,
                                  deepflatten, duplicates,
+                                 empty,
                                  flatten,
                                  getitem, grouper,
                                  insert, intersperse, itersubclasses,
@@ -141,6 +142,20 @@ class _Base:
         if step is not _default:
             kwargs['step'] = step
         return InfiniteIterable(count(**kwargs))
+
+    @staticmethod
+    def from_empty():
+        """Creates an empty :py:class:`Iterable`.
+
+        .. versionadded:: 0.11.0
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable.from_empty().as_list()
+        []
+        """
+        return Iterable(empty)
 
     @staticmethod
     def from_repeat(object, times=_default):
@@ -1046,6 +1061,7 @@ class Iterable(_Base):
     :py:meth:`~.Iterable.flatten`                       See :py:func:`~iteration_utilities.flatten`.
     :py:meth:`~.Iterable.from_applyfunc`                See :py:func:`~iteration_utilities.applyfunc`.
     :py:meth:`~.Iterable.from_count`                    See :py:func:`itertools.count`.
+    :py:meth:`~.Iterable.from_empty`                    See :py:func:`~iteration_utilities.empty`.
     :py:meth:`~.Iterable.from_iterfunc_exception`       See :py:func:`~iteration_utilities.iter_except`.
     :py:meth:`~.Iterable.from_iterfunc_sentinel`        See :py:func:`python:iter`.
     :py:meth:`~.Iterable.from_itersubclasses`           See :py:func:`~iteration_utilities.itersubclasses`.
@@ -1988,6 +2004,7 @@ class InfiniteIterable(_Base):
     :py:meth:`~.InfiniteIterable.flatten`                       See :py:func:`~iteration_utilities.flatten`.
     :py:meth:`~.InfiniteIterable.from_applyfunc`                See :py:func:`~iteration_utilities.applyfunc`.
     :py:meth:`~.InfiniteIterable.from_count`                    See :py:func:`itertools.count`.
+    :py:meth:`~.InfiniteIterable.from_empty`                    See :py:func:`~iteration_utilities.empty`.
     :py:meth:`~.InfiniteIterable.from_iterfunc_exception`       See :py:func:`~iteration_utilities.iter_except`.
     :py:meth:`~.InfiniteIterable.from_iterfunc_sentinel`        See :py:func:`python:iter`.
     :py:meth:`~.InfiniteIterable.from_itersubclasses`           See :py:func:`~iteration_utilities.itersubclasses`.

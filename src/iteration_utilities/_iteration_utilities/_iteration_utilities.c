@@ -43,6 +43,7 @@
 #include "clamp.h"
 #include "deepflatten.h"
 #include "duplicates.h"
+#include "empty.h"
 #include "grouper.h"
 #include "intersperse.h"
 #include "iterexcept.h"
@@ -314,6 +315,7 @@ PyInit__iteration_utilities(void) {
         &PyIUType_Clamp,
         &PyIUType_DeepFlatten,
         &PyIUType_Duplicates,
+        &PyIUType_Empty,
         &PyIUType_Grouper,
         &PyIUType_Intersperse,
         &PyIUType_Iterexcept,
@@ -339,13 +341,15 @@ PyInit__iteration_utilities(void) {
             char *name;
             if (PyType_Ready(typelist[i]) < 0)
                 return m;
-            name = strchr(typelist[i]->tp_name, '.');
+            name = strrchr(typelist[i]->tp_name, '.');
             assert(name != NULL);
             Py_INCREF(typelist[i]);
             PyModule_AddObject(m, name + 1, (PyObject *)typelist[i]);
         }
         Py_INCREF(PYIU_Placeholder);
         PyModule_AddObject(m, PyIU_Placeholder_name, PYIU_Placeholder);
+        Py_INCREF(PYIU_Empty);
+        PyModule_AddObject(m, PyIU_Empty_name, PYIU_Empty);
 
         if (PyDict_SetItemString(PyIUType_Partial.tp_dict, "_", PYIU_Placeholder) != 0) {
             return m;
