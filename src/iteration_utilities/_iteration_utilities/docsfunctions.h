@@ -13,6 +13,7 @@ extern "C" {
 #include <Python.h>
 
 PyDoc_STRVAR(PyIU_Placeholder_name, "Placeholder");
+PyDoc_STRVAR(PyIU_Empty_name, "empty");
 PyDoc_STRVAR(PyIU_module_name, "iteration_utilities._iteration_utilities");
 PyDoc_STRVAR(PyIU_module_doc, "This is the C extension module used by iteration_utilities.");
 
