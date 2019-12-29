@@ -346,18 +346,16 @@ static PyMethodDef nth_methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
-#define OFF(x) offsetof(PyIUObject_Nth, x)
 static PyMemberDef nth_memberlist[] = {
     {
-        "n",           /* name */
-        T_PYSSIZET,    /* type */
-        OFF(index),    /* offset */
-        READONLY,      /* flags */
-        nth_prop_n_doc /* doc */
+        "n",                             /* name */
+        T_PYSSIZET,                      /* type */
+        offsetof(PyIUObject_Nth, index), /* offset */
+        READONLY,                        /* flags */
+        nth_prop_n_doc                   /* doc */
     },
     {NULL} /* sentinel */
 };
-#undef OFF
 
 PyTypeObject PyIUType_Nth = {
     PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.nth", /* tp_name */

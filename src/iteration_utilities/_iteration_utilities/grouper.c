@@ -307,6 +307,11 @@ grouper_lengthhint(PyIUObject_Grouper *self, PyObject *Py_UNUSED(args)) {
     }
 }
 
+static PyObject *
+grouper_get_truncate(PyIUObject_Grouper *self, void *Py_UNUSED(closure)) {
+    return PyBool_FromLong(self->truncate);
+}
+
 static PyMethodDef grouper_methods[] = {
     {
         "__length_hint__",               /* ml_name */
@@ -329,32 +334,34 @@ static PyMethodDef grouper_methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
-#define OFF(x) offsetof(PyIUObject_Grouper, x)
-static PyMemberDef grouper_memberlist[] = {
+static PyGetSetDef grouper_getsetlist[] = {
     {
-        "fillvalue",               /* name */
-        T_OBJECT_EX,               /* type */
-        OFF(fillvalue),            /* offset */
-        READONLY,                  /* flags */
-        grouper_prop_fillvalue_doc /* doc */
-    },
-    {
-        "times",               /* name */
-        T_PYSSIZET,            /* type */
-        OFF(times),            /* offset */
-        READONLY,              /* flags */
-        grouper_prop_times_doc /* doc */
-    },
-    {
-        "truncate",               /* name */
-        T_BOOL,                   /* type */
-        OFF(truncate),            /* offset */
-        READONLY,                 /* flags */
-        grouper_prop_truncate_doc /* doc */
+        "truncate",                   /* name */
+        (getter)grouper_get_truncate, /* get */
+        (setter)0,                    /* set */
+        grouper_prop_truncate_doc,    /* doc */
+        (void *)NULL                  /* closure */
     },
     {NULL} /* sentinel */
 };
-#undef OFF
+
+static PyMemberDef grouper_memberlist[] = {
+    {
+        "fillvalue",                             /* name */
+        T_OBJECT_EX,                             /* type */
+        offsetof(PyIUObject_Grouper, fillvalue), /* offset */
+        READONLY,                                /* flags */
+        grouper_prop_fillvalue_doc               /* doc */
+    },
+    {
+        "times",                             /* name */
+        T_PYSSIZET,                          /* type */
+        offsetof(PyIUObject_Grouper, times), /* offset */
+        READONLY,                            /* flags */
+        grouper_prop_times_doc               /* doc */
+    },
+    {NULL} /* sentinel */
+};
 
 PyTypeObject PyIUType_Grouper = {
     PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.grouper", /* tp_name */
@@ -387,7 +394,7 @@ PyTypeObject PyIUType_Grouper = {
     (iternextfunc)grouper_next,     /* tp_iternext */
     grouper_methods,                /* tp_methods */
     grouper_memberlist,             /* tp_members */
-    0,                              /* tp_getset */
+    grouper_getsetlist,             /* tp_getset */
     0,                              /* tp_base */
     0,                              /* tp_dict */
     (descrgetfunc)0,                /* tp_descr_get */

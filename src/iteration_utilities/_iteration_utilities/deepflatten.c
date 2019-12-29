@@ -454,39 +454,37 @@ static PyMethodDef deepflatten_methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
-#define OFF(x) offsetof(PyIUObject_DeepFlatten, x)
 static PyMemberDef deepflatten_memberlist[] = {
     {
-        "types",                   /* name */
-        T_OBJECT,                  /* type */
-        OFF(types),                /* offset */
-        READONLY,                  /* flags */
-        deepflatten_prop_types_doc /* doc */
+        "types",                                 /* name */
+        T_OBJECT,                                /* type */
+        offsetof(PyIUObject_DeepFlatten, types), /* offset */
+        READONLY,                                /* flags */
+        deepflatten_prop_types_doc               /* doc */
     },
     {
-        "ignore",                   /* name */
-        T_OBJECT,                   /* type */
-        OFF(ignore),                /* offset */
-        READONLY,                   /* flags */
-        deepflatten_prop_ignore_doc /* doc */
+        "ignore",                                 /* name */
+        T_OBJECT,                                 /* type */
+        offsetof(PyIUObject_DeepFlatten, ignore), /* offset */
+        READONLY,                                 /* flags */
+        deepflatten_prop_ignore_doc               /* doc */
     },
     {
-        "depth",                   /* name */
-        T_PYSSIZET,                /* type */
-        OFF(depth),                /* offset */
-        READONLY,                  /* flags */
-        deepflatten_prop_depth_doc /* doc */
+        "depth",                                 /* name */
+        T_PYSSIZET,                              /* type */
+        offsetof(PyIUObject_DeepFlatten, depth), /* offset */
+        READONLY,                                /* flags */
+        deepflatten_prop_depth_doc               /* doc */
     },
     {
-        "currentdepth",                   /* name */
-        T_PYSSIZET,                       /* type */
-        OFF(currentdepth),                /* offset */
-        READONLY,                         /* flags */
-        deepflatten_prop_currentdepth_doc /* doc */
+        "currentdepth",                                 /* name */
+        T_PYSSIZET,                                     /* type */
+        offsetof(PyIUObject_DeepFlatten, currentdepth), /* offset */
+        READONLY,                                       /* flags */
+        deepflatten_prop_currentdepth_doc               /* doc */
     },
     {NULL} /* sentinel */
 };
-#undef OFF
 
 PyTypeObject PyIUType_DeepFlatten = {
     PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.deepflatten", /* tp_name */

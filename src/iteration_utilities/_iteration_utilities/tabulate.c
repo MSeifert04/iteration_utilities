@@ -152,25 +152,23 @@ static PyMethodDef tabulate_methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
-#define OFF(x) offsetof(PyIUObject_Tabulate, x)
 static PyMemberDef tabulate_memberlist[] = {
     {
         "func",                /* name */
         T_OBJECT,              /* type */
-        OFF(func),             /* offset */
+        offsetof(PyIUObject_Tabulate, func),             /* offset */
         READONLY,              /* flags */
         tabulate_prop_func_doc /* doc */
     },
     {
         "current",                /* name */
         T_OBJECT,                 /* type */
-        OFF(cnt),                 /* offset */
+        offsetof(PyIUObject_Tabulate, cnt),                 /* offset */
         READONLY,                 /* flags */
         tabulate_prop_current_doc /* doc */
     },
     {NULL} /* sentinel */
 };
-#undef OFF
 
 PyTypeObject PyIUType_Tabulate = {
     PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.tabulate", /* tp_name */

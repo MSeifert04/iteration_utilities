@@ -412,32 +412,30 @@ static PyMethodDef sideeffects_methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
-#define OFF(x) offsetof(PyIUObject_Sideeffects, x)
 static PyMemberDef sideeffects_memberlist[] = {
     {
-        "func",                   /* name */
-        T_OBJECT,                 /* type */
-        OFF(func),                /* offset */
-        READONLY,                 /* flags */
-        sideeffects_prop_func_doc /* doc */
+        "func",                                 /* name */
+        T_OBJECT,                               /* type */
+        offsetof(PyIUObject_Sideeffects, func), /* offset */
+        READONLY,                               /* flags */
+        sideeffects_prop_func_doc               /* doc */
     },
     {
-        "times",                   /* name */
-        T_PYSSIZET,                /* type */
-        OFF(times),                /* offset */
-        READONLY,                  /* flags */
-        sideeffects_prop_times_doc /* doc */
+        "times",                                 /* name */
+        T_PYSSIZET,                              /* type */
+        offsetof(PyIUObject_Sideeffects, times), /* offset */
+        READONLY,                                /* flags */
+        sideeffects_prop_times_doc               /* doc */
     },
     {
-        "count",                   /* name */
-        T_PYSSIZET,                /* type */
-        OFF(count),                /* offset */
-        READONLY,                  /* flags */
-        sideeffects_prop_count_doc /* doc */
+        "count",                                 /* name */
+        T_PYSSIZET,                              /* type */
+        offsetof(PyIUObject_Sideeffects, count), /* offset */
+        READONLY,                                /* flags */
+        sideeffects_prop_count_doc               /* doc */
     },
     {NULL} /* sentinel */
 };
-#undef OFF
 
 PyTypeObject PyIUType_Sideeffects = {
     PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.sideeffects", /* tp_name */

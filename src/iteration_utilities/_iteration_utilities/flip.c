@@ -181,18 +181,16 @@ static PyMethodDef flip_methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
-#define OFF(x) offsetof(PyIUObject_Flip, x)
 static PyMemberDef flip_memberlist[] = {
     {
-        "func",            /* name */
-        T_OBJECT,          /* type */
-        OFF(func),         /* offset */
-        READONLY,          /* flags */
-        flip_prop_func_doc /* doc */
+        "func",                          /* name */
+        T_OBJECT,                        /* type */
+        offsetof(PyIUObject_Flip, func), /* offset */
+        READONLY,                        /* flags */
+        flip_prop_func_doc               /* doc */
     },
     {NULL} /* sentinel */
 };
-#undef OFF
 
 PyTypeObject PyIUType_Flip = {
     PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.flip", /* tp_name */

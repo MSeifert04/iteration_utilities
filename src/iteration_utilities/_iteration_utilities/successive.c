@@ -287,18 +287,16 @@ static PyMethodDef successive_methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
-#define OFF(x) offsetof(PyIUObject_Successive, x)
 static PyMemberDef successive_memberlist[] = {
     {
-        "times",                  /* name */
-        T_PYSSIZET,               /* type */
-        OFF(times),               /* offset */
-        READONLY,                 /* flags */
-        successive_prop_times_doc /* doc */
+        "times",                                /* name */
+        T_PYSSIZET,                             /* type */
+        offsetof(PyIUObject_Successive, times), /* offset */
+        READONLY,                               /* flags */
+        successive_prop_times_doc               /* doc */
     },
     {NULL} /* sentinel */
 };
-#undef OFF
 
 PyTypeObject PyIUType_Successive = {
     PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.successive", /* tp_name */

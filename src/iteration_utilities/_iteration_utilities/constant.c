@@ -167,18 +167,16 @@ static PyMethodDef constant_methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
-#define OFF(x) offsetof(PyIUObject_Constant, x)
 static PyMemberDef constant_memberlist[] = {
     {
-        "item",                /* name */
-        T_OBJECT,              /* type */
-        OFF(item),             /* offset */
-        READONLY,              /* flags */
-        constant_prop_item_doc /* doc */
+        "item",                              /* name */
+        T_OBJECT,                            /* type */
+        offsetof(PyIUObject_Constant, item), /* offset */
+        READONLY,                            /* flags */
+        constant_prop_item_doc               /* doc */
     },
     {NULL} /* sentinel */
 };
-#undef OFF
 
 PyTypeObject PyIUType_Constant = {
     PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.constant", /* tp_name */

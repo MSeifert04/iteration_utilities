@@ -240,25 +240,23 @@ static PyMethodDef accumulate_methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
-#define OFF(x) offsetof(PyIUObject_Accumulate, x)
 static PyMemberDef accumulate_memberlist[] = {
     {
-        "func",                  /* name */
-        T_OBJECT,                /* type */
-        OFF(binop),              /* offset */
-        READONLY,                /* flags */
-        accumulate_prop_func_doc /* doc */
+        "func",                                 /* name */
+        T_OBJECT,                               /* type */
+        offsetof(PyIUObject_Accumulate, binop), /* offset */
+        READONLY,                               /* flags */
+        accumulate_prop_func_doc                /* doc */
     },
     {
-        "current",                  /* name */
-        T_OBJECT_EX,                /* type */
-        OFF(total),                 /* offset */
-        READONLY,                   /* flags */
-        accumulate_prop_current_doc /* doc */
+        "current",                              /* name */
+        T_OBJECT_EX,                            /* type */
+        offsetof(PyIUObject_Accumulate, total), /* offset */
+        READONLY,                               /* flags */
+        accumulate_prop_current_doc             /* doc */
     },
     {NULL} /* sentinel */
 };
-#undef OFF
 
 PyTypeObject PyIUType_Accumulate = {
     PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.accumulate", /* tp_name */

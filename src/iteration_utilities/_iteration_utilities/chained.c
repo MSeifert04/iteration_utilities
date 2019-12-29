@@ -400,6 +400,11 @@ chained_setstate(PyIUObject_Chained *self, PyObject *state) {
     Py_RETURN_NONE;
 }
 
+static PyObject *
+chained_get_all(PyIUObject_Chained *self, void *Py_UNUSED(closure)) {
+    return PyBool_FromLong(self->all);
+}
+
 static PyMethodDef chained_methods[] = {
     {
         "__reduce__",                /* ml_name */
@@ -416,25 +421,27 @@ static PyMethodDef chained_methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
-#define OFF(x) offsetof(PyIUObject_Chained, x)
-static PyMemberDef chained_memberlist[] = {
+static PyGetSetDef chained_getsetlist[] = {
     {
-        "funcs",               /* name */
-        T_OBJECT,              /* type */
-        OFF(funcs),            /* offset */
-        READONLY,              /* flags */
-        chained_prop_funcs_doc /* doc */
-    },
-    {
-        "all",               /* name */
-        T_BOOL,              /* type */
-        OFF(all),            /* offset */
-        READONLY,            /* flags */
-        chained_prop_all_doc /* doc */
+        "all",                   /* name */
+        (getter)chained_get_all, /* get */
+        (setter)0,               /* set */
+        chained_prop_all_doc,    /* doc */
+        (void *)NULL             /* closure */
     },
     {NULL} /* sentinel */
 };
-#undef OFF
+
+static PyMemberDef chained_memberlist[] = {
+    {
+        "funcs",                             /* name */
+        T_OBJECT,                            /* type */
+        offsetof(PyIUObject_Chained, funcs), /* offset */
+        READONLY,                            /* flags */
+        chained_prop_funcs_doc               /* doc */
+    },
+    {NULL} /* sentinel */
+};
 
 PyTypeObject PyIUType_Chained = {
     PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.chained", /* tp_name */
@@ -478,7 +485,7 @@ PyTypeObject PyIUType_Chained = {
     (iternextfunc)0,                /* tp_iternext */
     chained_methods,                /* tp_methods */
     chained_memberlist,             /* tp_members */
-    0,                              /* tp_getset */
+    chained_getsetlist,             /* tp_getset */
     0,                              /* tp_base */
     0,                              /* tp_dict */
     (descrgetfunc)0,                /* tp_descr_get */

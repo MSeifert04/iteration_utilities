@@ -159,18 +159,16 @@ static PyMethodDef starfilter_methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
-#define OFF(x) offsetof(PyIUObject_Starfilter, x)
 static PyMemberDef starfilter_memberlist[] = {
     {
-        "pred",                  /* name */
-        T_OBJECT,                /* type */
-        OFF(func),               /* offset */
-        READONLY,                /* flags */
-        starfilter_prop_pred_doc /* doc */
+        "pred",                                /* name */
+        T_OBJECT,                              /* type */
+        offsetof(PyIUObject_Starfilter, func), /* offset */
+        READONLY,                              /* flags */
+        starfilter_prop_pred_doc               /* doc */
     },
     {NULL} /* sentinel */
 };
-#undef OFF
 
 PyTypeObject PyIUType_Starfilter = {
     PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.starfilter", /* tp_name */

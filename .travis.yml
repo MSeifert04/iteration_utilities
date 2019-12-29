@@ -22,6 +22,11 @@ matrix:
       install: CC=clang python -m pip install . --no-deps -vv
     - python: "3.8"
       arch: arm64
+    - python: "3.8"
+      os: linux-ppc64le
+      arch: ppc64le
+    - python: "3.8"
+      arch: s390x
 
 before_install:
   - python -m pip install pip setuptools --upgrade

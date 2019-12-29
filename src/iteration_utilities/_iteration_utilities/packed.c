@@ -230,18 +230,16 @@ static PyMethodDef packed_methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
-#define OFF(x) offsetof(PyIUObject_Packed, x)
 static PyMemberDef packed_memberlist[] = {
     {
-        "func",              /* name */
-        T_OBJECT,            /* type */
-        OFF(func),           /* offset */
-        READONLY,            /* flags */
-        packed_prop_func_doc /* doc */
+        "func",                            /* name */
+        T_OBJECT,                          /* type */
+        offsetof(PyIUObject_Packed, func), /* offset */
+        READONLY,                          /* flags */
+        packed_prop_func_doc               /* doc */
     },
     {NULL} /* sentinel */
 };
-#undef OFF
 
 PyTypeObject PyIUType_Packed = {
     PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.packed", /* tp_name */

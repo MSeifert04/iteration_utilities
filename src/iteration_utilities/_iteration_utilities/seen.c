@@ -458,25 +458,23 @@ static PyMethodDef seen_methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
-#define OFF(x) offsetof(PyIUObject_Seen, x)
 static PyMemberDef seen_memberlist[] = {
     {
-        "seenset",            /* name */
-        T_OBJECT,             /* type */
-        OFF(seenset),         /* offset */
-        READONLY,             /* flags */
-        seen_prop_seenset_doc /* doc */
+        "seenset",                          /* name */
+        T_OBJECT,                           /* type */
+        offsetof(PyIUObject_Seen, seenset), /* offset */
+        READONLY,                           /* flags */
+        seen_prop_seenset_doc               /* doc */
     },
     {
-        "seenlist",            /* name */
-        T_OBJECT,              /* type */
-        OFF(seenlist),         /* offset */
-        READONLY,              /* flags */
-        seen_prop_seenlist_doc /* doc */
+        "seenlist",                          /* name */
+        T_OBJECT,                            /* type */
+        offsetof(PyIUObject_Seen, seenlist), /* offset */
+        READONLY,                            /* flags */
+        seen_prop_seenlist_doc               /* doc */
     },
     {NULL} /* sentinel */
 };
-#undef OFF
 
 PyTypeObject PyIUType_Seen = {
     PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.Seen", /* tp_name */
