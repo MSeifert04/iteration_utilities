@@ -220,25 +220,23 @@ static PyMethodDef uniqueever_methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
-#define OFF(x) offsetof(PyIUObject_UniqueEver, x)
 static PyMemberDef uniqueever_memberlist[] = {
     {
-        "seen",                  /* name */
-        T_OBJECT,                /* type */
-        OFF(seen),               /* offset */
-        READONLY,                /* flags */
-        uniqueever_prop_seen_doc /* doc */
+        "seen",                                /* name */
+        T_OBJECT,                              /* type */
+        offsetof(PyIUObject_UniqueEver, seen), /* offset */
+        READONLY,                              /* flags */
+        uniqueever_prop_seen_doc               /* doc */
     },
     {
-        "key",                  /* name */
-        T_OBJECT,               /* type */
-        OFF(key),               /* offset */
-        READONLY,               /* flags */
-        uniqueever_prop_key_doc /* doc */
+        "key",                                /* name */
+        T_OBJECT,                             /* type */
+        offsetof(PyIUObject_UniqueEver, key), /* offset */
+        READONLY,                             /* flags */
+        uniqueever_prop_key_doc               /* doc */
     },
     {NULL} /* sentinel */
 };
-#undef OFF
 
 PyTypeObject PyIUType_UniqueEver = {
     PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.unique_everseen", /* tp_name */

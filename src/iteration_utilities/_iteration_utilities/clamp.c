@@ -216,6 +216,16 @@ clamp_lengthhint(PyIUObject_Clamp *self, PyObject *Py_UNUSED(args)) {
     return PyLong_FromSsize_t(len);
 }
 
+static PyObject *
+clamp_get_inclusive(PyIUObject_Clamp *self, void *Py_UNUSED(closure)) {
+    return PyBool_FromLong(self->inclusive);
+}
+
+static PyObject *
+clamp_get_remove(PyIUObject_Clamp *self, void *Py_UNUSED(closure)) {
+    return PyBool_FromLong(self->remove);
+}
+
 static PyMethodDef clamp_methods[] = {
     {
         "__length_hint__",             /* ml_name */
@@ -232,39 +242,41 @@ static PyMethodDef clamp_methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
-#define OFF(x) offsetof(PyIUObject_Clamp, x)
-static PyMemberDef clamp_memberlist[] = {
+static PyGetSetDef clamp_getsetlist[] = {
     {
-        "low",             /* name */
-        T_OBJECT,          /* type */
-        OFF(low),          /* offset */
-        READONLY,          /* flags */
-        clamp_prop_low_doc /* doc */
+        "inclusive",                 /* name */
+        (getter)clamp_get_inclusive, /* get */
+        (setter)0,                   /* set */
+        clamp_prop_inclusive_doc,    /* doc */
+        (void *)NULL                 /* closure */
     },
     {
-        "high",             /* name */
-        T_OBJECT,           /* type */
-        OFF(high),          /* offset */
-        READONLY,           /* flags */
-        clamp_prop_high_doc /* doc */
-    },
-    {
-        "inclusive",             /* name */
-        T_BOOL,                  /* type */
-        OFF(inclusive),          /* offset */
-        READONLY,                /* flags */
-        clamp_prop_inclusive_doc /* doc */
-    },
-    {
-        "remove",             /* name */
-        T_BOOL,               /* type */
-        OFF(remove),          /* offset */
-        READONLY,             /* flags */
-        clamp_prop_remove_doc /* doc */
+        "remove",                 /* name */
+        (getter)clamp_get_remove, /* get */
+        (setter)0,                /* set */
+        clamp_prop_remove_doc,    /* doc */
+        (void *)NULL              /* closure */
     },
     {NULL} /* sentinel */
 };
-#undef OFF
+
+static PyMemberDef clamp_memberlist[] = {
+    {
+        "low",                           /* name */
+        T_OBJECT,                        /* type */
+        offsetof(PyIUObject_Clamp, low), /* offset */
+        READONLY,                        /* flags */
+        clamp_prop_low_doc               /* doc */
+    },
+    {
+        "high",                           /* name */
+        T_OBJECT,                         /* type */
+        offsetof(PyIUObject_Clamp, high), /* offset */
+        READONLY,                         /* flags */
+        clamp_prop_high_doc               /* doc */
+    },
+    {NULL} /* sentinel */
+};
 
 PyTypeObject PyIUType_Clamp = {
     PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.clamp", /* tp_name */
@@ -297,7 +309,7 @@ PyTypeObject PyIUType_Clamp = {
     (iternextfunc)clamp_next,       /* tp_iternext */
     clamp_methods,                  /* tp_methods */
     clamp_memberlist,               /* tp_members */
-    0,                              /* tp_getset */
+    clamp_getsetlist,               /* tp_getset */
     0,                              /* tp_base */
     0,                              /* tp_dict */
     (descrgetfunc)0,                /* tp_descr_get */

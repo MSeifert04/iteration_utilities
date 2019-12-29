@@ -202,25 +202,23 @@ static PyMethodDef uniquejust_methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
-#define OFF(x) offsetof(PyIUObject_UniqueJust, x)
 static PyMemberDef uniquejust_memberlist[] = {
     {
-        "key",                  /* name */
-        T_OBJECT,               /* type */
-        OFF(keyfunc),           /* offset */
-        READONLY,               /* flags */
-        uniquejust_prop_key_doc /* doc */
+        "key",                                    /* name */
+        T_OBJECT,                                 /* type */
+        offsetof(PyIUObject_UniqueJust, keyfunc), /* offset */
+        READONLY,                                 /* flags */
+        uniquejust_prop_key_doc                   /* doc */
     },
     {
-        "lastseen",                  /* name */
-        T_OBJECT_EX,                 /* type */
-        OFF(lastitem),               /* offset */
-        READONLY,                    /* flags */
-        uniquejust_prop_lastseen_doc /* doc */
+        "lastseen",                                /* name */
+        T_OBJECT_EX,                               /* type */
+        offsetof(PyIUObject_UniqueJust, lastitem), /* offset */
+        READONLY,                                  /* flags */
+        uniquejust_prop_lastseen_doc               /* doc */
     },
     {NULL} /* sentinel */
 };
-#undef OFF
 
 PyTypeObject PyIUType_UniqueJust = {
     PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.unique_justseen", /* tp_name */

@@ -131,25 +131,23 @@ static PyMethodDef applyfunc_methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
-#define OFF(x) offsetof(PyIUObject_Applyfunc, x)
 static PyMemberDef applyfunc_memberlist[] = {
     {
-        "func",                 /* name */
-        T_OBJECT,               /* type */
-        OFF(func),              /* offset */
-        READONLY,               /* flags */
-        applyfunc_prop_func_doc /* doc */
+        "func",                               /* name */
+        T_OBJECT,                             /* type */
+        offsetof(PyIUObject_Applyfunc, func), /* offset */
+        READONLY,                             /* flags */
+        applyfunc_prop_func_doc               /* doc */
     },
     {
-        "current",                 /* name */
-        T_OBJECT,                  /* type */
-        OFF(value),                /* offset */
-        READONLY,                  /* flags */
-        applyfunc_prop_current_doc /* doc */
+        "current",                             /* name */
+        T_OBJECT,                              /* type */
+        offsetof(PyIUObject_Applyfunc, value), /* offset */
+        READONLY,                              /* flags */
+        applyfunc_prop_current_doc             /* doc */
     },
     {NULL} /* sentinel */
 };
-#undef OFF
 
 PyTypeObject PyIUType_Applyfunc = {
     PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.applyfunc", /* tp_name */

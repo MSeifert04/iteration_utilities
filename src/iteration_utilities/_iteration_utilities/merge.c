@@ -666,6 +666,11 @@ merge_lengthhint(PyIUObject_Merge *self, PyObject *Py_UNUSED(args)) {
     return PyLong_FromSize_t(len);
 }
 
+static PyObject *
+merge_get_reverse(PyIUObject_Merge *self, void *Py_UNUSED(closure)) {
+    return PyBool_FromLong(self->reverse);
+}
+
 static PyMethodDef merge_methods[] = {
     {
         "__length_hint__",             /* ml_name */
@@ -688,25 +693,27 @@ static PyMethodDef merge_methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
-#define OFF(x) offsetof(PyIUObject_Merge, x)
-static PyMemberDef merge_memberlist[] = {
+static PyGetSetDef merge_getsetlist[] = {
     {
-        "key",             /* name */
-        T_OBJECT,          /* type */
-        OFF(keyfunc),      /* offset */
-        READONLY,          /* flags */
-        merge_prop_key_doc /* doc */
-    },
-    {
-        "reverse",             /* name */
-        T_BOOL,                /* type */
-        OFF(reverse),          /* offset */
-        READONLY,              /* flags */
-        merge_prop_reverse_doc /* doc */
+        "reverse",                 /* name */
+        (getter)merge_get_reverse, /* get */
+        (setter)0,                 /* set */
+        merge_prop_reverse_doc,    /* doc */
+        (void *)NULL               /* closure */
     },
     {NULL} /* sentinel */
 };
-#undef OFF
+
+static PyMemberDef merge_memberlist[] = {
+    {
+        "key",                               /* name */
+        T_OBJECT,                            /* type */
+        offsetof(PyIUObject_Merge, keyfunc), /* offset */
+        READONLY,                            /* flags */
+        merge_prop_key_doc                   /* doc */
+    },
+    {NULL} /* sentinel */
+};
 
 PyTypeObject PyIUType_Merge = {
     PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.merge", /* tp_name */
@@ -739,7 +746,7 @@ PyTypeObject PyIUType_Merge = {
     (iternextfunc)merge_next,       /* tp_iternext */
     merge_methods,                  /* tp_methods */
     merge_memberlist,               /* tp_members */
-    0,                              /* tp_getset */
+    merge_getsetlist,               /* tp_getset */
     0,                              /* tp_base */
     0,                              /* tp_dict */
     (descrgetfunc)0,                /* tp_descr_get */

@@ -897,39 +897,37 @@ static PyGetSetDef partial_getsetlist[] = {
 
 #endif
 
-#define OFF(x) offsetof(PyIUObject_Partial, x)
 static PyMemberDef partial_memberlist[] = {
     {
-        "func",               /* name */
-        T_OBJECT,             /* type */
-        OFF(fn),              /* offset */
-        READONLY,             /* flags */
-        partial_prop_func_doc /* doc */
+        "func",                           /* name */
+        T_OBJECT,                         /* type */
+        offsetof(PyIUObject_Partial, fn), /* offset */
+        READONLY,                         /* flags */
+        partial_prop_func_doc             /* doc */
     },
     {
-        "args",               /* name */
-        T_OBJECT,             /* type */
-        OFF(args),            /* offset */
-        READONLY,             /* flags */
-        partial_prop_args_doc /* doc */
+        "args",                             /* name */
+        T_OBJECT,                           /* type */
+        offsetof(PyIUObject_Partial, args), /* offset */
+        READONLY,                           /* flags */
+        partial_prop_args_doc               /* doc */
     },
     {
-        "keywords",               /* name */
-        T_OBJECT,                 /* type */
-        OFF(kw),                  /* offset */
-        READONLY,                 /* flags */
-        partial_prop_keywords_doc /* doc */
+        "keywords",                       /* name */
+        T_OBJECT,                         /* type */
+        offsetof(PyIUObject_Partial, kw), /* offset */
+        READONLY,                         /* flags */
+        partial_prop_keywords_doc         /* doc */
     },
     {
-        "num_placeholders",            /* name */
-        T_PYSSIZET,                    /* type */
-        OFF(numph),                    /* offset */
-        READONLY,                      /* flags */
-        partial_prop_nplaceholders_doc /* doc */
+        "num_placeholders",                  /* name */
+        T_PYSSIZET,                          /* type */
+        offsetof(PyIUObject_Partial, numph), /* offset */
+        READONLY,                            /* flags */
+        partial_prop_nplaceholders_doc       /* doc */
     },
     {NULL} /* sentinel */
 };
-#undef OFF
 
 PyTypeObject PyIUType_Partial = {
     PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.partial", /* tp_name */

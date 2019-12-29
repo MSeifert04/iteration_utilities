@@ -245,18 +245,16 @@ static PyMethodDef intersperse_methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
-#define OFF(x) offsetof(PyIUObject_Intersperse, x)
 static PyMemberDef intersperse_memberlist[] = {
     {
-        "fillvalue",                   /* name */
-        T_OBJECT,                      /* type */
-        OFF(filler),                   /* offset */
-        READONLY,                      /* flags */
-        intersperse_prop_fillvalue_doc /* doc */
+        "fillvalue",                              /* name */
+        T_OBJECT,                                 /* type */
+        offsetof(PyIUObject_Intersperse, filler), /* offset */
+        READONLY,                                 /* flags */
+        intersperse_prop_fillvalue_doc            /* doc */
     },
     {NULL} /* sentinel */
 };
-#undef OFF
 
 PyTypeObject PyIUType_Intersperse = {
     PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.intersperse", /* tp_name */

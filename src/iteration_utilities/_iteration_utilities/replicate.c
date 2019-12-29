@@ -248,32 +248,30 @@ static PyMethodDef replicate_methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
-#define OFF(x) offsetof(PyIUObject_Replicate, x)
 static PyMemberDef replicate_memberlist[] = {
     {
-        "times",                 /* name */
-        T_PYSSIZET,              /* type */
-        OFF(repeattotal),        /* offset */
-        READONLY,                /* flags */
-        replicate_prop_times_doc /* doc */
+        "times",                                     /* name */
+        T_PYSSIZET,                                  /* type */
+        offsetof(PyIUObject_Replicate, repeattotal), /* offset */
+        READONLY,                                    /* flags */
+        replicate_prop_times_doc                     /* doc */
     },
     {
-        "timescurrent",                 /* name */
-        T_PYSSIZET,                     /* type */
-        OFF(repeatcurrent),             /* offset */
-        READONLY,                       /* flags */
-        replicate_prop_timescurrent_doc /* doc */
+        "timescurrent",                                /* name */
+        T_PYSSIZET,                                    /* type */
+        offsetof(PyIUObject_Replicate, repeatcurrent), /* offset */
+        READONLY,                                      /* flags */
+        replicate_prop_timescurrent_doc                /* doc */
     },
     {
-        "current",                 /* name */
-        T_OBJECT_EX,               /* type */
-        OFF(current),              /* offset */
-        READONLY,                  /* flags */
-        replicate_prop_current_doc /* doc */
+        "current",                               /* name */
+        T_OBJECT_EX,                             /* type */
+        offsetof(PyIUObject_Replicate, current), /* offset */
+        READONLY,                                /* flags */
+        replicate_prop_current_doc               /* doc */
     },
     {NULL} /* sentinel */
 };
-#undef OFF
 
 PyTypeObject PyIUType_Replicate = {
     PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.replicate", /* tp_name */

@@ -175,32 +175,30 @@ static PyMethodDef iterexcept_methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
-#define OFF(x) offsetof(PyIUObject_Iterexcept, x)
 static PyMemberDef iterexcept_memberlist[] = {
     {
-        "func",                  /* name */
-        T_OBJECT,                /* type */
-        OFF(func),               /* offset */
-        READONLY,                /* flags */
-        iterexcept_prop_func_doc /* doc */
+        "func",                                /* name */
+        T_OBJECT,                              /* type */
+        offsetof(PyIUObject_Iterexcept, func), /* offset */
+        READONLY,                              /* flags */
+        iterexcept_prop_func_doc               /* doc */
     },
     {
-        "exception",                  /* name */
-        T_OBJECT,                     /* type */
-        OFF(except),                  /* offset */
-        READONLY,                     /* flags */
-        iterexcept_prop_exception_doc /* doc */
+        "exception",                             /* name */
+        T_OBJECT,                                /* type */
+        offsetof(PyIUObject_Iterexcept, except), /* offset */
+        READONLY,                                /* flags */
+        iterexcept_prop_exception_doc            /* doc */
     },
     {
-        "first",                  /* name */
-        T_OBJECT_EX,              /* type */
-        OFF(first),               /* offset */
-        READONLY,                 /* flags */
-        iterexcept_prop_first_doc /* doc */
+        "first",                                /* name */
+        T_OBJECT_EX,                            /* type */
+        offsetof(PyIUObject_Iterexcept, first), /* offset */
+        READONLY,                               /* flags */
+        iterexcept_prop_first_doc               /* doc */
     },
     {NULL} /* sentinel */
 };
-#undef OFF
 
 PyTypeObject PyIUType_Iterexcept = {
     PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.iter_except", /* tp_name */

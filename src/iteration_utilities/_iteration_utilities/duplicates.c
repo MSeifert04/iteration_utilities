@@ -215,25 +215,23 @@ static PyMethodDef duplicates_methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
-#define OFF(x) offsetof(PyIUObject_Duplicates, x)
 static PyMemberDef duplicates_memberlist[] = {
     {
-        "seen",                  /* name */
-        T_OBJECT,                /* type */
-        OFF(seen),               /* offset */
-        READONLY,                /* flags */
-        duplicates_prop_seen_doc /* doc */
+        "seen",                                /* name */
+        T_OBJECT,                              /* type */
+        offsetof(PyIUObject_Duplicates, seen), /* offset */
+        READONLY,                              /* flags */
+        duplicates_prop_seen_doc               /* doc */
     },
     {
-        "key",                  /* name */
-        T_OBJECT,               /* type */
-        OFF(key),               /* offset */
-        READONLY,               /* flags */
-        duplicates_prop_key_doc /* doc */
+        "key",                                /* name */
+        T_OBJECT,                             /* type */
+        offsetof(PyIUObject_Duplicates, key), /* offset */
+        READONLY,                             /* flags */
+        duplicates_prop_key_doc               /* doc */
     },
     {NULL} /* sentinel */
 };
-#undef OFF
 
 PyTypeObject PyIUType_Duplicates = {
     PyVarObject_HEAD_INIT(NULL, 0)(const char *) "iteration_utilities.duplicates", /* tp_name */
