@@ -4,6 +4,8 @@ Changelog for "iteration_utilities"
 Version 0.11.0 (unreleased)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+- Added ``always_iterable`` which wraps non-iterable inputs with an iterable.
+
 - Added ``empty`` as singleton representing an empty iterable.
 
 - The type of ``Placeholder`` which was previously accessible as

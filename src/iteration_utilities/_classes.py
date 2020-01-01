@@ -26,7 +26,7 @@ import statistics
 # This module
 from iteration_utilities._utils import _default, GE_PY38, GE_PY36
 # - generators
-from iteration_utilities import (accumulate, applyfunc,
+from iteration_utilities import (accumulate, always_iterable, applyfunc,
                                  clamp,
                                  deepflatten, duplicates,
                                  empty,
@@ -156,6 +156,31 @@ class _Base:
         []
         """
         return Iterable(empty)
+
+    @staticmethod
+    def from_maybe_iterable(obj, excluded_types=_default, empty_if_none=_default):
+        """See :py:func:`~iteration_utilities.always_iterable`.
+
+        .. versionadded:: 0.11.0
+
+        Examples
+        --------
+        >>> from iteration_utilities import Iterable
+        >>> Iterable.from_maybe_iterable([1, 2, 3]).as_list()
+        [1, 2, 3]
+
+        >>> Iterable.from_maybe_iterable(1).as_list()
+        [1]
+
+        >>> Iterable.from_maybe_iterable([1, 2, 3], excluded_types=list).as_list()
+        [[1, 2, 3]]
+
+        >>> Iterable.from_maybe_iterable(None, empty_if_none=True).as_list()
+        []
+        """
+        kwargs = {'excluded_types': excluded_types, 'empty_if_none': empty_if_none}
+        _parse_kwargs(kwargs, _default)
+        return Iterable(always_iterable(obj, **kwargs))
 
     @staticmethod
     def from_repeat(object, times=_default):

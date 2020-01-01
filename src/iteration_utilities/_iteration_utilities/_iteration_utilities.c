@@ -8,6 +8,8 @@
 #include "docsfunctions.h"
 #include "helper.h"
 
+#include "always_iterable.h"
+
 #include "exported_helper.h"
 #include "isx.h"
 #include "itemidxkey.h"
@@ -192,6 +194,12 @@ static PyMethodDef PyIU_methods[] = {
         (PyCFunction)PyIU_ReturnCalled, /* ml_meth */
         METH_O,                         /* ml_flags */
         PyIU_ReturnCalled_doc           /* ml_doc */
+    },
+    {
+        "always_iterable",                /* ml_name */
+        (PyCFunction)PyIU_AlwaysIterable, /* ml_meth */
+        METH_VARARGS | METH_KEYWORDS,     /* ml_flags */
+        PyIU_AlwaysIterable_doc           /* ml_doc */
     },
     /* Fold functions */
     {

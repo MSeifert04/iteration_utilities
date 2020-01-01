@@ -19,6 +19,7 @@ files = [
     'allequal.c',
     'allisinstance.c',
     'allmonotone.c',
+    'always_iterable.c',
     'anyisinstance.c',
     'applyfunc.c',
     'argminmax.c',
