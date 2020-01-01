@@ -85,7 +85,7 @@ grouper_new(PyTypeObject *type, PyObject *args, PyObject *kwargs) {
     Py_ssize_t times;
     int truncate = 0;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "On|Oi:grouper", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "On|Op:grouper", kwlist,
                                      &iterable, &times,
                                      &fillvalue, &truncate)) {
         return NULL;

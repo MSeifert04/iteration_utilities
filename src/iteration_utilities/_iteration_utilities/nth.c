@@ -183,7 +183,7 @@ nth_call(PyIUObject_Nth *self, PyObject *args, PyObject *kwargs) {
     Py_ssize_t idx;
     Py_ssize_t nfound = -1;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OOiii:nth.__call__", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OOppp:nth.__call__", kwlist,
                                      &iterable, &defaultitem, &func,
                                      &truthy, &retpred, &retidx)) {
         return NULL;

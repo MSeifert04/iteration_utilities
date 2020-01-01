@@ -179,7 +179,7 @@ merge_new(PyTypeObject *type, PyObject *args, PyObject *kwargs) {
     int reverse = 0;
 
     if (!PyArg_ParseTupleAndKeywords(PyIU_global_0tuple, kwargs,
-                                     "|Oi:merge", kwlist,
+                                     "|Op:merge", kwlist,
                                      &keyfunc, &reverse)) {
         return NULL;
     }

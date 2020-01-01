@@ -16,7 +16,7 @@ PyIU_Monotone(PyObject *Py_UNUSED(m), PyObject *args, PyObject *kwargs) {
     int strict = 0;
     int op;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|ii:all_monotone", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|pp:all_monotone", kwlist,
                                      &iterable, &decreasing, &strict)) {
         return NULL;
     }

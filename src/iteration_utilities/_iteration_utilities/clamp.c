@@ -98,7 +98,7 @@ clamp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs) {
     int inclusive = 0;
     int remove = 1;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OOii:clamp", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OOpp:clamp", kwlist,
                                      &iterable, &low, &high, &inclusive, &remove)) {
         return NULL;
     }
