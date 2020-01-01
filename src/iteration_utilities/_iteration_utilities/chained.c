@@ -86,7 +86,7 @@ chained_new(PyTypeObject *type, PyObject *funcs, PyObject *kwargs) {
     }
 
     if (!PyArg_ParseTupleAndKeywords(PyIU_global_0tuple, kwargs,
-                                     "|ii:chained", kwlist,
+                                     "|pp:chained", kwlist,
                                      &reverse, &all)) {
         return NULL;
     }

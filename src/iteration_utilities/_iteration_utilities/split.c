@@ -130,7 +130,7 @@ split_new(PyTypeObject *type, PyObject *args, PyObject *kwargs) {
     int keep_after = 0;
     int cmp = 0;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|niiii:split", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|npppp:split", kwlist,
                                      &iterable, &delimiter,
                                      &maxsplit, &keep_delimiter,
                                      &keep_before, &keep_after, &cmp)) {

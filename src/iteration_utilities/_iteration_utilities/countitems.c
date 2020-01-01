@@ -15,7 +15,7 @@ PyIU_Count(PyObject *Py_UNUSED(m), PyObject *args, PyObject *kwargs) {
     Py_ssize_t sum_int = 0;
     int eq = 0;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|Oi:count_items", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|Op:count_items", kwlist,
                                      &iterable, &pred, &eq)) {
         return NULL;
     }

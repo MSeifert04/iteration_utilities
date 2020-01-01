@@ -16,7 +16,7 @@ PyIU_AlwaysIterable(PyObject *Py_UNUSED(m), PyObject *args, PyObject *kwargs) {
     int wrap_iterable = 0;
     int empty_if_none = 0;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|Oi:always_iterable", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|Op:always_iterable", kwlist,
                                      &object, &excluded_types, &empty_if_none)) {
         return NULL;
     }
