@@ -1,6 +1,13 @@
 Changelog for "iteration_utilities"
 -----------------------------------
 
+Version 0.12.0 (unreleased)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Improved performance of ``ipartition`` by evaluating the predicate only once
+  per item.
+
+
 Version 0.11.0 (2020-11-19)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

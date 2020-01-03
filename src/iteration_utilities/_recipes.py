@@ -185,9 +185,10 @@ def ipartition(iterable, pred):
     iterable : iterable
         `Iterable` to partition.
 
-    pred : callable
+    pred : callable or None
         The predicate which determines the group in which the value of the
-        `iterable` belongs.
+        `iterable` belongs. If ``None`` it will use ``bool`` to determine the
+        truth-value of the items.
 
     Returns
     -------
@@ -204,8 +205,14 @@ def ipartition(iterable, pred):
     >>> [list(i) for i in ipartition(range(10), is_odd)]
     [[0, 2, 4, 6, 8], [1, 3, 5, 7, 9]]
     """
-    t1, t2 = tee(iterable)
-    return filterfalse(pred, t1), filter(pred, t2)
+    if pred is None:
+        pred = bool
+    evaluated = ((pred(item), item) for item in iterable)
+    t1, t2 = tee(evaluated)
+    return (
+        (item for p, item in t1 if not p),
+        (item for p, item in t2 if p)
+    )
 
 
 def nth_combination(iterable, r, index):
