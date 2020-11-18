@@ -3,6 +3,7 @@
  *****************************************************************************/
 
 #include "iterexcept.h"
+#include "helper.h"
 #include <structmember.h>
 #include "docs_reduce.h"
 
@@ -139,9 +140,9 @@ iterexcept_next(PyIUObject_Iterexcept *self) {
 
     /* Call the first if it's set (nulling it thereafter) or the func if not. */
     if (self->first == NULL) {
-        result = PyObject_CallObject(self->func, NULL);
+        result = PyIU_CallWithNoArgument(self->func);
     } else {
-        result = PyObject_CallObject(self->first, NULL);
+        result = PyIU_CallWithNoArgument(self->first);
         Py_CLEAR(self->first);
     }
 

@@ -167,7 +167,7 @@ def test_seen_contains_failure1():
 @_hf.skip_on_pypy_not_investigated_why
 def test_seen_contains_failure2():
     # Failure when comparing the object to the objects in the list
-    x = Seen(set(), [T(0)])
+    x = Seen(set(), [_hf.FailEqNoHash()])
     with pytest.raises(_hf.FailEqNoHash.EXC_TYP, match=_hf.FailEqNoHash.EXC_MSG):
         _hf.FailEqNoHash() in x
 
@@ -189,8 +189,8 @@ def test_seen_containsadd_failure1():
 
 
 def test_seen_containsadd_failure2():
-    # Failure when comparing the object to the objects in the list
-    x = Seen(set(), [T(0)])
+    # Failure when comparing the object to the objects in the list.
+    x = Seen(set(), [_hf.FailEqNoHash()])
     with pytest.raises(_hf.FailEqNoHash.EXC_TYP, match=_hf.FailEqNoHash.EXC_MSG):
         x.contains_add(_hf.FailEqNoHash())
 

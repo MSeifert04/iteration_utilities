@@ -272,7 +272,7 @@ sideeffects_setstate(PyIUObject_Sideeffects *self, PyObject *state) {
     Py_ssize_t count;
     PyObject *collected;
     PyObject *newcollected = NULL;
-    Py_ssize_t collected_size;
+    Py_ssize_t collected_size = 0;
 
     if (!PyTuple_Check(state)) {
         PyErr_Format(PyExc_TypeError,

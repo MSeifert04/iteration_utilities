@@ -159,8 +159,7 @@ packed_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject 
     }
     // Keyword arguments
     memcpy(stack + num_packed_args, args + 1, (num_new_args - num_packed_args) * sizeof(PyObject *));
-
-    result = _PyObject_Vectorcall(self->func, stack, num_packed_args, kwnames);
+    result = PyIU_PyObject_Vectorcall(self->func, stack, num_packed_args, kwnames);
     Py_DECREF(packed);
     if (stack != small_stack) {
         PyMem_Free(stack);
@@ -271,7 +270,11 @@ PyTypeObject PyIUType_Packed = {
     (PyBufferProcs *)0,                    /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE
 #if PyIU_USE_VECTORCALL
+    #if PyIU_USE_UNDERSCORE_VECTORCALL
         | _Py_TPFLAGS_HAVE_VECTORCALL
+    #else
+        | Py_TPFLAGS_HAVE_VECTORCALL
+    #endif
 #endif
     ,                              /* tp_flags */
     (const char *)packed_doc,      /* tp_doc */

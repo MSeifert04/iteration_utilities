@@ -106,7 +106,7 @@ flip_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *k
     Py_ssize_t n_args = n_pos_args + (kwnames == NULL ? 0 : PyTuple_GET_SIZE(kwnames));
 
     if (n_pos_args <= 1) {
-        return _PyObject_Vectorcall(self->func, args, n_pos_args, kwnames);
+        return PyIU_PyObject_Vectorcall(self->func, args, n_pos_args, kwnames);
     }
 
     if (n_args > PyIU_SMALL_ARG_STACK_SIZE) {
@@ -120,7 +120,7 @@ flip_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject *k
         stack[i] = args[j];
     }
     memcpy(stack + n_pos_args, args + n_pos_args, (n_args - n_pos_args) * sizeof(PyObject *));
-    result = _PyObject_Vectorcall(self->func, stack, n_pos_args, kwnames);
+    result = PyIU_PyObject_Vectorcall(self->func, stack, n_pos_args, kwnames);
     if (stack != small_stack) {
         PyMem_Free(stack);
     }
@@ -222,7 +222,11 @@ PyTypeObject PyIUType_Flip = {
     (PyBufferProcs *)0,                    /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE
 #if PyIU_USE_VECTORCALL
+    #if PyIU_USE_UNDERSCORE_VECTORCALL
         | _Py_TPFLAGS_HAVE_VECTORCALL
+    #else
+        | Py_TPFLAGS_HAVE_VECTORCALL
+    #endif
 #endif
     ,                            /* tp_flags */
     (const char *)flip_doc,      /* tp_doc */

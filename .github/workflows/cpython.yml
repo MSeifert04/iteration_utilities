@@ -15,14 +15,14 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        python-version: [3.5, 3.8]
+        python-version: [3.5, 3.9]
     steps:
     - name: Check out source
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
       with:
         fetch-depth: 1
     - name: Set up Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
@@ -46,22 +46,22 @@ jobs:
     timeout-minutes: 10
     steps:
     - name: Check out source
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
       with:
         fetch-depth: 1
     - name: Download Python 3.8
       run: |
-        wget https://www.python.org/ftp/python/3.8.1/Python-3.8.1.tgz -q
-        python3 ci/verify_checksum.py Python-3.8.1.tgz f215fa2f55a78de739c1787ec56b2bcd
+        wget https://www.python.org/ftp/python/3.8.6/Python-3.8.6.tgz -q
+        python3 ci/verify_checksum.py Python-3.8.6.tgz ea132d6f449766623eee886966c7d41f
     - name: Install Python 3.8
       run: |
-        tar xzf Python-3.8.1.tgz
-        cd Python-3.8.1
+        tar xzf Python-3.8.6.tgz
+        cd Python-3.8.6
         ./configure --with-pydebug
         sudo make altinstall -s -j2
     - name: Remove download
       run: |
-        sudo python3.8 -c "import os; os.remove('./Python-3.8.1.tgz'); import shutil; shutil.rmtree('./Python-3.8.1/')"
+        sudo python3.8 -c "import os; os.remove('./Python-3.8.6.tgz'); import shutil; shutil.rmtree('./Python-3.8.6/')"
     - name: Install dependencies
       run: |
         python3.8 -m pip install pip setuptools wheel --upgrade --user --no-warn-script-location
@@ -86,14 +86,14 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        python-version: [3.8]
+        python-version: [3.9]
     steps:
     - name: Check out source
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
       with:
         fetch-depth: 1
     - name: Set up Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
@@ -115,7 +115,7 @@ jobs:
       run: |
         python -m pytest tests/
     - name: Upload dist
-      uses: actions/upload-artifact@master
+      uses: actions/upload-artifact@v2
       with:
         name: py_sdist
         path: ./dist/
@@ -128,7 +128,7 @@ jobs:
         docker-image: [manylinux1_i686, manylinux2010_x86_64]  # manylinux1_x86_64 is implicit in manylinux2010_x86_64
     steps:
       - name: Check out source
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
         with:
           fetch-depth: 1
       - name: Get Docker image
@@ -151,7 +151,7 @@ jobs:
           linux32 /bin/bash -c "$(cat ./ci/build-wheels.sh)"
         if: matrix.docker-image == 'manylinux1_i686'
       - name: Upload wheels
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v2
         with:
           name: py${{ matrix.docker-image }}
           path: ./wheelhouse/
@@ -162,7 +162,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7, 3.8, 3.9]
         architecture: [x64, x86]
         exclude:
           - architecture: x86
@@ -171,11 +171,11 @@ jobs:
             os: ubuntu-latest
     steps:
     - name: Check out source
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
       with:
         fetch-depth: 1
     - name: Set up Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
         architecture: ${{ matrix.architecture }}
@@ -195,15 +195,19 @@ jobs:
     - name: Fix wheel (macOS with Python 3.6)
       if: matrix.os == 'macos-latest' && matrix.python-version == 3.6
       run: |
-        python -m delocate.cmd.delocate_wheel -w ./wheelhouse/ ./wheelhouse-tmp/iteration_utilities-0.10.1-cp36-cp36m-macosx_10_13_x86_64.whl -v
+        python -m delocate.cmd.delocate_wheel -w ./wheelhouse/ ./wheelhouse-tmp/iteration_utilities-0.11.0-cp36-cp36m-macosx_10_14_x86_64.whl -v
     - name: Fix wheel (macOS with Python 3.7)
       if: matrix.os == 'macos-latest' && matrix.python-version == 3.7
       run: |
-        python -m delocate.cmd.delocate_wheel -w ./wheelhouse/ ./wheelhouse-tmp/iteration_utilities-0.10.1-cp37-cp37m-macosx_10_13_x86_64.whl -v
+        python -m delocate.cmd.delocate_wheel -w ./wheelhouse/ ./wheelhouse-tmp/iteration_utilities-0.11.0-cp37-cp37m-macosx_10_14_x86_64.whl -v
     - name: Fix wheel (macOS with Python 3.8)
       if: matrix.os == 'macos-latest' && matrix.python-version == 3.8
       run: |
-        python -m delocate.cmd.delocate_wheel -w ./wheelhouse/ ./wheelhouse-tmp/iteration_utilities-0.10.1-cp38-cp38-macosx_10_13_x86_64.whl -v
+        python -m delocate.cmd.delocate_wheel -w ./wheelhouse/ ./wheelhouse-tmp/iteration_utilities-0.11.0-cp38-cp38-macosx_10_14_x86_64.whl -v
+    - name: Fix wheel (macOS with Python 3.9)
+      if: matrix.os == 'macos-latest' && matrix.python-version == 3.9
+      run: |
+        python -m delocate.cmd.delocate_wheel -w ./wheelhouse/ ./wheelhouse-tmp/iteration_utilities-0.11.0-cp39-cp39-macosx_10_14_x86_64.whl -v
     - name: Install package
       run: |
         python -m pip install iteration_utilities --no-index --find-links=./wheelhouse/ -vv
@@ -217,7 +221,7 @@ jobs:
       run: |
         python -m pytest tests/
     - name: Upload wheel
-      uses: actions/upload-artifact@master
+      uses: actions/upload-artifact@v2
       if: matrix.os != 'ubuntu-latest'
       with:
         name: py${{ matrix.python-version }}-${{ matrix.architecture }}-${{ matrix.os }}
@@ -231,11 +235,11 @@ jobs:
         python-version: [3.8]
     steps:
     - name: Check out source
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
       with:
         fetch-depth: 1
     - name: Set up Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
@@ -251,7 +255,7 @@ jobs:
       run: |
         sphinx-build -b html -W -a -n docs/ build/sphinx/html/
     - name: Upload documentation
-      uses: actions/upload-artifact@master
+      uses: actions/upload-artifact@v2
       with:
         name: docs
         path: ./build/sphinx/html/
@@ -261,84 +265,72 @@ jobs:
     timeout-minutes: 10
     needs: [build-docs, build, build-manylinux, build-sdist]
     steps:
-    - uses: actions/download-artifact@master
+    - uses: actions/download-artifact@v2
       with:
         name: docs
-    - uses: actions/download-artifact@master
+        path: ./docs
+    - uses: actions/download-artifact@v2
       with:
         name: py_sdist
-    - run: |
-        mv py_sdist sdist
-    - run: |
-        mkdir wheels
-    - uses: actions/download-artifact@master
+        path: ./sdist
+    - uses: actions/download-artifact@v2
       with:
         name: pymanylinux1_i686
-    - run: |
-        mv ./pymanylinux1_i686/* ./wheels
-        rmdir ./pymanylinux1_i686
-    - uses: actions/download-artifact@master
+        path: ./wheels
+    - uses: actions/download-artifact@v2
       with:
         name: pymanylinux2010_x86_64
-    - run: |
-        mv ./pymanylinux2010_x86_64/* ./wheels
-        rmdir ./pymanylinux2010_x86_64
-    - uses: actions/download-artifact@master
+        path: ./wheels
+    - uses: actions/download-artifact@v2
       with:
         name: py3.6-x64-windows-latest
-    - run: |
-        mv ./py3.6-x64-windows-latest/* ./wheels
-        rmdir ./py3.6-x64-windows-latest
-    - uses: actions/download-artifact@master
+        path: ./wheels
+    - uses: actions/download-artifact@v2
       with:
         name: py3.6-x86-windows-latest
-    - run: |
-        mv ./py3.6-x86-windows-latest/* ./wheels
-        rmdir ./py3.6-x86-windows-latest
-    - uses: actions/download-artifact@master
+        path: ./wheels
+    - uses: actions/download-artifact@v2
       with:
         name: py3.6-x64-macos-latest
-    - run: |
-        mv ./py3.6-x64-macos-latest/* ./wheels
-        rmdir ./py3.6-x64-macos-latest
-    - uses: actions/download-artifact@master
+        path: ./wheels
+    - uses: actions/download-artifact@v2
       with:
         name: py3.7-x64-windows-latest
-    - run: |
-        mv ./py3.7-x64-windows-latest/* ./wheels
-        rmdir ./py3.7-x64-windows-latest
-    - uses: actions/download-artifact@master
+        path: ./wheels
+    - uses: actions/download-artifact@v2
       with:
         name: py3.7-x86-windows-latest
-    - run: |
-        mv ./py3.7-x86-windows-latest/* ./wheels
-        rmdir ./py3.7-x86-windows-latest
-    - uses: actions/download-artifact@master
+        path: ./wheels
+    - uses: actions/download-artifact@v2
       with:
         name: py3.7-x64-macos-latest
-    - run: |
-        mv ./py3.7-x64-macos-latest/* ./wheels
-        rmdir ./py3.7-x64-macos-latest
-    - uses: actions/download-artifact@master
+        path: ./wheels
+    - uses: actions/download-artifact@v2
       with:
         name: py3.8-x64-windows-latest
-    - run: |
-        mv ./py3.8-x64-windows-latest/* ./wheels
-        rmdir ./py3.8-x64-windows-latest
-    - uses: actions/download-artifact@master
+        path: ./wheels
+    - uses: actions/download-artifact@v2
       with:
         name: py3.8-x86-windows-latest
-    - run: |
-        mv ./py3.8-x86-windows-latest/* ./wheels
-        rmdir ./py3.8-x86-windows-latest
-    - uses: actions/download-artifact@master
+        path: ./wheels
+    - uses: actions/download-artifact@v2
+      with:
+        name: py3.9-x64-windows-latest
+        path: ./wheels
+    - uses: actions/download-artifact@v2
+      with:
+        name: py3.9-x86-windows-latest
+        path: ./wheels
+    - uses: actions/download-artifact@v2
       with:
         name: py3.8-x64-macos-latest
-    - run: |
-        mv ./py3.8-x64-macos-latest/* ./wheels
-        rmdir ./py3.8-x64-macos-latest
+        path: ./wheels
+    - uses: actions/download-artifact@v2
+      with:
+        name: py3.9-x64-macos-latest
+        path: ./wheels
     - name: Upload all
-      uses: actions/upload-artifact@master
+      uses: actions/upload-artifact@v2
       with:
         name: all
         path: ./

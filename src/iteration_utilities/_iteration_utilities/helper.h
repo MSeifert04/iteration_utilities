@@ -50,15 +50,42 @@ PyIU_ErrorOccurredClearStopIteration() {
  * To support the different calling conventions across Python versions
  *****************************************************************************/
 
+#if PyIU_USE_VECTORCALL
+static inline PyObject*
+PyIU_PyObject_Vectorcall(PyObject *callable, PyObject *const *args, size_t nargsf, PyObject *kwnames) {
+    #if PyIU_USE_UNDERSCORE_VECTORCALL
+        return _PyObject_Vectorcall(callable, args, nargsf, kwnames);
+    #else
+        return PyObject_Vectorcall(callable, args, nargsf, kwnames);
+    #endif
+}
+#endif
+
+static inline PyObject*
+PyIU_CallWithNoArgument(PyObject *callable) {
+    assert(callable != NULL);
+
+    #if PyIU_USE_VECTORCALL && !PyIU_USE_UNDERSCORE_VECTORCALL
+        return PyObject_CallNoArgs(callable);
+    #else
+        /* Or maybe PyObject_CallObject ... not sure*/
+        return PyObject_CallFunctionObjArgs(callable, NULL);
+    #endif
+}
+
 static inline PyObject*
 PyIU_CallWithOneArgument(PyObject *callable, PyObject *arg1) {
     assert(callable != NULL);
     assert(arg1 != NULL);
 
     #if PyIU_USE_VECTORCALL
-        PyObject *args[1];
-        args[0] = arg1;
-        return _PyObject_Vectorcall(callable, args, 1, NULL);
+        #if PyIU_USE_UNDERSCORE_VECTORCALL
+            PyObject *args[1];
+            args[0] = arg1;
+            return _PyObject_Vectorcall(callable, args, 1, NULL);
+        #else
+            return PyObject_CallOneArg(callable, arg1);
+        #endif
     #elif PyIU_USE_FASTCALL
         PyObject *args[1];
         args[0] = arg1;
@@ -87,7 +114,7 @@ PyIU_CallWithTwoArguments(PyObject *callable, PyObject *arg1, PyObject *arg2) {
         PyObject *args[2];
         args[0] = arg1;
         args[1] = arg2;
-        return _PyObject_Vectorcall(callable, args, 2, NULL);
+        return PyIU_PyObject_Vectorcall(callable, args, 2, NULL);
     #elif PyIU_USE_FASTCALL
         PyObject *args[2];
         args[0] = arg1;

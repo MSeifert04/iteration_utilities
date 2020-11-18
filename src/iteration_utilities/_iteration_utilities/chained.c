@@ -213,7 +213,7 @@ static PyObject *
 chained_vectorcall_normal(PyIUObject_Chained *self, PyObject *const *args, size_t nargsf, PyObject *kwnames) {
     Py_ssize_t idx;
 
-    PyObject *temp = _PyObject_Vectorcall(PyTuple_GET_ITEM(self->funcs, 0), args, nargsf, kwnames);
+    PyObject *temp = PyIU_PyObject_Vectorcall(PyTuple_GET_ITEM(self->funcs, 0), args, nargsf, kwnames);
     if (temp == NULL) {
         return NULL;
     }
@@ -246,7 +246,7 @@ chained_vectorcall_all(PyIUObject_Chained *self, PyObject *const *args, size_t n
 
     for (idx = 0; idx < num_funcs; idx++) {
         PyObject *func = PyTuple_GET_ITEM(self->funcs, idx);
-        PyObject *temp = _PyObject_Vectorcall(func, args, nargsf, kwnames);
+        PyObject *temp = PyIU_PyObject_Vectorcall(func, args, nargsf, kwnames);
         PyTuple_SET_ITEM(result, idx, temp);
 
         if (temp == NULL) {
@@ -473,7 +473,11 @@ PyTypeObject PyIUType_Chained = {
     (PyBufferProcs *)0,                    /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE
 #if PyIU_USE_VECTORCALL
+    #if PyIU_USE_UNDERSCORE_VECTORCALL
         | _Py_TPFLAGS_HAVE_VECTORCALL
+    #else
+        | Py_TPFLAGS_HAVE_VECTORCALL
+    #endif
 #endif
     ,                               /* tp_flags */
     (const char *)chained_doc,      /* tp_doc */

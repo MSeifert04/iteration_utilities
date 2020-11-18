@@ -1,7 +1,7 @@
 Changelog for "iteration_utilities"
 -----------------------------------
 
-Version 0.11.0 (unreleased)
+Version 0.11.0 (2020-11-19)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - The functions implemented in C now parse boolean arguments based on their
@@ -14,6 +14,8 @@ Version 0.11.0 (unreleased)
 
 - The type of ``Placeholder`` which was previously accessible as
   ``PlaceholderType`` private.
+
+- Added Python 3.9 support.
 
 
 Version 0.10.1 (2019-11-20)
