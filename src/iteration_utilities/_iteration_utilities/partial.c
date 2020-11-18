@@ -538,8 +538,7 @@ partial_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObject
             }
         }
     }
-
-    result = _PyObject_Vectorcall(self->fn, stack, n_final_args, final_kwnames);
+    result = PyIU_PyObject_Vectorcall(self->fn, stack, n_final_args, final_kwnames);
 
 CleanUp:
     if (stack != small_stack) {
@@ -959,7 +958,11 @@ PyTypeObject PyIUType_Partial = {
     (PyBufferProcs *)0,                    /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE
 #if PyIU_USE_VECTORCALL
+    #if PyIU_USE_UNDERSCORE_VECTORCALL
         | _Py_TPFLAGS_HAVE_VECTORCALL
+    #else
+        | Py_TPFLAGS_HAVE_VECTORCALL
+    #endif
 #endif
     ,                                                      /* tp_flags */
     (const char *)partial_doc,                             /* tp_doc */

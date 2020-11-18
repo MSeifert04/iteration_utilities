@@ -3,6 +3,7 @@
  *****************************************************************************/
 
 #include "complement.h"
+#include "helper.h"
 #include <structmember.h>
 #include "docs_reduce.h"
 
@@ -98,7 +99,7 @@ complement_vectorcall(PyObject *obj, PyObject *const *args, size_t nargsf, PyObj
     int res;
 
     /* "not func(*args, **kwargs)" */
-    temp = _PyObject_Vectorcall(((PyIUObject_Complement *)obj)->func, args, nargsf, kwnames);
+    temp = PyIU_PyObject_Vectorcall(((PyIUObject_Complement *)obj)->func, args, nargsf, kwnames);
     if (temp == NULL) {
         return NULL;
     }
@@ -213,7 +214,11 @@ PyTypeObject PyIUType_Complement = {
     (PyBufferProcs *)0,                    /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE
 #if PyIU_USE_VECTORCALL
+    #if PyIU_USE_UNDERSCORE_VECTORCALL
         | _Py_TPFLAGS_HAVE_VECTORCALL
+    #else
+        | Py_TPFLAGS_HAVE_VECTORCALL
+    #endif
 #endif
     ,                                  /* tp_flags */
     (const char *)complement_doc,      /* tp_doc */

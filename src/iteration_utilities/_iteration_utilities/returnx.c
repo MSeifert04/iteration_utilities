@@ -3,6 +3,7 @@
  *****************************************************************************/
 
 #include "returnx.h"
+#include "helper.h"
 
 /******************************************************************************
  * return_identity : lambda o: o
@@ -18,7 +19,7 @@ PyIU_ReturnIdentity(PyObject *Py_UNUSED(m), PyObject *o) {
 
 PyObject *
 PyIU_ReturnCalled(PyObject *Py_UNUSED(m), PyObject *o) {
-    return PyObject_CallFunctionObjArgs(o, NULL);
+    return PyIU_CallWithNoArgument(o);
 }
 
 PyObject *

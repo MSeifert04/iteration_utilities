@@ -266,7 +266,7 @@ merge_init_current(PyIUObject_Merge *self) {
             if (tuplelength == 0) {
                 PyTuple_SET_ITEM(current, 0, newitem);
             } else {
-                int insert = PyIU_TupleBisectRight_LastFirst(
+                Py_ssize_t insert = PyIU_TupleBisectRight_LastFirst(
                     current, newitem, tuplelength, self->reverse);
                 if (insert < 0) {
                     Py_DECREF(newitem);
