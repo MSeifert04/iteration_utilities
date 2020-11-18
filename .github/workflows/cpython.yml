@@ -125,7 +125,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        docker-image: [manylinux1_i686, manylinux2010_x86_64]  # manylinux1_x86_64 is implicit in manylinux2010_x86_64
+        docker-image: [manylinux1_i686, manylinux2010_x86_64, manylinux2014_x86_64]  # manylinux1_x86_64 is implicit in manylinux2010_x86_64
     steps:
       - name: Check out source
         uses: actions/checkout@v2
@@ -141,7 +141,15 @@ jobs:
           -v $(pwd):/io \
           quay.io/pypa/${{ matrix.docker-image }} \
           /bin/bash -c "$(cat ./ci/build-wheels.sh)"
-        if: matrix.docker-image != 'manylinux1_i686'
+        if: matrix.docker-image == 'manylinux2014_x86_64'
+      - name: Build in Docker
+        run: |
+          docker run --rm \
+          -e PLAT=${{ matrix.docker-image }} \
+          -v $(pwd):/io \
+          quay.io/pypa/${{ matrix.docker-image }} \
+          /bin/bash -c "$(cat ./ci/build-wheels.sh)"
+        if: matrix.docker-image == 'manylinux2010_x86_64'
       - name: Build in Docker
         run: |
           docker run --rm \
@@ -280,6 +288,10 @@ jobs:
     - uses: actions/download-artifact@v2
       with:
         name: pymanylinux2010_x86_64
+        path: ./wheels
+    - uses: actions/download-artifact@v2
+      with:
+        name: pymanylinux2014_x86_64
         path: ./wheels
     - uses: actions/download-artifact@v2
       with:
