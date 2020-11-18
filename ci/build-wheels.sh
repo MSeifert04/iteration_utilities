@@ -18,6 +18,10 @@ set -e -x
 /opt/python/cp38-cp38/bin/pip install setuptools wheel
 /opt/python/cp38-cp38/bin/pip wheel /io/ -w wheelhouse/
 
+/opt/python/cp39-cp39/bin/pip install pip
+/opt/python/cp39-cp39/bin/pip install setuptools wheel
+/opt/python/cp39-cp39/bin/pip wheel /io/ -w wheelhouse/
+
 # Bundle external shared libraries into the wheels
 for whl in wheelhouse/*.whl; do
     auditwheel repair "$whl" --plat $PLAT -w /io/wheelhouse/
