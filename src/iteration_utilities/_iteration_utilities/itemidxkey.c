@@ -173,7 +173,7 @@ PyIU_ItemIdxKey_FromC(PyObject *item, Py_ssize_t idx, PyObject *key) {
 
 PyObject *
 PyIU_ItemIdxKey_Copy(PyObject *iik) {
-    assert(iik != NULL && PyIU_ItemIdxKey_CheckExact(iik));
+    assert(iik != NULL && PyIU_IsTypeExact(iik, &PyIUType_ItemIdxKey));
 
     PyIUObject_ItemIdxKey *o = (PyIUObject_ItemIdxKey *)iik;
     Py_INCREF(o->item);

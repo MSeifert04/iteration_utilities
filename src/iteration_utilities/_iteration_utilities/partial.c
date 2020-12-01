@@ -215,7 +215,7 @@ partial_new(PyTypeObject *type, PyObject *args, PyObject *kw) {
        (__dict__ = NULL). That means even if the dict was only accessed but
        empty!
        */
-    if (Py_TYPE(func) == &PyIUType_Partial &&
+    if (PyIU_IsTypeExact(func, &PyIUType_Partial) &&
         type == &PyIUType_Partial &&
         ((PyIUObject_Partial *)func)->dict == NULL) {
         Py_ssize_t tuplesize = PyTuple_GET_SIZE(args) - 1;

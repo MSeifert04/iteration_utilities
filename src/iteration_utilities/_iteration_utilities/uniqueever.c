@@ -191,7 +191,7 @@ uniqueever_setstate(PyIUObject_UniqueEver *self, PyObject *state) {
     /* object passed in must be an instance of Seen. Otherwise the function
        calls could result in an segmentation fault.
        */
-    if (!PyIUSeen_CheckExact(seen)) {
+    if (!PyIU_IsTypeExact(seen, &PyIUType_Seen)) {
         PyErr_Format(PyExc_TypeError,
                      "`%.200s.__setstate__` expected a `Seen` instance as "
                      "first argument in the `state`, got %.200s.",

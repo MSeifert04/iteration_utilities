@@ -522,7 +522,7 @@ merge_setstate(PyIUObject_Merge *self, PyObject *state) {
             Py_ssize_t idx;
             PyObject *iik = PyTuple_GET_ITEM(current, i);
 
-            if (!PyIU_ItemIdxKey_CheckExact(iik)) {
+            if (!PyIU_IsTypeExact(iik, &PyIUType_ItemIdxKey)) {
                 PyErr_Format(PyExc_TypeError,
                              "`%.200s.__setstate__` expected that the third "
                              "argument in the `state` contains only "

@@ -19,7 +19,6 @@ typedef struct {
 extern PyTypeObject PyIUType_ItemIdxKey;
 
 #define PyIU_ItemIdxKey_Check(o) PyObject_TypeCheck(o, &PyIUType_ItemIdxKey)
-#define PyIU_ItemIdxKey_CheckExact(o) (Py_TYPE(o) == &PyIUType_ItemIdxKey)
 
 PyObject * PyIU_ItemIdxKey_FromC(PyObject *item, Py_ssize_t idx, PyObject *key);
 PyObject * PyIU_ItemIdxKey_Copy(PyObject *iik);
