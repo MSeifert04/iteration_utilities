@@ -344,14 +344,14 @@ static int _iteration_utilities_exec(PyObject *module) {
         #endif
     }
     Py_INCREF(PYIU_Placeholder);
-    if (PyModule_AddObject(module, PyIU_Placeholder_name, PYIU_Placeholder)) {
+    if (PyModule_AddObject(module, PyIU_Placeholder_name, PYIU_Placeholder) < 0) {
         return -1;
     }
     Py_INCREF(PYIU_Empty);
     if (PyModule_AddObject(module, PyIU_Empty_name, PYIU_Empty) < 0) {
         return -1;
     }
-    if (PyDict_SetItemString(PyIUType_Partial.tp_dict, "_", PYIU_Placeholder) != 0) {
+    if (PyDict_SetItemString(PyIUType_Partial.tp_dict, "_", PYIU_Placeholder) < 0) {
         return -1;
     }
     return 0;
