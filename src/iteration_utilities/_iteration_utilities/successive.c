@@ -108,10 +108,7 @@ successive_clear(PyIUObject_Successive *self) {
 static PyObject *
 successive_next(PyIUObject_Successive *self) {
     PyObject *result = self->result;
-    PyObject *newresult;
     PyObject *item;
-    PyObject *olditem;
-    PyObject *temp = NULL;
     Py_ssize_t i;
 
     /* First call needs to create a tuple for the result. */
@@ -143,7 +140,7 @@ successive_next(PyIUObject_Successive *self) {
     /* Recycle old tuple or create a new one. */
     if (PYIU_CPYTHON && (Py_REFCNT(result) == 1)) {
         /* Remove the first item of the result. */
-        temp = PyTuple_GET_ITEM(result, 0);
+        PyObject *temp = PyTuple_GET_ITEM(result, 0);
         PyIU_TupleRemove(result, 0, self->times);
         Py_XDECREF(temp);
 
@@ -153,7 +150,7 @@ successive_next(PyIUObject_Successive *self) {
         return result;
 
     } else {
-        newresult = PyTuple_New(self->times);
+        PyObject *newresult = PyTuple_New(self->times);
         if (newresult == NULL) {
             Py_DECREF(item);
             return NULL;
@@ -161,15 +158,14 @@ successive_next(PyIUObject_Successive *self) {
 
         /* Shift all earlier items one index to the left. */
         for (i = 1; i < self->times; i++) {
-            olditem = PyTuple_GET_ITEM(result, i);
+            PyObject *olditem = PyTuple_GET_ITEM(result, i);
             Py_INCREF(olditem);
             PyTuple_SET_ITEM(newresult, i - 1, olditem);
         }
         /* Insert the new item (at the end), then replace the saved result. */
         PyTuple_SET_ITEM(newresult, self->times - 1, item);
         Py_INCREF(newresult);
-        self->result = newresult;
-        Py_DECREF(result);
+        Py_SETREF(self->result, newresult);
         return newresult;
     }
 }
