@@ -7,6 +7,12 @@ import pytest
 import iteration_utilities
 
 
+def test_ipartition_with_none_predicate():
+    f, t = iteration_utilities.ipartition([0, 1, 0, 1], pred=None)
+    assert list(f) == [0, 0]
+    assert list(t) == [1, 1]
+
+
 def test_exceptions():
     # Random product doesn't work with empty iterables
     with pytest.raises(IndexError):
