@@ -16,11 +16,12 @@ PyObject *PyIU_global_two = NULL;
 PyObject *PyIU_global_0tuple = NULL;
 
 void PyIU_InitializeConstants(void) {
-    assert(PyIU_global_zero == NULL);
-    PyIU_global_zero = PyLong_FromLong(0L);
-    PyIU_global_one = PyLong_FromLong(1L);
-    PyIU_global_two = PyLong_FromLong(2L);
-    PyIU_global_0tuple = PyTuple_New(0);
+    if (PyIU_global_zero == NULL) {
+        PyIU_global_zero = PyLong_FromLong(0L);
+        PyIU_global_one = PyLong_FromLong(1L);
+        PyIU_global_two = PyLong_FromLong(2L);
+        PyIU_global_0tuple = PyTuple_New(0);
+    }
 }
 
 /******************************************************************************

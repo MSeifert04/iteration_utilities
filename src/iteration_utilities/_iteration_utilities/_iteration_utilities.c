@@ -283,25 +283,7 @@ static PyMethodDef PyIU_methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
-/* Module definition */
-static struct PyModuleDef PyIU_module = {
-    PyModuleDef_HEAD_INIT,       /* m_base */
-    PyIU_module_name,            /* m_name */
-    PyIU_module_doc,             /* m_doc */
-    (Py_ssize_t)-1,              /* m_size */
-    (PyMethodDef *)PyIU_methods, /* m_methods */
-    NULL,                        /* m_slots or m_reload */
-    (traverseproc)NULL,          /* m_traverse */
-    (inquiry)NULL,               /* m_clear */
-    (freefunc)NULL               /* m_free */
-};
-
-/* Module initialization */
-PyMODINIT_FUNC
-PyInit__iteration_utilities(void) {
-    //Py_Initialize();
-    PyObject *m;
-
+static int _iteration_utilities_exec(PyObject *module) {
     /* Classes available in module. */
     PyTypeObject *typelist[] = {
         &PyIUType_ItemIdxKey,
@@ -337,35 +319,65 @@ PyInit__iteration_utilities(void) {
         &PyIUType_Tabulate,
         &PyIUType_UniqueEver,
         &PyIUType_UniqueJust,
-        NULL};
+        NULL };
 
-    m = PyModule_Create(&PyIU_module);
-    if (m != NULL) {
-        int i;
-        /* Add classes to the module but only use the name starting after the first
-           occurrence of ".".
-           */
-        for (i = 0; typelist[i] != NULL; i++) {
+    size_t i;
+    /* Add classes to the module but only use the name starting after the first
+        occurrence of ".".
+        */
+    for (i = 0; typelist[i] != NULL; i++) {
+        #if PyIU_USE_BUILTIN_MODULE_ADDTYPE
+            if (PyModule_AddType(module, typelist[i]) < 0) {
+                return -1;
+            }
+        #else
             char *name;
-            if (PyType_Ready(typelist[i]) < 0)
-                return m;
+            if (PyType_Ready(typelist[i]) < 0) {
+                return -1;
+            }
             name = strrchr(typelist[i]->tp_name, '.');
             assert(name != NULL);
             Py_INCREF(typelist[i]);
-            PyModule_AddObject(m, name + 1, (PyObject *)typelist[i]);
-        }
-        Py_INCREF(PYIU_Placeholder);
-        PyModule_AddObject(m, PyIU_Placeholder_name, PYIU_Placeholder);
-        Py_INCREF(PYIU_Empty);
-        PyModule_AddObject(m, PyIU_Empty_name, PYIU_Empty);
-
-        if (PyDict_SetItemString(PyIUType_Partial.tp_dict, "_", PYIU_Placeholder) != 0) {
-            return m;
-        }
-
-        /* Add pre-defined instances. */
-        PyIU_InitializeConstants();
+            if (PyModule_AddObject(module, name + 1, (PyObject *)typelist[i]) < 0) {
+                return -1;
+            }
+        #endif
     }
+    Py_INCREF(PYIU_Placeholder);
+    if (PyModule_AddObject(module, PyIU_Placeholder_name, PYIU_Placeholder)) {
+        return -1;
+    }
+    Py_INCREF(PYIU_Empty);
+    if (PyModule_AddObject(module, PyIU_Empty_name, PYIU_Empty) < 0) {
+        return -1;
+    }
+    if (PyDict_SetItemString(PyIUType_Partial.tp_dict, "_", PYIU_Placeholder) != 0) {
+        return -1;
+    }
+    return 0;
+}
 
-    return m;
+static PyModuleDef_Slot _iteration_utilities_slots[] = {
+    {Py_mod_exec, _iteration_utilities_exec},
+    {0, NULL}
+};
+
+/* Module definition */
+static struct PyModuleDef PyIU_module = {
+    PyModuleDef_HEAD_INIT,                                 /* m_base */
+    PyIU_module_name,                                      /* m_name */
+    PyIU_module_doc,                                       /* m_doc */
+    0,                                                     /* m_size */
+    (PyMethodDef *)PyIU_methods,                           /* m_methods */
+    (struct PyModuleDef_Slot*)_iteration_utilities_slots,  /* m_slots */
+    NULL,                                                  /* m_traverse */
+    NULL,                                                  /* m_clear */
+    NULL                                                   /* m_free */
+};
+
+/* Module initialization */
+PyMODINIT_FUNC
+PyInit__iteration_utilities(void) {
+    PyIU_InitializeConstants();
+    return PyModuleDef_Init(&PyIU_module);
 }
