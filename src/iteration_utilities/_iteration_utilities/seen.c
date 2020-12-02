@@ -121,7 +121,6 @@ PyDoc_STRVAR(
  *
  * Public macros:
  * - PyIUSeen_Check(PyObject*)
- * - PyIUSeen_CheckExact(PyObject*)
  *
  * Public functions:
  * - PyIUSeen_New(void) -> PyObject*
@@ -181,7 +180,7 @@ seen_new(PyTypeObject *type, PyObject *args, PyObject *kwargs) {
             return NULL;
         }
     } else {
-        if (!PyIU_Set_CheckExact(seenset)) {
+        if (!PyIU_IsTypeExact(seenset, &PySet_Type)) {
             PyErr_Format(PyExc_TypeError,
                          "`seenset` argument for `Seen` must be a set or "
                          "None, not `%.200s`.",
@@ -411,7 +410,7 @@ seen_containsnoadd_direct(PyIUObject_Seen *self, PyObject *o) {
 }
 
 int PyIUSeen_ContainsAdd(PyObject *self, PyObject *o) {
-    assert(self != NULL && PyIUSeen_CheckExact(self));
+    assert(self != NULL && PyIU_IsTypeExact(self, &PyIUType_Seen));
 
     return seen_containsadd_direct((PyIUObject_Seen *)self, o);
 }

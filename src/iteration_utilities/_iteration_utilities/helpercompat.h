@@ -35,6 +35,12 @@ extern "C" {
 #define PyIU_USE_VECTORCALL PYIU_CPYTHON && ((PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 8) || PY_MAJOR_VERSION >= 4)
 #define PyIU_USE_BUILTIN_MODULE_ADDTYPE ((PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 9) || PY_MAJOR_VERSION >= 4)
 
+#ifdef Py_IS_TYPE
+  #define PyIU_USE_BUILTIN_IS_TYPE 1
+#else
+  #define PyIU_USE_BUILTIN_IS_TYPE 0
+#endif
+
 #ifdef __cplusplus
 }
 #endif

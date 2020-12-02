@@ -18,7 +18,6 @@ typedef struct {
 extern PyTypeObject PyIUType_Seen;
 
 #define PyIUSeen_Check(o) (PyObject_TypeCheck(o, &PyIUType_Seen))
-#define PyIUSeen_CheckExact(o) (Py_TYPE(o) == &PyIUType_Seen)
 
 PyObject * PyIUSeen_New(void);
 Py_ssize_t PyIUSeen_Size(PyIUObject_Seen *self);

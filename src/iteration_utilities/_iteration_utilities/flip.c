@@ -55,7 +55,7 @@ flip_new(PyTypeObject *type, PyObject *args, PyObject *kwargs) {
        excluded from this behaviour so also check that the first argument is
        in fact "flip" and not a subclass.
        */
-    if (Py_TYPE(func) == &PyIUType_Flip && type == &PyIUType_Flip) {
+    if (PyIU_IsTypeExact(func, &PyIUType_Flip) && type == &PyIUType_Flip) {
         PyObject *ret = ((PyIUObject_Flip *)func)->func;
         Py_INCREF(ret);
         return ret;

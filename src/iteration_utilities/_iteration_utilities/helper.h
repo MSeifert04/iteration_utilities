@@ -9,8 +9,6 @@ extern "C" {
 #include <Python.h>
 #include "helpercompat.h"
 
-#define PyIU_Set_CheckExact(ob) (Py_TYPE(ob) == &PySet_Type)
-
 #define PyIU_SMALL_ARG_STACK_SIZE 5
 
 extern PyObject *PyIU_global_zero;
@@ -25,6 +23,15 @@ void PyIU_TupleInsert(PyObject *tuple, Py_ssize_t where, PyObject *v, Py_ssize_t
 void PyIU_TupleRemove(PyObject *tuple, Py_ssize_t where, Py_ssize_t num);
 PyObject *PyIU_TupleGetSlice(PyObject *tuple, Py_ssize_t num);
 void PyIU_InitializeConstants(void);
+
+static inline int
+PyIU_IsTypeExact(PyObject *obj, PyTypeObject *type) {
+    #if PyIU_USE_BUILTIN_IS_TYPE
+        return Py_IS_TYPE(obj, type);
+    #else
+        return Py_TYPE(obj) == type;
+    #endif
+}
 
 static inline PyObject**
 PyIU_AllocatePyObjectArray(Py_ssize_t num) {
