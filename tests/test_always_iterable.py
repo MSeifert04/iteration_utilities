@@ -1,7 +1,5 @@
 # Licensed under Apache License Version 2.0 - see LICENSE
 
-import operator
-
 import pytest
 
 from iteration_utilities import always_iterable

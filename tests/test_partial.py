@@ -10,7 +10,6 @@ import pytest
 
 import iteration_utilities
 from iteration_utilities import partial
-from iteration_utilities._utils import IS_PYPY
 
 import helper_funcs as _hf
 from helper_cls import T, toT
@@ -638,7 +637,7 @@ def test_partial_from_partial_basic3():
 
 
 def test_partial_from_partial_basic4():
-    # Two placeholderss, two arguments given
+    # Two placeholders, two arguments given
     p1 = partial(capture, partial._, partial._, T(3))
     p2 = partial(p1, T(1), T(2))
     assert p1.args == (partial._, partial._, T(3))
@@ -650,7 +649,7 @@ def test_partial_from_partial_basic4():
 
 
 def test_partial_from_partial_basic5():
-    # Two placeholderss, three arguments given
+    # Two placeholders, three arguments given
     p1 = partial(capture, partial._, partial._, T(3))
     p2 = partial(p1, T(1), T(2), T(4))
     assert p1.args == (partial._, partial._, T(3))
@@ -662,10 +661,10 @@ def test_partial_from_partial_basic5():
 
 
 def test_partial_with_function_that_keeps_args():
-    # A function that keeps it's args as-is was a problem with partial because
+    # A function that keeps its args as-is was a problem with partial because
     # it reused the arguments. chained is such a function (currently).
     chained = iteration_utilities.chained
-    partial(chained, partial._, str)(complex)(10) == '(10+0j)'
+    assert partial(chained, partial._, str)(complex)(10) == '(10+0j)'
 
 
 @_hf.skip_if_vectorcall_is_not_used

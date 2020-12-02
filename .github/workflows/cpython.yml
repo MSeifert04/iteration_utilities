@@ -228,6 +228,11 @@ jobs:
     - name: Run tests
       run: |
         python -m pytest tests/
+    - name: Test types using MyPy.stubtest (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        python -m pip install mypy
+        python -m mypy.stubtest iteration_utilities
     - name: Upload wheel
       uses: actions/upload-artifact@v2
       if: matrix.os != 'ubuntu-latest'

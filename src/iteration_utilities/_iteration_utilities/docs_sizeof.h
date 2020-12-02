@@ -10,7 +10,7 @@ extern "C" {
 
 PyDoc_STRVAR(
     PYIU_sizeof_doc,
-    "__sizeof__(/)\n"
+    "__sizeof__($self, /)\n"
     "--\n\n"
     "Returns size in memory, in bytes.\n");
 

@@ -60,7 +60,7 @@ def test_complement_failure1():
 
 
 def test_complement_failure2():
-    # Function raturns an object that cannot be interpreted as boolean
+    # Function returns an object that cannot be interpreted as boolean
     with pytest.raises(_hf.FailBool.EXC_TYP, match=_hf.FailBool.EXC_MSG):
         complement(lambda x: _hf.FailBool())(1)
 
