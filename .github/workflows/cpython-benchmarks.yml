@@ -1,0 +1,48 @@
+name: Benchmark (CPython)
+
+on:
+  pull_request:
+    branches:
+      - '*'
+  push:
+    branches:
+      - master
+
+
+jobs:
+  run-benchmarks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+    - name: Check out source
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+    - name: Install dependencies
+      run: |
+        python -m pip install pip setuptools wheel --upgrade
+    - name: Install package
+      run: |
+        python -m pip install .
+    - name: Install benchmark dependencies
+      run: |
+        python -m pip install simple_benchmark[optional]
+    - name: Install other packages dependencies
+      run: |
+        python -m pip install cython
+    - name: Install other packages
+      run: |
+        python -m pip install more-itertools toolz cytoolz
+    - name: Run benchmarks
+      run: |
+        python ./ci/collect_benchmarks.py
+    - name: Upload results
+      uses: actions/upload-artifact@master
+      with:
+        name: py3.9-benchmarks
+        path: ./.benchmark_results/
