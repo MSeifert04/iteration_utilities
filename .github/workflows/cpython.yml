@@ -42,44 +42,44 @@ jobs:
         python -m pytest tests/
 
   build-py38debug-ubuntu:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
     - name: Check out source
       uses: actions/checkout@v2
       with:
         fetch-depth: 1
-    - name: Download Python 3.8
+    - name: Download Python 3.9
       run: |
-        wget https://www.python.org/ftp/python/3.8.6/Python-3.8.6.tgz -q
-        python3 ci/verify_checksum.py Python-3.8.6.tgz ea132d6f449766623eee886966c7d41f
-    - name: Install Python 3.8
+        wget https://www.python.org/ftp/python/3.9.0/Python-3.9.0.tgz -q
+        python3 ci/verify_checksum.py Python-3.9.0.tgz e19e75ec81dd04de27797bf3f9d918fd
+    - name: Install Python 3.9
       run: |
-        tar xzf Python-3.8.6.tgz
-        cd Python-3.8.6
+        tar xzf Python-3.9.0.tgz
+        cd Python-3.9.0
         ./configure --with-pydebug
         sudo make altinstall -s -j2
     - name: Remove download
       run: |
-        sudo python3.8 -c "import os; os.remove('./Python-3.8.6.tgz'); import shutil; shutil.rmtree('./Python-3.8.6/')"
+        sudo python3.9 -c "import os; os.remove('./Python-3.9.0.tgz'); import shutil; shutil.rmtree('./Python-3.9.0/')"
     - name: Install dependencies
       run: |
-        python3.8 -m pip install pip setuptools wheel --upgrade --user --no-warn-script-location
+        python3.9 -m pip install pip setuptools wheel --upgrade --user --no-warn-script-location
     - name: Create wheel
       run: |
-        python3.8 -m pip wheel . --no-deps --wheel-dir=./wheelhouse/ -vv
+        python3.9 -m pip wheel . --no-deps --wheel-dir=./wheelhouse/ -vv
     - name: Install package
       run: |
-        python3.8 -m pip install iteration_utilities --no-index --find-links=./wheelhouse/ --user -vv
+        python3.9 -m pip install iteration_utilities --no-index --find-links=./wheelhouse/ --user -vv
     - name: Import package
       run: |
-        python3.8 -c "import iteration_utilities"
+        python3.9 -c "import iteration_utilities"
     - name: Install test dependencies
       run: |
-        python3.8 -m pip install pytest --user --no-warn-script-location
+        python3.9 -m pip install pytest --user --no-warn-script-location
     - name: Run tests
       run: |
-        python3.8 -m pytest tests/
+        python3.9 -m pytest tests/
 
   build-sdist:
     runs-on: ubuntu-latest

@@ -17,11 +17,11 @@ jobs:
         os: [ubuntu-latest, macos-latest]  # Windows disabled because it's not finding the C compiler ... :/
     steps:
     - name: Check out source
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
       with:
         fetch-depth: 1
     - name: Set up Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v2
       with:
         python-version: pypy3
     - name: Install dependencies
@@ -49,34 +49,34 @@ jobs:
         os: [ubuntu-16.04, macos-latest]  # Windows disabled because it's not finding the C compiler ... :/
     steps:
     - name: Check out source
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
       with:
         fetch-depth: 1
     - name: Install dependencies
       if: matrix.os == 'windows-latest'
       run: |
-        python3 -c "import urllib.request; urllib.request.urlretrieve ('https://downloads.python.org/pypy/pypy3.7-v7.3.2-win32.zip', './pypy.zip')"
+        python3 -c "import urllib.request; urllib.request.urlretrieve ('https://downloads.python.org/pypy/pypy3.7-v7.3.3-win32.zip', './pypy.zip')"
         python3 -c "import zipfile; zip_ref = zipfile.ZipFile('./pypy.zip', 'r'); zip_ref.extractall('./pypy/'); zip_ref.close()"
-        # Currently skipped but would proceed like the other ones, just a different path "pypy3.6-v7.3.2-win32/pypy3.exe"
+        # Currently skipped but would proceed like the other ones, just a different path "pypy3.6-v7.3.3-win32/pypy3.exe"
     - name: Test installation (Ubuntu)
       if: matrix.os == 'ubuntu-16.04'
       run: |
-        python3 -c "import urllib.request; urllib.request.urlretrieve ('https://downloads.python.org/pypy/pypy3.7-v7.3.2-linux64.tar.bz2', './pypy.tar.bz2')"
+        python3 -c "import urllib.request; urllib.request.urlretrieve ('https://downloads.python.org/pypy/pypy3.7-v7.3.3-linux64.tar.bz2', './pypy.tar.bz2')"
         python3 -c "import tarfile; tar = tarfile.open('./pypy.tar.bz2', 'r:bz2');tar.extractall('.'); tar.close()"
-        ./pypy3.7-v7.3.2-linux64/bin/pypy3 -m ensurepip
-        ./pypy3.7-v7.3.2-linux64/bin/pypy3 -m pip install pip setuptools --upgrade
-        ./pypy3.7-v7.3.2-linux64/bin/pypy3 -m pip install . --no-deps -vv
-        ./pypy3.7-v7.3.2-linux64/bin/pypy3 -c "import iteration_utilities"
-        ./pypy3.7-v7.3.2-linux64/bin/pypy3 -m pip install pytest
-        # ./pypy3.7-v7.3.2-linux64/bin/pypy3 -m pytest tests -v  # unfortunately runs into a segfault
+        ./pypy3.7-v7.3.3-linux64/bin/pypy3 -m ensurepip
+        ./pypy3.7-v7.3.3-linux64/bin/pypy3 -m pip install pip setuptools --upgrade
+        ./pypy3.7-v7.3.3-linux64/bin/pypy3 -m pip install . --no-deps -vv
+        ./pypy3.7-v7.3.3-linux64/bin/pypy3 -c "import iteration_utilities"
+        ./pypy3.7-v7.3.3-linux64/bin/pypy3 -m pip install pytest
+        # ./pypy3.7-v7.3.3-linux64/bin/pypy3 -m pytest tests -v  # unfortunately runs into a segfault
     - name: Test installation and test (MacOS)
       if: matrix.os == 'macOS-latest'
       run: |
-        python3 -c "import urllib.request; urllib.request.urlretrieve ('https://downloads.python.org/pypy/pypy3.7-v7.3.2-osx64.tar.bz2', './pypy.tar.bz2')"
+        python3 -c "import urllib.request; urllib.request.urlretrieve ('https://downloads.python.org/pypy/pypy3.7-v7.3.3-osx64.tar.bz2', './pypy.tar.bz2')"
         python3 -c "import tarfile; tar = tarfile.open('./pypy.tar.bz2', 'r:bz2'); tar.extractall('.'); tar.close()"
-        ./pypy3.7-v7.3.2-osx64/bin/pypy3 -m ensurepip
-        ./pypy3.7-v7.3.2-osx64/bin/pypy3 -m pip install pip setuptools --upgrade
-        ./pypy3.7-v7.3.2-osx64/bin/pypy3 -m pip install . --no-deps -vv
-        ./pypy3.7-v7.3.2-osx64/bin/pypy3 -c "import iteration_utilities"
-        ./pypy3.7-v7.3.2-osx64/bin/pypy3 -m pip install pytest
-        ./pypy3.7-v7.3.2-osx64/bin/pypy3 -m pytest tests
+        ./pypy3.7-v7.3.3-osx64/bin/pypy3 -m ensurepip
+        ./pypy3.7-v7.3.3-osx64/bin/pypy3 -m pip install pip setuptools --upgrade
+        ./pypy3.7-v7.3.3-osx64/bin/pypy3 -m pip install . --no-deps -vv
+        ./pypy3.7-v7.3.3-osx64/bin/pypy3 -c "import iteration_utilities"
+        ./pypy3.7-v7.3.3-osx64/bin/pypy3 -m pip install pytest
+        ./pypy3.7-v7.3.3-osx64/bin/pypy3 -m pytest tests
