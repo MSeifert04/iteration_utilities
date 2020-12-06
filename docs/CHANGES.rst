@@ -4,12 +4,13 @@ Changelog for "iteration_utilities"
 Version 0.12.0 (unreleased)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- Improved performance of ``ipartition`` by evaluating the predicate only once
+- Improve performance of ``ipartition`` by evaluating the predicate only once
   per item.
 
-- Added typing for most of the functionality. However this is experimental for
-  now and might have a high rate of false positives/negatives.
-  Also the classes and some of the basic functions still lack typings.
+- Add typing for most of the functionality. However this is experimental and
+  incomplete for now and might have a high rate of false positives/negatives.
+
+- Add benchmarks comparing some functions with other libraries.
 
 
 Version 0.11.0 (2020-11-19)
