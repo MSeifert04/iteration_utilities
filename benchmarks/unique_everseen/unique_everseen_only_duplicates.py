@@ -2,6 +2,7 @@ import iteration_utilities
 import toolz
 import cytoolz
 import more_itertools
+import pydash
 
 def bench_iu_unique_everseen(iterable, func=iteration_utilities.unique_everseen):
     iteration_utilities.consume(func(iterable), None)
@@ -14,6 +15,9 @@ def bench_toolz_unique(iterable, func=toolz.unique):
 
 def bench_cytoolz_unique(iterable, func=cytoolz.unique):
     iteration_utilities.consume(func(iterable), None)
+
+def bench_pd(iterable, func=pydash.uniq):
+    func(iterable)
 
 def args_list_length():
     for exponent in range(2, 18):

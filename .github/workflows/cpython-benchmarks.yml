@@ -37,7 +37,7 @@ jobs:
         python -m pip install cython
     - name: Install other packages
       run: |
-        python -m pip install more-itertools toolz cytoolz
+        python -m pip install more-itertools toolz cytoolz pydash
     - name: Run benchmarks
       run: |
         python ./ci/collect_benchmarks.py
