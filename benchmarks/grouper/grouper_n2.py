@@ -2,6 +2,7 @@ import iteration_utilities
 import more_itertools
 import toolz
 import cytoolz
+import pydash
 
 def bench_iu_grouper(iterable, func=iteration_utilities.grouper):
     iteration_utilities.consume(func(iterable, 2), None)
@@ -23,6 +24,9 @@ def bench_toolz_partition_all(iterable, func=toolz.partition_all):
 
 def bench_cytoolz_partition_all(iterable, func=cytoolz.partition_all):
     iteration_utilities.consume(func(2, iterable), None)
+
+def bench_pd(iterable, func=pydash.chunk):
+    func(iterable, 2)
 
 def args_list_length():
     for exponent in range(2, 18):
