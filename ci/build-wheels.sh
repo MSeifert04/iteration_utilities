@@ -2,10 +2,6 @@
 set -e -x
 
 # Compile wheels
-/opt/python/cp35-cp35m/bin/pip install pip
-/opt/python/cp35-cp35m/bin/pip install setuptools wheel
-/opt/python/cp35-cp35m/bin/pip wheel /io/ -w wheelhouse/
-
 /opt/python/cp36-cp36m/bin/pip install pip
 /opt/python/cp36-cp36m/bin/pip install setuptools wheel
 /opt/python/cp36-cp36m/bin/pip wheel /io/ -w wheelhouse/

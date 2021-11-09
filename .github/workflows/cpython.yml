@@ -122,15 +122,18 @@ jobs:
 
   build-manylinux:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
     strategy:
       matrix:
-        docker-image: [manylinux1_i686, manylinux2010_x86_64, manylinux2014_x86_64]  # manylinux1_x86_64 is implicit in manylinux2010_x86_64
+        docker-image: [manylinux1_i686, manylinux2010_x86_64, manylinux2014_x86_64, manylinux2014_aarch64]  # manylinux1_x86_64 is implicit in manylinux2010_x86_64
     steps:
       - name: Check out source
         uses: actions/checkout@v2
         with:
           fetch-depth: 1
+      - name: Set up QEMU
+        if: ${{ matrix.docker-image == 'manylinux2014_aarch64' }}
+        uses: docker/setup-qemu-action@v1
       - name: Get Docker image
         run: |
           docker pull quay.io/pypa/${{ matrix.docker-image }}
@@ -150,6 +153,14 @@ jobs:
           quay.io/pypa/${{ matrix.docker-image }} \
           /bin/bash -c "$(cat ./ci/build-wheels.sh)"
         if: matrix.docker-image == 'manylinux2010_x86_64'
+      - name: Build in Docker
+        run: |
+          docker run --rm \
+          -e PLAT=${{ matrix.docker-image }} \
+          -v $(pwd):/io \
+          quay.io/pypa/${{ matrix.docker-image }} \
+          /bin/bash -c "$(cat ./ci/build-wheels.sh)"
+        if: matrix.docker-image == 'manylinux2014_aarch64'
       - name: Build in Docker
         run: |
           docker run --rm \
