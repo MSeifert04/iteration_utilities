@@ -15,7 +15,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        python-version: [3.5, 3.9]
+        python-version: [3.6, '3.10']
     steps:
     - name: Check out source
       uses: actions/checkout@v2
@@ -41,7 +41,7 @@ jobs:
       run: |
         python -m pytest tests/
 
-  build-py38debug-ubuntu:
+  build-py39debug-ubuntu:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -86,7 +86,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        python-version: [3.9]
+        python-version: ['3.10']
     steps:
     - name: Check out source
       uses: actions/checkout@v2
@@ -170,7 +170,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: [3.7, 3.8, 3.9, '3.10']
         architecture: [x64, x86]
         exclude:
           - architecture: x86
@@ -200,10 +200,6 @@ jobs:
         python -m pip install delocate
         python -m pip wheel . --no-deps --wheel-dir=./wheelhouse-tmp/ -vv
         python -m delocate.cmd.delocate_listdeps ./wheelhouse-tmp/
-    - name: Fix wheel (macOS with Python 3.6)
-      if: matrix.os == 'macos-latest' && matrix.python-version == 3.6
-      run: |
-        python -m delocate.cmd.delocate_wheel -w ./wheelhouse/ ./wheelhouse-tmp/iteration_utilities-0.11.0-cp36-cp36m-macosx_10_14_x86_64.whl -v
     - name: Fix wheel (macOS with Python 3.7)
       if: matrix.os == 'macos-latest' && matrix.python-version == 3.7
       run: |
@@ -216,6 +212,10 @@ jobs:
       if: matrix.os == 'macos-latest' && matrix.python-version == 3.9
       run: |
         python -m delocate.cmd.delocate_wheel -w ./wheelhouse/ ./wheelhouse-tmp/iteration_utilities-0.11.0-cp39-cp39-macosx_10_14_x86_64.whl -v
+    - name: Fix wheel (macOS with Python 3.10)
+      if: matrix.os == 'macos-latest' && matrix.python-version == 3.10
+      run: |
+        python -m delocate.cmd.delocate_wheel -w ./wheelhouse/ ./wheelhouse-tmp/iteration_utilities-0.11.0-cp310-cp310-macosx_10_14_x86_64.whl -v
     - name: Install package
       run: |
         python -m pip install iteration_utilities --no-index --find-links=./wheelhouse/ -vv
@@ -300,18 +300,6 @@ jobs:
         path: ./wheels
     - uses: actions/download-artifact@v2
       with:
-        name: py3.6-x64-windows-latest
-        path: ./wheels
-    - uses: actions/download-artifact@v2
-      with:
-        name: py3.6-x86-windows-latest
-        path: ./wheels
-    - uses: actions/download-artifact@v2
-      with:
-        name: py3.6-x64-macos-latest
-        path: ./wheels
-    - uses: actions/download-artifact@v2
-      with:
         name: py3.7-x64-windows-latest
         path: ./wheels
     - uses: actions/download-artifact@v2
@@ -340,11 +328,23 @@ jobs:
         path: ./wheels
     - uses: actions/download-artifact@v2
       with:
+        name: py3.10-x64-windows-latest
+        path: ./wheels
+    - uses: actions/download-artifact@v2
+      with:
+        name: py3.10-x86-windows-latest
+        path: ./wheels
+    - uses: actions/download-artifact@v2
+      with:
         name: py3.8-x64-macos-latest
         path: ./wheels
     - uses: actions/download-artifact@v2
       with:
         name: py3.9-x64-macos-latest
+        path: ./wheels
+    - uses: actions/download-artifact@v2
+      with:
+        name: py3.10-x64-macos-latest
         path: ./wheels
     - name: Upload all
       uses: actions/upload-artifact@v2
