@@ -203,7 +203,7 @@ jobs:
     - name: Fix wheel (macOS with Python 3.9)
       if: matrix.os == 'macos-latest' && matrix.python-version == 3.9
       run: |
-        python -m delocate.cmd.delocate_wheel -w ./wheelhouse/ ./wheelhouse-tmp/iteration_utilities-0.12.0-cp39-cp39-macosx_10_14_x86_64.whl -v
+        python -m delocate.cmd.delocate_wheel -w ./wheelhouse/ ./wheelhouse-tmp/iteration_utilities-0.12.0-cp39-cp39-macosx_10_15_x86_64.whl -v
     - name: Fix wheel (macOS with Python 3.10)
       if: matrix.os == 'macos-latest' && matrix.python-version == 3.10
       run: |
