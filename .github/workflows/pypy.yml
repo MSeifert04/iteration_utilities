@@ -60,14 +60,14 @@ jobs:
     - name: Test installation (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
       run: |
-        python3 -c "import urllib.request; urllib.request.urlretrieve ('https://downloads.python.org/pypy/pypy3.9-v7.3.8-linux64.tar.bz2', './pypy.tar.bz2')"
+        python3 -c "import urllib.request; urllib.request.urlretrieve ('https://downloads.python.org/pypy/pypy3.8-v7.3.8-linux64.tar.bz2', './pypy.tar.bz2')"
         python3 -c "import tarfile; tar = tarfile.open('./pypy.tar.bz2', 'r:bz2');tar.extractall('.'); tar.close()"
-        ./pypy3.9-v7.3.8-linux64/bin/pypy3 -m ensurepip
-        ./pypy3.9-v7.3.8-linux64/bin/pypy3 -m pip install pip setuptools --upgrade
-        ./pypy3.9-v7.3.8-linux64/bin/pypy3 -m pip install . --no-deps -vv
-        ./pypy3.9-v7.3.8-linux64/bin/pypy3 -c "import iteration_utilities"
-        ./pypy3.9-v7.3.8-linux64/bin/pypy3 -m pip install pytest
-        ./pypy3.9-v7.3.8-linux64/bin/pypy3 -m pytest tests -v
+        ./pypy3.8-v7.3.8-linux64/bin/pypy3 -m ensurepip
+        ./pypy3.8-v7.3.8-linux64/bin/pypy3 -m pip install pip setuptools --upgrade
+        ./pypy3.8-v7.3.8-linux64/bin/pypy3 -m pip install . --no-deps -vv
+        ./pypy3.8-v7.3.8-linux64/bin/pypy3 -c "import iteration_utilities"
+        ./pypy3.8-v7.3.8-linux64/bin/pypy3 -m pip install pytest
+        ./pypy3.8-v7.3.8-linux64/bin/pypy3 -m pytest tests -v
     - name: Test installation and test (MacOS)
       if: matrix.os == 'macOS-latest'
       run: |
