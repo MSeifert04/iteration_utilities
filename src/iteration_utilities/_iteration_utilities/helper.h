@@ -75,7 +75,7 @@ PyIU_CallWithNoArgument(PyObject *callable) {
     #if PyIU_USE_VECTORCALL && !PyIU_USE_UNDERSCORE_VECTORCALL
         return PyObject_CallNoArgs(callable);
     #else
-        /* Or maybe PyObject_CallObject ... not sure*/
+        /* Or maybe PyObject_CallObject ... not sure */
         return PyObject_CallFunctionObjArgs(callable, NULL);
     #endif
 }
