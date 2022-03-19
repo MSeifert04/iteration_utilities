@@ -140,7 +140,7 @@ jobs:
           -e PLAT=${{ matrix.docker-image }} \
           -v $(pwd):/io \
           quay.io/pypa/${{ matrix.docker-image }} \
-          /bin/bash -c "$(cat ./ci/build-wheels.sh)"
+          /bin/bash -c "$(cat ./ci/build-wheels-manylinux2014.sh)"
         if: matrix.docker-image == 'manylinux2014_x86_64'
       - name: Build in Docker
         run: |
@@ -148,7 +148,7 @@ jobs:
           -e PLAT=${{ matrix.docker-image }} \
           -v $(pwd):/io \
           quay.io/pypa/${{ matrix.docker-image }} \
-          /bin/bash -c "$(cat ./ci/build-wheels.sh)"
+          /bin/bash -c "$(cat ./ci/build-wheels-manylinux2010.sh)"
         if: matrix.docker-image == 'manylinux2010_x86_64'
       - name: Build in Docker
         run: |
@@ -156,7 +156,7 @@ jobs:
           -e PLAT=${{ matrix.docker-image }} \
           -v $(pwd):/io \
           quay.io/pypa/${{ matrix.docker-image }} \
-          linux32 /bin/bash -c "$(cat ./ci/build-wheels.sh)"
+          linux32 /bin/bash -c "$(cat ./ci/build-wheels-manylinux1.sh)"
         if: matrix.docker-image == 'manylinux1_i686'
       - name: Upload wheels
         uses: actions/upload-artifact@v2
