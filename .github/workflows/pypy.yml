@@ -14,7 +14,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]  # Windows disabled because it's not finding the C compiler ... :/
+        os: [ubuntu-latest]  # Windows disabled because it's not finding the C compiler ... :/
     steps:
     - name: Check out source
       uses: actions/checkout@v2
@@ -37,7 +37,6 @@ jobs:
       run: |
         pypy3 -m pip install pytest
     - name: Run tests (only MacOS)
-      if: matrix.os == 'macOS-latest'  # unfortunately runs into a segfault on Linux
       run: |
         pypy3 -m pytest tests/ -v
 
@@ -46,7 +45,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        os: [ubuntu-16.04, macos-latest]  # Windows disabled because it's not finding the C compiler ... :/
+        os: [ubuntu-latest]
     steps:
     - name: Check out source
       uses: actions/checkout@v2
@@ -59,16 +58,16 @@ jobs:
         python3 -c "import zipfile; zip_ref = zipfile.ZipFile('./pypy.zip', 'r'); zip_ref.extractall('./pypy/'); zip_ref.close()"
         # Currently skipped but would proceed like the other ones, just a different path "pypy3.6-v7.3.3-win32/pypy3.exe"
     - name: Test installation (Ubuntu)
-      if: matrix.os == 'ubuntu-16.04'
+      if: matrix.os == 'ubuntu-latest'
       run: |
-        python3 -c "import urllib.request; urllib.request.urlretrieve ('https://downloads.python.org/pypy/pypy3.7-v7.3.3-linux64.tar.bz2', './pypy.tar.bz2')"
+        python3 -c "import urllib.request; urllib.request.urlretrieve ('https://downloads.python.org/pypy/pypy3.9-v7.3.8-linux64.tar.bz2', './pypy.tar.bz2')"
         python3 -c "import tarfile; tar = tarfile.open('./pypy.tar.bz2', 'r:bz2');tar.extractall('.'); tar.close()"
-        ./pypy3.7-v7.3.3-linux64/bin/pypy3 -m ensurepip
-        ./pypy3.7-v7.3.3-linux64/bin/pypy3 -m pip install pip setuptools --upgrade
-        ./pypy3.7-v7.3.3-linux64/bin/pypy3 -m pip install . --no-deps -vv
-        ./pypy3.7-v7.3.3-linux64/bin/pypy3 -c "import iteration_utilities"
-        ./pypy3.7-v7.3.3-linux64/bin/pypy3 -m pip install pytest
-        # ./pypy3.7-v7.3.3-linux64/bin/pypy3 -m pytest tests -v  # unfortunately runs into a segfault
+        ./pypy3.9-v7.3.8-linux64/bin/pypy3 -m ensurepip
+        ./pypy3.9-v7.3.8-linux64/bin/pypy3 -m pip install pip setuptools --upgrade
+        ./pypy3.9-v7.3.8-linux64/bin/pypy3 -m pip install . --no-deps -vv
+        ./pypy3.9-v7.3.8-linux64/bin/pypy3 -c "import iteration_utilities"
+        ./pypy3.9-v7.3.8-linux64/bin/pypy3 -m pip install pytest
+        ./pypy3.9-v7.3.8-linux64/bin/pypy3 -m pytest tests -v
     - name: Test installation and test (MacOS)
       if: matrix.os == 'macOS-latest'
       run: |
