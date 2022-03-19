@@ -125,7 +125,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        docker-image: [manylinux1_i686, manylinux2010_x86_64, manylinux2014_x86_64]  # manylinux1_x86_64 is implicit in manylinux2010_x86_64
+        docker-image: [manylinux2010_x86_64, manylinux2014_x86_64]
     steps:
       - name: Check out source
         uses: actions/checkout@v2
@@ -140,7 +140,7 @@ jobs:
           -e PLAT=${{ matrix.docker-image }} \
           -v $(pwd):/io \
           quay.io/pypa/${{ matrix.docker-image }} \
-          /bin/bash -c "$(cat ./ci/build-wheels-manylinux2014.sh)"
+          /bin/bash -c "$(cat ./ci/build-wheels.sh)"
         if: matrix.docker-image == 'manylinux2014_x86_64'
       - name: Build in Docker
         run: |
@@ -148,16 +148,8 @@ jobs:
           -e PLAT=${{ matrix.docker-image }} \
           -v $(pwd):/io \
           quay.io/pypa/${{ matrix.docker-image }} \
-          /bin/bash -c "$(cat ./ci/build-wheels-manylinux2010.sh)"
+          /bin/bash -c "$(cat ./ci/build-wheels.sh)"
         if: matrix.docker-image == 'manylinux2010_x86_64'
-      - name: Build in Docker
-        run: |
-          docker run --rm \
-          -e PLAT=${{ matrix.docker-image }} \
-          -v $(pwd):/io \
-          quay.io/pypa/${{ matrix.docker-image }} \
-          linux32 /bin/bash -c "$(cat ./ci/build-wheels-manylinux1.sh)"
-        if: matrix.docker-image == 'manylinux1_i686'
       - name: Upload wheels
         uses: actions/upload-artifact@v2
         with:
@@ -228,11 +220,6 @@ jobs:
     - name: Run tests
       run: |
         python -m pytest tests/
-    - name: Test types using MyPy.stubtest (Ubuntu)
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        python -m pip install mypy
-        python -m mypy.stubtest iteration_utilities
     - name: Upload wheel
       uses: actions/upload-artifact@v2
       if: matrix.os != 'ubuntu-latest'
@@ -286,10 +273,6 @@ jobs:
       with:
         name: py_sdist
         path: ./sdist
-    - uses: actions/download-artifact@v2
-      with:
-        name: pymanylinux1_i686
-        path: ./wheels
     - uses: actions/download-artifact@v2
       with:
         name: pymanylinux2010_x86_64

@@ -18,9 +18,9 @@ set -e -x
 /opt/python/cp39-cp39/bin/pip install setuptools wheel
 /opt/python/cp39-cp39/bin/pip wheel /io/ -w wheelhouse/
 
-/opt/python/cp310-cp310m/bin/pip install pip
-/opt/python/cp310-cp310m/bin/pip install setuptools wheel
-/opt/python/cp310-cp310m/bin/pip wheel /io/ -w wheelhouse/
+/opt/python/cp310-cp310/bin/pip install pip
+/opt/python/cp310-cp310/bin/pip install setuptools wheel
+/opt/python/cp310-cp310/bin/pip wheel /io/ -w wheelhouse/
 
 # Bundle external shared libraries into the wheels
 for whl in wheelhouse/*.whl; do
