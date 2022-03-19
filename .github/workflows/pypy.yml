@@ -23,22 +23,22 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: pypy3
+        python-version: pypy3.9
     - name: Install dependencies
       run: |
-        pypy3 -m pip install pip setuptools --upgrade
+        pypy3.9 -m pip install pip setuptools --upgrade
     - name: Install package
       run: |
-        pypy3 -m pip install . --no-deps -vv
+        pypy3.9 -m pip install . --no-deps -vv
     - name: Import package
       run: |
-        pypy3 -c "import iteration_utilities"
+        pypy3.9 -c "import iteration_utilities"
     - name: Install test dependencies
       run: |
-        pypy3 -m pip install pytest
+        pypy3.9 -m pip install pytest
     - name: Run tests (only MacOS)
       run: |
-        pypy3 -m pytest tests/ -v
+        pypy3.9 -m pytest tests/ -v
 
   build-pypy-7-3-2:
     runs-on: ${{ matrix.os }}
