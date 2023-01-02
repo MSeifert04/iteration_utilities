@@ -84,7 +84,7 @@ pygments_style = 'sphinx'
 
 # -- Options for internationalization -----------------------------------------
 
-language = None
+language = 'en'
 # locale_dirs
 # gettext_compact
 # gettext_uuid
