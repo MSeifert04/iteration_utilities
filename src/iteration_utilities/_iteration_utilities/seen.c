@@ -55,15 +55,15 @@ PyDoc_STRVAR(
     "    False\n"
     "    >>> x.contains_add(2)\n"
     "    True\n"
-    "    >>> x  # doctest: +SKIP\n"
+    "    >>> x\n"
     "    iteration_utilities.Seen({2})\n"
     "    \n"
     "    >>> x.contains_add([1, 2])\n"
     "    False\n"
     "    >>> [1, 2] in x\n"
     "    True\n"
-    "    >>> x  # doctest: +SKIP\n"
-    "    iteration_utilities.Seen({2}, unhashable=[[1, 2]])\n"
+    "    >>> x\n"
+    "    iteration_utilities.Seen({2}, seenlist=[[1, 2]])\n"
     "\n"
     "This class does only support :py:meth:`in <.__contains__>`, \n"
     ":py:meth:`== <.__eq__>`, :py:meth:`\\!= <.__ne__>` and \n"
@@ -106,7 +106,7 @@ PyDoc_STRVAR(
     "    True\n"
     "    >>> x.contains_add(10)\n"
     "    True\n"
-    "    >>> x  #doctest: +SKIP\n"
+    "    >>> x\n"
     "    iteration_utilities.Seen({10})\n");
 
 /******************************************************************************

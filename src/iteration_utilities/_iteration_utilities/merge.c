@@ -25,7 +25,7 @@ PyDoc_STRVAR(
 
 PyDoc_STRVAR(
     merge_doc,
-    "merge(*iterables, /, key=None, reverse=False)\n"
+    "merge(*iterables, key=None, reverse=False)\n"
     "--\n\n"
     "Merge several sorted `iterables` into one.\n"
     "\n"

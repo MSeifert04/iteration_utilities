@@ -24,7 +24,7 @@ from operator import length_hint
 import statistics
 
 # This module
-from iteration_utilities._utils import _default, GE_PY38, GE_PY36
+from iteration_utilities._utils import _default
 # - generators
 from iteration_utilities import (accumulate, always_iterable, applyfunc,
                                  clamp,
@@ -316,10 +316,9 @@ class _Base:
         >>> Iterable.from_repeatfunc(int, times=10).as_list()
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-        >>> import random  # doctest: +SKIP
+        >>> import random
         >>> # Something more useful: Creating 10 random integer
-        >>> Iterable.from_repeatfunc(random.randint, 0, 5,
-        ...                          times=10).as_list()  # doctest: +SKIP
+        >>> Iterable.from_repeatfunc(random.randint, 0, 5, times=10).as_list()  # doctest: +SKIP
         [1, 3, 1, 3, 5, 2, 4, 1, 0, 1]
 
         .. warning::
@@ -1236,7 +1235,7 @@ class Iterable(_Base):
 
         >>> # But also some less common ones, like OrderedDict
         >>> Iterable(range(6)).enumerate(4).as_ordereddict()
-        OrderedDict([(4, 0), (5, 1), (6, 2), (7, 3), (8, 4), (9, 5)])
+        OrderedDict({4: 0, 5: 1, 6: 2, 7: 3, 8: 4, 9: 5})
 
     .. warning::
        these latter methods are (obviously) not available for
@@ -1329,7 +1328,7 @@ class Iterable(_Base):
         --------
         >>> from iteration_utilities import Iterable
         >>> Iterable(range(3, 6)).enumerate().as_ordereddict()
-        OrderedDict([(0, 3), (1, 4), (2, 5)])
+        OrderedDict({0: 3, 1: 4, 2: 5})
         """
         return self.as_(OrderedDict)
 
@@ -1339,10 +1338,8 @@ class Iterable(_Base):
         Examples
         --------
         >>> from iteration_utilities import Iterable
-        >>> Iterable('supercalifragilisticexpialidocious').as_counter()  \
-# doctest: +SKIP
-        Counter({'i': 7, 's': 3, 'l': 3, 'c': 3, 'a': 3, 'e': 2, 'o': 2, \
-'p': 2, 'r': 2, 'u': 2, 'd': 1, 'g': 1, 'f': 1, 'x': 1, 't': 1})
+        >>> Iterable('supercalifragilisticexpialidocious').as_counter()
+        Counter({'i': 7, 's': 3, 'c': 3, 'a': 3, 'l': 3, 'u': 2, 'p': 2, 'e': 2, 'r': 2, 'o': 2, 'f': 1, 'g': 1, 't': 1, 'x': 1, 'd': 1})
 
         >>> Iterable([1, 1, 1]).as_counter()
         Counter({1: 3})
