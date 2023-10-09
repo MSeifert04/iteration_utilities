@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "iteration_utilities"
+version = "0.11.0"
+description = "Utilities based on Pythons iterators and generators."
+readme = "README.rst"
+requires-python = ">=3.7"
+authors = [
+    {name = "Michael Seifert", email = "michaelseifert04@yahoo.de"},
+]
+license = {text = "Apache License Version 2.0"}
+
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Utilities",
+]
+keywords = ["functional", "functools", "generator", "itertools", "iteration", "iterator", "operators", "performance", "reduce", "utility"]
+
+[project.urls]
+Homepage = "https://github.com/MSeifert04/iteration_utilities"
+Documentation = "https://iteration-utilities.readthedocs.io/en/latest/"
+Repository = "https://github.com/MSeifert04/iteration_utilities.git"
+Changelog = "https://github.com/MSeifert04/iteration_utilities/blob/master/docs/CHANGES.rst"
+
+[project.optional-dependencies]
+test = ["pytest"]
+documentation = ["sphinx", "numpydoc",]
+
+[tool.pytest.ini_options]
+addopts = "--doctest-glob='docs/*.rst' --ignore='setup.py'"
+testpaths = [
+    "tests",
+    "docs"
+]
+
+[tool.coverage.run]
+branch = true
+omit = [
+    "setup.py",
+    "tests/*",
+    "*_iteration_utilities*"
+]
+
+[tool.coverage.report]
+show_missing = true
+precision = "2"

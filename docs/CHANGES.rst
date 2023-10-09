@@ -11,6 +11,11 @@ Version 0.12.0 (unreleased)
 
 - Python 3.12 compatibility
 
+- Dropped Python 3.5 and 3.6 compatibility.
+
+- The top level ``__version__`` property was removed. ``importlib.metadata.version`` from the
+  Python standard library should be used if you need the version of ``iteration_utilities``.
+
 
 Version 0.11.0 (2020-11-19)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
