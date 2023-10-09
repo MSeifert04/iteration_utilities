@@ -22,7 +22,7 @@ PyDoc_STRVAR(
 
 PyDoc_STRVAR(
     chained_doc,
-    "chained(*funcs, /, reverse=False, all=False)\n"
+    "chained(*funcs, reverse=False, all=False)\n"
     "--\n\n"
     "Chained function calls.\n"
     "\n"

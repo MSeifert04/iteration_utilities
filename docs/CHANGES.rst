@@ -12,6 +12,8 @@ Version 0.12.0 (unreleased)
 
 - Add benchmarks comparing some functions with other libraries.
 
+- Python 3.12 compatibility
+
 
 Version 0.11.0 (2020-11-19)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^

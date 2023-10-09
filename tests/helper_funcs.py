@@ -11,7 +11,7 @@ import pickle
 import pytest
 
 import iteration_utilities
-from iteration_utilities._utils import IS_PYPY, USES_VECTORCALL
+from iteration_utilities._utils import IS_CPYTHON_PY_3_12, IS_PYPY, USES_VECTORCALL
 
 from helper_cls import T
 
@@ -51,6 +51,12 @@ def skip_if_vectorcall_is_not_used(func):
     """
     return _skipif_wrapper(func, not USES_VECTORCALL,
                            reason='pickle does not work with vectorcall')
+
+
+def skip_if_not_latest_python(func):
+    """If the tests are specifically targeted to the latest Python version
+    """
+    return _skipif_wrapper(func, not IS_CPYTHON_PY_3_12, reason='requires the latest Python version')
 
 
 def iterator_copy(thing):
