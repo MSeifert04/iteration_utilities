@@ -29,13 +29,13 @@ jobs:
         python -m pip install pip setuptools --upgrade
     - name: Install package
       run: |
-        CFLAGS="-coverage" python setup.py install # TODO: Check if there's a way with pip install
+        CFLAGS="-coverage" python -m pip install .
     - name: Install test dependencies
       run: |
         python -m pip install pytest pytest-cov
     - name: Run tests
       run: |
-        python -m pytest tests/ --cov=iteration_utilities --cov-report=xml --cov-config=./setup.cfg
+        python -m pytest tests/ --cov=iteration_utilities --cov-report=xml --cov-config=./pyproject.toml
     - name: Upload Coverage report
       # It would probably be better to use the codecov-action but that's very slow:
       # https://github.com/codecov/codecov-action/issues/21

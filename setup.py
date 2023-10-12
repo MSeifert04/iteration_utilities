@@ -1,16 +1,7 @@
-from setuptools import setup, Extension, find_packages
+from setuptools import setup, Extension
 
-from glob import glob
 from os import path
-
 import sys
-
-
-def version():
-    with open('src/iteration_utilities/__init__.py') as f:
-        for line in f:
-            if line.startswith('__version__'):
-                return line.split(r"'")[1]
 
 
 files = [
@@ -64,16 +55,11 @@ files = [
     '_iteration_utilities.c'
 ]
 
-
-_iteration_utilities_module = Extension(
-    'iteration_utilities._iteration_utilities',
-    sources=[path.join('src', 'iteration_utilities', '_iteration_utilities', filename) for filename in files]
-    )
-
 setup(
-    packages=find_packages('src'),
-    package_dir={'': 'src'},
-    py_modules=[path.splitext(path.basename(p))[0] for p in glob('src/*.py')],
-    version=version(),
-    ext_modules=[_iteration_utilities_module],
+    ext_modules=[
+        Extension(
+            'iteration_utilities._iteration_utilities',
+            sources=[path.join('src', 'iteration_utilities', '_iteration_utilities', filename) for filename in files]
+        )
+    ]
 )

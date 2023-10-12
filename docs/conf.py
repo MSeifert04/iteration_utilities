@@ -3,20 +3,14 @@
 
 import sys
 import os
-import shlex
+
+import importlib.metadata
 
 # #############################################################################
 # Get version of the package from the package itself.
 # #############################################################################
 
 project = 'iteration_utilities'
-
-
-def get_version():
-    with open('../src/{}/__init__.py'.format(project)) as f:
-        for line in f:
-            if line.startswith('__version__'):
-                return line.split(r"'")[1]
 
 
 # #############################################################################
@@ -68,8 +62,8 @@ nitpicky = True
 
 project = 'iteration_utilities'
 copyright = project_startyear + ', ' + author
-version = get_version()
-release = get_version()
+version = importlib.metadata.version("iteration_utilities")
+release = importlib.metadata.version("iteration_utilities")
 # today
 # today_fmt
 # highlight_language
