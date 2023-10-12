@@ -39,7 +39,7 @@ Changelog = "https://github.com/MSeifert04/iteration_utilities/blob/master/docs/
 
 [project.optional-dependencies]
 test = ["pytest"]
-documentation = ["sphinx", "numpydoc",]
+documentation = ["sphinx>=2.2", "numpydoc"]
 
 [tool.pytest.ini_options]
 addopts = "--doctest-glob='docs/*.rst' --ignore='setup.py'"
