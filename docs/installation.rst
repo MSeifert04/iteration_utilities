@@ -4,7 +4,7 @@ Installation
 The :py:mod:`iteration_utilities` package is a C extension python package
 supporting the Python versions:
 
-- Python 3.5+
+- Python 3.7+
 
 
 Using pip
@@ -86,7 +86,7 @@ Dependencies
 
 Installation:
 
-- Python 3.5+
+- Python 3.7+
 - setuptools
 - C compiler
 
@@ -101,7 +101,7 @@ All dependencies can be installed using::
 Or individual dependencies::
 
     python -m pip install iteration_utilities[test]
-    python -m pip install iteration_utilities[doc]
+    python -m pip install iteration_utilities[documentation]
 
 Tests:
 
