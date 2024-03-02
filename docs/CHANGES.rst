@@ -1,6 +1,12 @@
 Changelog for "iteration_utilities"
 -----------------------------------
 
+Version 0.12.1 (2024-03-03)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Source distribution now includes all files needed to run the tests from the tarball
+
+
 Version 0.12.0 (2023-10-13)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

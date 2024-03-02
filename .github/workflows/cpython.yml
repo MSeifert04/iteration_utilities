@@ -12,18 +12,15 @@ jobs:
   build-clang:
     runs-on: macos-latest
     timeout-minutes: 10
-    strategy:
-      matrix:
-        python-version: ['3.12']
     steps:
     - name: Check out source
       uses: actions/checkout@v4
       with:
         fetch-depth: 1
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: '3.12'
     - name: Install dependencies
       run: |
         python -m pip install pip setuptools --upgrade
@@ -50,17 +47,17 @@ jobs:
         fetch-depth: 1
     - name: Download Python 3.12
       run: |
-        wget https://www.python.org/ftp/python/3.12.0/Python-3.12.0.tgz -q
-        python3 ci/verify_checksum.py Python-3.12.0.tgz d6eda3e1399cef5dfde7c4f319b0596c
+        wget https://www.python.org/ftp/python/3.12.2/Python-3.12.2.tgz -q
+        python3 ci/verify_checksum.py Python-3.12.2.tgz 4e64a004f8ad9af1a75607cfd0d5a8c8
     - name: Install Python 3.12
       run: |
-        tar xzf Python-3.12.0.tgz
-        cd Python-3.12.0
+        tar xzf Python-3.12.2.tgz
+        cd Python-3.12.2
         ./configure --with-pydebug
         sudo make altinstall -s -j2
     - name: Remove download
       run: |
-        sudo python3.12 -c "import os; os.remove('./Python-3.12.0.tgz'); import shutil; shutil.rmtree('./Python-3.12.0/')"
+        sudo python3.12 -c "import os; os.remove('./Python-3.12.2.tgz'); import shutil; shutil.rmtree('./Python-3.12.2/')"
     - name: Install dependencies
       run: |
         python3.12 -m pip install pip setuptools wheel --upgrade --user --no-warn-script-location
@@ -83,18 +80,15 @@ jobs:
   build-sdist:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    strategy:
-      matrix:
-        python-version: ['3.12']
     steps:
     - name: Check out source
       uses: actions/checkout@v4
       with:
         fetch-depth: 1
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: '3.12'
     - name: Install dependencies
       run: |
         python -m pip install pip setuptools wheel build --upgrade
@@ -106,7 +100,7 @@ jobs:
         rm ./dist/*.whl
     - name: Install package
       run: |
-        python -m pip install ./dist/iteration_utilities-0.12.0.tar.gz -vv
+        python -m pip install ./dist/iteration_utilities-0.12.1.tar.gz -vv
     - name: Import package
       run: |
         python -c "import iteration_utilities"
@@ -117,7 +111,7 @@ jobs:
       run: |
         python -m pytest tests/
     - name: Upload dist
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: py_sdist
         path: ./dist/
@@ -127,15 +121,18 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, windows-2019, macos-11]
+        os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v3
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       
       - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel==2.16.2
+        run: python -m pip install cibuildwheel==2.16.5
 
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
@@ -146,26 +143,23 @@ jobs:
             pytest {package}/tests
           CIBW_TEST_REQUIRES: pytest
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: wheels
+          name: wheels-${{ matrix.os }}
           path: ./wheelhouse/*.whl
 
   build-docs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    strategy:
-      matrix:
-        python-version: ['3.12']
     steps:
     - name: Check out source
       uses: actions/checkout@v4
       with:
         fetch-depth: 1
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: '3.12'
     - name: Install dependencies
       run: |
         python -m pip install pip setuptools --upgrade
@@ -179,7 +173,7 @@ jobs:
       run: |
         sphinx-build -b html -W -a -n docs/ build/sphinx/html/
     - name: Upload documentation
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: docs
         path: ./build/sphinx/html/
