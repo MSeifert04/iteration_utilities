@@ -20,7 +20,7 @@ jobs:
       with:
         fetch-depth: 1
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.12'
     - name: Install dependencies
@@ -42,7 +42,7 @@ jobs:
       run: |
         python ./ci/collect_benchmarks.py
     - name: Upload results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: py3.12-benchmarks
         path: ./.benchmark_results/

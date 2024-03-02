@@ -74,10 +74,6 @@ Downloads
 Test status
 ^^^^^^^^^^^
 
-.. image:: https://travis-ci.org/MSeifert04/iteration_utilities.svg?branch=master
-   :target: https://travis-ci.org/MSeifert04/iteration_utilities
-   :alt: Travis CI Status
-
 .. image:: https://ci.appveyor.com/api/projects/status/7dcitqxmh82d0x0m?svg=true
    :target: https://ci.appveyor.com/project/MSeifert04/iteration-utilities
    :alt: AppVeyor Status
