@@ -9,7 +9,7 @@ extern "C" {
 #include <Python.h>
 #include "helpercompat.h"
 
-#if PyIU_USE_VECTORCALL
+#if PyIU_USE_ARG_PARSE_STACK
 PyObject * PyIU_TupleToList_and_InsertItemAtIndex(PyObject *Py_UNUSED(m), PyObject *const *args, size_t nargs);
 PyObject * PyIU_RemoveFromDictWhereValueIs(PyObject *Py_UNUSED(m), PyObject *const *args, size_t nargs);
 #else

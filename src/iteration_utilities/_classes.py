@@ -1106,7 +1106,7 @@ class Iterable(_Base):
     :py:meth:`~.Iterable.get_fsum`                      See :py:func:`math.fsum`.
     :py:meth:`~.Iterable.get_geometric_mean`            See :py:func:`statistics.geometric_mean`. (Python >= 3.8)
     :py:meth:`~.Iterable.get_groupedby`                 See :py:func:`~iteration_utilities.groupedby`.
-    :py:meth:`~.Iterable.get_harmonic_mean`             See :py:func:`statistics.harmonic_mean`. (Python >= 3.6)
+    :py:meth:`~.Iterable.get_harmonic_mean`             See :py:func:`statistics.harmonic_mean`.
     :py:meth:`~.Iterable.get_last`                      See :py:func:`~iteration_utilities.nth`.
     :py:meth:`~.Iterable.get_max`                       See :py:func:`python:max`.
     :py:meth:`~.Iterable.get_mean`                      See :py:func:`statistics.mean`.
@@ -1914,9 +1914,6 @@ strict=False)
 
     def get_harmonic_mean(self):
         """See :py:func:`statistics.harmonic_mean`.
-
-        .. note::
-            Python >= 3.6 is required for this function.
 
         Examples
         --------

@@ -6,7 +6,7 @@ import sys
 
 if __name__ == '__main__':
     benchmark_directory = pathlib.Path('./benchmarks/')
-    result_folder = pathlib.Path('./.benchmark_results/')
+    result_folder = pathlib.Path('./benchmark_results/')
 
     # Create result folder and remove all png files there
     result_folder.mkdir(exist_ok=True)

@@ -1145,7 +1145,7 @@ PyDoc_STRVAR(
     "    The first value.\n"
     "\n"
     "Raises\n"
-    "-------\n"
+    "------\n"
     "ValueError :\n"
     "    If the `iterable` contains no items or more than one item.\n"
     "\n"

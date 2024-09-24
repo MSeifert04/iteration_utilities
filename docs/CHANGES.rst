@@ -1,6 +1,14 @@
 Changelog for "iteration_utilities"
 -----------------------------------
 
+Version 0.13.0 (2024-10-08)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Python 3.13 compatibility: A few optimizations are not possible anymore in Python 3.13.
+  This means the performance of some functions (most notably ``groupedby``) will be slightly
+  slower.
+
+
 Version 0.12.1 (2024-03-03)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

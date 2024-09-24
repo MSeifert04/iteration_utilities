@@ -5,8 +5,6 @@
 #include "groupedby.h"
 #include "helper.h"
 
-#define PyIU_USE_DICT_INTERNALS PYIU_CPYTHON
-
 PyObject *
 PyIU_Groupby(PyObject *Py_UNUSED(m), PyObject *args, PyObject *kwargs) {
     static char *kwlist[] = {"iterable", "key", "keep", "reduce", "reducestart", NULL};
