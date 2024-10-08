@@ -92,7 +92,7 @@ PyDoc_STRVAR(
     "    Generator containing the splitted `iterable` (lists).\n"
     "\n"
     "Raises\n"
-    "-------\n"
+    "------\n"
     "TypeError\n"
     "    If ``maxsplit`` is smaller than ``-2``. If more than one of the ``keep``\n"
     "    arguments is ``True``.\n"

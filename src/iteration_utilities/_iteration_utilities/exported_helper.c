@@ -101,7 +101,7 @@ PyIU_parse_kwargs(PyObject *dct, PyObject *remvalue) {
     Py_RETURN_NONE;
 }
 
-#if PyIU_USE_VECTORCALL
+#if PyIU_USE_ARG_PARSE_STACK
 PyObject *
 PyIU_TupleToList_and_InsertItemAtIndex(PyObject *Py_UNUSED(m), PyObject *const *args, size_t nargs) {
     PyObject *tup;

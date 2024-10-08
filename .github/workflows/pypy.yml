@@ -21,13 +21,12 @@ jobs:
       with:
         fetch-depth: 1
     - name: Test installation (Ubuntu)
-      if: matrix.os == 'ubuntu-20.04'
       run: |
-        python3 -c "import urllib.request; urllib.request.urlretrieve ('hhttps://downloads.python.org/pypy/pypy3.10-v7.3.15-linux64.tar.bz2', './pypy.tar.bz2')"
+        python3 -c "import urllib.request; urllib.request.urlretrieve ('https://downloads.python.org/pypy/pypy3.10-v7.3.17-linux64.tar.bz2', './pypy.tar.bz2')"
         python3 -c "import tarfile; tar = tarfile.open('./pypy.tar.bz2', 'r:bz2');tar.extractall('.'); tar.close()"
-        ./pypy3.10-v7.3.15-linux64/bin/pypy3 -m ensurepip
-        ./pypy3.10-v7.3.15-linux64/bin/pypy3 -m pip install pip setuptools --upgrade
-        ./pypy3.10-v7.3.15-linux64/bin/pypy3 -m pip install . --no-deps -vv
-        ./pypy3.10-v7.3.15-linux64/bin/pypy3 -c "import iteration_utilities"
-        ./pypy3.10-v7.3.15-linux64/bin/pypy3 -m pip install pytest
-        ./pypy3.10-v7.3.15-linux64/bin/pypy3 -m pytest tests
+        ./pypy3.10-v7.3.17-linux64/bin/pypy3 -m ensurepip
+        ./pypy3.10-v7.3.17-linux64/bin/pypy3 -m pip install pip setuptools --upgrade
+        ./pypy3.10-v7.3.17-linux64/bin/pypy3 -m pip install . --no-deps -vv
+        ./pypy3.10-v7.3.17-linux64/bin/pypy3 -c "import iteration_utilities"
+        ./pypy3.10-v7.3.17-linux64/bin/pypy3 -m pip install pytest
+        ./pypy3.10-v7.3.17-linux64/bin/pypy3 -m pytest tests

@@ -66,7 +66,7 @@ PyDoc_STRVAR(
     "    If there is no such value then `default` is returned.\n"
     "\n"
     "Raises\n"
-    "-------\n"
+    "------\n"
     "TypeError :\n"
     "    If there is no nth element and no `default` is given.\n"
     "\n"
