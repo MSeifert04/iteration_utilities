@@ -31,10 +31,12 @@ extern "C" {
     #define PYIU_CREATE_SINGLETON_INSTANCE(type) { _PyObject_EXTRA_INIT 1, &type }
   #elif PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 12
     #define PYIU_CREATE_SINGLETON_INSTANCE(type) { _PyObject_EXTRA_INIT { _Py_IMMORTAL_REFCNT }, &type }
-  #else
+  #elif PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 13
     // It seems like they will remove the _PyObject_EXTRA_INIT (not present on master of CPython anymore)
     // it could still be subject to change but compare to the definition for _Py_NotImplementedStruct or _Py_NoneStruct
     #define PYIU_CREATE_SINGLETON_INSTANCE(type) { { _Py_IMMORTAL_REFCNT }, &type }
+  #else
+    #define PYIU_CREATE_SINGLETON_INSTANCE(type) { { _Py_IMMORTAL_INITIAL_REFCNT }, &type }
   #endif
 #endif
 
