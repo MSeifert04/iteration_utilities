@@ -37,7 +37,7 @@ jobs:
       run: |
         python -m pytest tests/
 
-  build-python3-13-with-debug:
+  build-python3-14-with-debug:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -47,35 +47,35 @@ jobs:
         fetch-depth: 1
     - name: Download Python
       run: |
-        wget https://www.python.org/ftp/python/3.13.0/Python-3.13.0.tgz -q
-        python3 ci/verify_checksum.py Python-3.13.0.tgz c29f37220520ec6075fc37d4c62e178b
+        wget https://www.python.org/ftp/python/3.14.1/Python-3.14.1.tgz -q
+        python3 ci/verify_checksum.py Python-3.14.1.tgz f2e2ebd81d6b9b5f6d54e7c6b881f3ed
     - name: Install Python
       run: |
-        tar xzf Python-3.13.0.tgz
-        cd Python-3.13.0
+        tar xzf Python-3.14.1.tgz
+        cd Python-3.14.1
         ./configure --with-pydebug
         sudo make altinstall -s -j2
     - name: Remove download
       run: |
-        sudo python3.13 -c "import os; os.remove('./Python-3.13.0.tgz'); import shutil; shutil.rmtree('./Python-3.13.0/')"
+        sudo python3.14 -c "import os; os.remove('./Python-3.14.1.tgz'); import shutil; shutil.rmtree('./Python-3.14.1/')"
     - name: Install dependencies
       run: |
-        python3.13 -m pip install pip setuptools wheel --upgrade --user --no-warn-script-location
+        python3.14 -m pip install pip setuptools wheel --upgrade --user --no-warn-script-location
     - name: Create wheel
       run: |
-        python3.13 -m pip wheel . --no-deps --wheel-dir=./wheelhouse/ -vv
+        python3.14 -m pip wheel . --no-deps --wheel-dir=./wheelhouse/ -vv
     - name: Install package
       run: |
-        python3.13 -m pip install iteration_utilities --no-index --find-links=./wheelhouse/ --user -vv
+        python3.14 -m pip install iteration_utilities --no-index --find-links=./wheelhouse/ --user -vv
     - name: Import package
       run: |
-        python3.13 -c "import iteration_utilities"
+        python3.14 -c "import iteration_utilities"
     - name: Install test dependencies
       run: |
-        python3.13 -m pip install pytest --user --no-warn-script-location
+        python3.14 -m pip install pytest --user --no-warn-script-location
     - name: Run tests
       run: |
-        python3.13 -m pytest tests/
+        python3.14 -m pytest tests/
 
   build-sdist:
     runs-on: ubuntu-latest
