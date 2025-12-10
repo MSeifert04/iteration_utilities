@@ -1,6 +1,13 @@
 Changelog for "iteration_utilities"
 -----------------------------------
 
+Version 0.14.0 (not released)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Python 3.14 compatibility: Thanks @akretz for fixing the code so the C extension compiles
+  with Python 3.14.
+
+
 Version 0.13.0 (2024-10-08)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

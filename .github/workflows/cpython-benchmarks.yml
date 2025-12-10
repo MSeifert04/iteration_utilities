@@ -16,13 +16,13 @@ jobs:
 
     steps:
     - name: Check out source
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         fetch-depth: 1
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
-        python-version: '3.12'
+        python-version: '3.14'
     - name: Install dependencies
       run: |
         python -m pip install pip setuptools wheel --upgrade
@@ -44,5 +44,5 @@ jobs:
     - name: Upload results
       uses: actions/upload-artifact@v4
       with:
-        name: py3.12-benchmarks
+        name: py3.14-benchmarks
         path: ./benchmark_results/

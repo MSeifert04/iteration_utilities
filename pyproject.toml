@@ -4,14 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "iteration_utilities"
-version = "0.13.0"
+version = "0.14.0"
 description = "Utilities based on Pythons iterators and generators."
 readme = "README.rst"
 requires-python = ">=3.7"
 authors = [
     {name = "Michael Seifert", email = "michaelseifert04@yahoo.de"},
 ]
-license = {text = "Apache License Version 2.0"}
+license = "Apache-2.0"
 
 classifiers = [
     "Development Status :: 5 - Production/Stable",

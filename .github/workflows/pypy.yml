@@ -9,7 +9,7 @@ on:
       - master
 
 jobs:
-  build-pypy-7-3-13:
+  build-pypy-3-11:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     strategy:
@@ -17,16 +17,16 @@ jobs:
         os: [ubuntu-latest]
     steps:
     - name: Check out source
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         fetch-depth: 1
     - name: Test installation (Ubuntu)
       run: |
-        python3 -c "import urllib.request; urllib.request.urlretrieve ('https://downloads.python.org/pypy/pypy3.10-v7.3.17-linux64.tar.bz2', './pypy.tar.bz2')"
+        python3 -c "import urllib.request; urllib.request.urlretrieve ('https://downloads.python.org/pypy/pypy3.11-v7.3.20-linux64.tar.bz2', './pypy.tar.bz2')"
         python3 -c "import tarfile; tar = tarfile.open('./pypy.tar.bz2', 'r:bz2');tar.extractall('.'); tar.close()"
-        ./pypy3.10-v7.3.17-linux64/bin/pypy3 -m ensurepip
-        ./pypy3.10-v7.3.17-linux64/bin/pypy3 -m pip install pip setuptools --upgrade
-        ./pypy3.10-v7.3.17-linux64/bin/pypy3 -m pip install . --no-deps -vv
-        ./pypy3.10-v7.3.17-linux64/bin/pypy3 -c "import iteration_utilities"
-        ./pypy3.10-v7.3.17-linux64/bin/pypy3 -m pip install pytest
-        ./pypy3.10-v7.3.17-linux64/bin/pypy3 -m pytest tests
+        ./pypy3.11-v7.3.20-linux64/bin/pypy3 -m ensurepip
+        ./pypy3.11-v7.3.20-linux64/bin/pypy3 -m pip install pip setuptools --upgrade
+        ./pypy3.11-v7.3.20-linux64/bin/pypy3 -m pip install . --no-deps -vv
+        ./pypy3.11-v7.3.20-linux64/bin/pypy3 -c "import iteration_utilities"
+        ./pypy3.11-v7.3.20-linux64/bin/pypy3 -m pip install pytest
+        ./pypy3.11-v7.3.20-linux64/bin/pypy3 -m pytest tests
