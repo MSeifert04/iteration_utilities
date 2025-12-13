@@ -22,8 +22,7 @@ PyIU_AlwaysIterable(PyObject *Py_UNUSED(m), PyObject *args, PyObject *kwargs) {
     }
 
     if (empty_if_none && object == Py_None) {
-        Py_INCREF(PYIU_Empty);
-        return PYIU_Empty;
+        return PyIUEmpty_New();
     }
 
     if (excluded_types == NULL) {

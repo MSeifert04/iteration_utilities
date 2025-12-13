@@ -5,6 +5,7 @@
 #include "placeholder.h"
 #include <structmember.h>
 #include "docs_reduce.h"
+#include "helper.h"
 
 PyDoc_STRVAR(
     placeholder_doc,
@@ -16,16 +17,19 @@ PyDoc_STRVAR(
     "\n"
     "Notes\n"
     "-------\n"
-    "There is only one instance of this class. And this class cannot be subclassed.\n");
+    ".. versionchanged:: 0.14.0\n"
+    "   Previously there should've been only one instance of this class. But\n"
+    "   this there may be multiple instances now\n");
 
 static PyObject *
 placeholder_new(PyTypeObject *type, PyObject *args, PyObject *kwargs) {
+    PyObject *self;
     if (PyTuple_GET_SIZE(args) || (kwargs != NULL && PyDict_Size(kwargs))) {
         PyErr_Format(PyExc_TypeError, "`%.200s.__new__` takes no arguments.", Placeholder_Type.tp_name);
         return NULL;
     }
-    Py_INCREF(PYIU_Placeholder);
-    return PYIU_Placeholder;
+    self = type->tp_alloc(type, 0);
+    return self;
 }
 
 static PyObject *
@@ -87,6 +91,16 @@ PyTypeObject Placeholder_Type = {
     (initproc)0,                   /* tp_init */
     (allocfunc)0,                  /* tp_alloc */
     (newfunc)placeholder_new,      /* tp_new */
+    (freefunc)PyObject_Del,        /* tp_free */
 };
 
-PyObject PlaceholderStruct = PYIU_CREATE_SINGLETON_INSTANCE(Placeholder_Type);
+int PyIUPlaceholder_IsPlaceholder(PyObject *o) {
+    return PyIU_IsTypeExact(o, &Placeholder_Type);
+}
+
+PyObject *
+PyIUPlaceholder_New(void) {
+    PyObject *self = (PyObject *)PyObject_New(PyObject, &Placeholder_Type);
+    return self;
+}
+

@@ -16,16 +16,19 @@ PyDoc_STRVAR(
     "\n"
     "Notes\n"
     "-------\n"
-    "There is only one instance of this class. And this class cannot be subclassed.\n");
+    ".. versionchanged:: 0.14.0\n"
+    "   Previously there should've been only one instance of this class. But\n"
+    "   this there may be multiple instances now\n");
 
 static PyObject *
 empty_new(PyTypeObject *type, PyObject *args, PyObject *kwargs) {
+    PyObject *self;
     if (PyTuple_GET_SIZE(args) || (kwargs != NULL && PyDict_Size(kwargs))) {
         PyErr_Format(PyExc_TypeError, "`%.200s.__new__` takes no arguments.", PyIUType_Empty.tp_name);
         return NULL;
     }
-    Py_INCREF(&EmptyStruct);
-    return &EmptyStruct;
+    self = type->tp_alloc(type, 0);
+    return self;
 }
 
 static PyObject *
@@ -102,4 +105,8 @@ PyTypeObject PyIUType_Empty = {
     (freefunc)PyObject_Del,                /* tp_free */
 };
 
-PyObject EmptyStruct = PYIU_CREATE_SINGLETON_INSTANCE(PyIUType_Empty);
+PyObject *
+PyIUEmpty_New(void) {
+    return PyObject_New(PyObject, &PyIUType_Empty);
+}
+
