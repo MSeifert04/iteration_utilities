@@ -10,7 +10,6 @@ extern "C" {
 
 extern PyTypeObject PyIUType_Empty;
 
-
 PyObject * PyIUEmpty_New(void);
 
 #ifdef __cplusplus

@@ -22,13 +22,11 @@ PyDoc_STRVAR(
 
 static PyObject *
 empty_new(PyTypeObject *type, PyObject *args, PyObject *kwargs) {
-    PyObject *self;
     if (PyTuple_GET_SIZE(args) || (kwargs != NULL && PyDict_Size(kwargs))) {
         PyErr_Format(PyExc_TypeError, "`%.200s.__new__` takes no arguments.", PyIUType_Empty.tp_name);
         return NULL;
     }
-    self = type->tp_alloc(type, 0);
-    return self;
+    return type->tp_alloc(type, 0);
 }
 
 static PyObject *
