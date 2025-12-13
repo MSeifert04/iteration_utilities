@@ -109,7 +109,7 @@ PyIUPlaceholder_NumInTuple(PyObject *tup) {
 
     /* Find the placeholders (if any) in the tuple. */
     for (i = 0; i < PyTuple_GET_SIZE(tup); i++) {
-        if (PyTuple_GET_ITEM(tup, i) == PYIU_Placeholder) {
+        if (PyIUPlaceholder_IsPlaceholder(PyTuple_GET_ITEM(tup, i))) {
             cnts++;
         }
     }
@@ -131,7 +131,7 @@ PyIUPlaceholder_PosInTuple(PyObject *tup, Py_ssize_t cnts) {
 
     /* Find the placeholders (if any) in the tuple. */
     for (i = 0; i < PyTuple_GET_SIZE(tup); i++) {
-        if (PyTuple_GET_ITEM(tup, i) == PYIU_Placeholder) {
+        if (PyIUPlaceholder_IsPlaceholder(PyTuple_GET_ITEM(tup, i))) {
             pos[j] = i;
             j++;
         }
@@ -605,8 +605,10 @@ partial_call(PyIUObject_Partial *self, PyObject *args, PyObject *kw) {
                */
             for (i = 0; i < selfargsize; i++) {
                 PyObject *tmp = PyTuple_GET_ITEM(self->args, i);
-                Py_INCREF(tmp);
-                PyTuple_SET_ITEM(finalargs, i, tmp);
+                if (PyIUPlaceholder_IsPlaceholder(tmp) == 0) {
+                    Py_INCREF(tmp);
+                    PyTuple_SET_ITEM(finalargs, i, tmp);
+                }
             }
             /* Replace the placeholders with the first items of the passed
                arguments. This doesn't decrement the reference count for the
@@ -616,10 +618,6 @@ partial_call(PyIUObject_Partial *self, PyObject *args, PyObject *kw) {
                 PyObject *tmp = PyTuple_GET_ITEM(args, i);
                 Py_INCREF(tmp);
                 PyTuple_SET_ITEM(finalargs, self->posph[i], tmp);
-            }
-            /* Now decrement the placeholders. */
-            for (i = 0; i < num_placeholders; i++) {
-                Py_DECREF(PYIU_Placeholder);
             }
             /* Now insert the remaining items of the passed arguments into the
                final tuple.
@@ -985,3 +983,4 @@ PyTypeObject PyIUType_Partial = {
     (newfunc)partial_new,                                  /* tp_new */
     (freefunc)PyObject_GC_Del,                             /* tp_free */
 };
+

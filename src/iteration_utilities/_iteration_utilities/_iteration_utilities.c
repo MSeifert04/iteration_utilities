@@ -284,6 +284,8 @@ static PyMethodDef PyIU_methods[] = {
 };
 
 static int _iteration_utilities_exec(PyObject *module) {
+    PyObject *placeholder;
+    PyObject *empty;
     /* Classes available in module. */
     PyTypeObject *typelist[] = {
         &PyIUType_ItemIdxKey,
@@ -343,15 +345,20 @@ static int _iteration_utilities_exec(PyObject *module) {
             }
         #endif
     }
-    Py_INCREF(PYIU_Placeholder);
-    if (PyModule_AddObject(module, PyIU_Placeholder_name, PYIU_Placeholder) < 0) {
+
+    placeholder = PyIUPlaceholder_New();
+    if (placeholder == NULL) {
         return -1;
     }
-    Py_INCREF(PYIU_Empty);
-    if (PyModule_AddObject(module, PyIU_Empty_name, PYIU_Empty) < 0) {
+    if (PyModule_AddObject(module, PyIU_Placeholder_name, placeholder) < 0) {
         return -1;
     }
-    if (PyDict_SetItemString(PyIUType_Partial.tp_dict, "_", PYIU_Placeholder) < 0) {
+    empty = PyIUEmpty_New();
+    if (PyModule_AddObject(module, PyIU_Empty_name, empty) < 0) {
+        return -1;
+    }
+    Py_INCREF(placeholder);
+    if (PyDict_SetItemString(PyIUType_Partial.tp_dict, "_", placeholder) < 0) {
         return -1;
     }
     return 0;

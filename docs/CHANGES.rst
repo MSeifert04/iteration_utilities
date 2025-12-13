@@ -7,6 +7,9 @@ Version 0.14.0 (not released)
 - Python 3.14 compatibility: Thanks @akretz for fixing the code so the C extension compiles
   with Python 3.14.
 
+- ``Placeholder`` and ``Empty`` are no singletons anymore. This may lead to slightly worse
+  performance.
+
 
 Version 0.13.0 (2024-10-08)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^

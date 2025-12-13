@@ -9,9 +9,10 @@ extern "C" {
 #include <Python.h>
 #include "helpercompat.h"
 
-extern PyObject PlaceholderStruct;
 extern PyTypeObject Placeholder_Type;
-#define PYIU_Placeholder (&PlaceholderStruct)
+
+PyObject * PyIUPlaceholder_New(void);
+int PyIUPlaceholder_IsPlaceholder(PyObject *o);
 
 #ifdef __cplusplus
 }

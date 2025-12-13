@@ -8,9 +8,9 @@ extern "C" {
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
-extern PyObject EmptyStruct;
-#define PYIU_Empty (&EmptyStruct)
 extern PyTypeObject PyIUType_Empty;
+
+PyObject * PyIUEmpty_New(void);
 
 #ifdef __cplusplus
 }
